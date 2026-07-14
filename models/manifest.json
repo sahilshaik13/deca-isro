@@ -1,0 +1,79 @@
+{
+  "training_date": "2026-07-12T13:32:07.612000+00:00",
+  "row_counts_by_source": {
+    "network": 9840,
+    "synthetic": 230400,
+    "public": 1437
+  },
+  "feature_columns": [
+    "packet_loss_pct_rolling_mean",
+    "bgp_update_rate_rolling_mean",
+    "vrf_route_count_rolling_std",
+    "bgp_hold_timer_remaining_rolling_std",
+    "ifInOctets_rolling_mean",
+    "rsvp_path_retransmit_rate_rolling_std",
+    "jitter_ms_rolling_std",
+    "bgp_hold_timer_remaining_rolling_mean",
+    "ifInOctets_rolling_std",
+    "rekey_duration_ms_rolling_std",
+    "packet_loss_pct_rolling_std",
+    "bgp_update_rate_rolling_std",
+    "ifOutOctets_rolling_std",
+    "ifOutOctets_rolling_mean",
+    "rsvp_path_retransmit_rate_rolling_mean",
+    "bgp_hold_timer_remaining_slope",
+    "vrf_route_count_slope",
+    "ifOutOctets_accel",
+    "ifOutOctets_slope",
+    "vrf_route_count_accel",
+    "bgp_hold_timer_remaining_accel",
+    "rekey_duration_ms_accel",
+    "rsvp_path_retransmit_rate_accel",
+    "bgp_update_rate_slope",
+    "bgp_update_rate_accel"
+  ],
+  "fault_types": [
+    "congestion_breach",
+    "bgp_route_flap",
+    "tunnel_degradation",
+    "policy_drift",
+    "vrf_leakage"
+  ],
+  "models": [
+    {
+      "name": "prophet_ifInOctets",
+      "file": "models/prophet_ifInOctets.pkl",
+      "type": "prophet"
+    },
+    {
+      "name": "prophet_jitter_ms",
+      "file": "models/prophet_jitter_ms.pkl",
+      "type": "prophet"
+    },
+    {
+      "name": "prophet_bgp_update_rate",
+      "file": "models/prophet_bgp_update_rate.pkl",
+      "type": "prophet"
+    },
+    {
+      "name": "isolation_forest",
+      "file": "models/isolation_forest.pkl",
+      "type": "sklearn"
+    },
+    {
+      "name": "feature_scaler",
+      "file": "models/feature_scaler.pkl",
+      "type": "sklearn"
+    },
+    {
+      "name": "fault_lstm_v1",
+      "file": "models/fault_lstm_v1.keras",
+      "type": "keras"
+    },
+    {
+      "name": "confidence_calibrator",
+      "file": "models/confidence_calibrator.pkl",
+      "type": "sklearn"
+    }
+  ]
+}

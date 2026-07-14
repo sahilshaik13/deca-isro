@@ -1,0 +1,38 @@
+# Apps (not part of ISRO data-gen share)
+deca-frontend/
+deca-backend/
+
+# Local tooling / envs
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+.tools/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.DS_Store
+
+# Heavy / rebuildable BGP MRT archives (~259 MB) — rates CSVs/parquet stay tracked
+data/raw/public/*updates*.gz
+data/raw/public/*updates*.bz2
+data/raw/public/*.mrt
+*.pcap
+*.pcapng
+
+# Backup / scratch
+*.bak
+*.bak_*
+*.bak.*
+/deca_unified_dataset.parquet
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*~
