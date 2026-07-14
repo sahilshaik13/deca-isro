@@ -33,6 +33,26 @@ METRIC_MAP = {
     "ifOutOctets": "ifOutOctets",
 }
 
+# Shared classification vocabulary across network + public sources.
+# Public rows are healthy context only (no overlapping outage windows today).
+HEALTHY_ALIASES = {"none", "normal", "healthy", ""}
+UNIFIED_LABELS = (
+    "healthy",
+    "congestion_breach",
+    "tunnel_degradation",
+    "bgp_route_flap",
+    "vrf_leakage",
+)
+
+
+def to_unified_label(fault_type: str | float | None) -> str:
+    if fault_type is None or (isinstance(fault_type, float) and np.isnan(fault_type)):
+        return "healthy"
+    key = str(fault_type).strip().lower()
+    if key in HEALTHY_ALIASES:
+        return "healthy"
+    return str(fault_type).strip()
+
 
 def engineer_features(df: pd.DataFrame, window_minutes: int = 10, step_seconds: int = 15) -> pd.DataFrame:
     """Build rolling features. Never upsample: only downfill to step when native
@@ -114,6 +134,8 @@ def label_fault_windows(features: pd.DataFrame, fault_log: pd.DataFrame) -> pd.D
         features.loc[time_mask, "time_to_breach_minutes"] = minutes_to_breach
         features.loc[time_mask, "fault_type"] = row["fault_type"]
 
+    features["unified_label"] = features["fault_type"].map(to_unified_label)
+    features["is_anomaly"] = (features["unified_label"] != "healthy").astype(int)
     return features
 
 
@@ -326,8 +348,10 @@ def main() -> None:
     print(f"Wrote {out} ({len(labeled)} rows)")
     print("\nFault type distribution:")
     print(labeled["fault_type"].value_counts().to_string())
-    print("\nBy source:")
-    print(labeled.groupby(["source", "fault_type"]).size().to_string())
+    print("\nUnified label distribution:")
+    print(labeled["unified_label"].value_counts().to_string())
+    print("\nBy source × unified_label:")
+    print(labeled.groupby(["source", "unified_label"]).size().to_string())
 
 
 if __name__ == "__main__":

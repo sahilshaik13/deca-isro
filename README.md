@@ -40,7 +40,7 @@ deca-isro/
 │   ├── raw/public/           Atlas, labels, Cisco, MAWI, BGP rates
 │   ├── rpi-net/runs/         campaign telemetry + fault log
 │   └── processed/            unified raw + feature parquets
-└── models/                   optional trained artifacts
+└── models/                   trained artifacts (one folder per model + manifest.json)
 ```
 
 BGP MRT `*updates*.gz/.bz2` dumps are gitignored (re-fetch via `scripts/fetch_public_data.py`). Rates CSVs and processed parquets are in-repo. Frontend/backend live locally only — not published with this share.
@@ -64,13 +64,29 @@ python scripts/cisco_scraper.py
 python scripts/deca_fault_campaign.py
 # resume: python scripts/deca_fault_campaign.py --run-id 20260713_155333
 
-# 4. Fuse → trainable matrices
+# 4. Fuse → trainable matrices (+ unified_label)
 python scripts/rebuild_unified.py
+
+# 5. Train prediction stack (wipes models/, rebuilds per blueprint)
+python scripts/train_models.py
 ```
 
-Step-by-step and script map: [`docs/DATA_GEN.md`](docs/DATA_GEN.md).
+Step-by-step and script map: [`docs/DATA_GEN.md`](docs/DATA_GEN.md). Blueprint: [`docs/DECA_Model_Development_Blueprint.md`](docs/DECA_Model_Development_Blueprint.md).
 
 **Manual once:** `data/raw/public/mawi_sample.csv` — browse [MAWI Samplepoint-F](https://mawi.wide.ad.jp/mawi/samplepoint-F/), copy the 15-minute total, even-split by minute. No automated pcap (robots.txt / size).
+
+---
+
+## Unified classification label
+
+Network and public rows share one vocabulary in `unified_label`:
+
+| `unified_label` | Who gets it |
+| --- | --- |
+| `healthy` | Network rest windows + **all** public rows today |
+| `congestion_breach` / `tunnel_degradation` / `bgp_route_flap` / `vrf_leakage` | RPi fault windows only |
+
+`fault_type` keeps the raw campaign string (`none` ↔ `healthy`). `is_anomaly` is `1` when `unified_label != healthy`.
 
 ---
 
@@ -97,13 +113,15 @@ Step-by-step and script map: [`docs/DATA_GEN.md`](docs/DATA_GEN.md).
 ## Outputs to train on
 
 ```
-data/processed/deca_unified_dataset.parquet   # features + fault_type
+data/processed/deca_unified_dataset.parquet   # features + unified_label / fault_type
 data/processed/deca_unified_raw.parquet       # long-form telemetry
 data/rpi-net/runs/20260713_155333/            # raw campaign truth
+models/                                       # per-model folders + manifest.json
 ```
 
-Rebuild anytime after new campaign or public pulls:
+Rebuild data then models anytime:
 
 ```bash
 python scripts/rebuild_unified.py
+python scripts/train_models.py
 ```

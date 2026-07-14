@@ -1,0 +1,62 @@
+[
+  {
+    "feature": "packet_loss_pct_rolling_std",
+    "importance": 0.17053857445716858
+  },
+  {
+    "feature": "packet_loss_pct_rolling_mean",
+    "importance": 0.12932360172271729
+  },
+  {
+    "feature": "jitter_ms_slope",
+    "importance": 0.09937595576047897
+  },
+  {
+    "feature": "jitter_ms_rolling_std",
+    "importance": 0.08567739278078079
+  },
+  {
+    "feature": "ifOutOctets_rolling_std",
+    "importance": 0.06950634717941284
+  },
+  {
+    "feature": "ifInOctets_rolling_std",
+    "importance": 0.06717602163553238
+  },
+  {
+    "feature": "ifOutOctets_accel",
+    "importance": 0.059633705765008926
+  },
+  {
+    "feature": "ifInOctets_accel",
+    "importance": 0.05437160283327103
+  },
+  {
+    "feature": "jitter_ms_rolling_mean",
+    "importance": 0.053681161254644394
+  },
+  {
+    "feature": "jitter_ms_accel",
+    "importance": 0.05289120227098465
+  },
+  {
+    "feature": "ifOutOctets_rolling_mean",
+    "importance": 0.052839238196611404
+  },
+  {
+    "feature": "ifInOctets_rolling_mean",
+    "importance": 0.04706805944442749
+  },
+  {
+    "feature": "ifOutOctets_slope",
+    "importance": 0.029712513089179993
+  },
+  {
+    "feature": "ifInOctets_slope",
+    "importance": 0.02820464037358761
+  },
+  {
+    "feature": "bgp_update_rate_slope",
+    "importance": 0.0
+  }
+]

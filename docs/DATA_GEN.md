@@ -13,8 +13,9 @@ Only the Python tools needed to **reproduce the data lake that exists today** li
 | `ripe_atlas.py` | `ripe_atlas_ping_baseline.csv` (+ historical; then sample) |
 | `cisco_scraper.py` | `cisco_sandbox_sample.csv` (Cisco DevNet Cat8000v) |
 | `fetch_public_data.py` | Orchestrates the public pulls above (sequential) |
-| `rebuild_unified.py` | `deca_unified_raw.parquet` + `deca_unified_dataset.parquet` |
-| `_paths.py` | Shared repo-rooted `data/` paths |
+| `rebuild_unified.py` | `deca_unified_raw.parquet` + `deca_unified_dataset.parquet` (`unified_label`) |
+| `train_models.py` | Wipe + train `models/` (IF+Platt, XGB, Prophet, LSTM, topology) |
+| `_paths.py` | Shared repo-rooted `data/` / `models/` paths |
 
 **Manual (no automatable script):** `mawi_sample.csv` — browse [MAWI Samplepoint-F](https://mawi.wide.ad.jp/mawi/samplepoint-F/), copy page totals, even-split 15 minutes. robots.txt disallows automated pulls; multi-GB pcaps are not part of this package.
 
@@ -37,14 +38,22 @@ python scripts/deca_fault_campaign.py
 
 # 4. Build trainable matrices
 python scripts/rebuild_unified.py
+
+# 5. Train models (clears models/ first)
+python scripts/train_models.py
 ```
 
-## What training uses
+## Unified label (network + public)
 
-- **Supervised labels:** RPi fault windows only (`rebuild_unified.py`).
-- **Public rows:** context / magnitude (`fault_type=none`).
-- **IODA/BGP outage CSVs:** provenance inventory only until telemet overlap exists — see `data/processed/public_outage_labels_provenance.csv`.
-- **Synthetic:** not generated (noise vs real Pi data).
-- **MAWI:** magnitude calibration only (flat even-split).
+| Column | Role |
+| --- | --- |
+| `fault_type` | Campaign raw (`none` or fault name) |
+| `unified_label` | Shared classifier target: `healthy` ← `none`; faults unchanged |
+| `is_anomaly` | `1` if `unified_label != healthy` |
 
-Inventory + samples: [`DATA_SAMPLE.md`](DATA_SAMPLE.md). Architecture: [`what_is_this.md`](what_is_this.md).
+- **Supervised fault classes:** RPi windows only.
+- **Public rows:** all `healthy` today (context / magnitude; IODA/BGP outage CSVs remain provenance-only until telem overlap).
+- **Synthetic:** not generated.
+- **MAWI:** magnitude calibration only.
+
+Blueprint math: [`DECA_Model_Development_Blueprint.md`](DECA_Model_Development_Blueprint.md). Inventory: [`DATA_SAMPLE.md`](DATA_SAMPLE.md).

@@ -67,34 +67,39 @@ _Snapshot from rebuild after upsample fix + public-outage provenance split. Synt
 | `public` | 28,869 | 35.4% | Cisco, MAWI, BGP rates, Atlas sampled (min-agg) + baseline |
 | `synthetic` | 0 | 0% | Excluded — noise vs real Pi labels |
 
-### Feature matrix (`deca_unified_dataset.parquet` — 17,050 × 24)
+### Feature matrix (`deca_unified_dataset.parquet` — 17,050 rows)
 
 | Source | Feature rows | Role |
 | --- | ---: | --- |
 | `network` | 8,772 | Supervised + baseline |
-| `public` | 8,278 | Context / magnitude only (`fault_type=none`) |
+| `public` | 8,278 | Context / magnitude only (`unified_label=healthy`) |
 
 Public long raw (28,869) → public features (8,278): shrink only (native cadence; no 15s upsample).
 
-### Supervised labels (all on `network`)
+### Unified labels (shared classifier vocabulary)
 
-| `fault_type` | Rows |
+`fault_type=none` → `unified_label=healthy`. Fault names are unchanged. `is_anomaly = (unified_label != healthy)`.
+
+| `unified_label` | Rows |
 | --- | ---: |
-| `none` (incl. public + network baseline) | 15,804 |
+| `healthy` (network rest + all public) | 15,804 |
 | `congestion_breach` | 430 |
 | `tunnel_degradation` | 306 |
 | `bgp_route_flap` | 300 |
 | `vrf_leakage` | 210 |
 | **Fault-labeled total** | **1,246** |
 
-| Source × label | `bgp_route_flap` | `congestion_breach` | `tunnel_degradation` | `vrf_leakage` | `none` |
+| Source × unified_label | `bgp_route_flap` | `congestion_breach` | `tunnel_degradation` | `vrf_leakage` | `healthy` |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | `network` | 300 | 430 | 306 | 210 | 7,526 |
 | `public` | 0 | 0 | 0 | 0 | 8,278 |
 
 Training fault windows: **21** RPi-only. IODA/BGP outage CSVs → `processed/public_outage_labels_provenance.csv` (2,276 events, inventory only — Jul-5-centric, no telemet overlap).
 
-Rebuild: `python scripts/rebuild_unified.py`
+```bash
+python scripts/rebuild_unified.py
+python scripts/train_models.py   # IF+Platt, XGB(unified_label), Prophet, LSTM, topology
+```
 
 ---
 
