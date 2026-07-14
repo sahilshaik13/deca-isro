@@ -36,3 +36,4 @@ data/raw/public/*.mrt
 .vscode/
 *.swp
 *~
+.ipynb_checkpoints/

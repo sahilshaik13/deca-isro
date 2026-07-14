@@ -9,9 +9,5 @@
     "vrf_leakage": 1.0
   },
   "val_macro_f1": 0.732870380922531,
-  "rare_aware_score": 0.5733100956888504,
-  "rare_classes": [
-    "bgp_route_flap",
-    "vrf_leakage"
-  ]
+  "rare_aware_score": 0.5733100956888504
 }

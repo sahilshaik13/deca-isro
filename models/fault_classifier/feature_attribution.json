@@ -46,17 +46,5 @@
   {
     "feature": "jitter_ms_accel",
     "importance": 0.038634080439805984
-  },
-  {
-    "feature": "ifOutOctets_accel",
-    "importance": 0.020770026370882988
-  },
-  {
-    "feature": "ifInOctets_slope",
-    "importance": 0.016512982547283173
-  },
-  {
-    "feature": "ifOutOctets_slope",
-    "importance": 0.015063186176121235
   }
 ]

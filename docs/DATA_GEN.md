@@ -14,7 +14,6 @@ Only the Python tools needed to **reproduce the data lake that exists today** li
 | `cisco_scraper.py` | `cisco_sandbox_sample.csv` (Cisco DevNet Cat8000v) |
 | `fetch_public_data.py` | Orchestrates the public pulls above (sequential) |
 | `rebuild_unified.py` | `deca_unified_raw.parquet` + `deca_unified_dataset.parquet` (`unified_label`) |
-| `train_models.py` | Wipe + train `models/` (IF+Platt, XGB Phase 1, Prophet, LSTM, topology) |
 | `deca_deploy_stations.sh` | Plug-and-play: CE-ns, IPsec/FRR ordering, watchdog, VRF CE statics, Prometheus ownership |
 | `deca_heal_telemetry.sh` | Quick Telegraf/ns/IPsec restart |
 | `deca_fix_prom_vpn.sh` | Wipe poisoned Prom TSDB + VRF underlay VPN routes |
@@ -42,9 +41,11 @@ python scripts/deca_fault_campaign.py
 # 4. Build trainable matrices
 python scripts/rebuild_unified.py
 
-# 5. Train models (clears models/ first)
-python scripts/train_models.py
+# 5. Train models (clears models/ first; stage graphs inline)
+jupyter notebook notebook/DECA_Model_Training.ipynb
 ```
+
+Training notebook: [`notebook/DECA_Model_Training.ipynb`](../notebook/DECA_Model_Training.ipynb) — IF+Platt, XGB Phase 1, Prophet, LSTM, topology, with plots per stage.
 
 ## Unified label (network + public)
 

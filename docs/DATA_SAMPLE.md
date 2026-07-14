@@ -98,7 +98,7 @@ Training fault windows: **21** RPi-only. IODA/BGP outage CSVs → `processed/pub
 
 ```bash
 python scripts/rebuild_unified.py
-python scripts/train_models.py   # IF+Platt, XGB(unified_label), Prophet, LSTM, topology
+jupyter notebook notebook/DECA_Model_Training.ipynb   # IF+Platt, XGB, Prophet, LSTM, topology + plots
 ```
 
 ---

@@ -1,8 +1,8 @@
 # DECA Prediction System: Theoretical & Mathematical Blueprint
 
-This document outlines the theoretical foundations, core formulas, and structural training methodology for the DECA predictive analytics pipeline (ISRO BAH 2026). It now also records the **applied realization** from the 2026-07-14 training run on the current unified lake (`scripts/train_models.py`).
+This document outlines the theoretical foundations, core formulas, and structural training methodology for the DECA predictive analytics pipeline (ISRO BAH 2026). It now also records the **applied realization** from the 2026-07-14 training run on the current unified lake (`notebook/DECA_Model_Training.ipynb`).
 
-Orchestration: `python scripts/rebuild_unified.py` → `python scripts/train_models.py`  
+Orchestration: `python scripts/rebuild_unified.py` → open `notebook/DECA_Model_Training.ipynb`  
 Artifacts: `models/manifest.json` plus one folder per model family under `models/`
 
 ---
@@ -265,7 +265,7 @@ Zero new hardware; squeeze the lake we already have.
 | VRF recall | **0.29 → 0.65** |
 | BGP / VRF F1 | **0.42 / 0.52** (recall-first; precision still limited by class scarcity) |
 
-Re-run: `python scripts/train_models.py --phase1-only`
+Re-run: open `notebook/DECA_Model_Training.ipynb` and execute Stages 0–2 (Phase 1 tiers 1–3).
 
 ### Phase 2 — Intellectual defense (Tier 4) — **POLICY, NOT CODE**
 
@@ -295,7 +295,5 @@ Reproduce:
 ```bash
 source .venv/bin/activate
 python scripts/rebuild_unified.py
-python scripts/train_models.py --phase1-only   # tiers 1–3 only
-# or full stack:
-python scripts/train_models.py
+jupyter notebook notebook/DECA_Model_Training.ipynb   # full stack + stage plots
 ```

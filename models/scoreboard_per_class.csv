@@ -1,0 +1,6 @@
+Class,Precision,Recall,F1,Support
+healthy,0.99,0.95,0.97,"3,951"
+congestion_breach,0.84,0.94,0.89,108
+tunnel_degradation,0.75,0.88,0.81,77
+bgp_route_flap,0.31,0.68,0.42,75
+vrf_leakage,0.43,0.65,0.52,52

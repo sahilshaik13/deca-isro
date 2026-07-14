@@ -13,37 +13,62 @@ Built for ISRO handover: authentic lab ground truth first; public data as scale/
 | **RPi CE–PE–CE campaign** | Only supervised labels: congestion, tunnel degradation, BGP flap, VRF leakage |
 | **Public BGP / Atlas / Cisco / MAWI** | Macro context + magnitude calibration (`fault_type=none` in features) |
 | **`deca_unified_*.parquet`** | Trainable feature matrix ready for ML |
+| **`models/` + notebook** | Blueprint stack (IF+Platt, Phase-1 XGB, Prophet, LSTM, topology) |
 
 Current campaign job: `20260713_155333` — **21 usable fault runs** (validation PASS). Trainable snapshot: **17,050** feature rows · **1,246** fault-labeled (network only).
 
-Full inventory: [`docs/DATA_SAMPLE.md`](docs/DATA_SAMPLE.md) · Architecture: [`docs/what_is_this.md`](docs/what_is_this.md) · Station networking (systemd / CE / VPN): [`docs/STATION_NETWORK_SETUP.md`](docs/STATION_NETWORK_SETUP.md)
+---
+
+## Docs index
+
+| Doc | Use when |
+| --- | --- |
+| [`docs/DATA_GEN.md`](docs/DATA_GEN.md) | Reproduce the data lake (script map + recipe) |
+| [`docs/DATA_SAMPLE.md`](docs/DATA_SAMPLE.md) | Inventory of every curated file / sample tables |
+| [`docs/DECA_Model_Development_Blueprint.md`](docs/DECA_Model_Development_Blueprint.md) | Formulas, Phase-1 ROI, scorecards |
+| [`docs/STATION_NETWORK_SETUP.md`](docs/STATION_NETWORK_SETUP.md) | Pi CE/PE units, IPsec, VRF, Prometheus |
+| [`docs/what_is_this.md`](docs/what_is_this.md) | Architecture overview |
+| [`docs/DECA_Full_Pipeline.md`](docs/DECA_Full_Pipeline.md) | Earlier end-to-end pipeline notes |
+| [`docs/DECA SETUP.pdf`](docs/DECA%20SETUP.pdf) | Lab setup PDF |
+| [`docs/[Pub] ISRO BAH 2026 _ Idea Submission Template.pdf`](docs/%5BPub%5D%20ISRO%20BAH%202026%20_%20Idea%20Submission%20Template.pdf) | BAH submission template |
 
 ---
 
 ## Repository layout
 
+Shareable core (apps are local-only — see note below):
+
 ```
 deca-isro/
-├── README.md                 ← you are here
-├── docs/                     documentation
-│   ├── DATA_GEN.md           reproduce the data lake
-│   ├── DATA_SAMPLE.md        inventory, trainable-set tables, samples
-│   ├── what_is_this.md       architecture & ML blueprint
-│   └── DECA_Full_Pipeline.md earlier pipeline notes
-├── scripts/                  data-generation only
-│   ├── _paths.py             repo-rooted data/ paths
-│   ├── fetch_public_data.py  public orchestrator
-│   ├── deca_fault_campaign.py
-│   ├── rebuild_unified.py
-│   └── …                     routeviews, riperis, parse_bgp, atlas, ioda, cisco
+├── README.md                      ← handover entrypoint (this file)
+├── docs/                          documentation (table above)
+├── notebook/
+│   └── DECA_Model_Training.ipynb  train stack + stage plots
+├── scripts/                       data-gen + station deploy / heal
+│   ├── _paths.py                  repo-rooted data/ + models/
+│   ├── fetch_public_data.py       public orchestrator
+│   ├── deca_fault_campaign.py     RPi fault campaign
+│   ├── rebuild_unified.py         fuse → unified parquets
+│   ├── cisco_scraper.py           optional DevNet sample
+│   ├── routeviews.py / riperis.py / parse_bgp.py
+│   ├── ripe_atlas.py / bgpstream.py / ioda.py
+│   ├── deca_deploy_stations.sh    plug-and-play Pi restore
+│   ├── deca_heal_telemetry.sh     Telegraf / ns / IPsec restart
+│   └── deca_fix_prom_vpn.sh      Prom TSDB + VRF VPN routes
 ├── data/
-│   ├── raw/public/           Atlas, labels, Cisco, MAWI, BGP rates
-│   ├── rpi-net/runs/         campaign telemetry + fault log
-│   └── processed/            unified raw + feature parquets
-└── models/                   trained artifacts (one folder per model + manifest.json)
+│   ├── raw/public/                Atlas, labels, Cisco, MAWI, BGP rates
+│   ├── rpi-net/runs/              campaign telemetry + fault log
+│   └── processed/                 unified raw + feature parquets
+└── models/                        one folder per family + manifest.json
+    ├── isolation_forest/
+    ├── fault_classifier/
+    ├── prophet_*/
+    ├── lstm/
+    ├── topology/
+    └── manifest.json
 ```
 
-BGP MRT `*updates*.gz/.bz2` dumps are gitignored (re-fetch via `scripts/fetch_public_data.py`). Rates CSVs and processed parquets are in-repo. Frontend/backend live locally only — not published with this share.
+**Not in this share:** `deca-frontend/` and `deca-backend/` are gitignored local apps. BGP MRT `*updates*.gz/.bz2` dumps are gitignored (re-fetch via `scripts/fetch_public_data.py`); rates CSVs and processed parquets stay in-repo.
 
 ---
 
@@ -67,11 +92,17 @@ python scripts/deca_fault_campaign.py
 # 4. Fuse → trainable matrices (+ unified_label)
 python scripts/rebuild_unified.py
 
-# 5. Train prediction stack (wipes models/, rebuilds per blueprint)
-python scripts/train_models.py
+# 5. Train prediction stack (plots inline)
+jupyter notebook notebook/DECA_Model_Training.ipynb
+# or: jupyter lab notebook/DECA_Model_Training.ipynb
 ```
 
-Step-by-step and script map: [`docs/DATA_GEN.md`](docs/DATA_GEN.md). Blueprint: [`docs/DECA_Model_Development_Blueprint.md`](docs/DECA_Model_Development_Blueprint.md).
+In the notebook config cell:
+
+- `WIPE_MODELS=True` — clear `models/` before a full retrain (default for clean runs)
+- `PHASE1_ONLY=True` — IF + classifier only (skip Prophet / LSTM / topology)
+
+Step-by-step script map: [`docs/DATA_GEN.md`](docs/DATA_GEN.md). Blueprint: [`docs/DECA_Model_Development_Blueprint.md`](docs/DECA_Model_Development_Blueprint.md).
 
 **Manual once:** `data/raw/public/mawi_sample.csv` — browse [MAWI Samplepoint-F](https://mawi.wide.ad.jp/mawi/samplepoint-F/), copy the 15-minute total, even-split by minute. No automated pcap (robots.txt / size).
 
@@ -107,7 +138,7 @@ Network and public rows share one vocabulary in `unified_label`:
 - **PE1** `station1@192.168.50.10` · **PE2** `station2@192.168.50.20` · **CORE** `station3@192.168.50.30`
 - FRR BGP + VRF (`vrf-mission`) · CE netns `ce-a` / `ce-b` · IPsec `deca-sdwan`
 - Telemetry: Telegraf `:9273` → Prometheus → campaign export / `rebuild_unified.py`
-- Full units + addressing + VRF safety-net code: [`docs/STATION_NETWORK_SETUP.md`](docs/STATION_NETWORK_SETUP.md)
+- Full units + addressing + VRF safety-net: [`docs/STATION_NETWORK_SETUP.md`](docs/STATION_NETWORK_SETUP.md)
 - Restore: `bash scripts/deca_deploy_stations.sh`
 
 ---
@@ -119,11 +150,12 @@ data/processed/deca_unified_dataset.parquet   # features + unified_label / fault
 data/processed/deca_unified_raw.parquet       # long-form telemetry
 data/rpi-net/runs/20260713_155333/            # raw campaign truth
 models/                                       # per-model folders + manifest.json
+notebook/DECA_Model_Training.ipynb            # retrain + stage graphs
 ```
 
 Rebuild data then models anytime:
 
 ```bash
 python scripts/rebuild_unified.py
-python scripts/train_models.py
+jupyter notebook notebook/DECA_Model_Training.ipynb
 ```

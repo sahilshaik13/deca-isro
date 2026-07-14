@@ -1,5 +1,5 @@
 {
-  "training_date": "2026-07-14T14:23:48.614768+00:00",
+  "training_date": "2026-07-14T16:34:16.668891+00:00",
   "row_counts_by_source": {
     "network": 8772,
     "public": 8278
@@ -45,13 +45,96 @@
     "phase2": "tier4_smote_refused",
     "phase3": "tiers_5_6_hardware_roadmap"
   },
+  "scoreboard": {
+    "summary": [
+      {
+        "Component": "Isolation Forest + Platt",
+        "Primary score": "ROC-AUC 0.720",
+        "Notes": "Unsupervised precursor / dashboard confidence"
+      },
+      {
+        "Component": "XGBoost Phase 1 (tiers 1\u20133)",
+        "Primary score": "Macro-F1 0.721, Acc 0.94",
+        "Notes": "mode=weighted_multiclass; rare recall \u2191; no SMOTE"
+      },
+      {
+        "Component": "LSTM time-to-breach",
+        "Primary score": "MAE 2.227 min",
+        "Notes": "623 network sequences, T=16"
+      },
+      {
+        "Component": "Prophet \u00d73",
+        "Primary score": "Fit complete",
+        "Notes": "4502 / 8000 / 320 points (ifInOctets / jitter / bgp)"
+      },
+      {
+        "Component": "Attribution",
+        "Primary score": "Top: bgp_update_rate_rolling_std, bgp_update_rate_rolling_mean, bgp_update_rate_accel",
+        "Notes": "Stage-2 XGB gain; no SMOTE"
+      },
+      {
+        "Component": "Topology",
+        "Primary score": "e(v)={'PE1': 1, 'PE2': 1, 'CORE': 1}",
+        "Notes": "PE1\u2013PE2\u2013CORE digraph"
+      }
+    ],
+    "per_class": [
+      {
+        "Class": "healthy",
+        "Precision": 0.99,
+        "Recall": 0.95,
+        "F1": 0.97,
+        "Support": "3,951"
+      },
+      {
+        "Class": "congestion_breach",
+        "Precision": 0.84,
+        "Recall": 0.94,
+        "F1": 0.89,
+        "Support": "108"
+      },
+      {
+        "Class": "tunnel_degradation",
+        "Precision": 0.75,
+        "Recall": 0.88,
+        "F1": 0.81,
+        "Support": "77"
+      },
+      {
+        "Class": "bgp_route_flap",
+        "Precision": 0.31,
+        "Recall": 0.68,
+        "F1": 0.42,
+        "Support": "75"
+      },
+      {
+        "Class": "vrf_leakage",
+        "Precision": 0.43,
+        "Recall": 0.65,
+        "F1": 0.52,
+        "Support": "52"
+      }
+    ],
+    "files": [
+      "models/scoreboard_summary.csv",
+      "models/scoreboard_per_class.csv"
+    ]
+  },
+  "layout": {
+    "isolation_forest": "models/isolation_forest/",
+    "fault_classifier": "models/fault_classifier/",
+    "prophet_ifInOctets": "models/prophet_ifInOctets/",
+    "prophet_jitter_ms": "models/prophet_jitter_ms/",
+    "prophet_bgp_update_rate": "models/prophet_bgp_update_rate/",
+    "lstm": "models/lstm/",
+    "topology": "models/topology/"
+  },
   "models": [
     {
       "name": "isolation_forest",
       "file": "models/isolation_forest/isolation_forest.pkl",
       "type": "sklearn",
       "metrics": {
-        "name": "isolation_forest",
         "auc": 0.7204375393441453,
         "contamination": 0.07304293423007742
       }
@@ -59,11 +142,6 @@
     {
       "name": "confidence_calibrator",
       "file": "models/isolation_forest/confidence_calibrator.pkl",
-      "type": "sklearn"
-    },
-    {
-      "name": "feature_scaler",
-      "file": "models/isolation_forest/feature_scaler.pkl",
       "type": "sklearn"
     },
     {
@@ -75,23 +153,16 @@
         "mode": "weighted_multiclass",
         "macro_f1": 0.7211168811173485,
         "weighted_f1": 0.9477908663491028,
-        "val_macro_f1": 0.732870380922531,
-        "rare_aware_score": 0.5733100956888504,
+        "accuracy": 0.94018296973962,
         "gate_thr": 0.4,
-        "class_thr": {
-          "healthy": 1.0,
-          "congestion_breach": 1.0,
-          "tunnel_degradation": 1.0,
-          "bgp_route_flap": 1.0,
-          "vrf_leakage": 1.0
+        "test_n": 4263,
+        "per_class_f1": {
+          "healthy": 0.9677751997937613,
+          "congestion_breach": 0.8859649122807017,
+          "tunnel_degradation": 0.8095238095238095,
+          "bgp_route_flap": 0.42323651452282157,
+          "vrf_leakage": 0.5190839694656488
         },
-        "classes": [
-          "healthy",
-          "congestion_breach",
-          "tunnel_degradation",
-          "bgp_route_flap",
-          "vrf_leakage"
-        ],
         "per_class": {
           "healthy": {
             "precision": 0.9860782768584188,
@@ -124,34 +195,19 @@
             "support": 52
           }
         },
-        "per_class_f1": {
-          "healthy": 0.9677751997937613,
-          "congestion_breach": 0.8859649122807017,
-          "tunnel_degradation": 0.8095238095238095,
-          "bgp_route_flap": 0.42323651452282157,
-          "vrf_leakage": 0.5190839694656488
-        },
+        "classes": [
+          "healthy",
+          "congestion_breach",
+          "tunnel_degradation",
+          "bgp_route_flap",
+          "vrf_leakage"
+        ],
         "smote": false
       }
     },
     {
-      "name": "label_encoder",
-      "file": "models/fault_classifier/label_encoder.pkl",
-      "type": "sklearn"
-    },
-    {
-      "name": "decision_thresholds",
-      "file": "models/fault_classifier/decision_thresholds.json",
-      "type": "artifact"
-    },
-    {
       "name": "scorecard",
       "file": "models/fault_classifier/scorecard.png",
-      "type": "artifact"
-    },
-    {
-      "name": "feature_attribution",
-      "file": "models/fault_classifier/feature_attribution.json",
       "type": "artifact"
     },
     {
@@ -177,27 +233,15 @@
       "file": "models/lstm/fault_lstm_v1.keras",
       "type": "keras",
       "metrics": {
-        "name": "fault_lstm_v1",
-        "mae_minutes": 2.1432807445526123,
+        "mae_minutes": 2.2273709774017334,
         "n_sequences": 623
       }
-    },
-    {
-      "name": "lstm_scaler",
-      "file": "models/lstm/lstm_scaler.pkl",
-      "type": "sklearn"
     },
     {
       "name": "topology_graph",
       "file": "models/topology/topology_graph.json",
       "type": "networkx",
       "metrics": {
-        "name": "topology_graph",
-        "nodes": [
-          "PE1",
-          "PE2",
-          "CORE"
-        ],
         "eccentricity": {
           "PE1": 1,
           "PE2": 1,
@@ -205,14 +249,5 @@
         }
       }
     }
-  ],
-  "layout": {
-    "isolation_forest": "models/isolation_forest/",
-    "fault_classifier": "models/fault_classifier/",
-    "prophet_ifInOctets": "models/prophet_ifInOctets/",
-    "prophet_jitter_ms": "models/prophet_jitter_ms/",
-    "prophet_bgp_update_rate": "models/prophet_bgp_update_rate/",
-    "lstm": "models/lstm/",
-    "topology": "models/topology/"
-  }
+  ]
 }
