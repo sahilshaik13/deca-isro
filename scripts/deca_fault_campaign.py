@@ -19,7 +19,9 @@ CORE_SSH = "station3@192.168.50.30"
 IPERF_LAN_TARGET = "192.168.50.20"
 
 # ── Campaign sizing ───────────────────────────────────────────────────────
-# Quota-driven: run until each fault type hits its per-type target (5–7 by default).
+# Quota-driven: run until each fault type hits its per-type target.
+# Default stays 5–7 for short campaigns; Tier-6 data scale uses --per-type 10
+# (exactly 10 of each fault → 40 total). Set min=max for a fixed count.
 MIN_RUNS_PER_TYPE = 5
 MAX_RUNS_PER_TYPE = 7
 REST_MINUTES = (15, 25)  # normal ops between faults
@@ -620,18 +622,39 @@ def main() -> None:
     parser.add_argument(
         "--min-per-type",
         type=int,
-        default=MIN_RUNS_PER_TYPE,
+        default=None,
         help=f"Minimum runs per fault type (default: {MIN_RUNS_PER_TYPE})",
     )
     parser.add_argument(
         "--max-per-type",
         type=int,
-        default=MAX_RUNS_PER_TYPE,
+        default=None,
         help=f"Maximum runs per fault type (default: {MAX_RUNS_PER_TYPE})",
+    )
+    parser.add_argument(
+        "--per-type",
+        type=int,
+        default=None,
+        metavar="N",
+        help="Exact runs per fault type (sets --min-per-type = --max-per-type = N). "
+        "Use for Tier-6 scale-ups, e.g. --per-type 10 → 10×4 = 40 faults.",
     )
     parser.add_argument("--run-id", type=str, default=None, help="Run directory name (default: new timestamp)")
     parser.add_argument("--demo", action="store_true", help="Short cycles for dashboard testing only")
     args = parser.parse_args()
+
+    if args.per_type is not None:
+        if args.per_type < 1:
+            parser.error("--per-type must be >= 1")
+        if args.min_per_type is not None or args.max_per_type is not None:
+            parser.error("use either --per-type or --min/--max-per-type, not both")
+        args.min_per_type = args.per_type
+        args.max_per_type = args.per_type
+    else:
+        if args.min_per_type is None:
+            args.min_per_type = MIN_RUNS_PER_TYPE
+        if args.max_per_type is None:
+            args.max_per_type = MAX_RUNS_PER_TYPE
 
     if args.min_per_type < 1 or args.max_per_type < args.min_per_type:
         parser.error("--max-per-type must be >= --min-per-type and both must be >= 1")

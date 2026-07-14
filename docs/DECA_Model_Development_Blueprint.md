@@ -250,6 +250,8 @@ Held-out `unified_label` test set (n = 4,263):
 
 ## 7. ROI escalation roadmap (ISRO pitch frame)
 
+**Full write-up (formulas + application + Tier-6 campaign command):** [`DECA_ROI_TIERS.md`](DECA_ROI_TIERS.md)
+
 These tiers are a **prioritized escalation plan**, not a simultaneous checklist. Over-applying all tiers at once over-engineers the stack and risks unstable scorecards. Stop escalating when Macro-F1 occupies the **92%–96%** target zone (`what_is_this.md`).
 
 ### Phase 1 — Immediate software fixes (Tiers 1, 2, 3) — **IMPLEMENTED**
@@ -284,7 +286,7 @@ If Phase 1 plateaus below the 92–96% Macro-F1 band (as it does today on rare-c
 | Tier | Action | Status |
 | --- | --- | --- |
 | 5 | Protocol-level features (hold-timer, VRF route count, …) | Roadmap |
-| 6 | Scale `deca_fault_campaign.py` fault Diversity / volume | Roadmap |
+| 6 | Scale `deca_fault_campaign.py` fault diversity / volume | **Next** — `--per-type 10` (see [`DECA_ROI_TIERS.md`](DECA_ROI_TIERS.md)) |
 
 ### Bottom line
 

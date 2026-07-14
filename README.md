@@ -26,6 +26,7 @@ Current campaign job: `20260713_155333` — **21 usable fault runs** (validation
 | [`docs/DATA_GEN.md`](docs/DATA_GEN.md) | Reproduce the data lake (script map + recipe) |
 | [`docs/DATA_SAMPLE.md`](docs/DATA_SAMPLE.md) | Inventory of every curated file / sample tables |
 | [`docs/DECA_Model_Development_Blueprint.md`](docs/DECA_Model_Development_Blueprint.md) | Formulas, Phase-1 ROI, scorecards |
+| [`docs/DECA_ROI_TIERS.md`](docs/DECA_ROI_TIERS.md) | Tiers 1–6 formulas + application + Tier-6 campaign command |
 | [`docs/STATION_NETWORK_SETUP.md`](docs/STATION_NETWORK_SETUP.md) | Pi CE/PE units, IPsec, VRF, Prometheus |
 | [`docs/what_is_this.md`](docs/what_is_this.md) | Architecture overview |
 | [`docs/DECA_Full_Pipeline.md`](docs/DECA_Full_Pipeline.md) | Earlier end-to-end pipeline notes |

@@ -6,7 +6,7 @@ Only the Python tools needed to **reproduce the data lake that exists today** li
 
 | Script | Produces |
 | --- | --- |
-| `deca_fault_campaign.py` | RPi CE–PE–CE fault campaign → `data/rpi-net/runs/<id>/` |
+| `deca_fault_campaign.py` | RPi CE–PE–CE fault campaign → `data/rpi-net/runs/<id>/` (`--per-type N` for exact quota; see [`DECA_ROI_TIERS.md`](DECA_ROI_TIERS.md)) |
 | `routeviews.py` / `riperis.py` | BGP MRT archives (`*updates*.{bz2,gz}`) |
 | `parse_bgp.py` | `bgp_update_rates_full.csv` / `.parquet` |
 | `bgpstream.py` / `ioda.py` (+ `ioda_client.py`) | `bgp_routing_labels.csv`, `ioda_outage_labels.csv` |
