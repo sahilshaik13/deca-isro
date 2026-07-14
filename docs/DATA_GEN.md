@@ -14,7 +14,10 @@ Only the Python tools needed to **reproduce the data lake that exists today** li
 | `cisco_scraper.py` | `cisco_sandbox_sample.csv` (Cisco DevNet Cat8000v) |
 | `fetch_public_data.py` | Orchestrates the public pulls above (sequential) |
 | `rebuild_unified.py` | `deca_unified_raw.parquet` + `deca_unified_dataset.parquet` (`unified_label`) |
-| `train_models.py` | Wipe + train `models/` (IF+Platt, XGB, Prophet, LSTM, topology) |
+| `train_models.py` | Wipe + train `models/` (IF+Platt, XGB Phase 1, Prophet, LSTM, topology) |
+| `deca_deploy_stations.sh` | Plug-and-play: CE-ns, IPsec/FRR ordering, watchdog, VRF CE statics, Prometheus ownership |
+| `deca_heal_telemetry.sh` | Quick Telegraf/ns/IPsec restart |
+| `deca_fix_prom_vpn.sh` | Wipe poisoned Prom TSDB + VRF underlay VPN routes |
 | `_paths.py` | Shared repo-rooted `data/` / `models/` paths |
 
 **Manual (no automatable script):** `mawi_sample.csv` — browse [MAWI Samplepoint-F](https://mawi.wide.ad.jp/mawi/samplepoint-F/), copy page totals, even-split 15 minutes. robots.txt disallows automated pulls; multi-GB pcaps are not part of this package.
@@ -56,4 +59,4 @@ python scripts/train_models.py
 - **Synthetic:** not generated.
 - **MAWI:** magnitude calibration only.
 
-Blueprint math: [`DECA_Model_Development_Blueprint.md`](DECA_Model_Development_Blueprint.md). Inventory: [`DATA_SAMPLE.md`](DATA_SAMPLE.md).
+Inventory: [`DATA_SAMPLE.md`](DATA_SAMPLE.md). Architecture: [`what_is_this.md`](what_is_this.md). Station networking / plug-and-play units: [`STATION_NETWORK_SETUP.md`](STATION_NETWORK_SETUP.md).

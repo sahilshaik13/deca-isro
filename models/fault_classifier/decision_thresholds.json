@@ -1,0 +1,17 @@
+{
+  "mode": "weighted_multiclass",
+  "gate_thr": 0.4,
+  "class_thr": {
+    "healthy": 1.0,
+    "congestion_breach": 1.0,
+    "tunnel_degradation": 1.0,
+    "bgp_route_flap": 1.0,
+    "vrf_leakage": 1.0
+  },
+  "val_macro_f1": 0.732870380922531,
+  "rare_aware_score": 0.5733100956888504,
+  "rare_classes": [
+    "bgp_route_flap",
+    "vrf_leakage"
+  ]
+}

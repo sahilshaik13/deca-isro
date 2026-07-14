@@ -195,11 +195,194 @@ def train_isolation_forest(df: pd.DataFrame, feats: list[str]) -> dict:
     }
 
 
+def inverse_frequency_weights(y: np.ndarray) -> np.ndarray:
+    """Tier 2 — weight_i = N / (K * n_i) so rare faults cost more when missed."""
+    y = np.asarray(y, dtype=int)
+    classes, counts = np.unique(y, return_counts=True)
+    freq = {int(c): int(n) for c, n in zip(classes, counts)}
+    k = len(classes)
+    n = len(y)
+    return np.array([n / (k * freq[int(yi)]) for yi in y], dtype=np.float64)
+
+
+def predict_two_stage(
+    gate: Pipeline,
+    fault_clf: Pipeline,
+    X,
+    *,
+    healthy_idx: int,
+    local_to_global: dict[int, int],
+    gate_thr: float,
+    class_thr: dict[int, float],
+) -> np.ndarray:
+    """Tier 1 inference: anomaly gate → fault-type among open gates (Tier 3 thresholds).
+
+    `class_thr` and predictions use **global** class indices.
+    `fault_clf` was trained on local 0..M-1 labels mapped by local_to_global.
+    """
+    p_anom = gate.predict_proba(X)[:, 1]
+    p_fault = fault_clf.predict_proba(X)
+    local_classes = list(fault_clf.named_steps["xgb"].classes_)
+    preds = np.full(len(p_anom), healthy_idx, dtype=int)
+    for i in range(len(p_anom)):
+        if p_anom[i] < gate_thr:
+            continue
+        scores = []
+        for j, local_id in enumerate(local_classes):
+            global_id = int(local_to_global[int(local_id)])
+            thr = class_thr.get(global_id, 1.0)
+            scores.append(p_fault[i, j] / max(thr, 1e-6))
+        best_local = int(local_classes[int(np.argmax(scores))])
+        preds[i] = int(local_to_global[best_local])
+    return preds
+
+
+def tune_phase1_thresholds(
+    gate: Pipeline,
+    fault_clf: Pipeline,
+    full_clf: Pipeline | None,
+    X_val,
+    y_val: np.ndarray,
+    *,
+    healthy_idx: int,
+    fault_class_ids: list[int],
+    local_to_global: dict[int, int],
+    rare_global_ids: set[int],
+) -> tuple[str, float, dict[int, float], float, dict]:
+    """Tier 3 — maximize rare-aware score on validation.
+
+    Score = 0.4 * macro_F1 + 0.6 * mean(F1 of rare classes).
+    Modes: two_stage | weighted_multiclass (with optional gate force-healthy).
+    Rare class thresholds are constrained ≤ common thresholds.
+    """
+    gate_grid = [0.20, 0.30, 0.40, 0.50, 0.60]
+    thr_grid = [0.50, 0.65, 0.80, 1.00, 1.20]
+    best = {
+        "mode": "two_stage",
+        "gate_thr": 0.5,
+        "class_thr": {int(c): 1.0 for c in fault_class_ids},
+        "score": -1.0,
+        "macro_f1": -1.0,
+    }
+
+    def rare_aware(y_true, y_pred) -> tuple[float, float]:
+        macro = f1_score(y_true, y_pred, average="macro", zero_division=0)
+        rare_f1s = []
+        for c in rare_global_ids:
+            rare_f1s.append(
+                f1_score(y_true == c, y_pred == c, zero_division=0)
+            )
+        rare_mean = float(np.mean(rare_f1s)) if rare_f1s else macro
+        return 0.4 * macro + 0.6 * rare_mean, float(macro)
+
+    # Mode A: two-stage
+    for g_thr in gate_grid:
+        for rare_thr in thr_grid:
+            for common_thr in thr_grid:
+                if rare_thr > common_thr:
+                    continue
+                thrs = {
+                    int(c): (rare_thr if c in rare_global_ids else common_thr)
+                    for c in fault_class_ids
+                }
+                pred = predict_two_stage(
+                    gate,
+                    fault_clf,
+                    X_val,
+                    healthy_idx=healthy_idx,
+                    local_to_global=local_to_global,
+                    gate_thr=g_thr,
+                    class_thr=thrs,
+                )
+                score, macro = rare_aware(y_val, pred)
+                if score > best["score"]:
+                    best.update(
+                        mode="two_stage",
+                        gate_thr=g_thr,
+                        class_thr=thrs,
+                        score=score,
+                        macro_f1=macro,
+                    )
+
+    # Mode B: weighted full multiclass + gate (force healthy) + per-class thr
+    if full_clf is not None:
+        p_full = full_clf.predict_proba(X_val)
+        full_classes = list(full_clf.named_steps["xgb"].classes_)
+        p_anom = gate.predict_proba(X_val)[:, 1]
+        for g_thr in gate_grid:
+            for rare_thr in thr_grid:
+                for common_thr in thr_grid:
+                    if rare_thr > common_thr:
+                        continue
+                    thrs = {
+                        int(c): (rare_thr if int(c) in rare_global_ids else common_thr)
+                        for c in full_classes
+                    }
+                    # healthy slightly harder to override when gate open
+                    thrs[int(healthy_idx)] = max(thrs.get(int(healthy_idx), 1.0), 1.0)
+                    preds = np.full(len(y_val), healthy_idx, dtype=int)
+                    for i in range(len(y_val)):
+                        if p_anom[i] < g_thr:
+                            preds[i] = healthy_idx
+                            continue
+                        scores = [
+                            p_full[i, j] / max(thrs[int(cid)], 1e-6)
+                            for j, cid in enumerate(full_classes)
+                        ]
+                        preds[i] = int(full_classes[int(np.argmax(scores))])
+                    score, macro = rare_aware(y_val, preds)
+                    if score > best["score"]:
+                        best.update(
+                            mode="weighted_multiclass",
+                            gate_thr=g_thr,
+                            class_thr={int(k): float(v) for k, v in thrs.items()},
+                            score=score,
+                            macro_f1=macro,
+                        )
+
+    return (
+        str(best["mode"]),
+        float(best["gate_thr"]),
+        {int(k): float(v) for k, v in best["class_thr"].items()},
+        float(best["macro_f1"]),
+        best,
+    )
+
+
+def predict_weighted_multiclass(
+    gate: Pipeline,
+    full_clf: Pipeline,
+    X,
+    *,
+    healthy_idx: int,
+    gate_thr: float,
+    class_thr: dict[int, float],
+) -> np.ndarray:
+    p_anom = gate.predict_proba(X)[:, 1]
+    p_full = full_clf.predict_proba(X)
+    full_classes = list(full_clf.named_steps["xgb"].classes_)
+    preds = np.full(len(p_anom), healthy_idx, dtype=int)
+    for i in range(len(p_anom)):
+        if p_anom[i] < gate_thr:
+            continue
+        scores = [
+            p_full[i, j] / max(class_thr.get(int(cid), 1.0), 1e-6)
+            for j, cid in enumerate(full_classes)
+        ]
+        preds[i] = int(full_classes[int(np.argmax(scores))])
+    return preds
+
+
 def train_classifier(df: pd.DataFrame, feats: list[str]) -> dict:
-    print("\n=== Classification (unified_label) ===")
+    """Phase 1 ROI stack: two-stage ensemble + inverse-freq weights + val thresholds."""
+    print("\n=== Classification Phase 1 (tiers 1–3) ===")
+    print("  Tier 1: two-stage gate → fault-type")
+    print("  Tier 2: inverse-frequency sample weights")
+    print("  Tier 3: validation-tuned decision thresholds")
+    print("  Tier 4: SMOTE explicitly refused (temporal integrity)")
+
     X = df[feats]
     y_raw = df["unified_label"].astype(str)
-    # Drop classes with < 2 samples (shouldn't happen)
     counts = y_raw.value_counts()
     keep = counts[counts >= 5].index
     mask = y_raw.isin(keep)
@@ -209,19 +392,56 @@ def train_classifier(df: pd.DataFrame, feats: list[str]) -> dict:
     for c in sorted(set(y_raw) - set(le_classes)):
         le_classes.append(c)
     class_to_idx = {c: i for i, c in enumerate(le_classes)}
+    idx_to_class = {i: c for c, i in class_to_idx.items()}
     y = y_raw.map(class_to_idx).astype(int).values
+    healthy_idx = class_to_idx["healthy"]
+    fault_class_ids = [class_to_idx[c] for c in le_classes if c != "healthy"]
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, random_state=RANDOM_STATE, stratify=y
     )
+    # Hold out validation from train for Tier 3 threshold sweep
+    X_fit, X_val, y_fit, y_val = train_test_split(
+        X_train, y_train, test_size=0.2, random_state=RANDOM_STATE, stratify=y_train
+    )
 
-    clf = Pipeline(
+    # —— Stage 1 gate: weighted binary (healthy vs any fault) ——
+    y_bin_fit = (y_fit != healthy_idx).astype(int)
+    y_bin_val = (y_val != healthy_idx).astype(int)
+    w_bin = inverse_frequency_weights(y_bin_fit)
+    gate = Pipeline(
         [
             ("imputer", SimpleImputer(strategy="median", keep_empty_features=True)),
             (
                 "xgb",
                 XGBClassifier(
                     n_estimators=200,
+                    max_depth=4,
+                    learning_rate=0.08,
+                    subsample=0.9,
+                    colsample_bytree=0.9,
+                    random_state=RANDOM_STATE,
+                    n_jobs=-1,
+                ),
+            ),
+        ]
+    )
+    gate.fit(X_fit, y_bin_fit, xgb__sample_weight=w_bin)
+
+    # —— Stage 2: weighted multiclass among faults only (local 0..M-1 labels) ——
+    fault_mask = y_fit != healthy_idx
+    X_fault, y_fault_global = X_fit.loc[fault_mask], y_fit[fault_mask]
+    global_to_local = {gid: i for i, gid in enumerate(fault_class_ids)}
+    local_to_global = {i: gid for gid, i in global_to_local.items()}
+    y_fault_local = np.array([global_to_local[int(g)] for g in y_fault_global], dtype=int)
+    w_fault = inverse_frequency_weights(y_fault_local)
+    fault_clf = Pipeline(
+        [
+            ("imputer", SimpleImputer(strategy="median", keep_empty_features=True)),
+            (
+                "xgb",
+                XGBClassifier(
+                    n_estimators=250,
                     max_depth=5,
                     learning_rate=0.08,
                     subsample=0.9,
@@ -232,18 +452,133 @@ def train_classifier(df: pd.DataFrame, feats: list[str]) -> dict:
             ),
         ]
     )
-    clf.fit(X_train, y_train)
-    pred = clf.predict(X_test)
-    macro_f1 = f1_score(y_test, pred, average="macro")
-    report = classification_report(
-        y_test, pred, target_names=le_classes, zero_division=0, output_dict=True
+    fault_clf.fit(X_fault, y_fault_local, xgb__sample_weight=w_fault)
+
+    # —— Companion: weighted full multiclass (same tiers, alternate head) ——
+    w_full = inverse_frequency_weights(y_fit)
+    full_clf = Pipeline(
+        [
+            ("imputer", SimpleImputer(strategy="median", keep_empty_features=True)),
+            (
+                "xgb",
+                XGBClassifier(
+                    n_estimators=250,
+                    max_depth=5,
+                    learning_rate=0.08,
+                    subsample=0.9,
+                    colsample_bytree=0.9,
+                    random_state=RANDOM_STATE,
+                    n_jobs=-1,
+                ),
+            ),
+        ]
     )
-    print(f"  macro-F1={macro_f1:.4f}")
-    print(classification_report(y_test, pred, target_names=le_classes, zero_division=0))
+    full_clf.fit(X_fit, y_fit, xgb__sample_weight=w_full)
+
+    # Rare = lowest-support fault classes on the fit split
+    fault_supports = {int(c): int(np.sum(y_fit == c)) for c in fault_class_ids}
+    ordered = sorted(fault_supports.items(), key=lambda t: t[1])
+    rare_global_ids = {c for c, _ in ordered[: max(1, len(ordered) // 2)]}
+
+    mode, gate_thr, class_thr, val_macro, best_meta = tune_phase1_thresholds(
+        gate,
+        fault_clf,
+        full_clf,
+        X_val,
+        y_val,
+        healthy_idx=healthy_idx,
+        fault_class_ids=fault_class_ids,
+        local_to_global=local_to_global,
+        rare_global_ids=rare_global_ids,
+    )
+    print(
+        f"  Tier 3 tuned: mode={mode}  gate_thr={gate_thr:.2f}  "
+        f"val macro-F1={val_macro:.4f}  rare-aware={best_meta['score']:.4f}"
+    )
+    thr_names = {
+        (idx_to_class[k] if k in idx_to_class else str(k)): v for k, v in class_thr.items()
+    }
+    print(f"  class_thr={thr_names}")
+
+    if mode == "two_stage":
+        pred = predict_two_stage(
+            gate,
+            fault_clf,
+            X_test,
+            healthy_idx=healthy_idx,
+            local_to_global=local_to_global,
+            gate_thr=gate_thr,
+            class_thr=class_thr,
+        )
+    else:
+        pred = predict_weighted_multiclass(
+            gate,
+            full_clf,
+            X_test,
+            healthy_idx=healthy_idx,
+            gate_thr=gate_thr,
+            class_thr=class_thr,
+        )
+    macro_f1 = f1_score(y_test, pred, average="macro", zero_division=0)
+    weighted_f1 = f1_score(y_test, pred, average="weighted", zero_division=0)
+    report = classification_report(
+        y_test, pred, labels=list(range(len(le_classes))), target_names=le_classes, zero_division=0, output_dict=True
+    )
+    print(f"  test macro-F1={macro_f1:.4f}  weighted-F1={weighted_f1:.4f}")
+    print(
+        classification_report(
+            y_test, pred, labels=list(range(len(le_classes))), target_names=le_classes, zero_division=0
+        )
+    )
 
     out = model_dir("fault_classifier")
-    joblib.dump(clf, out / "fault_classifier_xgb.pkl")
-    joblib.dump({"classes": le_classes}, out / "label_encoder.pkl")
+    # Persist two-stage stack under familiar primary name + companion artifacts
+    joblib.dump(
+        {
+            "gate": gate,
+            "fault_clf": fault_clf,
+            "full_clf": full_clf,
+            "mode": mode,
+            "gate_thr": gate_thr,
+            "class_thr": class_thr,
+            "healthy_idx": healthy_idx,
+            "fault_class_ids": fault_class_ids,
+            "local_to_global": local_to_global,
+            "global_to_local": global_to_local,
+            "rare_global_ids": list(rare_global_ids),
+            "phase": "phase1_tiers_1_2_3",
+        },
+        out / "fault_classifier_xgb.pkl",
+    )
+    joblib.dump(
+        {
+            "classes": le_classes,
+            "mode": mode,
+            "gate_thr": gate_thr,
+            "class_thr": {
+                (idx_to_class[k] if k in idx_to_class else str(k)): v for k, v in class_thr.items()
+            },
+            "smote": False,
+            "smote_policy": "refused_tier4_temporal_integrity",
+        },
+        out / "label_encoder.pkl",
+    )
+    (out / "decision_thresholds.json").write_text(
+        json.dumps(
+            {
+                "mode": mode,
+                "gate_thr": gate_thr,
+                "class_thr": {
+                    (idx_to_class[k] if k in idx_to_class else str(k)): v
+                    for k, v in class_thr.items()
+                },
+                "val_macro_f1": val_macro,
+                "rare_aware_score": best_meta["score"],
+                "rare_classes": [idx_to_class[c] for c in rare_global_ids],
+            },
+            indent=2,
+        )
+    )
 
     cm = confusion_matrix(y_test, pred, labels=list(range(len(le_classes))))
     fig, ax = plt.subplots(figsize=(7, 6))
@@ -254,7 +589,7 @@ def train_classifier(df: pd.DataFrame, feats: list[str]) -> dict:
     ax.set_yticklabels(le_classes)
     ax.set_xlabel("Predicted unified_label")
     ax.set_ylabel("True unified_label")
-    ax.set_title(f"DECA unified_label classifier (macro-F1={macro_f1:.3f})")
+    ax.set_title(f"Phase 1 two-stage (macro-F1={macro_f1:.3f})")
     for i in range(cm.shape[0]):
         for j in range(cm.shape[1]):
             ax.text(j, i, int(cm[i, j]), ha="center", va="center", color="black", fontsize=8)
@@ -263,19 +598,40 @@ def train_classifier(df: pd.DataFrame, feats: list[str]) -> dict:
     fig.savefig(out / "scorecard.png", dpi=140)
     plt.close(fig)
 
-    # Top feature importances (SHAP substitute — shap not installed)
-    booster = clf.named_steps["xgb"]
+    booster = (full_clf if mode == "weighted_multiclass" else fault_clf).named_steps["xgb"]
     importances = booster.feature_importances_
     top = sorted(zip(feats, importances), key=lambda t: t[1], reverse=True)[:15]
     attribution = [{"feature": f, "importance": float(v)} for f, v in top]
     (out / "feature_attribution.json").write_text(json.dumps(attribution, indent=2))
-    print("  wrote feature_attribution.json (XGBoost gain proxy; install shap for full SHAP)")
+    print("  wrote feature_attribution.json (stage-2 XGB gain; SMOTE not applied)")
+
+    per_class = {}
+    for c in le_classes:
+        if c in report:
+            per_class[c] = {
+                "precision": float(report[c]["precision"]),
+                "recall": float(report[c]["recall"]),
+                "f1": float(report[c]["f1-score"]),
+                "support": int(report[c]["support"]),
+            }
 
     return {
         "name": "fault_classifier_xgb",
+        "phase": "phase1_tiers_1_2_3",
+        "mode": mode,
         "macro_f1": float(macro_f1),
+        "weighted_f1": float(weighted_f1),
+        "val_macro_f1": float(val_macro),
+        "rare_aware_score": float(best_meta["score"]),
+        "gate_thr": float(gate_thr),
+        "class_thr": {
+            (idx_to_class[k] if k in idx_to_class else str(k)): float(v)
+            for k, v in class_thr.items()
+        },
         "classes": le_classes,
-        "per_class_f1": {c: float(report[c]["f1-score"]) for c in le_classes if c in report},
+        "per_class": per_class,
+        "per_class_f1": {c: per_class[c]["f1"] for c in per_class},
+        "smote": False,
     }
 
 
@@ -442,9 +798,34 @@ def build_topology() -> dict:
     return {"name": "topology_graph", "nodes": list(g.nodes), "eccentricity": ecc}
 
 
+def wipe_model_families(*names: str) -> None:
+    import shutil
+
+    for name in names:
+        d = MODELS_DIR / MODEL_DIRS.get(name, name)
+        if d.exists():
+            shutil.rmtree(d)
+            print(f"  cleared {d.relative_to(MODELS_DIR.parent)}/")
+
+
 def main() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Train DECA prediction stack")
+    parser.add_argument(
+        "--phase1-only",
+        action="store_true",
+        help="Retrain IF + Phase-1 classifier only (keep Prophet/LSTM/topology)",
+    )
+    args = parser.parse_args()
+
     print(f"Repo: {REPO_ROOT}")
-    wipe_old_models()
+    if args.phase1_only:
+        print("Mode: Phase 1 only (tiers 1–3 on classifier)")
+        wipe_model_families("isolation_forest", "fault_classifier")
+    else:
+        wipe_old_models()
+
     df, feats = load_dataset()
     print(
         f"Dataset: {len(df)} rows · features={len(feats)} · "
@@ -452,12 +833,22 @@ def main() -> None:
     )
     print("unified_label:\n", df["unified_label"].value_counts().to_string())
 
+    prior = {}
+    manifest_path = MODELS_DIR / "manifest.json"
+    if args.phase1_only and manifest_path.exists():
+        prior = json.loads(manifest_path.read_text())
+
     metrics = {
         "training_date": datetime.now(timezone.utc).isoformat(),
         "row_counts_by_source": df["source"].value_counts().to_dict(),
         "unified_label_counts": df["unified_label"].value_counts().to_dict(),
         "feature_columns": feats,
         "unified_labels": list(UNIFIED_LABELS),
+        "roi_roadmap": {
+            "phase1": "tiers_1_2_3_software",
+            "phase2": "tier4_smote_refused",
+            "phase3": "tiers_5_6_hardware_roadmap",
+        },
         "models": [],
     }
 
@@ -490,7 +881,7 @@ def main() -> None:
         {
             "name": "fault_classifier_xgb",
             "file": rel_model_path("fault_classifier", "fault_classifier_xgb.pkl"),
-            "type": "xgboost",
+            "type": "xgboost_two_stage",
             "metrics": {k: v for k, v in clf_stats.items() if k != "name"},
         }
     )
@@ -499,6 +890,13 @@ def main() -> None:
             "name": "label_encoder",
             "file": rel_model_path("fault_classifier", "label_encoder.pkl"),
             "type": "sklearn",
+        }
+    )
+    metrics["models"].append(
+        {
+            "name": "decision_thresholds",
+            "file": rel_model_path("fault_classifier", "decision_thresholds.json"),
+            "type": "artifact",
         }
     )
     metrics["models"].append(
@@ -516,39 +914,52 @@ def main() -> None:
         }
     )
 
-    for art in train_prophet():
-        metrics["models"].append(art)
+    if args.phase1_only:
+        # Preserve previously trained macro / sequence / topology entries
+        keep_prefixes = (
+            "models/prophet_",
+            "models/lstm/",
+            "models/topology/",
+        )
+        for entry in prior.get("models", []):
+            f = entry.get("file", "")
+            if any(f.startswith(p) for p in keep_prefixes):
+                metrics["models"].append(entry)
+    else:
+        for art in train_prophet():
+            metrics["models"].append(art)
 
-    lstm_stats = train_lstm(df, feats)
-    if lstm_stats:
+        lstm_stats = train_lstm(df, feats)
+        if lstm_stats:
+            metrics["models"].append(
+                {
+                    "name": "fault_lstm_v1",
+                    "file": rel_model_path("lstm", "fault_lstm_v1.keras"),
+                    "type": "keras",
+                    "metrics": lstm_stats,
+                }
+            )
+            metrics["models"].append(
+                {
+                    "name": "lstm_scaler",
+                    "file": rel_model_path("lstm", "lstm_scaler.pkl"),
+                    "type": "sklearn",
+                }
+            )
+
+        topo = build_topology()
         metrics["models"].append(
             {
-                "name": "fault_lstm_v1",
-                "file": rel_model_path("lstm", "fault_lstm_v1.keras"),
-                "type": "keras",
-                "metrics": lstm_stats,
-            }
-        )
-        metrics["models"].append(
-            {
-                "name": "lstm_scaler",
-                "file": rel_model_path("lstm", "lstm_scaler.pkl"),
-                "type": "sklearn",
+                "name": "topology_graph",
+                "file": rel_model_path("topology", "topology_graph.json"),
+                "type": "networkx",
+                "metrics": topo,
             }
         )
 
-    topo = build_topology()
-    metrics["models"].append(
-        {
-            "name": "topology_graph",
-            "file": rel_model_path("topology", "topology_graph.json"),
-            "type": "networkx",
-            "metrics": topo,
-        }
-    )
-
-    (MODELS_DIR / "manifest.json").write_text(json.dumps(metrics, indent=2, default=str))
-    print(f"\nWrote {MODELS_DIR / 'manifest.json'}")
+    metrics["layout"] = {k: f"models/{v}/" for k, v in MODEL_DIRS.items()}
+    manifest_path.write_text(json.dumps(metrics, indent=2, default=str))
+    print(f"\nWrote {manifest_path}")
     print("Training complete.")
 
 

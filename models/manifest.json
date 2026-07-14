@@ -1,5 +1,5 @@
 {
-  "training_date": "2026-07-14T13:33:35.765304+00:00",
+  "training_date": "2026-07-14T14:23:48.614768+00:00",
   "row_counts_by_source": {
     "network": 8772,
     "public": 8278
@@ -40,6 +40,11 @@
     "bgp_route_flap",
     "vrf_leakage"
   ],
+  "roi_roadmap": {
+    "phase1": "tiers_1_2_3_software",
+    "phase2": "tier4_smote_refused",
+    "phase3": "tiers_5_6_hardware_roadmap"
+  },
   "models": [
     {
       "name": "isolation_forest",
@@ -64,9 +69,22 @@
     {
       "name": "fault_classifier_xgb",
       "file": "models/fault_classifier/fault_classifier_xgb.pkl",
-      "type": "xgboost",
+      "type": "xgboost_two_stage",
       "metrics": {
-        "macro_f1": 0.7157222438353706,
+        "phase": "phase1_tiers_1_2_3",
+        "mode": "weighted_multiclass",
+        "macro_f1": 0.7211168811173485,
+        "weighted_f1": 0.9477908663491028,
+        "val_macro_f1": 0.732870380922531,
+        "rare_aware_score": 0.5733100956888504,
+        "gate_thr": 0.4,
+        "class_thr": {
+          "healthy": 1.0,
+          "congestion_breach": 1.0,
+          "tunnel_degradation": 1.0,
+          "bgp_route_flap": 1.0,
+          "vrf_leakage": 1.0
+        },
         "classes": [
           "healthy",
           "congestion_breach",
@@ -74,19 +92,67 @@
           "bgp_route_flap",
           "vrf_leakage"
         ],
+        "per_class": {
+          "healthy": {
+            "precision": 0.9860782768584188,
+            "recall": 0.95013920526449,
+            "f1": 0.9677751997937613,
+            "support": 3951
+          },
+          "congestion_breach": {
+            "precision": 0.8416666666666667,
+            "recall": 0.9351851851851852,
+            "f1": 0.8859649122807017,
+            "support": 108
+          },
+          "tunnel_degradation": {
+            "precision": 0.7472527472527473,
+            "recall": 0.8831168831168831,
+            "f1": 0.8095238095238095,
+            "support": 77
+          },
+          "bgp_route_flap": {
+            "precision": 0.3072289156626506,
+            "recall": 0.68,
+            "f1": 0.42323651452282157,
+            "support": 75
+          },
+          "vrf_leakage": {
+            "precision": 0.43037974683544306,
+            "recall": 0.6538461538461539,
+            "f1": 0.5190839694656488,
+            "support": 52
+          }
+        },
         "per_class_f1": {
-          "healthy": 0.9835123657257058,
-          "congestion_breach": 0.909952606635071,
-          "tunnel_degradation": 0.8783783783783784,
-          "bgp_route_flap": 0.3655913978494624,
-          "vrf_leakage": 0.4411764705882353
-        }
+          "healthy": 0.9677751997937613,
+          "congestion_breach": 0.8859649122807017,
+          "tunnel_degradation": 0.8095238095238095,
+          "bgp_route_flap": 0.42323651452282157,
+          "vrf_leakage": 0.5190839694656488
+        },
+        "smote": false
       }
     },
     {
       "name": "label_encoder",
       "file": "models/fault_classifier/label_encoder.pkl",
       "type": "sklearn"
+    },
+    {
+      "name": "decision_thresholds",
+      "file": "models/fault_classifier/decision_thresholds.json",
+      "type": "artifact"
+    },
+    {
+      "name": "scorecard",
+      "file": "models/fault_classifier/scorecard.png",
+      "type": "artifact"
+    },
+    {
+      "name": "feature_attribution",
+      "file": "models/fault_classifier/feature_attribution.json",
+      "type": "artifact"
     },
     {
       "name": "prophet_ifInOctets",
@@ -138,16 +204,6 @@
           "CORE": 1
         }
       }
-    },
-    {
-      "name": "scorecard",
-      "file": "models/fault_classifier/scorecard.png",
-      "type": "artifact"
-    },
-    {
-      "name": "feature_attribution",
-      "file": "models/fault_classifier/feature_attribution.json",
-      "type": "artifact"
     }
   ],
   "layout": {

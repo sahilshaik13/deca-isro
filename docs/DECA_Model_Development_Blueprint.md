@@ -142,35 +142,38 @@ The final dense head maps $h_T$ → $\widehat{\text{TTB}}$ (minutes).
 ---
 
 ## 4. Unified-label classification (operational layer)
-**Methodology:** Multiclass XGBoost on `unified_label`
+**Methodology:** Multiclass XGBoost on `unified_label` — **Phase 1 ROI stack (Tiers 1–3)**
 
-Not a separate numbered block in the original theory doc, but required so network + public rows share one supervised vocabulary for fault-type prediction.
+Network + public rows share one supervised vocabulary. Baseline single-head argmax was recall-starved on BGP/VRF; Phase 1 is applied as a calculated escalation, not an all-knobs dump.
 
-### Applied process
-* Target: `unified_label` ∈ {`healthy`, `congestion_breach`, `tunnel_degradation`, `bgp_route_flap`, `vrf_leakage`}
-* Features: same 20-column engineered matrix; median impute (keep empty features)
-* Model: `XGBClassifier(n_estimators=200, max_depth=5, lr=0.08, subsample=0.9, colsample_bytree=0.9)`
-* Split: stratified 75/25 on 17,050 rows
+### Phase 1 applied process (this train)
+| Tier | Lever | What we did |
+| --- | --- | --- |
+| **1** | Two-stage ensemble | Weighted binary **anomaly gate** + weighted fault/full head so healthy mass cannot dominate every leaf |
+| **2** | Inverse-frequency weights | $w_i = N / (K \cdot n_{y_i})$ on gate, fault-only, and full multiclass fits |
+| **3** | Validation thresholds | Sweep gate + per-class score divisors on a 20% val split; select by rare-aware score $0.4\cdot\mathrm{macro\text{-}F1}+0.6\cdot\mathrm{mean}(F1_{\mathrm{rare}})$ |
+| **4** | SMOTE | **Explicitly refused** — see §7 Phase 2 |
 
-**Artifacts:** `models/fault_classifier/` (`fault_classifier_xgb.pkl`, `label_encoder.pkl`, `scorecard.png`)
+Selected operating mode this run: **`weighted_multiclass`** (`gate_thr=0.40`, class thr = 1.0). Artifact: `models/fault_classifier/`.
 
-### End result (held-out test, n=4,263)
+### End result — Phase 1 held-out test (n=4,263)
 
-| Aggregate | Score |
-| --- | ---: |
-| Accuracy | **0.97** |
-| Macro-F1 | **0.716** |
-| Weighted-F1 | **0.96** |
+| Aggregate | Baseline (pre–Phase 1) | **Phase 1** |
+| --- | ---: | ---: |
+| Accuracy | 0.97 | **0.94** |
+| Macro-F1 | 0.716 | **0.721** |
+| Weighted-F1 | 0.96 | **0.948** |
+| Mean rare recall (BGP+VRF) | ~0.26 | **~0.67** |
 
 | Class | Precision | Recall | F1 | Support |
 | --- | ---: | ---: | ---: | ---: |
-| `healthy` | 0.97 | 1.00 | **0.984** | 3,951 |
-| `congestion_breach` | 0.93 | 0.89 | **0.910** | 108 |
-| `tunnel_degradation` | 0.92 | 0.84 | **0.878** | 77 |
-| `bgp_route_flap` | 0.94 | 0.23 | **0.366** | 75 |
-| `vrf_leakage` | 0.94 | 0.29 | **0.441** | 52 |
+| `healthy` | 0.99 | 0.95 | **0.97** | 3,951 |
+| `congestion_breach` | 0.84 | 0.94 | **0.89** | 108 |
+| `tunnel_degradation` | 0.75 | 0.88 | **0.81** | 77 |
+| `bgp_route_flap` | 0.31 | 0.68 | **0.42** | 75 |
+| `vrf_leakage` | 0.43 | 0.65 | **0.52** | 52 |
 
-BGP / VRF remain recall-limited (few windows vs large healthy class). Congestion and tunnel generalize well on this lake.
+**Reading the gap:** Phase 1 did its job on **recall** for scarce faults. Rare-class F1 is still precision-bound (~0.42–0.52) — below the aspirational 0.75+ band — so production climb continues via the §7 roadmap (not by inventing timesteps).
 
 ---
 
@@ -220,33 +223,79 @@ Attribution ranks loss volatility and jitter dynamics highest for multiclass dec
 
 ---
 
-## 6. Scoreboard summary (2026-07-14)
+## 6. Scoreboard summary (2026-07-14; Phase 1 classifier refresh)
 
 | Component | Primary score | Notes |
 | --- | --- | --- |
-| Isolation Forest + Platt | ROC-AUC **0.720** | Healthy-only IF fit; Platt on full train scores |
-| XGBoost `unified_label` | Macro-F1 **0.716**, Acc **0.97** | Weak: BGP flap / VRF recall |
+| Isolation Forest + Platt | ROC-AUC **0.720** | Unsupervised precursor / dashboard confidence |
+| XGBoost Phase 1 (tiers 1–3) | Macro-F1 **0.721**, Acc **0.94** | Rare recall ↑; rare F1 still precision-bound |
 | LSTM time-to-breach | MAE **2.143 min** | 623 network fault sequences, $T=16$ |
 | Prophet ×3 | Fit complete | 4502 / 8000 / 320 points |
-| Attribution | Top: loss std / mean, jitter slope | XGBoost gain proxy |
+| Attribution | Top: loss / jitter dynamics | Stage-2 XGB gain; **no SMOTE** |
 | Topology | $e(v)=1$ ∀ nodes | PE1–PE2–CORE digraph |
 
-### Detailed granular per-class scorecard
+### Detailed granular per-class scorecard (Phase 1)
 
-Held-out XGBoost `unified_label` test set (n = 4,263):
+Held-out `unified_label` test set (n = 4,263):
 
 | Target Class Identifier | Precision | Recall | F1-Score | Support | Operational Status |
 | --- | ---: | ---: | ---: | ---: | --- |
-| `healthy` | 0.97 | 1.00 | 0.984 | 3,951 | Exceptional Baseline Hold |
-| `congestion_breach` | 0.93 | 0.89 | 0.910 | 108 | Highly Generalizable |
-| `tunnel_degradation` | 0.92 | 0.84 | 0.878 | 77 | Highly Generalizable |
-| `bgp_route_flap` | 0.94 | 0.23 | 0.366 | 75 | Recall-Limited / Data Scarce |
-| `vrf_leakage` | 0.94 | 0.29 | 0.441 | 52 | Recall-Limited / Data Scarce |
+| `healthy` | 0.99 | 0.95 | 0.97 | 3,951 | Exceptional Baseline Hold |
+| `congestion_breach` | 0.84 | 0.94 | 0.89 | 108 | Highly Generalizable |
+| `tunnel_degradation` | 0.75 | 0.88 | 0.81 | 77 | Highly Generalizable |
+| `bgp_route_flap` | 0.31 | 0.68 | 0.42 | 75 | Recall-Lifted / Precision-Bound (Phase 1) |
+| `vrf_leakage` | 0.43 | 0.65 | 0.52 | 52 | Recall-Lifted / Precision-Bound (Phase 1) |
+
+---
+
+## 7. ROI escalation roadmap (ISRO pitch frame)
+
+These tiers are a **prioritized escalation plan**, not a simultaneous checklist. Over-applying all tiers at once over-engineers the stack and risks unstable scorecards. Stop escalating when Macro-F1 occupies the **92%–96%** target zone (`what_is_this.md`).
+
+### Phase 1 — Immediate software fixes (Tiers 1, 2, 3) — **IMPLEMENTED**
+
+Zero new hardware; squeeze the lake we already have.
+
+> **To the panel:** “To lift BGP and VRF recall, we implement a Two-Stage Ensemble so healthy mass cannot drown anomalies (**Tier 1**), Inverse Frequency Weighting so misses on rare faults are costly (**Tier 2**), and Decision Thresholds tuned on the validation curve (**Tier 3**).”
+
+| Result on this lake | Value |
+| --- | --- |
+| Macro-F1 | **0.721** (≈ baseline 0.716; not yet 0.92+) |
+| BGP recall | **0.23 → 0.68** |
+| VRF recall | **0.29 → 0.65** |
+| BGP / VRF F1 | **0.42 / 0.52** (recall-first; precision still limited by class scarcity) |
+
+Re-run: `python scripts/train_models.py --phase1-only`
+
+### Phase 2 — Intellectual defense (Tier 4) — **POLICY, NOT CODE**
+
+Tier 4 (time-series SMOTE / naive synthetic row inflation) is something we **explicitly refuse**.
+
+> **To the panel:** “A junior fix would SMOTE fake rows to pad the F1. We prohibit that. Interpolating synthetic samples breaks the chronological physics of our 10-minute windows (slope / acceleration). We will not sacrifice temporal integrity of network telemetry to cosmetically inflate the scorecard.”
+
+Encoded in artifacts: `smote: false`, `smote_policy: refused_tier4_temporal_integrity` in `models/fault_classifier/label_encoder.pkl`.
+
+### Phase 3 — Future production roadmap (Tiers 5 and 6) — **NEXT IF NEEDED**
+
+If Phase 1 plateaus below the 92–96% Macro-F1 band (as it does today on rare-class F1), scale physically:
+
+> **To the panel:** “Once algorithmic knobs max out, we expand the physical fabric — richer BGP/VRF signaling such as hold-timers and VRF route counts (**Tier 5**), and hundreds more automated CE–PE–CE fault injections (**Tier 6**). High-fidelity hardware data is the definitive cure for class imbalance.”
+
+| Tier | Action | Status |
+| --- | --- | --- |
+| 5 | Protocol-level features (hold-timer, VRF route count, …) | Roadmap |
+| 6 | Scale `deca_fault_campaign.py` fault Diversity / volume | Roadmap |
+
+### Bottom line
+
+**Math first (1–3) → defend integrity (4) → promise hardware scale (5–6).** Phase 1 is live; Phase 2 is our refusal of SMOTE; Phase 3 is the enterprise path to the remaining Macro-F1 gap.
 
 Reproduce:
 
 ```bash
 source .venv/bin/activate
 python scripts/rebuild_unified.py
+python scripts/train_models.py --phase1-only   # tiers 1–3 only
+# or full stack:
 python scripts/train_models.py
 ```

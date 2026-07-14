@@ -16,7 +16,7 @@ Built for ISRO handover: authentic lab ground truth first; public data as scale/
 
 Current campaign job: `20260713_155333` — **21 usable fault runs** (validation PASS). Trainable snapshot: **17,050** feature rows · **1,246** fault-labeled (network only).
 
-Full inventory: [`docs/DATA_SAMPLE.md`](docs/DATA_SAMPLE.md) · Architecture: [`docs/what_is_this.md`](docs/what_is_this.md)
+Full inventory: [`docs/DATA_SAMPLE.md`](docs/DATA_SAMPLE.md) · Architecture: [`docs/what_is_this.md`](docs/what_is_this.md) · Station networking (systemd / CE / VPN): [`docs/STATION_NETWORK_SETUP.md`](docs/STATION_NETWORK_SETUP.md)
 
 ---
 
@@ -105,8 +105,10 @@ Network and public rows share one vocabulary in `unified_label`:
 ## Lab topology (short)
 
 - **PE1** `station1@192.168.50.10` · **PE2** `station2@192.168.50.20` · **CORE** `station3@192.168.50.30`
-- FRR BGP + VRF (`ADMIN`) · faults via `netem` / FRR / route-target inject
-- Telemetry: Telegraf → Prometheus → campaign export / `rebuild_unified.py`
+- FRR BGP + VRF (`vrf-mission`) · CE netns `ce-a` / `ce-b` · IPsec `deca-sdwan`
+- Telemetry: Telegraf `:9273` → Prometheus → campaign export / `rebuild_unified.py`
+- Full units + addressing + VRF safety-net code: [`docs/STATION_NETWORK_SETUP.md`](docs/STATION_NETWORK_SETUP.md)
+- Restore: `bash scripts/deca_deploy_stations.sh`
 
 ---
 
