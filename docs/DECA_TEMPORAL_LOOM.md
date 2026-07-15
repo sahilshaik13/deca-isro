@@ -215,41 +215,69 @@ circumstance_start ──ramp──► breach_time ──hold──► recovery_
 
 Still no duration feature: phases only *label rows*; existence is judged from telemetry **shape and co-occurrence over order**, never from how many minutes an injector ran.
 
-### Fixed classes, unbounded circumstance instances
+### What a circumstance is
 
-**Fault / existence labels are a closed set.** The vocabulary is fixed: `healthy` plus the four classified faults. The existence head answers “which of *these* situations is present?” — not an open-ended essay.
+In DECA, a **circumstance** is the **run-up pattern** in telemetry (shape + co-occurrence), **not the clock and not the breach itself**. From how the injectors work and what Prometheus scrapes, each fault has a recognizable circumstance family:
 
-**Circumstance patterns are not fixed.** Inside each class there are effectively **infinite variations** of the same cause family (slow vs fast ramp, more jitter vs more loss, different hosts/paths, mild vs severe). The model does **not** memorize a finite checklist of recipes; it learns a **region in multi-scale feature space** for each family.
+#### `congestion_breach`
 
-| Layer | Nature |
-| --- | --- |
-| Class / `circumstance_label` | **Finite** vocabulary (4 faults + healthy) |
-| Circumstance pattern (how it looks) | **Unbounded** variation inside each class |
-| What XGB learns | A **region in feature space**, not hand-listed triggers |
-| Sticky loom | Whether *this* instance of the pattern **holds** long enough to declare |
+- **What’s forming:** progressive capacity squeeze on the PE path.
+- **Signals:** rising `ifIn` / `ifOut` pressure with a **falling** throughput slope; short-window accel turns sharp as the TBF steps down; mild→growing `packet_loss` / queueing `jitter` *before* the hard cap.
+- **One line:** “path is filling and being choked.”
 
-Add a **new fault type** only when ops defines a new labelled class (taxonomy change). Do **not** try to enumerate every possible operational circumstance by hand — labelled run-ups + multi-scale features teach the family; loom commitment handles each instance.
+#### `tunnel_degradation`
 
-### Circumstance families (what tends to form each fault)
+- **What’s forming:** path quality dying (delay/loss on the tunnel face), not necessarily a bitrate wall.
+- **Signals:** rising `jitter_ms` + `latency_ms` + `packet_loss_pct` together; multi-scale slopes up on loss/jitter while octets may look flatter than pure congestion.
+- **One line:** “path is getting dirty (delay+loss), not just busy.”
 
-These are **cause-pattern families** in lab telemetry (shape + co-occurrence), not a closed list of exact triggers. Same family, many instances.
+#### `bgp_route_flap`
 
-| Fault | Circumstance family (one line) | Typical forming signals |
-| --- | --- | --- |
-| `congestion_breach` | Path is filling and being choked | Falling throughput / TBF-style squeeze; octets pressure up then capped; rising queueing `jitter` / early `packet_loss` on short+long scales |
-| `tunnel_degradation` | Path is getting dirty (delay+loss), not just busy | Rising `jitter_ms`, `latency_ms`, `packet_loss_pct` together; loss/jitter slopes up while octets often flatter than pure congestion |
-| `bgp_route_flap` | Routing getting chatty / flappy before a storm | Bursty rising `bgp_update_rate`; spiky short-scale (`w2m_*`) more than a smooth 10 m congestion ramp |
-| `vrf_leakage` | Wrong VRF / policy context is live | Often subtle early (control/topology-side); asymmetric or sudden misbehaviour without a classic congestion ramp — harder, fewer loud octets cues |
+- **What’s forming:** control-plane instability, then accelerating.
+- **Signals:** rising / bursty `bgp_update_rate` (and related control noise) with intermittent short metric spikes; often **spiky short-scale** (`w2m_*`) more than a smooth 10 m congestion ramp.
+- **One line:** “routing is getting chatty / flappy before the rapid flap storm.”
 
-**Not a circumstance (by design):** injector wall-clock length; “this fault usually lasts N minutes”; a one-frame spike that dies (`precursor_aborted` / near-miss).
+#### `vrf_leakage`
 
-How the layers use this:
+- **What’s forming:** wrong reachability / policy leak (ADMIN VRF RT pollution in the lab).
+- **Signals:** often **subtle** until wrong routes take effect — asymmetric host behavior, odd loss/latency without the classic congestion ramp; may look “almost healthy” longer, then jump. Hardest class: circumstance is more **control/topology-side** than a loud octets ramp.
+- **One line:** “wrong VRF context is live; traffic starts to misbehave.”
+
+**So:** circumstance = the **cause-pattern cocktail** (which metrics ramp together, short vs long scale) that makes that fault *able* to happen — congestion ≠ tunnel ≠ BGP ≠ VRF, even when they eventually all look “bad.”
+
+### What is *not* a circumstance (by design)
+
+- How many minutes the injector slept
+- “This usually lasts 7 minutes”
+- A single one-frame spike that dies (`precursor_aborted` / near-miss)
+
+### How the loom uses that
 
 | Layer | Question |
 | --- | --- |
-| Circumstance head | Does fault X’s **situation** exist (forming or on)? |
-| Fault classifier | Which fault class is this frame? |
-| Sticky loom | Has that pattern **held** long enough to declare? (pre-arm if existence agrees) |
+| Circumstance head | “Is fault X’s **situation** present (forming or on)?” |
+| Fault classifier | “Which fault class is this frame?” |
+| Sticky loom | “Has that pattern **held** long enough to declare?” (pre-arm if existence agrees) |
+
+### Fixed classes, unbounded circumstance patterns
+
+**Fault classes are fixed. Circumstance patterns are not.**
+
+- **Fixed (closed set):** the 4 labelled faults + healthy. The existence head also predicts among those same names — “which of *these* situations exists?”
+- **Not fixed (open / many):** *how* each situation shows up. Congestion can ramp slow or fast, with more jitter or more loss, on PE1 or another path, mild or severe. That is a continuous space of telemetry shapes — effectively **infinite variations** of the *same* circumstance family.
+
+It is not “here are exactly 7 circumstances forever.” It is:
+
+| Layer | Nature |
+| --- | --- |
+| Class / existence label | **Finite** vocabulary (BGP, VRF, congestion, tunnel, healthy) |
+| Circumstance pattern | **Unbounded variation** inside each class |
+| What the model learns | A **region in feature space**, not a hard checklist of recipes |
+| Sticky loom | Whether *this* instance of the pattern **holds** long enough to declare |
+
+You *can* add more later if ops invents new fault types (that is a new **class**, not infinite classes by accident). You should *not* try to enumerate every possible circumstance by hand — multi-scale features + labelled run-ups teach the family; sticky loom handles “does this instance stick?”
+
+**Practical takeaway:** 4 cause-*families*, infinitely many *instances* — the loom is for the latter; the labels keep the former manageable.
 
 ```bash
 # hardware campaign (SSHes to lab Pis; ~4–6 h for 20 events + rests)
