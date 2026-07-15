@@ -299,6 +299,33 @@ python scripts/deca_train_circumstance.py   # deferred until lake has circumstan
 
 Trains `models/circumstance/circumstance_xgb.pkl` on `circumstance_label`. Live loom uses `predict_fault_stream_with_circumstance`: when existence agrees with a fault streak, `enter_k` drops to `prearm_enter_k` (default 2). Safe before campaign finish — script writes `deferred.json` if no existence signal yet.
 
+### Human-in-the-loop outlook (not prophecy)
+
+The loom’s job is to make **fault occurrence easier to anticipate before it fully happens** — without claiming certainty.
+
+- It does **not** say “this will happen.”
+- It reports **chance** that a given fault’s circumstance is forming / that the event is committing, and the **chances of what else** could be unfolding (distribution across congestion, tunnel, BGP, VRF, healthy).
+- Sticky persistence reduces flicker so operators see a stable outlook, not one-frame ghosts.
+- **A human decides the action** — mute, investigate, drain, open a change window, escalate. DECA advises; it does not own the remediation choice.
+
+| Output style | Meaning |
+| --- | --- |
+| Hard declare only | Too brittle — looks like prophecy, hides near misses |
+| Soft probabilities + loom stability | “What is *likely* forming, and what else?” — decision support |
+| Automated fix from argmax | Out of scope — human remains the last mile |
+
+Wire this as dashboard **outlook** panels: circumstance existence probs (forming), fault-class probs (what), optional TTB/Prophet (when) — loom sticky state as “committed outlook,” never as an unattended command.
+
+**Rate of change → time left (the “when” channel).** Multi-scale slopes / accels (`*_slope`, `*_accel`, `*_w2m_*`) measure how fast the circumstance graph is changing. From that trajectory the loom can estimate **duration left until the event is likely to commit** — e.g. LSTM `time_to_breach_minutes` — still as a **chance / range**, not a fixed countdown. Important distinctions:
+
+| Do | Don’t |
+| --- | --- |
+| Infer **time-to-event** from how steep the run-up is | Treat “faults last N minutes” as a class feature |
+| Show “~X minutes left *if* this trajectory continues” | Promise a certainty clock |
+| Combine with existence probs (what is forming) | Collapse “when” into the fault-class XGB input |
+
+So the operator sees: **what** may occur (class + alternatives), **how likely**, and **how soon** the graph’s rate of change implies — then decides.
+
 ---
 
 ## 8. Full pipeline
@@ -341,10 +368,13 @@ School Exam unit-test Macro‑F1 ~0.80 on a fresh paper after promote can look �
   gate + multiclass head   ← frame scores (School Exam promotes this)
       │
       ▼
-  persistence loom         ← enter_k / exit_k (live + temporal eval)
+  persistence loom         ← enter_k / exit_k (stable outlook, not flicker)
       │
       ▼
-  operator / dashboard alert
+  probability outlook      ← chances of each fault / circumstance (not “will happen”)
+      │
+      ▼
+  human decision           ← operator chooses the action
 
   (parallel) circumstance existence ← does fault X's run-up exist? (Warp 4)
 ```
@@ -352,10 +382,12 @@ School Exam unit-test Macro‑F1 ~0.80 on a fresh paper after promote can look �
 | Goal | Mechanism |
 | --- | --- |
 | Structure, not timetable | No duration feature |
-| Instant vs slow | 2 m + 10 m warps |
+| Instant vs slow | 2 m + 10 m warps |
 | Aborted almost-faults | Persistence + `precursor_aborted` |
 | Circumstance that causes a fault | 3-phase campaign + `circumstance_label` (finite classes, unbounded pattern instances) |
+| Anticipate before hard breach | Existence + class probabilities as chance outlook |
+| Human remains in control | Advise probabilities; never auto-own remediation |
 | Rare classes found | Classroom weights; don’t raise `enter_k` so high that rare streaks never land |
 | Honest reporting | Random exam = promote; temporal script = sticky boost |
 
-The loom does not invent physics. It **delays commitment** until the pattern repeats, and **clears** when healthy repeats — so rare real faults that persist still win, and one-frame ghosts usually lose.
+The loom does not invent physics and does not replace the operator. It **delays commitment** until the pattern repeats, surfaces **chances** of what is forming (and alternatives), and **clears** when healthy repeats — so humans can act with better foresight, not false certainty.
