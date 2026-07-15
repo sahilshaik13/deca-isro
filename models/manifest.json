@@ -1,15 +1,15 @@
 {
   "training_date": "2026-07-15T06:37:31.625835+00:00",
   "row_counts_by_source": {
-    "network": 8772,
+    "network": 15631,
     "public": 8278
   },
   "unified_label_counts": {
-    "healthy": 15804,
-    "congestion_breach": 430,
-    "tunnel_degradation": 306,
-    "bgp_route_flap": 300,
-    "vrf_leakage": 210
+    "healthy": 19961,
+    "congestion_breach": 1260,
+    "bgp_route_flap": 1224,
+    "tunnel_degradation": 849,
+    "vrf_leakage": 615
   },
   "feature_columns": [
     "bgp_update_rate_slope",
@@ -49,28 +49,23 @@
     "summary": [
       {
         "Component": "Isolation Forest + Platt",
-        "Primary score": "ROC-AUC 0.720",
-        "Notes": "Unsupervised precursor / dashboard confidence"
+        "Primary score": "ROC-AUC 0.582",
+        "Notes": "Retrained on post\u2013Tier-6 lake"
       },
       {
         "Component": "XGBoost Phase 1 (tiers 1\u20133)",
-        "Primary score": "Macro-F1 0.721, Acc 0.94",
-        "Notes": "mode=weighted_multiclass; rare recall \u2191; no SMOTE"
+        "Primary score": "Macro-F1 0.725 (promoted wm)",
+        "Notes": "School Exam Mode B; SMOTE refused"
       },
       {
         "Component": "LSTM time-to-breach",
-        "Primary score": "MAE 2.133 min",
-        "Notes": "623 network sequences, T=16"
+        "Primary score": "MAE 2.014 min",
+        "Notes": "1316 network sequences, T=16"
       },
       {
         "Component": "Prophet \u00d73",
         "Primary score": "Fit complete",
-        "Notes": "4502 / 8000 / 320 points (ifInOctets / jitter / bgp)"
-      },
-      {
-        "Component": "Attribution",
-        "Primary score": "Top: bgp_update_rate_rolling_std, bgp_update_rate_rolling_mean, bgp_update_rate_accel",
-        "Notes": "Stage-2 XGB gain; no SMOTE"
+        "Notes": "5344 / 8000 / 320 points (ifInOctets / jitter / bgp)"
       },
       {
         "Component": "Topology",
@@ -135,8 +130,10 @@
       "file": "models/isolation_forest/isolation_forest.pkl",
       "type": "sklearn",
       "metrics": {
-        "auc": 0.7204375393441453,
-        "contamination": 0.07304293423007742
+        "auc": 0.5821220852042288,
+        "contamination": 0.08,
+        "test_n": 5978,
+        "anomaly_rate_test": 0.16510538641686182
       }
     },
     {
@@ -151,17 +148,18 @@
       "metrics": {
         "phase": "school_exam_A",
         "mode": "weighted_multiclass",
-        "macro_f1": 0.7498182376957173,
-        "weighted_f1": 0.9578435280599455,
-        "mean_rare_recall": 0.5523809523809524,
+        "head_family": "wm",
+        "macro_f1": 0.7245251546584006,
+        "weighted_f1": 0.9013650141622651,
+        "mean_rare_recall": 0.4521486643437863,
         "gate_thr": 0.6,
-        "rare_boost": 1.5,
+        "rare_boost": 1.0,
         "per_class_f1": {
-          "healthy": 0.9757884676648614,
-          "congestion_breach": 0.9310344827586207,
-          "tunnel_degradation": 0.8818897637795275,
-          "bgp_route_flap": 0.42105263157894735,
-          "vrf_leakage": 0.5393258426966292
+          "healthy": 0.9435524335173106,
+          "congestion_breach": 0.9302325581395349,
+          "tunnel_degradation": 0.8377581120943953,
+          "bgp_route_flap": 0.44889779559118237,
+          "vrf_leakage": 0.46218487394957986
         },
         "smote": false
       }
@@ -175,19 +173,31 @@
       "name": "prophet_ifInOctets",
       "file": "models/prophet_ifInOctets/prophet_ifInOctets.pkl",
       "type": "prophet",
-      "n": 4502
+      "n": 4502,
+      "metrics": {
+        "n": 5344,
+        "metric": "ifInOctets"
+      }
     },
     {
       "name": "prophet_jitter_ms",
       "file": "models/prophet_jitter_ms/prophet_jitter_ms.pkl",
       "type": "prophet",
-      "n": 8000
+      "n": 8000,
+      "metrics": {
+        "n": 8000,
+        "metric": "jitter_ms"
+      }
     },
     {
       "name": "prophet_bgp_update_rate",
       "file": "models/prophet_bgp_update_rate/prophet_bgp_update_rate.pkl",
       "type": "prophet",
-      "n": 320
+      "n": 320,
+      "metrics": {
+        "n": 320,
+        "metric": "bgp_update_rate"
+      }
     },
     {
       "name": "fault_lstm_v1",
@@ -209,14 +219,28 @@
           "CORE": 1
         }
       }
+    },
+    {
+      "name": "lstm",
+      "file": "models/lstm/fault_lstm_v1.keras",
+      "type": "keras",
+      "metrics": {
+        "mae_minutes": 2.0142433643341064,
+        "n_sequences_used": 1316,
+        "n_sequences_available": 1316,
+        "test_n": 264
+      }
     }
   ],
   "school_exam": {
-    "date": "2026-07-15T09:40:07.149033+00:00",
-    "rare_boost": 1.5,
-    "exam_macro_f1": 0.7498182376957173,
-    "exam_mean_rare_recall": 0.5523809523809524,
-    "baseline_macro_f1": 0.7211168811173485,
+    "date": "2026-07-15T15:41:39.383700+00:00",
+    "head_family": "wm",
+    "rare_boost": 1.0,
+    "exam_macro_f1": 0.7245251546584006,
+    "exam_mean_rare_recall": 0.4521486643437863,
+    "baseline_macro_f1": 0.71,
     "promoted": true
-  }
+  },
+  "companions_retrain_date": "2026-07-15T15:48:25.301700+00:00",
+  "n_rows": 23909
 }

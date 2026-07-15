@@ -1,0 +1,41 @@
+{
+  "date": "2026-07-15T15:48:25.304303+00:00",
+  "n_rows": 23909,
+  "isolation_forest": {
+    "auc": 0.5821220852042288,
+    "contamination": 0.08,
+    "test_n": 5978,
+    "anomaly_rate_test": 0.16510538641686182
+  },
+  "prophet": [
+    {
+      "name": "prophet_ifInOctets",
+      "n": 5344,
+      "metric": "ifInOctets"
+    },
+    {
+      "name": "prophet_jitter_ms",
+      "n": 8000,
+      "metric": "jitter_ms"
+    },
+    {
+      "name": "prophet_bgp_update_rate",
+      "n": 320,
+      "metric": "bgp_update_rate"
+    }
+  ],
+  "lstm": {
+    "mae_minutes": 2.0142433643341064,
+    "n_sequences_used": 1316,
+    "n_sequences_available": 1316,
+    "test_n": 264
+  },
+  "topology": {
+    "eccentricity": {
+      "PE1": 1,
+      "PE2": 1,
+      "CORE": 1
+    }
+  },
+  "fault_classifier": "untouched"
+}

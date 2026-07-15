@@ -1,6 +1,8 @@
-model,role,primary_metric,roc_auc,average_precision,macro_f1,accuracy,mean_rare_recall,mae_minutes,n_sequences,mae,smape,score_mode,eccentricity,note,error,skipped
-isolation_forest,Unknown weirdness / anomaly precursor,roc_auc,0.7061005807475393,0.10778560068011211,,,,,,,,,,,,
-fault_classifier_xgb,What is happening now? (multiclass fault ID),macro_f1,,,0.8247187506769557,0.9671554252199414,0.7928571428571429,,,,,,,,,
-lstm_ttb,,,,,,,,,,,,,,,,True
-prophet,,,,,,,,,,,,,,,,True
-topology,Alert eccentricity / root-node merge (structure only),eccentricity,,,,,,,,,,,"{'PE1': 1, 'PE2': 1, 'CORE': 1}",Not a telemetry accuracy model — printed for completeness,,
+model,role,primary_metric,roc_auc,average_precision,macro_f1,accuracy,mean_rare_recall,mae_minutes,n_sequences,mae,smape,score_mode,eccentricity,note,error
+isolation_forest,Unknown weirdness / anomaly precursor,roc_auc,0.5745286458993937,0.18823098280786732,,,,,,,,,,,
+fault_classifier_xgb,What is happening now? (multiclass fault ID),macro_f1,,,0.7729161709241483,0.9148891677122543,0.5682926829268293,,,,,,,,
+lstm_ttb,When will it break? (minutes to breach),mae_minutes,,,,,,2.4658039001365655,1953.0,,,,,,
+prophet_ifInOctets,Macro baseline / seasonality envelope,mae,,,,,,,,1815526623.4985828,2.0,honest_refit_prefix,,,
+prophet_jitter_ms,Macro baseline / seasonality envelope,mae,,,,,,,,185.8157215680775,1.8580077390923468,honest_refit_prefix,,,
+prophet_bgp_update_rate,Macro baseline / seasonality envelope,mae,,,,,,,,8882.195127066649,0.43960497957641564,honest_refit_prefix,,,
+topology,Alert eccentricity / root-node merge (structure only),eccentricity,,,,,,,,,,,"{'PE1': 1, 'PE2': 1, 'CORE': 1}",Not a telemetry accuracy model — printed for completeness,

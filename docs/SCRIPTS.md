@@ -14,7 +14,7 @@ Paths resolve via [`_paths.py`](../scripts/_paths.py) (`data/`, `models/`), not 
 | Shared | `_paths.py` |
 | Public lake | `fetch_public_data.py`, `routeviews.py`, `riperis.py`, `parse_bgp.py`, `ripe_atlas.py`, `bgpstream.py`, `ioda.py`, `ioda_client.py`, `cisco_scraper.py` |
 | Lab campaign | `deca_fault_campaign.py` |
-| Unify / train prep | `rebuild_unified.py`, `deca_school_exam_train.py`, `deca_mlops_orchestrator.py`, `deca_model_playground.py`, `deca_model_experts.py` |
+| Unify / train prep | `rebuild_unified.py`, `deca_school_exam_train.py`, `deca_mlops_orchestrator.py`, `deca_model_playground.py`, `deca_model_experts.py`, `deca_retrain_companions.py` |
 | Station ops | `deca_deploy_stations.sh`, `deca_heal_telemetry.sh`, `deca_fix_prom_vpn.sh`, `deca_debug_vpn_prom.sh` |
 
 **Not a script (training):** [`notebook/DECA_Model_Training.ipynb`](../notebook/DECA_Model_Training.ipynb) — see README / [`DECA_ROI_TIERS.md`](DECA_ROI_TIERS.md).  
@@ -208,6 +208,16 @@ Notes: synthetic = **0**; IODA/BGP outage CSVs are **not** applied as row labels
 | **Command** | `python scripts/deca_model_playground.py` · `--exam-seed 42` · `--prophet-refit` for honest Prophet |
 | **Flags** | `--holdout-frac` · `--holdout-policy` · `--exam-seed` · `--prophet-refit` · `--skip-lstm` · `--skip-prophet` |
 | **Output** | `models/playground/scoreboard.md`, `scoreboard.csv`, `latest_playground.json` |
+
+### `deca_retrain_companions.py`
+
+| | |
+| --- | --- |
+| **Purpose** | Retrain **companions only** (Isolation Forest + Platt, Prophet ×3, LSTM, topology) on the current lake after Mode B ingest. **Does not** touch the promoted fault classifier. |
+| **Use case** | After a Tier‑6 campaign rebuilds the lake and School Exam promotes a new classifier, companions still sit on the old distribution until this runs. |
+| **Command** | `python scripts/deca_retrain_companions.py` |
+| **Flags** | `--skip-if` · `--skip-prophet` · `--skip-lstm` · `--skip-topology` |
+| **Output** | Updates under `models/isolation_forest/`, `prophet_*/`, `lstm/`, `topology/`; patches `models/manifest.json`; writes `models/companions_retrain.json` |
 
 ---
 

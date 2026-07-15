@@ -1,36 +1,36 @@
 {
-  "training_date": "2026-07-15T13:17:33.835459+00:00",
-  "mode": "school_exam_A_c1",
-  "exam_seed": 1784139100,
+  "training_date": "2026-07-15T15:41:39.354456+00:00",
+  "mode": "school_exam_A",
+  "exam_seed": 1784130077,
   "holdout_policy": "random",
-  "baseline_macro_f1": 0.7498182376957173,
+  "baseline_macro_f1": 0.71,
   "holdout_frac": 0.2,
   "unit_test_active": {
-    "macro_f1": 0.7836347959701533,
-    "weighted_f1": 0.9622918753839403,
-    "mean_rare_recall": 0.6952380952380952,
+    "macro_f1": 0.33542136168077763,
+    "weighted_f1": 0.8025954775012198,
+    "mean_rare_recall": 0.0,
     "per_class_f1": {
-      "healthy": 0.9779552715654952,
-      "congestion_breach": 0.9101123595505618,
-      "tunnel_degradation": 0.8976377952755905,
-      "bgp_route_flap": 0.5283018867924528,
-      "vrf_leakage": 0.6041666666666666
+      "healthy": 0.9179832713754646,
+      "congestion_breach": 0.5411140583554377,
+      "tunnel_degradation": 0.21800947867298578,
+      "bgp_route_flap": 0.0,
+      "vrf_leakage": 0.0
     }
   },
   "best": {
-    "family": "plain",
-    "rare_boost": 1.5,
+    "family": "wm",
+    "rare_boost": 1.0,
     "gate_thr": 0.6,
-    "val_macro_f1": 0.7336790787444057,
-    "exam_macro_f1": 0.7016557801975596,
-    "exam_weighted_f1": 0.9495454778268639,
-    "exam_mean_rare_recall": 0.4714285714285714,
+    "val_macro_f1": 0.7293644691651462,
+    "exam_macro_f1": 0.7245251546584006,
+    "exam_weighted_f1": 0.9013650141622651,
+    "exam_mean_rare_recall": 0.4521486643437863,
     "per_class_f1": {
-      "healthy": 0.9716740929344366,
-      "congestion_breach": 0.8426966292134831,
-      "tunnel_degradation": 0.8524590163934426,
-      "bgp_route_flap": 0.3708609271523179,
-      "vrf_leakage": 0.47058823529411764
+      "healthy": 0.9435524335173106,
+      "congestion_breach": 0.9302325581395349,
+      "tunnel_degradation": 0.8377581120943953,
+      "bgp_route_flap": 0.44889779559118237,
+      "vrf_leakage": 0.46218487394957986
     }
   },
   "sweep": [
@@ -38,160 +38,80 @@
       "family": "plain",
       "rare_boost": 1.0,
       "gate_thr": 0.6,
-      "val_macro_f1": 0.7336071512092583,
-      "exam_macro_f1": 0.7004449064216838,
-      "exam_weighted_f1": 0.9504389744249665,
-      "exam_mean_rare_recall": 0.4464285714285714,
+      "val_macro_f1": 0.7333046005924514,
+      "exam_macro_f1": 0.7190940466674983,
+      "exam_weighted_f1": 0.8981326515090946,
+      "exam_mean_rare_recall": 0.45417288866766214,
       "per_class_f1": {
-        "healthy": 0.9728528337831401,
-        "congestion_breach": 0.8457142857142858,
-        "tunnel_degradation": 0.8387096774193549,
-        "bgp_route_flap": 0.35714285714285715,
-        "vrf_leakage": 0.4878048780487805
+        "healthy": 0.9410285426882937,
+        "congestion_breach": 0.9177820267686424,
+        "tunnel_degradation": 0.829971181556196,
+        "bgp_route_flap": 0.4457831325301205,
+        "vrf_leakage": 0.4609053497942387
       }
     },
     {
       "family": "plain",
       "rare_boost": 1.5,
       "gate_thr": 0.6,
-      "val_macro_f1": 0.7336790787444057,
-      "exam_macro_f1": 0.7016557801975596,
-      "exam_weighted_f1": 0.9495454778268639,
-      "exam_mean_rare_recall": 0.4714285714285714,
+      "val_macro_f1": 0.7333330548552339,
+      "exam_macro_f1": 0.718731246896154,
+      "exam_weighted_f1": 0.8982950863563998,
+      "exam_mean_rare_recall": 0.4501078480172557,
       "per_class_f1": {
-        "healthy": 0.9716740929344366,
-        "congestion_breach": 0.8426966292134831,
-        "tunnel_degradation": 0.8524590163934426,
-        "bgp_route_flap": 0.3708609271523179,
-        "vrf_leakage": 0.47058823529411764
-      }
-    },
-    {
-      "family": "plain",
-      "rare_boost": 2.0,
-      "gate_thr": 0.6,
-      "val_macro_f1": 0.7206672063995863,
-      "exam_macro_f1": 0.6956669540831735,
-      "exam_weighted_f1": 0.9478877300591203,
-      "exam_mean_rare_recall": 0.4714285714285714,
-      "per_class_f1": {
-        "healthy": 0.9703632887189293,
-        "congestion_breach": 0.847457627118644,
-        "tunnel_degradation": 0.8387096774193549,
-        "bgp_route_flap": 0.35668789808917195,
-        "vrf_leakage": 0.46511627906976744
+        "healthy": 0.9411764705882353,
+        "congestion_breach": 0.9266409266409267,
+        "tunnel_degradation": 0.8352941176470589,
+        "bgp_route_flap": 0.4378698224852071,
+        "vrf_leakage": 0.45267489711934156
       }
     },
     {
       "family": "wm",
       "rare_boost": 1.0,
       "gate_thr": 0.6,
-      "val_macro_f1": 0.7280269909088568,
-      "exam_macro_f1": 0.6900368728139371,
-      "exam_weighted_f1": 0.9497863526000706,
-      "exam_mean_rare_recall": 0.39285714285714285,
+      "val_macro_f1": 0.7293644691651462,
+      "exam_macro_f1": 0.7245251546584006,
+      "exam_weighted_f1": 0.9013650141622651,
+      "exam_mean_rare_recall": 0.4521486643437863,
       "per_class_f1": {
-        "healthy": 0.9732298431807381,
-        "congestion_breach": 0.8342857142857143,
-        "tunnel_degradation": 0.8524590163934426,
-        "bgp_route_flap": 0.30303030303030304,
-        "vrf_leakage": 0.48717948717948717
+        "healthy": 0.9435524335173106,
+        "congestion_breach": 0.9302325581395349,
+        "tunnel_degradation": 0.8377581120943953,
+        "bgp_route_flap": 0.44889779559118237,
+        "vrf_leakage": 0.46218487394957986
       }
     },
     {
       "family": "wm",
       "rare_boost": 1.5,
       "gate_thr": 0.6,
-      "val_macro_f1": 0.7096349935435515,
-      "exam_macro_f1": 0.690021409571995,
-      "exam_weighted_f1": 0.9486121624648779,
-      "exam_mean_rare_recall": 0.42619047619047623,
+      "val_macro_f1": 0.7299793890771668,
+      "exam_macro_f1": 0.7203335013340918,
+      "exam_weighted_f1": 0.899356384951833,
+      "exam_mean_rare_recall": 0.4501078480172557,
       "per_class_f1": {
-        "healthy": 0.9717280813214739,
-        "congestion_breach": 0.8390804597701149,
-        "tunnel_degradation": 0.8571428571428571,
-        "bgp_route_flap": 0.32432432432432434,
-        "vrf_leakage": 0.4578313253012048
-      }
-    },
-    {
-      "family": "wm",
-      "rare_boost": 2.0,
-      "gate_thr": 0.6,
-      "val_macro_f1": 0.7186143136132193,
-      "exam_macro_f1": 0.6834442362906099,
-      "exam_weighted_f1": 0.9478308248137968,
-      "exam_mean_rare_recall": 0.39285714285714285,
-      "per_class_f1": {
-        "healthy": 0.9715918108236787,
-        "congestion_breach": 0.8409090909090909,
-        "tunnel_degradation": 0.85,
-        "bgp_route_flap": 0.27972027972027974,
-        "vrf_leakage": 0.475
-      }
-    },
-    {
-      "family": "moe",
-      "rare_boost": 1.0,
-      "gate_thr": 0.6,
-      "val_macro_f1": 0.6712513619821847,
-      "exam_macro_f1": 0.662125999506276,
-      "exam_weighted_f1": 0.9387779429461609,
-      "exam_mean_rare_recall": 0.4714285714285714,
-      "per_class_f1": {
-        "healthy": 0.9636772741883639,
-        "congestion_breach": 0.8042328042328042,
-        "tunnel_degradation": 0.8217054263565892,
-        "bgp_route_flap": 0.30434782608695654,
-        "vrf_leakage": 0.4166666666666667
-      }
-    },
-    {
-      "family": "moe",
-      "rare_boost": 1.5,
-      "gate_thr": 0.6,
-      "val_macro_f1": 0.661086037569281,
-      "exam_macro_f1": 0.6616881392455738,
-      "exam_weighted_f1": 0.9389073718301129,
-      "exam_mean_rare_recall": 0.4630952380952381,
-      "per_class_f1": {
-        "healthy": 0.9636772741883639,
-        "congestion_breach": 0.8235294117647058,
-        "tunnel_degradation": 0.8153846153846154,
-        "bgp_route_flap": 0.29347826086956524,
-        "vrf_leakage": 0.41237113402061853
-      }
-    },
-    {
-      "family": "moe",
-      "rare_boost": 2.0,
-      "gate_thr": 0.6,
-      "val_macro_f1": 0.6643823684164704,
-      "exam_macro_f1": 0.6605907107187351,
-      "exam_weighted_f1": 0.9385582156440693,
-      "exam_mean_rare_recall": 0.4714285714285714,
-      "per_class_f1": {
-        "healthy": 0.9634989548158868,
-        "congestion_breach": 0.8085106382978723,
-        "tunnel_degradation": 0.8217054263565892,
-        "bgp_route_flap": 0.3010752688172043,
-        "vrf_leakage": 0.40816326530612246
+        "healthy": 0.9420927019218691,
+        "congestion_breach": 0.9281553398058252,
+        "tunnel_degradation": 0.8427299703264095,
+        "bgp_route_flap": 0.4378698224852071,
+        "vrf_leakage": 0.45081967213114754
       }
     }
   ],
-  "gate_ok": false,
+  "gate_ok": true,
   "gate": {
-    "candidate_macro_f1": 0.7016557801975596,
-    "candidate_mean_rare_recall": 0.4714285714285714,
+    "candidate_macro_f1": 0.7245251546584006,
+    "candidate_mean_rare_recall": 0.4521486643437863,
     "basis": "honest_same_paper_champion_config",
-    "bar_macro_f1": 0.7498182376957173,
-    "champion_same_paper_macro_f1": 0.7016557801975596,
-    "champion_same_paper_rare_recall": 0.4714285714285714,
-    "active_same_paper_macro_f1": 0.7836347959701533,
-    "active_same_paper_rare_recall": 0.6952380952380952,
-    "manifest_baseline_macro_f1": 0.7498182376957173,
-    "rare_recall_floor": 0.4414285714285714,
-    "passed": false
+    "bar_macro_f1": 0.7190940466674983,
+    "champion_same_paper_macro_f1": 0.7190940466674983,
+    "champion_same_paper_rare_recall": 0.45417288866766214,
+    "active_same_paper_macro_f1": 0.33542136168077763,
+    "active_same_paper_rare_recall": 0.0,
+    "manifest_baseline_macro_f1": 0.71,
+    "rare_recall_floor": 0.4241728886676621,
+    "passed": true
   },
   "anti_memorization": "fresh stratified exam draw each run unless --exam-seed is fixed"
 }
