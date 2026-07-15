@@ -1,13 +1,14 @@
 {
   "mode": "weighted_multiclass",
-  "gate_thr": 0.4,
+  "gate_thr": 0.6,
   "class_thr": {
-    "healthy": 1.0,
-    "congestion_breach": 1.0,
-    "tunnel_degradation": 1.0,
+    "healthy": 1.2,
+    "congestion_breach": 1.2,
+    "tunnel_degradation": 1.2,
     "bgp_route_flap": 1.0,
     "vrf_leakage": 1.0
   },
-  "val_macro_f1": 0.732870380922531,
-  "rare_aware_score": 0.5733100956888504
+  "exam_macro_f1": 0.7498182376957173,
+  "exam_mean_rare_recall": 0.5523809523809524,
+  "rare_boost": 1.5
 }

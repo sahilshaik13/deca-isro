@@ -254,204 +254,47 @@ def stratified_blind_holdout(
     return idx
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="DECA School Exam train (Mode A)")
-    parser.add_argument("--holdout-frac", type=float, default=0.20)
-    parser.add_argument(
-        "--holdout-policy",
-        choices=("random", "time_tail"),
-        default="random",
-        help="random = new exam paper each run (anti-memorization); time_tail = latest per class",
-    )
-    parser.add_argument(
-        "--exam-seed",
-        type=int,
-        default=None,
-        help="Exam RNG seed. Default: fresh each run (UTC epoch seconds) so questions change",
-    )
-    parser.add_argument(
-        "--rare-boosts",
-        type=str,
-        default="1,1.5,2,3",
-        help="Comma-separated β multipliers for BGP/VRF sample weights",
-    )
-    parser.add_argument("--promote", action="store_true", help="Write best candidate if gate passes")
-    parser.add_argument("--baseline-macro-f1", type=float, default=None)
-    parser.add_argument(
-        "--min-rare-recall-drop",
-        type=float,
-        default=0.03,
-        help="Allow candidate mean rare recall to be at most this much below unit-test baseline of best effort",
-    )
-    args = parser.parse_args()
-    boosts = [float(x) for x in args.rare_boosts.split(",") if x.strip()]
-    exam_seed = args.exam_seed if args.exam_seed is not None else int(datetime.now(timezone.utc).timestamp())
-    rng = np.random.default_rng(exam_seed)
+def load_active_classifier() -> dict | None:
+    path = MODELS_DIR / "fault_classifier" / "fault_classifier_xgb.pkl"
+    if not path.exists():
+        return None
+    return joblib.load(path)
 
-    path = PROCESSED_DIR / "deca_unified_dataset.parquet"
-    df = pd.read_parquet(path)
-    if "unified_label" not in df.columns:
-        df["unified_label"] = df["fault_type"].map(to_unified_label)
-    if not isinstance(df.index, pd.DatetimeIndex):
-        df.index = pd.to_datetime(df.index, utc=True)
-    df = df.sort_index()
-    feats = feature_columns(df)
 
-    y_raw = df["unified_label"].astype(str)
-    keep = y_raw.value_counts()
-    mask = y_raw.isin(keep[keep >= 5].index)
-    df = df.loc[mask]
-    y_raw = y_raw.loc[mask]
-    X = df[feats]
-
-    le_classes = [c for c in UNIFIED_LABELS if c in set(y_raw)]
-    le_classes += sorted(set(y_raw) - set(le_classes))
-    class_to_idx = {c: i for i, c in enumerate(le_classes)}
-    y = y_raw.map(class_to_idx).astype(int).values
-    healthy_idx = class_to_idx["healthy"]
-    rare_ids = {class_to_idx[c] for c in RARE if c in class_to_idx}
-    rare_idx_list = sorted(rare_ids)
-
-    blind = stratified_blind_holdout(
-        y, df, args.holdout_frac, rng=rng, policy=args.holdout_policy
-    )
-    X_exam, y_exam = X.iloc[blind], y[blind]
-    X_pool, y_pool = X.iloc[~blind], y[~blind]
-
-    print(f"Exam paper seed={exam_seed}  policy={args.holdout_policy}  (new questions each run unless --exam-seed fixed)")
-    print("Exam label counts:", {le_classes[i]: int(np.sum(y_exam == i)) for i in range(len(le_classes))})
-
-    X_fit, X_val, y_fit, y_val = train_test_split(
-        X_pool, y_pool, test_size=0.2, random_state=RANDOM_STATE, stratify=y_pool
+def score_active_classifier(
+    bundle: dict,
+    X_exam: pd.DataFrame,
+    y_exam: np.ndarray,
+    *,
+    le_classes: list[str],
+    rare_idx_list: list[int],
+) -> dict | None:
+    full_clf = bundle.get("full_clf")
+    if full_clf is None:
+        return None
+    return evaluate(
+        bundle["gate"],
+        full_clf,
+        X_exam,
+        y_exam,
+        healthy_idx=int(bundle["healthy_idx"]),
+        gate_thr=float(bundle["gate_thr"]),
+        class_thr={int(k): float(v) for k, v in bundle.get("class_thr", {}).items()},
+        le_classes=le_classes,
+        rare_idx_list=rare_idx_list,
     )
 
-    baseline = load_baseline_macro(args.baseline_macro_f1)
-    print(f"Lake rows={len(df):,}  features={len(feats)}  exam rows={len(X_exam):,}")
-    print(f"Baseline Macro-F1 to beat: {baseline:.4f}")
-    print(f"Rare boosts β={boosts}")
-    print(f"Classes: {le_classes}")
 
-    results = []
-    best = None
-
-    for beta in boosts:
-        print(f"\n=== Study hall  β={beta} ===")
-        gate, full_clf, thr = train_phase1(
-            X_fit,
-            y_fit,
-            X_val,
-            y_val,
-            healthy_idx=healthy_idx,
-            rare_ids=rare_ids,
-            boost=beta,
-        )
-        exam = evaluate(
-            gate,
-            full_clf,
-            X_exam,
-            y_exam,
-            healthy_idx=healthy_idx,
-            gate_thr=thr["gate_thr"],
-            class_thr=thr["class_thr"],
-            le_classes=le_classes,
-            rare_idx_list=rare_idx_list,
-        )
-        row = {
-            "rare_boost": beta,
-            "gate_thr": thr["gate_thr"],
-            "val_macro_f1": thr["macro_f1"],
-            "exam_macro_f1": exam["macro_f1"],
-            "exam_weighted_f1": exam["weighted_f1"],
-            "exam_mean_rare_recall": exam["mean_rare_recall"],
-            "per_class_f1": {
-                c: float(exam["report"][c]["f1-score"]) for c in le_classes
-            },
-        }
-        print(
-            f"  val macro-F1={thr['macro_f1']:.4f}  "
-            f"EXAM macro-F1={exam['macro_f1']:.4f}  "
-            f"rare-recall={exam['mean_rare_recall']:.4f}  "
-            f"gate_thr={thr['gate_thr']:.2f}"
-        )
-        for c in RARE:
-            if c in exam["report"]:
-                print(
-                    f"    {c}: P={exam['report'][c]['precision']:.2f} "
-                    f"R={exam['report'][c]['recall']:.2f} "
-                    f"F1={exam['report'][c]['f1-score']:.2f}"
-                )
-        results.append(row)
-        payload = {
-            "gate": gate,
-            "full_clf": full_clf,
-            "thr": thr,
-            "exam": exam,
-            "row": row,
-            "le_classes": le_classes,
-            "healthy_idx": healthy_idx,
-            "rare_ids": list(rare_ids),
-            "class_to_idx": class_to_idx,
-            "feats": feats,
-        }
-        if best is None or exam["macro_f1"] > best["exam"]["macro_f1"]:
-            best = payload
-
-    assert best is not None
-    summary = pd.DataFrame(
-        [
-            {
-                "rare_boost": r["rare_boost"],
-                "exam_macro_f1": r["exam_macro_f1"],
-                "exam_mean_rare_recall": r["exam_mean_rare_recall"],
-                "val_macro_f1": r["val_macro_f1"],
-                "gate_thr": r["gate_thr"],
-            }
-            for r in results
-        ]
-    )
-    out_dir = MODELS_DIR / "school_exam"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    summary_path = out_dir / "weight_sweep.csv"
-    summary.to_csv(summary_path, index=False)
-    report_path = out_dir / "latest_exam.json"
-    report_path.write_text(
-        json.dumps(
-            {
-                "training_date": datetime.now(timezone.utc).isoformat(),
-                "mode": "school_exam_A",
-                "exam_seed": exam_seed,
-                "holdout_policy": args.holdout_policy,
-                "baseline_macro_f1": baseline,
-                "holdout_frac": args.holdout_frac,
-                "best": best["row"],
-                "sweep": results,
-                "anti_memorization": "fresh stratified exam draw each run unless --exam-seed is fixed",
-            },
-            indent=2,
-        )
-    )
-    print(f"\nWrote {summary_path}")
-    print(f"Wrote {report_path}")
-
-    cand = best["exam"]["macro_f1"]
-    rare = best["exam"]["mean_rare_recall"]
-    # unit-test floor: mean rare recall among sweep as soft guard
-    rare_floor = max(r["exam_mean_rare_recall"] for r in results) - args.min_rare_recall_drop
-    gate_ok = cand >= baseline and rare >= rare_floor
-    print("\n=== Great Exam / promotion gate ===")
-    print(f"  candidate Macro-F1={cand:.4f}  baseline={baseline:.4f}")
-    print(f"  candidate rare-recall={rare:.4f}  floor≈{rare_floor:.4f}")
-    print(f"  GATE: {'PASS' if gate_ok else 'FAIL'}")
-
-    if not args.promote:
-        print("  (dry run — pass --promote to overwrite models/fault_classifier if PASS)")
-        return
-
-    if not gate_ok:
-        print("  Refuse promote — keeping active models/")
-        return
-
-    # Persist Phase-1 classifier compatible with notebook artifacts (weighted_multiclass)
+def promote_candidate(
+    best: dict,
+    *,
+    baseline: float,
+    class_to_idx: dict[str, int],
+    cand: float,
+    rare: float,
+) -> None:
+    le_classes = best["le_classes"]
+    healthy_idx = best["healthy_idx"]
     clf_dir = MODELS_DIR / "fault_classifier"
     bak = MODELS_DIR / f"fault_classifier.bak_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
     if clf_dir.exists():
@@ -511,7 +354,6 @@ def main() -> None:
         )
     )
 
-    # Patch manifest classifier metrics if present
     man_path = MODELS_DIR / "manifest.json"
     if man_path.exists():
         man = json.loads(man_path.read_text())
@@ -540,6 +382,291 @@ def main() -> None:
         print(f"  Updated {man_path}")
 
     print("  PROMOTED school-exam classifier into models/fault_classifier/")
+
+
+def run_school_exam(
+    *,
+    holdout_frac: float = 0.20,
+    holdout_policy: str = "random",
+    exam_seed: int | None = None,
+    rare_boosts: list[float] | None = None,
+    auto_promote: bool = False,
+    baseline_macro_f1: float | None = None,
+    min_rare_recall_drop: float = 0.03,
+    mode_label: str = "school_exam_A",
+    unit_test_active: bool = True,
+) -> dict:
+    """Run full School Exam pipeline; optionally auto-promote when gate passes."""
+    boosts = rare_boosts or [1.0, 1.5, 2.0, 3.0]
+    seed = exam_seed if exam_seed is not None else int(datetime.now(timezone.utc).timestamp())
+    rng = np.random.default_rng(seed)
+
+    path = PROCESSED_DIR / "deca_unified_dataset.parquet"
+    if not path.exists():
+        raise FileNotFoundError(f"Missing feature lake: {path}")
+
+    df = pd.read_parquet(path)
+    if "unified_label" not in df.columns:
+        df["unified_label"] = df["fault_type"].map(to_unified_label)
+    if not isinstance(df.index, pd.DatetimeIndex):
+        df.index = pd.to_datetime(df.index, utc=True)
+    df = df.sort_index()
+    feats = feature_columns(df)
+
+    y_raw = df["unified_label"].astype(str)
+    keep = y_raw.value_counts()
+    mask = y_raw.isin(keep[keep >= 5].index)
+    df = df.loc[mask]
+    y_raw = y_raw.loc[mask]
+    X = df[feats]
+
+    le_classes = [c for c in UNIFIED_LABELS if c in set(y_raw)]
+    le_classes += sorted(set(y_raw) - set(le_classes))
+    class_to_idx = {c: i for i, c in enumerate(le_classes)}
+    y = y_raw.map(class_to_idx).astype(int).values
+    healthy_idx = class_to_idx["healthy"]
+    rare_ids = {class_to_idx[c] for c in RARE if c in class_to_idx}
+    rare_idx_list = sorted(rare_ids)
+
+    blind = stratified_blind_holdout(y, df, holdout_frac, rng=rng, policy=holdout_policy)
+    X_exam, y_exam = X.iloc[blind], y[blind]
+    X_pool, y_pool = X.iloc[~blind], y[~blind]
+
+    print(f"Exam paper seed={seed}  policy={holdout_policy}  (new questions each run unless --exam-seed fixed)")
+    print("Exam label counts:", {le_classes[i]: int(np.sum(y_exam == i)) for i in range(len(le_classes))})
+
+    unit_test = None
+    if unit_test_active:
+        active = load_active_classifier()
+        if active is None:
+            print("\n=== Unit test (active model) ===")
+            print("  No active classifier — skip")
+        else:
+            scored = score_active_classifier(
+                active, X_exam, y_exam, le_classes=le_classes, rare_idx_list=rare_idx_list
+            )
+            if scored is None:
+                print("\n=== Unit test (active model) ===")
+                print("  Active model is not weighted_multiclass — skip")
+            else:
+                unit_test = {
+                    "macro_f1": scored["macro_f1"],
+                    "weighted_f1": scored["weighted_f1"],
+                    "mean_rare_recall": scored["mean_rare_recall"],
+                    "per_class_f1": {
+                        c: float(scored["report"][c]["f1-score"]) for c in le_classes
+                    },
+                }
+                print("\n=== Unit test (active model on new paper) ===")
+                print(
+                    f"  Macro-F1={unit_test['macro_f1']:.4f}  "
+                    f"rare-recall={unit_test['mean_rare_recall']:.4f}"
+                )
+
+    X_fit, X_val, y_fit, y_val = train_test_split(
+        X_pool, y_pool, test_size=0.2, random_state=RANDOM_STATE, stratify=y_pool
+    )
+
+    baseline = load_baseline_macro(baseline_macro_f1)
+    print(f"Lake rows={len(df):,}  features={len(feats)}  exam rows={len(X_exam):,}")
+    print(f"Baseline Macro-F1 to beat: {baseline:.4f}")
+    print(f"Rare boosts β={boosts}")
+    print(f"Classes: {le_classes}")
+
+    results = []
+    best = None
+
+    for beta in boosts:
+        print(f"\n=== Study hall  β={beta} ===")
+        gate, full_clf, thr = train_phase1(
+            X_fit,
+            y_fit,
+            X_val,
+            y_val,
+            healthy_idx=healthy_idx,
+            rare_ids=rare_ids,
+            boost=beta,
+        )
+        exam = evaluate(
+            gate,
+            full_clf,
+            X_exam,
+            y_exam,
+            healthy_idx=healthy_idx,
+            gate_thr=thr["gate_thr"],
+            class_thr=thr["class_thr"],
+            le_classes=le_classes,
+            rare_idx_list=rare_idx_list,
+        )
+        row = {
+            "rare_boost": beta,
+            "gate_thr": thr["gate_thr"],
+            "val_macro_f1": thr["macro_f1"],
+            "exam_macro_f1": exam["macro_f1"],
+            "exam_weighted_f1": exam["weighted_f1"],
+            "exam_mean_rare_recall": exam["mean_rare_recall"],
+            "per_class_f1": {c: float(exam["report"][c]["f1-score"]) for c in le_classes},
+        }
+        print(
+            f"  val macro-F1={thr['macro_f1']:.4f}  "
+            f"EXAM macro-F1={exam['macro_f1']:.4f}  "
+            f"rare-recall={exam['mean_rare_recall']:.4f}  "
+            f"gate_thr={thr['gate_thr']:.2f}"
+        )
+        for c in RARE:
+            if c in exam["report"]:
+                print(
+                    f"    {c}: P={exam['report'][c]['precision']:.2f} "
+                    f"R={exam['report'][c]['recall']:.2f} "
+                    f"F1={exam['report'][c]['f1-score']:.2f}"
+                )
+        results.append(row)
+        payload = {
+            "gate": gate,
+            "full_clf": full_clf,
+            "thr": thr,
+            "exam": exam,
+            "row": row,
+            "le_classes": le_classes,
+            "healthy_idx": healthy_idx,
+            "rare_ids": list(rare_ids),
+            "class_to_idx": class_to_idx,
+            "feats": feats,
+        }
+        if best is None or exam["macro_f1"] > best["exam"]["macro_f1"]:
+            best = payload
+
+    assert best is not None
+    out_dir = MODELS_DIR / "school_exam"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    summary_path = out_dir / "weight_sweep.csv"
+    pd.DataFrame(
+        [
+            {
+                "rare_boost": r["rare_boost"],
+                "exam_macro_f1": r["exam_macro_f1"],
+                "exam_mean_rare_recall": r["exam_mean_rare_recall"],
+                "val_macro_f1": r["val_macro_f1"],
+                "gate_thr": r["gate_thr"],
+            }
+            for r in results
+        ]
+    ).to_csv(summary_path, index=False)
+
+    cand = best["exam"]["macro_f1"]
+    rare = best["exam"]["mean_rare_recall"]
+    rare_floor = max(r["exam_mean_rare_recall"] for r in results) - min_rare_recall_drop
+    gate_ok = cand >= baseline and rare >= rare_floor
+
+    report = {
+        "training_date": datetime.now(timezone.utc).isoformat(),
+        "mode": mode_label,
+        "exam_seed": seed,
+        "holdout_policy": holdout_policy,
+        "baseline_macro_f1": baseline,
+        "holdout_frac": holdout_frac,
+        "unit_test_active": unit_test,
+        "best": best["row"],
+        "sweep": results,
+        "gate_ok": gate_ok,
+        "gate": {
+            "candidate_macro_f1": cand,
+            "candidate_mean_rare_recall": rare,
+            "rare_recall_floor": rare_floor,
+            "passed": gate_ok,
+        },
+        "anti_memorization": "fresh stratified exam draw each run unless --exam-seed is fixed",
+    }
+    report_path = out_dir / "latest_exam.json"
+    report_path.write_text(json.dumps(report, indent=2))
+    print(f"\nWrote {summary_path}")
+    print(f"Wrote {report_path}")
+
+    print("\n=== Great Exam / promotion gate ===")
+    print(f"  candidate Macro-F1={cand:.4f}  baseline={baseline:.4f}")
+    print(f"  candidate rare-recall={rare:.4f}  floor≈{rare_floor:.4f}")
+    print(f"  GATE: {'PASS' if gate_ok else 'FAIL'}")
+
+    promoted = False
+    action = "dry_run"
+    if auto_promote:
+        if gate_ok:
+            promote_candidate(
+                best,
+                baseline=baseline,
+                class_to_idx=class_to_idx,
+                cand=cand,
+                rare=rare,
+            )
+            promoted = True
+            action = "promoted"
+        else:
+            print("  Auto-promote: gate FAIL — keeping active models/")
+            action = "kept_active"
+    else:
+        print("  (dry run — orchestrator or --auto-promote to apply gate decision)")
+
+    return {
+        **report,
+        "promoted": promoted,
+        "action": action,
+        "best_payload": best,
+        "class_to_idx": class_to_idx,
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="DECA School Exam train (Mode A)")
+    parser.add_argument("--holdout-frac", type=float, default=0.20)
+    parser.add_argument(
+        "--holdout-policy",
+        choices=("random", "time_tail"),
+        default="random",
+        help="random = new exam paper each run (anti-memorization); time_tail = latest per class",
+    )
+    parser.add_argument(
+        "--exam-seed",
+        type=int,
+        default=None,
+        help="Exam RNG seed. Default: fresh each run (UTC epoch seconds) so questions change",
+    )
+    parser.add_argument(
+        "--rare-boosts",
+        type=str,
+        default="1,1.5,2,3",
+        help="Comma-separated β multipliers for BGP/VRF sample weights",
+    )
+    parser.add_argument(
+        "--auto-promote",
+        "--promote",
+        dest="auto_promote",
+        action="store_true",
+        help="Apply gate decision: promote if PASS, else keep active models",
+    )
+    parser.add_argument("--baseline-macro-f1", type=float, default=None)
+    parser.add_argument(
+        "--min-rare-recall-drop",
+        type=float,
+        default=0.03,
+        help="Allow candidate mean rare recall to be at most this much below sweep best",
+    )
+    parser.add_argument(
+        "--skip-unit-test",
+        action="store_true",
+        help="Skip scoring the active classifier on the new exam paper",
+    )
+    args = parser.parse_args()
+    boosts = [float(x) for x in args.rare_boosts.split(",") if x.strip()]
+    run_school_exam(
+        holdout_frac=args.holdout_frac,
+        holdout_policy=args.holdout_policy,
+        exam_seed=args.exam_seed,
+        rare_boosts=boosts,
+        auto_promote=args.auto_promote,
+        baseline_macro_f1=args.baseline_macro_f1,
+        min_rare_recall_drop=args.min_rare_recall_drop,
+        unit_test_active=not args.skip_unit_test,
+    )
 
 
 if __name__ == "__main__":

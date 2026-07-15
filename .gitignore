@@ -37,3 +37,10 @@ data/raw/public/*.mrt
 *.swp
 *~
 .ipynb_checkpoints/
+
+# Obsidian vault runtime (keep app.json + notes tracked)
+obsidian/.obsidian/workspace*
+obsidian/.obsidian/workspaces.json
+obsidian/.obsidian/cache
+obsidian/.obsidian/plugins/cursor-integration/
+obsidian/.trash/

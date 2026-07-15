@@ -14,7 +14,7 @@ Paths resolve via [`_paths.py`](../scripts/_paths.py) (`data/`, `models/`), not 
 | Shared | `_paths.py` |
 | Public lake | `fetch_public_data.py`, `routeviews.py`, `riperis.py`, `parse_bgp.py`, `ripe_atlas.py`, `bgpstream.py`, `ioda.py`, `ioda_client.py`, `cisco_scraper.py` |
 | Lab campaign | `deca_fault_campaign.py` |
-| Unify / train prep | `rebuild_unified.py`, `deca_school_exam_train.py` |
+| Unify / train prep | `rebuild_unified.py`, `deca_school_exam_train.py`, `deca_mlops_orchestrator.py`, `deca_model_playground.py` |
 | Station ops | `deca_deploy_stations.sh`, `deca_heal_telemetry.sh`, `deca_fix_prom_vpn.sh`, `deca_debug_vpn_prom.sh` |
 
 **Not a script (training):** [`notebook/DECA_Model_Training.ipynb`](../notebook/DECA_Model_Training.ipynb) — see README / [`DECA_ROI_TIERS.md`](DECA_ROI_TIERS.md).  
@@ -181,11 +181,31 @@ Notes: synthetic = **0**; IODA/BGP outage CSVs are **not** applied as row labels
 
 | | |
 | --- | --- |
-| **Purpose** | Mode A School Exam: **fresh stratified exam paper each run** (anti-memorization) → Phase‑1 retrain with rare weight boosts $\beta$ → promotion gate vs `manifest.json`. |
-| **Use case** | Optimize / re-weight training **now** without waiting for more campaign data. See [`DECA_MLOps_Continuous_Learning_Pipeline.md`](DECA_MLOps_Continuous_Learning_Pipeline.md). |
-| **Command** | `python scripts/deca_school_exam_train.py` · `--exam-seed 42` to replay one paper · `--promote` only if GATE PASS |
-| **Flags** | `--holdout-policy random\|time_tail` · `--exam-seed` (omit = new UTC epoch seed) · `--holdout-frac` · `--rare-boosts` · `--promote` · `--baseline-macro-f1` |
-| **Output** | `models/school_exam/weight_sweep.csv`, `latest_exam.json` (logs seed); optional promote into `models/fault_classifier/` |
+| **Purpose** | Mode A School Exam engine: **fresh stratified exam paper each run** → Phase‑1 β sweep → promotion gate vs `manifest.json`. |
+| **Use case** | Low-level exam runs; prefer **`deca_mlops_orchestrator.py`** for automated promote/keep. |
+| **Command** | `python scripts/deca_school_exam_train.py` · `--auto-promote` to apply gate · `--exam-seed 42` to replay |
+| **Flags** | `--holdout-policy random\|time_tail` · `--exam-seed` · `--holdout-frac` · `--rare-boosts` · `--auto-promote` |
+| **Output** | `models/school_exam/weight_sweep.csv`, `latest_exam.json` |
+
+### `deca_mlops_orchestrator.py`
+
+| | |
+| --- | --- |
+| **Purpose** | **Teach → test → examine → score → improve** loop with a **fresh random exam paper every cycle** until GATE PASS (promote) or `--max-cycles`. No human judge. |
+| **Use case** | Continuous learning on current lake (Mode A) or after a completed campaign (Mode B). |
+| **Command** | `python scripts/deca_mlops_orchestrator.py` · `--max-cycles 5` · `--once` · `--dry-run` · `--mode B --rpi-run <id>` |
+| **Flags** | `--max-cycles` · `--once` · `--dry-run` · `--mode A\|B` · `--rpi-run` · exam flags |
+| **Output** | `orchestrator_latest.json`, `orchestrator_history.jsonl`, exam artifacts; promotes `models/fault_classifier/` on PASS |
+
+### `deca_model_playground.py`
+
+| | |
+| --- | --- |
+| **Purpose** | Mixed blind test playground: one stratified random paper → score **every** model individually (IF, XGB, LSTM, Prophet ×3, topology). No retrain / no promote. |
+| **Use case** | Compare the live stack on the same general mixed holdout after School Exam promote. |
+| **Command** | `python scripts/deca_model_playground.py` · `--exam-seed 42` · `--prophet-refit` for honest Prophet |
+| **Flags** | `--holdout-frac` · `--holdout-policy` · `--exam-seed` · `--prophet-refit` · `--skip-lstm` · `--skip-prophet` |
+| **Output** | `models/playground/scoreboard.md`, `scoreboard.csv`, `latest_playground.json` |
 
 ---
 

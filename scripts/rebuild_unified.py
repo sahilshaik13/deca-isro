@@ -12,6 +12,7 @@ etc.), so they cannot label feature rows until overlapping telemetry exists.
 """
 from __future__ import annotations
 
+import argparse
 import shutil
 from pathlib import Path
 
@@ -267,6 +268,20 @@ def load_public_fault_labels() -> pd.DataFrame:
 
 
 def main() -> None:
+    global RPI_RUN
+    parser = argparse.ArgumentParser(description="Rebuild deca_unified_{raw,dataset}.parquet")
+    parser.add_argument(
+        "--rpi-run",
+        type=Path,
+        default=None,
+        help="Campaign run directory or id under data/rpi-net/runs/ (default: baked-in run)",
+    )
+    args = parser.parse_args()
+    if args.rpi_run is not None:
+        run = args.rpi_run
+        RPI_RUN = run if run.is_absolute() else RPI_NET_DIR / "runs" / run.name
+    print(f"RPI_RUN={RPI_RUN}")
+
     print("=== Loading RPi campaign ===")
     network_df, network_fault_log = load_rpi()
     print(f"  network_df={len(network_df)}  fault_windows={len(network_fault_log)}")

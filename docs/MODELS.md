@@ -313,3 +313,16 @@ unified features (17,050)
 ```
 
 Panel note: rare-class F1 (BGP/VRF) is still precision-bound — next climb is **Tier 6** more lab faults ([`DECA_ROI_TIERS.md`](DECA_ROI_TIERS.md)), not SMOTE.
+
+---
+
+## Mixed-test playground
+
+Score **all** live artifacts on one stratified random paper (no retrain):
+
+```bash
+python scripts/deca_model_playground.py
+```
+
+Report: [`../models/playground/scoreboard.md`](../models/playground/scoreboard.md) · JSON: `models/playground/latest_playground.json`.  
+IF + XGB + LSTM share the mixed exam rows; Prophet uses a chronological series tail (add `--prophet-refit` for prefix-only fit).

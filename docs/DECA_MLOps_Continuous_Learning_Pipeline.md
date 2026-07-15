@@ -149,33 +149,52 @@ $$
 
 ## Mode A — run now (no new data)
 
-Script: [`scripts/deca_school_exam_train.py`](../scripts/deca_school_exam_train.py)
+**Automated (recommended):** [`scripts/deca_mlops_orchestrator.py`](../scripts/deca_mlops_orchestrator.py) — machine loop; no manual judge.
 
 ```bash
 cd /home/brain/deca-isro
 source .venv/bin/activate
 
-# New exam paper every run (fresh seed) + weight sweeps — does NOT overwrite models/
+# Loop: TEACH → TEST → EXAMINE → SCORE → IMPROVE (new random paper each cycle)
+# until GATE PASS (promote) or --max-cycles
+python scripts/deca_mlops_orchestrator.py
+
+# Cap cycles / single sitting / audit without writing models/
+python scripts/deca_mlops_orchestrator.py --max-cycles 5
+python scripts/deca_mlops_orchestrator.py --once
+python scripts/deca_mlops_orchestrator.py --dry-run
+```
+
+Low-level script (same engine): [`scripts/deca_school_exam_train.py`](../scripts/deca_school_exam_train.py)
+
+```bash
+# Manual dry-run (reports only)
 python scripts/deca_school_exam_train.py
 
 # Replay one paper for audit
 python scripts/deca_school_exam_train.py --exam-seed 42
 
-# Drift-hard quiz (latest per class) still with a fresh seed for which rows if combined later
+# Drift-hard quiz (latest per class)
 python scripts/deca_school_exam_train.py --holdout-policy time_tail
 
-# Promote only if GATE PASS
-python scripts/deca_school_exam_train.py --promote
+# Apply gate decision without orchestrator wrapper
+python scripts/deca_school_exam_train.py --auto-promote
 ```
 
 | Flag | Meaning |
 | --- | --- |
+| `--max-cycles` | Loop until PASS or this many cycles (default `10`) |
+| `--once` | Single cycle (no improve loop) |
+| `--dry-run` | Full loop scoring only — never promote |
 | `--holdout-frac` | Per-class fraction held blind (default `0.2`) |
-| `--holdout-policy` | `random` (default, new questions) or `time_tail` |
-| `--exam-seed` | Fix the paper; **omit** for a new paper every sitting |
-| `--rare-boosts` | Comma list of $\beta$ to sweep (default `1,1.5,2,3`) |
-| `--promote` | Write best candidate into `models/` if gate passes |
+| `--holdout-policy` | `random` (default, **new questions every cycle**) or `time_tail` |
+| `--exam-seed` | Fix paper for audit (**forces `--once`**) |
+| `--rare-boosts` | Starting $\beta$ list (default `1,1.5,2,3`; IMPROVE widens each fail) |
+| `--auto-promote` / `--promote` | School-exam script only; orchestrator promotes on PASS itself |
 | `--baseline-macro-f1` | Override baseline (default: read manifest or `0.721`) |
+
+**Outputs:** `models/school_exam/weight_sweep.csv`, `latest_exam.json`, `orchestrator_latest.json`, `orchestrator_history.jsonl`  
+**Actions:** `promoted` · `exhausted_kept_active` · `dry_run_would_promote`
 
 **What you get without waiting for Tier‑6:** another way to squeeze Tiers 1–3 on the lake you already have — correct weights / thresholds under a promotion gate — instead of hoping a single notebook Run All is the best operating point.
 
@@ -183,26 +202,34 @@ python scripts/deca_school_exam_train.py --promote
 
 ## Mode B — after the campaign finishes
 
-1. Wait for `data/rpi-net/runs/20260714_165648_tier6_x10/` to write `network_telemetry.csv` + `network_campaign_export.csv`  
-2. Point `RPI_RUN` in `rebuild_unified.py` at that run id  
-3. `python scripts/rebuild_unified.py`  
-4. Re-run Mode A script (or notebook) — inverse‑frequency weights **automatically** shift as BGP/VRF support grows; optional $\beta$ still available  
-5. Promote only if exam clears the new gate  
+```bash
+# Ingest completed run + automated exam (refuses incomplete exports)
+python scripts/deca_mlops_orchestrator.py --mode B --rpi-run 20260714_165648_tier6_x10
+```
+
+Manual steps if needed:
+
+1. Wait for `data/rpi-net/runs/<run_id>/` to write `network_telemetry.csv` + `network_campaign_export.csv`  
+2. `python scripts/rebuild_unified.py --rpi-run <run_id>`  
+3. `python scripts/deca_mlops_orchestrator.py` — inverse‑frequency weights shift as BGP/VRF support grows  
 
 That is the full “continuous learning” path from this document; Mode A is the same exam **without** the ingest step.
 
 ---
 
-## Pipeline steps (target orchestrator)
+## Pipeline steps (orchestrator loop)
 
-When `deca_mlops_orchestrator.py` exists, it will wrap Mode B end‑to‑end. Until then Mode A’s script is the concrete exam.
+[`scripts/deca_mlops_orchestrator.py`](../scripts/deca_mlops_orchestrator.py) runs **until PASS** (or `--max-cycles`). Each cycle draws a **new random exam paper**.
 
-| Step | Action |
-| --- | --- |
-| 1 Unit test | Score active model on blind holdout / new campaign windows |
-| 2 Ingest | Mode B only — `rebuild_unified.py` |
-| 3 Study | Headless Phase‑1 (+ IF; optional LSTM) with weight adjust |
-| 4 Exam + gate | Compare to `manifest.json`; promote or discard |
+| Step | Verb | Action |
+| --- | --- | --- |
+| 0 | Ingest | Mode B only — `rebuild_unified.py --rpi-run` once before the loop |
+| 1 | Randomise | Fresh `exam_seed` → stratified blind holdout |
+| 2 | Test | Score **active** classifier on that paper |
+| 3 | Teach | Phase‑1 β sweep on study-hall rows only |
+| 4 | Examine | Score candidates on the same paper |
+| 5 | Score | Gate vs `manifest.json`; **PASS → promote & stop** |
+| 6 | Improve | On FAIL: widen β around best; next cycle = new questions |
 
 ### Mixture sandbox (later)
 

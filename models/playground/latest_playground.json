@@ -1,0 +1,280 @@
+{
+  "playground_date": "2026-07-15T09:45:04.185448+00:00",
+  "exam_seed": 1784108700,
+  "holdout_frac": 0.2,
+  "holdout_policy": "random",
+  "n_lake_rows": 17050,
+  "n_exam_rows": 3410,
+  "n_features": 20,
+  "exam_label_counts": {
+    "healthy": 3161,
+    "congestion_breach": 86,
+    "tunnel_degradation": 61,
+    "bgp_route_flap": 60,
+    "vrf_leakage": 42
+  },
+  "prophet_refit": false,
+  "models": [
+    {
+      "model": "isolation_forest",
+      "role": "Unknown weirdness / anomaly precursor",
+      "n_rows": 3410,
+      "primary_metric": "roc_auc",
+      "roc_auc": 0.6948007150398494,
+      "average_precision": 0.10513310183514897,
+      "anomaly_rate_true": 0.07302052785923753,
+      "anomaly_rate_pred_mean_p": 0.07351184550070451
+    },
+    {
+      "model": "fault_classifier_xgb",
+      "role": "What is happening now? (multiclass fault ID)",
+      "n_rows": 3410,
+      "mode": "weighted_multiclass",
+      "gate_thr": 0.6,
+      "phase": "school_exam_A",
+      "rare_boost": 1.5,
+      "primary_metric": "macro_f1",
+      "macro_f1": 0.8235790799900643,
+      "weighted_f1": 0.9686823398551927,
+      "accuracy": 0.9659824046920821,
+      "mean_rare_recall": 0.7833333333333333,
+      "per_class": {
+        "healthy": {
+          "precision": 0.9912931312479846,
+          "recall": 0.9724770642201835,
+          "f1": 0.9817949536889172,
+          "support": 3161
+        },
+        "congestion_breach": {
+          "precision": 0.9010989010989011,
+          "recall": 0.9534883720930233,
+          "f1": 0.9265536723163842,
+          "support": 86
+        },
+        "tunnel_degradation": {
+          "precision": 0.8428571428571429,
+          "recall": 0.9672131147540983,
+          "f1": 0.9007633587786259,
+          "support": 61
+        },
+        "bgp_route_flap": {
+          "precision": 0.4583333333333333,
+          "recall": 0.7333333333333333,
+          "f1": 0.5641025641025641,
+          "support": 60
+        },
+        "vrf_leakage": {
+          "precision": 0.6730769230769231,
+          "recall": 0.8333333333333334,
+          "f1": 0.7446808510638298,
+          "support": 42
+        }
+      }
+    },
+    {
+      "model": "lstm_ttb",
+      "role": "When will it break? (minutes to breach)",
+      "n_sequences": 442,
+      "seq_len": 16,
+      "primary_metric": "mae_minutes",
+      "mae_minutes": 2.3166549128634846,
+      "rmse_minutes": 2.7987702087063893,
+      "mean_true_ttb": 4.560010506033183,
+      "mean_pred_ttb": 3.7234294414520264
+    },
+    {
+      "model": "prophet_ifInOctets",
+      "role": "Macro baseline / seasonality envelope",
+      "n_train": 3602,
+      "n_holdout": 900,
+      "score_mode": "artifact_predict_tail_optimistic",
+      "primary_metric": "mae",
+      "mae": 17328570.840026025,
+      "smape": 1.6592799587177793,
+      "artifact": "models/prophet_ifInOctets/prophet_ifInOctets.pkl"
+    },
+    {
+      "model": "prophet_jitter_ms",
+      "role": "Macro baseline / seasonality envelope",
+      "n_train": 6400,
+      "n_holdout": 1600,
+      "score_mode": "artifact_predict_tail_optimistic",
+      "primary_metric": "mae",
+      "mae": 609.0503210364183,
+      "smape": 1.5593598330870053,
+      "artifact": "models/prophet_jitter_ms/prophet_jitter_ms.pkl"
+    },
+    {
+      "model": "prophet_bgp_update_rate",
+      "role": "Macro baseline / seasonality envelope",
+      "n_train": 256,
+      "n_holdout": 64,
+      "score_mode": "artifact_predict_tail_optimistic",
+      "primary_metric": "mae",
+      "mae": 6757.052303619539,
+      "smape": 0.3052534465328517,
+      "artifact": "models/prophet_bgp_update_rate/prophet_bgp_update_rate.pkl"
+    },
+    {
+      "model": "topology",
+      "role": "Alert eccentricity / root-node merge (structure only)",
+      "scored_on_lake": false,
+      "nodes": [
+        {
+          "id": "PE1",
+          "host": "station1",
+          "ip": "192.168.50.10"
+        },
+        {
+          "id": "PE2",
+          "host": "station2",
+          "ip": "192.168.50.20"
+        },
+        {
+          "id": "CORE",
+          "host": "station3",
+          "ip": "192.168.50.30"
+        }
+      ],
+      "eccentricity": {
+        "PE1": 1,
+        "PE2": 1,
+        "CORE": 1
+      },
+      "primary_metric": "eccentricity",
+      "note": "Not a telemetry accuracy model \u2014 printed for completeness"
+    }
+  ],
+  "scoreboard": [
+    {
+      "model": "isolation_forest",
+      "role": "Unknown weirdness / anomaly precursor",
+      "primary_metric": "roc_auc",
+      "roc_auc": 0.6948007150398494,
+      "average_precision": 0.10513310183514897,
+      "macro_f1": null,
+      "accuracy": null,
+      "mean_rare_recall": null,
+      "mae_minutes": null,
+      "n_sequences": null,
+      "mae": null,
+      "smape": null,
+      "score_mode": null,
+      "eccentricity": null,
+      "note": null,
+      "error": null
+    },
+    {
+      "model": "fault_classifier_xgb",
+      "role": "What is happening now? (multiclass fault ID)",
+      "primary_metric": "macro_f1",
+      "roc_auc": null,
+      "average_precision": null,
+      "macro_f1": 0.8235790799900643,
+      "accuracy": 0.9659824046920821,
+      "mean_rare_recall": 0.7833333333333333,
+      "mae_minutes": null,
+      "n_sequences": null,
+      "mae": null,
+      "smape": null,
+      "score_mode": null,
+      "eccentricity": null,
+      "note": null,
+      "error": null
+    },
+    {
+      "model": "lstm_ttb",
+      "role": "When will it break? (minutes to breach)",
+      "primary_metric": "mae_minutes",
+      "roc_auc": null,
+      "average_precision": null,
+      "macro_f1": null,
+      "accuracy": null,
+      "mean_rare_recall": null,
+      "mae_minutes": 2.3166549128634846,
+      "n_sequences": 442,
+      "mae": null,
+      "smape": null,
+      "score_mode": null,
+      "eccentricity": null,
+      "note": null,
+      "error": null
+    },
+    {
+      "model": "prophet_ifInOctets",
+      "role": "Macro baseline / seasonality envelope",
+      "primary_metric": "mae",
+      "roc_auc": null,
+      "average_precision": null,
+      "macro_f1": null,
+      "accuracy": null,
+      "mean_rare_recall": null,
+      "mae_minutes": null,
+      "n_sequences": null,
+      "mae": 17328570.840026025,
+      "smape": 1.6592799587177793,
+      "score_mode": "artifact_predict_tail_optimistic",
+      "eccentricity": null,
+      "note": null,
+      "error": null
+    },
+    {
+      "model": "prophet_jitter_ms",
+      "role": "Macro baseline / seasonality envelope",
+      "primary_metric": "mae",
+      "roc_auc": null,
+      "average_precision": null,
+      "macro_f1": null,
+      "accuracy": null,
+      "mean_rare_recall": null,
+      "mae_minutes": null,
+      "n_sequences": null,
+      "mae": 609.0503210364183,
+      "smape": 1.5593598330870053,
+      "score_mode": "artifact_predict_tail_optimistic",
+      "eccentricity": null,
+      "note": null,
+      "error": null
+    },
+    {
+      "model": "prophet_bgp_update_rate",
+      "role": "Macro baseline / seasonality envelope",
+      "primary_metric": "mae",
+      "roc_auc": null,
+      "average_precision": null,
+      "macro_f1": null,
+      "accuracy": null,
+      "mean_rare_recall": null,
+      "mae_minutes": null,
+      "n_sequences": null,
+      "mae": 6757.052303619539,
+      "smape": 0.3052534465328517,
+      "score_mode": "artifact_predict_tail_optimistic",
+      "eccentricity": null,
+      "note": null,
+      "error": null
+    },
+    {
+      "model": "topology",
+      "role": "Alert eccentricity / root-node merge (structure only)",
+      "primary_metric": "eccentricity",
+      "roc_auc": null,
+      "average_precision": null,
+      "macro_f1": null,
+      "accuracy": null,
+      "mean_rare_recall": null,
+      "mae_minutes": null,
+      "n_sequences": null,
+      "mae": null,
+      "smape": null,
+      "score_mode": null,
+      "eccentricity": {
+        "PE1": 1,
+        "PE2": 1,
+        "CORE": 1
+      },
+      "note": "Not a telemetry accuracy model \u2014 printed for completeness",
+      "error": null
+    }
+  ]
+}

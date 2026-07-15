@@ -1,56 +1,105 @@
 {
-  "training_date": "2026-07-15T07:50:29.340556+00:00",
-  "mode": "school_exam_A",
-  "exam_seed": 1784101821,
+  "training_date": "2026-07-15T09:40:07.115482+00:00",
+  "mode": "school_exam_A_c1",
+  "exam_seed": 1784126256,
   "holdout_policy": "random",
   "baseline_macro_f1": 0.7211168811173485,
   "holdout_frac": 0.2,
-  "best": {
-    "rare_boost": 1.0,
-    "gate_thr": 0.5,
-    "val_macro_f1": 0.7348815145373472,
-    "exam_macro_f1": 0.7207464290698847,
-    "exam_weighted_f1": 0.9534571971372464,
-    "exam_mean_rare_recall": 0.5166666666666666,
+  "unit_test_active": {
+    "macro_f1": 0.8064249911032089,
+    "weighted_f1": 0.9643668018953487,
+    "mean_rare_recall": 0.8583333333333334,
     "per_class_f1": {
-      "healthy": 0.9737135574318942,
-      "congestion_breach": 0.8715083798882681,
-      "tunnel_degradation": 0.8780487804878049,
-      "bgp_route_flap": 0.4383561643835616,
-      "vrf_leakage": 0.4421052631578947
+      "healthy": 0.9781420765027322,
+      "congestion_breach": 0.9281767955801105,
+      "tunnel_degradation": 0.8787878787878788,
+      "bgp_route_flap": 0.5988700564971752,
+      "vrf_leakage": 0.6481481481481481
+    }
+  },
+  "best": {
+    "rare_boost": 1.5,
+    "gate_thr": 0.6,
+    "val_macro_f1": 0.6927763368506807,
+    "exam_macro_f1": 0.7498182376957173,
+    "exam_weighted_f1": 0.9578435280599455,
+    "exam_mean_rare_recall": 0.5523809523809524,
+    "per_class_f1": {
+      "healthy": 0.9757884676648614,
+      "congestion_breach": 0.9310344827586207,
+      "tunnel_degradation": 0.8818897637795275,
+      "bgp_route_flap": 0.42105263157894735,
+      "vrf_leakage": 0.5393258426966292
     }
   },
   "sweep": [
     {
       "rare_boost": 1.0,
-      "gate_thr": 0.5,
-      "val_macro_f1": 0.7348815145373472,
-      "exam_macro_f1": 0.7207464290698847,
-      "exam_weighted_f1": 0.9534571971372464,
-      "exam_mean_rare_recall": 0.5166666666666666,
+      "gate_thr": 0.6,
+      "val_macro_f1": 0.7109289731393753,
+      "exam_macro_f1": 0.7450411849923432,
+      "exam_weighted_f1": 0.9580673512844984,
+      "exam_mean_rare_recall": 0.5321428571428573,
       "per_class_f1": {
-        "healthy": 0.9737135574318942,
-        "congestion_breach": 0.8715083798882681,
-        "tunnel_degradation": 0.8780487804878049,
-        "bgp_route_flap": 0.4383561643835616,
-        "vrf_leakage": 0.4421052631578947
+        "healthy": 0.9764481222151495,
+        "congestion_breach": 0.9213483146067416,
+        "tunnel_degradation": 0.88,
+        "bgp_route_flap": 0.4305555555555556,
+        "vrf_leakage": 0.5168539325842697
+      }
+    },
+    {
+      "rare_boost": 1.5,
+      "gate_thr": 0.6,
+      "val_macro_f1": 0.6927763368506807,
+      "exam_macro_f1": 0.7498182376957173,
+      "exam_weighted_f1": 0.9578435280599455,
+      "exam_mean_rare_recall": 0.5523809523809524,
+      "per_class_f1": {
+        "healthy": 0.9757884676648614,
+        "congestion_breach": 0.9310344827586207,
+        "tunnel_degradation": 0.8818897637795275,
+        "bgp_route_flap": 0.42105263157894735,
+        "vrf_leakage": 0.5393258426966292
       }
     },
     {
       "rare_boost": 2.0,
-      "gate_thr": 0.5,
-      "val_macro_f1": 0.7214971795389957,
-      "exam_macro_f1": 0.720592153247295,
-      "exam_weighted_f1": 0.9495393763084133,
-      "exam_mean_rare_recall": 0.6011904761904763,
+      "gate_thr": 0.6,
+      "val_macro_f1": 0.6974218852622465,
+      "exam_macro_f1": 0.7366140396131351,
+      "exam_weighted_f1": 0.9552204401855939,
+      "exam_mean_rare_recall": 0.5404761904761906,
       "per_class_f1": {
-        "healthy": 0.9693664795509223,
-        "congestion_breach": 0.8876404494382022,
-        "tunnel_degradation": 0.8780487804878049,
-        "bgp_route_flap": 0.4117647058823529,
-        "vrf_leakage": 0.45614035087719296
+        "healthy": 0.9741626794258373,
+        "congestion_breach": 0.9101123595505618,
+        "tunnel_degradation": 0.875,
+        "bgp_route_flap": 0.41830065359477125,
+        "vrf_leakage": 0.5054945054945055
+      }
+    },
+    {
+      "rare_boost": 3.0,
+      "gate_thr": 0.6,
+      "val_macro_f1": 0.7030139916612989,
+      "exam_macro_f1": 0.7350609640785931,
+      "exam_weighted_f1": 0.9553694467892725,
+      "exam_mean_rare_recall": 0.5285714285714286,
+      "per_class_f1": {
+        "healthy": 0.974318073057904,
+        "congestion_breach": 0.9213483146067416,
+        "tunnel_degradation": 0.875,
+        "bgp_route_flap": 0.41025641025641024,
+        "vrf_leakage": 0.4943820224719101
       }
     }
   ],
+  "gate_ok": true,
+  "gate": {
+    "candidate_macro_f1": 0.7498182376957173,
+    "candidate_mean_rare_recall": 0.5523809523809524,
+    "rare_recall_floor": 0.5223809523809524,
+    "passed": true
+  },
   "anti_memorization": "fresh stratified exam draw each run unless --exam-seed is fixed"
 }

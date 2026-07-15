@@ -149,59 +149,20 @@
       "file": "models/fault_classifier/fault_classifier_xgb.pkl",
       "type": "xgboost_two_stage",
       "metrics": {
-        "phase": "phase1_tiers_1_2_3",
+        "phase": "school_exam_A",
         "mode": "weighted_multiclass",
-        "macro_f1": 0.7211168811173485,
-        "weighted_f1": 0.9477908663491028,
-        "accuracy": 0.94018296973962,
-        "gate_thr": 0.4,
-        "test_n": 4263,
+        "macro_f1": 0.7498182376957173,
+        "weighted_f1": 0.9578435280599455,
+        "mean_rare_recall": 0.5523809523809524,
+        "gate_thr": 0.6,
+        "rare_boost": 1.5,
         "per_class_f1": {
-          "healthy": 0.9677751997937613,
-          "congestion_breach": 0.8859649122807017,
-          "tunnel_degradation": 0.8095238095238095,
-          "bgp_route_flap": 0.42323651452282157,
-          "vrf_leakage": 0.5190839694656488
+          "healthy": 0.9757884676648614,
+          "congestion_breach": 0.9310344827586207,
+          "tunnel_degradation": 0.8818897637795275,
+          "bgp_route_flap": 0.42105263157894735,
+          "vrf_leakage": 0.5393258426966292
         },
-        "per_class": {
-          "healthy": {
-            "precision": 0.9860782768584188,
-            "recall": 0.95013920526449,
-            "f1": 0.9677751997937613,
-            "support": 3951
-          },
-          "congestion_breach": {
-            "precision": 0.8416666666666667,
-            "recall": 0.9351851851851852,
-            "f1": 0.8859649122807017,
-            "support": 108
-          },
-          "tunnel_degradation": {
-            "precision": 0.7472527472527473,
-            "recall": 0.8831168831168831,
-            "f1": 0.8095238095238095,
-            "support": 77
-          },
-          "bgp_route_flap": {
-            "precision": 0.3072289156626506,
-            "recall": 0.68,
-            "f1": 0.42323651452282157,
-            "support": 75
-          },
-          "vrf_leakage": {
-            "precision": 0.43037974683544306,
-            "recall": 0.6538461538461539,
-            "f1": 0.5190839694656488,
-            "support": 52
-          }
-        },
-        "classes": [
-          "healthy",
-          "congestion_breach",
-          "tunnel_degradation",
-          "bgp_route_flap",
-          "vrf_leakage"
-        ],
         "smote": false
       }
     },
@@ -249,5 +210,13 @@
         }
       }
     }
-  ]
+  ],
+  "school_exam": {
+    "date": "2026-07-15T09:40:07.149033+00:00",
+    "rare_boost": 1.5,
+    "exam_macro_f1": 0.7498182376957173,
+    "exam_mean_rare_recall": 0.5523809523809524,
+    "baseline_macro_f1": 0.7211168811173485,
+    "promoted": true
+  }
 }

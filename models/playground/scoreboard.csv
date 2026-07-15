@@ -1,0 +1,8 @@
+model,role,primary_metric,roc_auc,average_precision,macro_f1,accuracy,mean_rare_recall,mae_minutes,n_sequences,mae,smape,score_mode,eccentricity,note,error
+isolation_forest,Unknown weirdness / anomaly precursor,roc_auc,0.6948007150398494,0.10513310183514897,,,,,,,,,,,
+fault_classifier_xgb,What is happening now? (multiclass fault ID),macro_f1,,,0.8235790799900643,0.9659824046920821,0.7833333333333333,,,,,,,,
+lstm_ttb,When will it break? (minutes to breach),mae_minutes,,,,,,2.3166549128634846,442.0,,,,,,
+prophet_ifInOctets,Macro baseline / seasonality envelope,mae,,,,,,,,17328570.840026025,1.6592799587177793,artifact_predict_tail_optimistic,,,
+prophet_jitter_ms,Macro baseline / seasonality envelope,mae,,,,,,,,609.0503210364183,1.5593598330870053,artifact_predict_tail_optimistic,,,
+prophet_bgp_update_rate,Macro baseline / seasonality envelope,mae,,,,,,,,6757.052303619539,0.3052534465328517,artifact_predict_tail_optimistic,,,
+topology,Alert eccentricity / root-node merge (structure only),eccentricity,,,,,,,,,,,"{'PE1': 1, 'PE2': 1, 'CORE': 1}",Not a telemetry accuracy model — printed for completeness,

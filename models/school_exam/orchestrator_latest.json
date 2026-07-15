@@ -1,0 +1,80 @@
+{
+  "orchestrator_date": "2026-07-15T09:39:52.452524+00:00",
+  "finished": "2026-07-15T09:40:07.149417+00:00",
+  "mode": "A",
+  "dry_run": false,
+  "max_cycles": 10,
+  "cycles_run": 1,
+  "holdout_policy": "random",
+  "action": "promoted",
+  "promoted": true,
+  "gate_ok": true,
+  "final_gate": {
+    "candidate_macro_f1": 0.7498182376957173,
+    "candidate_mean_rare_recall": 0.5523809523809524,
+    "rare_recall_floor": 0.5223809523809524,
+    "passed": true
+  },
+  "final_best": {
+    "rare_boost": 1.5,
+    "gate_thr": 0.6,
+    "val_macro_f1": 0.6927763368506807,
+    "exam_macro_f1": 0.7498182376957173,
+    "exam_weighted_f1": 0.9578435280599455,
+    "exam_mean_rare_recall": 0.5523809523809524,
+    "per_class_f1": {
+      "healthy": 0.9757884676648614,
+      "congestion_breach": 0.9310344827586207,
+      "tunnel_degradation": 0.8818897637795275,
+      "bgp_route_flap": 0.42105263157894735,
+      "vrf_leakage": 0.5393258426966292
+    }
+  },
+  "cycles": [
+    {
+      "cycle": 1,
+      "exam_seed": 1784126256,
+      "rare_boosts": [
+        1.0,
+        1.5,
+        2.0,
+        3.0
+      ],
+      "unit_test_active": {
+        "macro_f1": 0.8064249911032089,
+        "weighted_f1": 0.9643668018953487,
+        "mean_rare_recall": 0.8583333333333334,
+        "per_class_f1": {
+          "healthy": 0.9781420765027322,
+          "congestion_breach": 0.9281767955801105,
+          "tunnel_degradation": 0.8787878787878788,
+          "bgp_route_flap": 0.5988700564971752,
+          "vrf_leakage": 0.6481481481481481
+        }
+      },
+      "best": {
+        "rare_boost": 1.5,
+        "gate_thr": 0.6,
+        "val_macro_f1": 0.6927763368506807,
+        "exam_macro_f1": 0.7498182376957173,
+        "exam_weighted_f1": 0.9578435280599455,
+        "exam_mean_rare_recall": 0.5523809523809524,
+        "per_class_f1": {
+          "healthy": 0.9757884676648614,
+          "congestion_breach": 0.9310344827586207,
+          "tunnel_degradation": 0.8818897637795275,
+          "bgp_route_flap": 0.42105263157894735,
+          "vrf_leakage": 0.5393258426966292
+        }
+      },
+      "gate": {
+        "candidate_macro_f1": 0.7498182376957173,
+        "candidate_mean_rare_recall": 0.5523809523809524,
+        "rare_recall_floor": 0.5223809523809524,
+        "passed": true
+      },
+      "gate_ok": true
+    }
+  ],
+  "loop": "teach \u2192 test \u2192 examine \u2192 score \u2192 improve \u2192 (new random paper)"
+}

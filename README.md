@@ -26,7 +26,8 @@ Current campaign job: `20260713_155333` — **21 usable fault runs** (validation
 | [`docs/DATA_GEN.md`](docs/DATA_GEN.md) | Reproduce the data lake (script map + recipe) |
 | [`docs/SCRIPTS.md`](docs/SCRIPTS.md) | Every script: purpose, use case, command, outputs |
 | [`docs/MODELS.md`](docs/MODELS.md) | Every model: purpose, metrics, artifacts + graphs |
-| [`docs/DECA_MLOps_Continuous_Learning_Pipeline.md`](docs/DECA_MLOps_Continuous_Learning_Pipeline.md) | School Exam training (Mode A now / Mode B after Tier-6) |
+| [`docs/DECA_MLOps_Continuous_Learning_Pipeline.md`](docs/DECA_MLOps_Continuous_Learning_Pipeline.md) | School Exam MLOps — `python scripts/deca_mlops_orchestrator.py` |
+| Playground | `python scripts/deca_model_playground.py` → `models/playground/scoreboard.md` |
 | [`docs/DATA_SAMPLE.md`](docs/DATA_SAMPLE.md) | Inventory of every curated file / sample tables |
 | [`docs/DECA_Model_Development_Blueprint.md`](docs/DECA_Model_Development_Blueprint.md) | Formulas, Phase-1 ROI, scorecards |
 | [`docs/DECA_ROI_TIERS.md`](docs/DECA_ROI_TIERS.md) | Tiers 1–6 formulas + application + Tier-6 campaign command |
@@ -35,6 +36,15 @@ Current campaign job: `20260713_155333` — **21 usable fault runs** (validation
 | [`docs/DECA_Full_Pipeline.md`](docs/DECA_Full_Pipeline.md) | Earlier end-to-end pipeline notes |
 | [`docs/DECA SETUP.pdf`](docs/DECA%20SETUP.pdf) | Lab setup PDF |
 | [`docs/[Pub] ISRO BAH 2026 _ Idea Submission Template.pdf`](docs/%5BPub%5D%20ISRO%20BAH%202026%20_%20Idea%20Submission%20Template.pdf) | BAH submission template |
+
+## Architecture diagrams (Obsidian Preview only)
+
+Not documentation — diagram vault at `obsidian/`. Open a note → **Obsidian Preview: Open Preview**.
+
+| Note | Diagrams |
+| --- | --- |
+| [`obsidian/DECA_Model_Architectures.md`](obsidian/DECA_Model_Architectures.md) | IF · XGB · LSTM · Prophet · Topology |
+| [`obsidian/DECA_Training_Architecture.md`](obsidian/DECA_Training_Architecture.md) | School-exam / orchestrator training loop |
 
 ---
 
@@ -45,7 +55,8 @@ Shareable core (apps are local-only — see note below):
 ```
 deca-isro/
 ├── README.md                      ← handover entrypoint (this file)
-├── docs/                          documentation (table above)
+├── docs/                          documentation only
+├── obsidian/                      architecture diagrams (Cursor Preview vault)
 ├── notebook/
 │   └── DECA_Model_Training.ipynb  train stack + stage plots
 ├── scripts/                       data-gen + station deploy / heal
