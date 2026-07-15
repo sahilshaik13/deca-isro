@@ -265,6 +265,25 @@ def inject_vrf_leakage(run_id: str):
     return fault_start, breach_time
 
 
+def inject_near_miss_aborted(run_id: str):
+    """Short stress that clears before becoming a real fault — false-start pattern.
+
+    Logged as ``precursor_aborted`` so rebuild maps it to healthy: the classifier
+    learns onset spikes that die are *not* congestion/BGP/VRF.
+    Window length only labels rows; duration is never a classifier feature.
+    """
+    hold_s = random.uniform(25, 55)
+    fault_start = datetime.now(timezone.utc)
+    log(f"NEAR-MISS aborted onset for {hold_s:.0f}s (not a real fault)...")
+    try:
+        run_ssh(PE1_SSH, "sudo tc qdisc replace dev eth0 root netem delay 20ms loss 2%")
+        time.sleep(hold_s)
+    finally:
+        run_ssh(PE1_SSH, "sudo tc qdisc del dev eth0 root 2>/dev/null", quiet=True)
+    breach_time = datetime.now(timezone.utc)
+    return fault_start, breach_time
+
+
 INJECTORS = {
     "congestion_breach": inject_congestion_breach,
     "tunnel_degradation": inject_tunnel_degradation,
@@ -700,6 +719,12 @@ def main() -> None:
         half_rest_sec = (rest_minutes / 2) * 60
         time.sleep(half_rest_sec)
         generate_dynamic_traffic()
+        # ~40% of rests: inject an aborted near-miss so the model sees fake-outs
+        if random.random() < 0.40 and not _shutdown_requested:
+            nm_id = f"near_miss_{run_index + 1:03d}"
+            fs, bt = inject_near_miss_aborted(nm_id)
+            append_log_row("precursor_aborted", f"real_{nm_id}", fs, bt)
+            log(f"Logged near-miss window {nm_id} (healthy / precursor_aborted)")
         time.sleep(half_rest_sec)
 
         if _shutdown_requested:

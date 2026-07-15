@@ -1,0 +1,9 @@
+{
+  "status": "deferred",
+  "ready": false,
+  "reason": "no circumstance existence signal in lake yet (0 non-healthy rows; need \u226530)",
+  "n_existence_rows": 0,
+  "min_required": 30,
+  "date": "2026-07-15T17:47:57.696641+00:00",
+  "hint": "Finish circumstance campaign \u2192 rebuild_unified with that run_id \u2192 re-run python scripts/deca_train_circumstance.py"
+}

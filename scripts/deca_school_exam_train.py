@@ -38,6 +38,9 @@ META = {
     "is_anomaly",
     "time_to_breach_minutes",
     "timestamp",
+    # Loom Warp‑4 labels — never treat as XGB features
+    "circumstance_label",
+    "event_phase",
 }
 RARE = {"bgp_route_flap", "vrf_leakage"}
 
@@ -313,17 +316,32 @@ def score_active_classifier(
     full_clf = bundle.get("full_clf")
     if full_clf is None:
         return None
-    return evaluate(
-        bundle["gate"],
-        full_clf,
-        X_exam,
-        y_exam,
-        healthy_idx=int(bundle["healthy_idx"]),
-        gate_thr=float(bundle["gate_thr"]),
-        class_thr={int(k): float(v) for k, v in bundle.get("class_thr", {}).items()},
-        le_classes=le_classes,
-        rare_idx_list=rare_idx_list,
-    )
+    # Feature schema may have changed (e.g. multi-scale rebuild) — skip unit test
+    try:
+        n_expected = getattr(
+            bundle["gate"].named_steps.get("imputer"), "n_features_in_", None
+        )
+        if n_expected is not None and X_exam.shape[1] != int(n_expected):
+            print(
+                f"  Active model expects {n_expected} features, lake has {X_exam.shape[1]} "
+                "— skip unit test (schema drift)"
+            )
+            return None
+        return evaluate(
+            bundle["gate"],
+            full_clf,
+            X_exam,
+            y_exam,
+            healthy_idx=int(bundle["healthy_idx"]),
+            gate_thr=float(bundle["gate_thr"]),
+            class_thr={int(k): float(v) for k, v in bundle.get("class_thr", {}).items()},
+            le_classes=le_classes,
+            rare_idx_list=rare_idx_list,
+        )
+    except ValueError as exc:
+        print(f"  Active model incompatible with lake features — skip unit test ({exc})")
+        return None
+
 
 
 def promote_candidate(
@@ -333,7 +351,10 @@ def promote_candidate(
     class_to_idx: dict[str, int],
     cand: float,
     rare: float,
+    loom: dict | None = None,
 ) -> None:
+    from deca_inference import DEFAULT_LOOM
+
     le_classes = best["le_classes"]
     healthy_idx = best["healthy_idx"]
     clf_dir = MODELS_DIR / "fault_classifier"
@@ -350,6 +371,10 @@ def promote_candidate(
     thr_named = {
         (idx_to_class[k] if k in idx_to_class else str(k)): v for k, v in thr["class_thr"].items()
     }
+    loom_cfg = dict(DEFAULT_LOOM)
+    if loom:
+        loom_cfg.update(loom)
+
     joblib.dump(
         {
             "gate": best["gate"],
@@ -366,6 +391,7 @@ def promote_candidate(
             "phase": "school_exam_A",
             "head_family": best.get("family", "wm"),
             "rare_boost": best["row"]["rare_boost"],
+            "loom": loom_cfg,
         },
         clf_dir / "fault_classifier_xgb.pkl",
     )
@@ -379,6 +405,7 @@ def promote_candidate(
             "smote_policy": "refused_tier4_temporal_integrity",
             "school_exam": True,
             "rare_boost": best["row"]["rare_boost"],
+            "loom": loom_cfg,
         },
         clf_dir / "label_encoder.pkl",
     )
@@ -391,6 +418,8 @@ def promote_candidate(
                 "exam_macro_f1": cand,
                 "exam_mean_rare_recall": rare,
                 "rare_boost": best["row"]["rare_boost"],
+                "head_family": best.get("family", "wm"),
+                "loom": loom_cfg,
             },
             indent=2,
         )
@@ -407,6 +436,11 @@ def promote_candidate(
             "exam_mean_rare_recall": rare,
             "baseline_macro_f1": baseline,
             "promoted": True,
+            "loom": {
+                "enabled": loom_cfg.get("enabled", True),
+                "enter_k": loom_cfg.get("enter_k"),
+                "exit_k": loom_cfg.get("exit_k"),
+            },
         }
         for m in man.get("models", []):
             if m.get("name") == "fault_classifier_xgb":
@@ -421,11 +455,16 @@ def promote_candidate(
                     "rare_boost": best["row"]["rare_boost"],
                     "per_class_f1": best["row"]["per_class_f1"],
                     "smote": False,
+                    "loom": man["school_exam"]["loom"],
                 }
         man_path.write_text(json.dumps(man, indent=2))
         print(f"  Updated {man_path}")
 
     print("  PROMOTED school-exam classifier into models/fault_classifier/")
+    print(
+        f"  Loom defaults baked in: enter_k={loom_cfg.get('enter_k')} "
+        f"exit_k={loom_cfg.get('exit_k')} — run deca_score_temporal.py to attach boost metrics"
+    )
 
 
 def run_school_exam(

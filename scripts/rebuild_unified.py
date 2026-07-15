@@ -36,7 +36,17 @@ METRIC_MAP = {
 
 # Shared classification vocabulary across network + public sources.
 # Public rows are healthy context only (no overlapping outage windows today).
-HEALTHY_ALIASES = {"none", "normal", "healthy", ""}
+HEALTHY_ALIASES = {
+    "none",
+    "normal",
+    "healthy",
+    "",
+    # Near-miss / aborted onset — looked like a fault, never became one.
+    # Mapped to healthy so the classifier learns "false start ≠ fault class".
+    "precursor_aborted",
+    "near_miss",
+    "aborted",
+}
 UNIFIED_LABELS = (
     "healthy",
     "congestion_breach",
@@ -55,13 +65,26 @@ def to_unified_label(fault_type: str | float | None) -> str:
     return str(fault_type).strip()
 
 
-def engineer_features(df: pd.DataFrame, window_minutes: int = 10, step_seconds: int = 15) -> pd.DataFrame:
-    """Build rolling features. Never upsample: only downfill to step when native
-    cadence is denser than step. Minute/sparse series (Atlas, BGP rates, MAWI)
-    keep their native timestamps — older native*4 guard still upsampled Atlas
-    1-min → 15s (~4x row inflation)."""
+def engineer_features(
+    df: pd.DataFrame,
+    window_minutes: int = 10,
+    step_seconds: int = 15,
+    short_window_minutes: int = 2,
+) -> pd.DataFrame:
+    """Build multi-scale rolling features (slow build-up + fast onset).
+
+    Scales
+    ------
+    - long (default 10 min): ``{metric}_slope`` / ``_rolling_*`` / ``_accel``
+      — accumulation / slow congestion structure
+    - short (default 2 min): ``{metric}_w2m_slope`` / …
+      — instant flaps / onset spikes
+
+    Duration of a labelled fault is **not** a feature (pattern only).
+    Never upsample sparse public series past native cadence.
+    """
     df = df.sort_values(["run_id", "metric", "timestamp"]).copy()
-    window = f"{window_minutes}min"
+    scales = [("long", window_minutes, ""), ("short", short_window_minutes, "_w2m")]
     per_run_frames = []
 
     for run_id, run_group in df.groupby("run_id"):
@@ -69,7 +92,6 @@ def engineer_features(df: pd.DataFrame, window_minutes: int = 10, step_seconds: 
         metric_frames = []
         for metric, mgroup in run_group.groupby("metric"):
             series = mgroup.set_index("timestamp")["value"].sort_index()
-            # Drop exact-duplicate timestamps (keep last)
             series = series[~series.index.duplicated(keep="last")]
             if len(series) < 3:
                 continue
@@ -77,18 +99,22 @@ def engineer_features(df: pd.DataFrame, window_minutes: int = 10, step_seconds: 
             gaps = series.index.to_series().diff().dt.total_seconds().dropna()
             median_gap = float(gaps.median()) if len(gaps) else step_seconds
 
-            # Upsample only when native points are denser than target step
             if median_gap <= step_seconds:
                 g = series.resample(f"{step_seconds}s").mean().to_frame("value")
                 g["value"] = g["value"].interpolate(limit=int(120 / step_seconds))
             else:
                 g = series.to_frame("value")
 
-            g[f"{metric}_slope"] = g["value"].diff() / max(median_gap, step_seconds)
-            g[f"{metric}_rolling_std"] = g["value"].rolling(window).std()
-            g[f"{metric}_rolling_mean"] = g["value"].rolling(window).mean()
-            g[f"{metric}_accel"] = g[f"{metric}_slope"].diff() / max(median_gap, step_seconds)
-            metric_frames.append(g[[c for c in g.columns if c != "value"]])
+            dt = max(median_gap, step_seconds)
+            out = pd.DataFrame(index=g.index)
+            for _name, win_min, suffix in scales:
+                win = f"{win_min}min"
+                slope = g["value"].diff() / dt
+                out[f"{metric}{suffix}_slope"] = slope
+                out[f"{metric}{suffix}_rolling_std"] = g["value"].rolling(win).std()
+                out[f"{metric}{suffix}_rolling_mean"] = g["value"].rolling(win).mean()
+                out[f"{metric}{suffix}_accel"] = slope.diff() / dt
+            metric_frames.append(out)
 
         if not metric_frames:
             continue
@@ -140,18 +166,125 @@ def label_fault_windows(features: pd.DataFrame, fault_log: pd.DataFrame) -> pd.D
     return features
 
 
-def load_rpi() -> tuple[pd.DataFrame, pd.DataFrame]:
-    tele = pd.read_csv(RPI_RUN / "network_telemetry.csv", parse_dates=["timestamp"])
-    tele["timestamp"] = pd.to_datetime(tele["timestamp"], utc=True)
+def label_circumstance_existence(
+    features: pd.DataFrame, run_dirs: list[Path]
+) -> pd.DataFrame:
+    """Additive existence + phase labels from circumstance campaign logs.
+
+    Does **not** touch ``fault_type`` / ``unified_label`` (the 5-class event model
+    and Temporal Loom stay intact). Adds two columns for a future circumstance head:
+
+    - ``circumstance_label`` — which fault's *situation exists* here (run-up **or**
+      breach), else ``healthy``. This is the "train on the basis of existence" target.
+    - ``event_phase`` — ``circumstance`` (pre-breach ramp) / ``breach`` / ``none``.
+
+    Absolute durations are never emitted as features — only row labels by time.
+    """
+    features = features.copy()
+    features["circumstance_label"] = "healthy"
+    features["event_phase"] = "none"
+
+    net = features["source"] == "network"
+    if not net.any():
+        return features
+
+    n_events = 0
+    for run_dir in run_dirs:
+        circ_path = run_dir / "circumstance_log.csv"
+        if not circ_path.exists():
+            continue
+        events = pd.read_csv(circ_path)
+        for _, ev in events.iterrows():
+            ft = to_unified_label(ev["fault_type"])
+            if ft == "healthy":
+                continue
+            cs = pd.to_datetime(ev["circumstance_start"], utc=True)
+            bt = pd.to_datetime(ev["breach_time"], utc=True)
+            rt = pd.to_datetime(ev["recovery_time"], utc=True)
+            idx = features.index
+            circ_mask = net & (idx >= cs) & (idx < bt)
+            breach_mask = net & (idx >= bt) & (idx <= rt)
+            features.loc[circ_mask, "event_phase"] = "circumstance"
+            features.loc[breach_mask, "event_phase"] = "breach"
+            features.loc[circ_mask | breach_mask, "circumstance_label"] = ft
+            n_events += 1
+
+    if n_events:
+        print(f"  circumstance existence labels applied for {n_events} events")
+        print(features["circumstance_label"].value_counts().to_string())
+    else:
+        print("  no circumstance_log.csv found — existence labels default to healthy")
+    return features
+
+
+def _clean_telemetry(tele: pd.DataFrame, *, campaign_id: str) -> pd.DataFrame:
+    """Drop nulls / non-finite / exact dups; namespace run_id per campaign+host."""
+    tele = tele.copy()
+    tele["timestamp"] = pd.to_datetime(tele["timestamp"], utc=True, errors="coerce")
+    tele["value"] = pd.to_numeric(tele["value"], errors="coerce")
     tele["metric"] = tele["metric"].map(lambda m: METRIC_MAP.get(m, m))
     tele = tele[tele["metric"].isin({"ifInOctets", "ifOutOctets", "jitter_ms", "packet_loss_pct"})]
-    # One run_id per host keeps time-series continuity for feature eng
-    tele["run_id"] = "rpi_" + tele["host"].astype(str)
+    before = len(tele)
+    tele = tele.dropna(subset=["timestamp", "value", "host", "metric"])
+    tele = tele[np.isfinite(tele["value"])]
+    # Exact duplicate scrapes → keep last
+    tele = tele.sort_values("timestamp").drop_duplicates(
+        subset=["timestamp", "host", "metric"], keep="last"
+    )
+    # Namespace so two campaigns never stitch into one broken host series
+    tele["run_id"] = f"rpi_{campaign_id}_" + tele["host"].astype(str)
     tele["source"] = "network"
     tele = tele[["timestamp", "metric", "value", "run_id", "source"]]
+    print(f"    clean telemetry {campaign_id}: {before} → {len(tele)} rows")
+    return tele
 
-    faults = pd.read_csv(RPI_RUN / "fault_injection_log.csv", parse_dates=["fault_start", "breach_time"])
+
+def _clean_faults(faults: pd.DataFrame, *, campaign_id: str) -> pd.DataFrame:
+    faults = faults.copy()
+    faults["fault_start"] = pd.to_datetime(faults["fault_start"], utc=True, errors="coerce")
+    faults["breach_time"] = pd.to_datetime(faults["breach_time"], utc=True, errors="coerce")
+    before = len(faults)
+    faults = faults.dropna(subset=["fault_type", "fault_start", "breach_time"])
+    faults = faults[faults["breach_time"] > faults["fault_start"]]
+    # Keep real_ prefix for the labeler; embed campaign id so ids stay unique across merges
+    def _rid(x: str) -> str:
+        x = str(x)
+        if x.startswith("real_"):
+            return f"real_{campaign_id}__{x[len('real_'):]}"
+        return f"real_{campaign_id}__{x}"
+
+    faults["run_id"] = faults["run_id"].map(_rid)
+    print(f"    clean faults {campaign_id}: {before} → {len(faults)} windows")
+    return faults
+
+
+def load_rpi_run(run_dir: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
+    campaign_id = run_dir.name
+    tele = pd.read_csv(run_dir / "network_telemetry.csv", parse_dates=["timestamp"])
+    tele = _clean_telemetry(tele, campaign_id=campaign_id)
+    faults = pd.read_csv(
+        run_dir / "fault_injection_log.csv", parse_dates=["fault_start", "breach_time"]
+    )
+    faults = _clean_faults(faults, campaign_id=campaign_id)
     return tele, faults
+
+
+def load_rpi(run_dirs: list[Path] | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
+    dirs = run_dirs or [RPI_RUN]
+    teles, faults = [], []
+    for d in dirs:
+        print(f"  loading campaign {d.name}")
+        t, f = load_rpi_run(d)
+        teles.append(t)
+        faults.append(f)
+    tele = pd.concat(teles, ignore_index=True) if teles else pd.DataFrame()
+    fault = pd.concat(faults, ignore_index=True) if faults else pd.DataFrame()
+    if len(tele):
+        tele = tele.sort_values("timestamp").drop_duplicates(
+            subset=["timestamp", "run_id", "metric"], keep="last"
+        )
+    print(f"  merged network rows={len(tele)}  fault windows={len(fault)}")
+    return tele, fault
 
 
 def load_public() -> pd.DataFrame:
@@ -273,17 +406,35 @@ def main() -> None:
     parser.add_argument(
         "--rpi-run",
         type=Path,
+        action="append",
         default=None,
-        help="Campaign run directory or id under data/rpi-net/runs/ (default: baked-in run)",
+        help="Campaign run dir or id under data/rpi-net/runs/ (repeatable; merges all)",
+    )
+    parser.add_argument(
+        "--all-rpi-runs",
+        action="store_true",
+        help="Merge every campaign directory under data/rpi-net/runs/",
     )
     args = parser.parse_args()
-    if args.rpi_run is not None:
-        run = args.rpi_run
-        RPI_RUN = run if run.is_absolute() else RPI_NET_DIR / "runs" / run.name
-    print(f"RPI_RUN={RPI_RUN}")
 
-    print("=== Loading RPi campaign ===")
-    network_df, network_fault_log = load_rpi()
+    run_dirs: list[Path] = []
+    if args.all_rpi_runs:
+        run_dirs = sorted(
+            p for p in (RPI_NET_DIR / "runs").iterdir()
+            if p.is_dir() and (p / "fault_injection_log.csv").exists()
+            and (p / "network_telemetry.csv").exists()
+        )
+    elif args.rpi_run:
+        for run in args.rpi_run:
+            run_dirs.append(run if run.is_absolute() else RPI_NET_DIR / "runs" / run.name)
+    else:
+        run_dirs = [RPI_RUN]
+
+    RPI_RUN = run_dirs[0]
+    print(f"RPI_RUNS={[p.name for p in run_dirs]}")
+
+    print("=== Loading RPi campaign(s) ===")
+    network_df, network_fault_log = load_rpi(run_dirs)
     print(f"  network_df={len(network_df)}  fault_windows={len(network_fault_log)}")
 
     print("=== Loading public lake ===")
@@ -358,6 +509,8 @@ def main() -> None:
         )
 
     labeled = label_fault_windows(features, unified_fault_log)
+    print("\n=== Circumstance existence labels (additive) ===")
+    labeled = label_circumstance_existence(labeled, run_dirs)
     out = PROCESSED_DIR / "deca_unified_dataset.parquet"
     labeled.to_parquet(out)
     print(f"Wrote {out} ({len(labeled)} rows)")

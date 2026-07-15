@@ -110,6 +110,10 @@ def score_fault_classifier(
     # Remap if encoder order matches lake labels
     healthy_idx = int(bundle["healthy_idx"])
     rare_ids = [class_to_idx[c] for c in RARE if c in class_to_idx]
+    from deca_inference import load_promoted_loom, loom_config_from_bundle
+
+    # Shuffled playground / School Exam papers are not sequences — score raw frames only.
+    # Sticky loom boost lives in decision_thresholds.json → loom.metrics (temporal score).
     pred = predict_weighted_multiclass(
         bundle["gate"],
         bundle["full_clf"],
@@ -129,6 +133,9 @@ def score_fault_classifier(
     rare_recalls = [
         float(recall_score(y == c, pred == c, zero_division=0)) for c in rare_ids
     ]
+    loom = loom_config_from_bundle(bundle)
+    loom_live = load_promoted_loom()
+    loom_metrics = loom_live.get("metrics") if isinstance(loom_live.get("metrics"), dict) else None
     return {
         "model": "fault_classifier_xgb",
         "role": "What is happening now? (multiclass fault ID)",
@@ -137,6 +144,23 @@ def score_fault_classifier(
         "gate_thr": float(bundle["gate_thr"]),
         "phase": bundle.get("phase"),
         "rare_boost": bundle.get("rare_boost"),
+        "head_family": bundle.get("head_family"),
+        "loom": {
+            "enabled": loom.get("enabled", True),
+            "enter_k": loom.get("enter_k"),
+            "exit_k": loom.get("exit_k"),
+            "applied_on_playground": False,
+            "reason": "playground papers are shuffled — use temporal_persist_score / live stream",
+            "temporal_boost": {
+                "delta_macro_f1": (loom_metrics or {}).get("delta_macro_f1"),
+                "raw_macro_f1": ((loom_metrics or {}).get("raw") or {}).get("macro_f1"),
+                "persistent_macro_f1": ((loom_metrics or {}).get("persistent") or {}).get(
+                    "macro_f1"
+                ),
+            }
+            if loom_metrics
+            else None,
+        },
         "primary_metric": "macro_f1",
         "macro_f1": float(f1_score(y, pred, average="macro", zero_division=0)),
         "weighted_f1": float(f1_score(y, pred, average="weighted", zero_division=0)),
@@ -359,6 +383,25 @@ def write_markdown(report: dict, path: Path) -> None:
         for c, m in xgb["per_class"].items():
             lines.append(
                 f"| {c} | {m['precision']:.2f} | {m['recall']:.2f} | {m['f1']:.2f} | {m['support']} |"
+            )
+        loom = xgb.get("loom") or {}
+        boost = loom.get("temporal_boost") or {}
+        lines += [
+            "",
+            "### Temporal Loom (live stream — not applied on this shuffled paper)",
+            "",
+            f"- Knobs: `enter_k={loom.get('enter_k')}` · `exit_k={loom.get('exit_k')}` · "
+            f"enabled={loom.get('enabled')}",
+        ]
+        if boost.get("persistent_macro_f1") is not None:
+            lines.append(
+                f"- Chronological boost: raw Macro‑F1 `{boost.get('raw_macro_f1'):.3f}` → "
+                f"sticky `{boost.get('persistent_macro_f1'):.3f}` "
+                f"(Δ `{boost.get('delta_macro_f1'):+.3f}`) — see `docs/DECA_TEMPORAL_LOOM.md`"
+            )
+        else:
+            lines.append(
+                "- Run `python scripts/deca_score_temporal.py` to measure and bake loom boost metrics."
             )
 
     lines += [

@@ -1,0 +1,390 @@
+[2026-07-14T16:56:49.018162+00:00] Run directory: /home/brain/deca-isro/data/rpi-net/runs/20260714_165648_tier6_x10
+[2026-07-14T16:56:49.018287+00:00] Data root: /home/brain/deca-isro/data/rpi-net
+[2026-07-14T16:56:49.018314+00:00] ============================================================
+[2026-07-14T16:56:49.018335+00:00] DECA CAMPAIGN STARTING — quota-driven, 10–10 runs per fault type
+[2026-07-14T16:56:49.018356+00:00] ============================================================
+[2026-07-14T16:56:55.931448+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-14T16:56:57.355056+00:00] Baseline traffic: 44 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-14T16:57:02.166237+00:00]    iperf3 client running (~44 Mbps)
+[2026-07-14T16:57:02.166587+00:00] New campaign: quota-driven — 10–10 runs per fault type (targets: {'congestion_breach': 10, 'tunnel_degradation': 10, 'bgp_route_flap': 10, 'vrf_leakage': 10}, total 40 runs)
+[2026-07-14T16:57:02.166641+00:00] Normal operations for 21.4 minutes...
+[2026-07-14T17:07:46.781332+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-14T17:07:49.287194+00:00] Baseline traffic: 73 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-14T17:07:54.090750+00:00]    iperf3 client running (~73 Mbps)
+[2026-07-14T17:18:35.719596+00:00] --- Run 1: vrf_leakage (run_id=real_vrf_leakage_001) ---
+[2026-07-14T17:18:35.719813+00:00]   vrf_leakage run=real_vrf_leakage_001: injecting wrong route-target import on station2 ADMIN vrf, precursor 3.5min + hold 6.8min
+[2026-07-14T17:28:52.620211+00:00]   Logged: 2026-07-14T17:18:35.719801+00:00 -> 2026-07-14T17:22:04.854765+00:00
+[2026-07-14T17:28:56.142177+00:00]   Cleanup complete for real_vrf_leakage_001
+[2026-07-14T17:28:56.142539+00:00]   Progress vrf_leakage: 1/10
+[2026-07-14T17:28:56.142605+00:00] Normal operations for 15.3 minutes...
+[2026-07-14T17:36:37.670697+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-14T17:36:40.166492+00:00] Baseline traffic: 49 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-14T17:36:44.974614+00:00]    iperf3 client running (~49 Mbps)
+[2026-07-14T17:44:23.644865+00:00] --- Run 2: congestion_breach (run_id=real_congestion_breach_002) ---
+[2026-07-14T17:44:23.645149+00:00]   congestion_breach run=real_congestion_breach_002: 95->7mbit over 12.6min, 5 steps
+[2026-07-14T18:02:43.261506+00:00]   Logged: 2026-07-14T17:44:23.645137+00:00 -> 2026-07-14T17:57:06.257579+00:00
+[2026-07-14T18:03:05.634631+00:00]   Cleanup complete for real_congestion_breach_002
+[2026-07-14T18:03:05.634930+00:00]   Progress congestion_breach: 1/10
+[2026-07-14T18:03:05.634978+00:00] Normal operations for 22.3 minutes...
+[2026-07-14T18:14:18.943324+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-14T18:14:21.460080+00:00] Baseline traffic: 29 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-14T18:14:26.266412+00:00]    iperf3 client running (~29 Mbps)
+[2026-07-14T18:25:36.635080+00:00] --- Run 3: tunnel_degradation (run_id=real_tunnel_degradation_003) ---
+[2026-07-14T18:25:36.635235+00:00]   tunnel_degradation run=real_tunnel_degradation_003: ramping to 10.4% loss / 41ms delay over 8.9min
+[2026-07-14T18:38:04.524455+00:00]   Logged: 2026-07-14T18:25:36.635228+00:00 -> 2026-07-14T18:32:22.917048+00:00
+[2026-07-14T18:38:08.838414+00:00]   Cleanup complete for real_tunnel_degradation_003
+[2026-07-14T18:38:08.838820+00:00]   Progress tunnel_degradation: 1/10
+[2026-07-14T18:38:08.838906+00:00] Normal operations for 20.4 minutes...
+[2026-07-14T18:48:24.050963+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-14T18:48:26.532174+00:00] Baseline traffic: 58 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-14T18:48:44.332858+00:00]    iperf3 client running (~58 Mbps)
+[2026-07-14T18:58:57.710128+00:00] --- Run 4: bgp_route_flap (run_id=real_bgp_route_flap_004) ---
+[2026-07-14T18:58:57.710365+00:00]   bgp_route_flap run=real_bgp_route_flap_004: 2 slow flaps over 10.9min, then 7 rapid flaps
+[2026-07-14T19:11:32.045944+00:00]   Logged: 2026-07-14T18:58:57.710353+00:00 -> 2026-07-14T19:09:51.103531+00:00
+[2026-07-14T19:11:34.393938+00:00]   Cleanup complete for real_bgp_route_flap_004
+[2026-07-14T19:11:34.394249+00:00]   Progress bgp_route_flap: 1/10
+[2026-07-14T19:11:34.394318+00:00] Normal operations for 16.8 minutes...
+[2026-07-14T19:20:01.223768+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-14T19:20:02.652843+00:00] Baseline traffic: 19 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-14T19:20:07.535620+00:00]    iperf3 client running (~19 Mbps)
+[2026-07-14T19:28:32.515860+00:00] --- Run 5: bgp_route_flap (run_id=real_bgp_route_flap_005) ---
+[2026-07-14T19:28:32.516250+00:00]   bgp_route_flap run=real_bgp_route_flap_005: 3 slow flaps over 7.1min, then 6 rapid flaps
+[2026-07-14T19:28:42.531778+00:00]    SSH failed on station1@192.168.50.10: Connection timed out during banner exchange
+Connection to 192.168.50.10 port 22 timed out
+[2026-07-14T19:37:25.752075+00:00]   Logged: 2026-07-14T19:28:32.516236+00:00 -> 2026-07-14T19:35:49.570631+00:00
+[2026-07-14T19:37:27.162317+00:00]   Cleanup complete for real_bgp_route_flap_005
+[2026-07-14T19:37:27.162833+00:00]   Progress bgp_route_flap: 2/10
+[2026-07-14T19:37:27.162961+00:00] Normal operations for 20.0 minutes...
+[2026-07-14T19:47:30.440952+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-14T19:47:32.926769+00:00] Baseline traffic: 59 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-14T19:47:47.384707+00:00]    iperf3 client exited unexpectedly, check /tmp/iperf3-lan.log on station1
+[2026-07-14T19:57:48.864408+00:00] --- Run 6: vrf_leakage (run_id=real_vrf_leakage_006) ---
+[2026-07-14T19:57:48.864729+00:00]   vrf_leakage run=real_vrf_leakage_006: injecting wrong route-target import on station2 ADMIN vrf, precursor 4.0min + hold 5.6min
+[2026-07-14T20:07:24.465687+00:00]   Logged: 2026-07-14T19:57:48.864716+00:00 -> 2026-07-14T20:01:49.275281+00:00
+[2026-07-14T20:07:26.877143+00:00]   Cleanup complete for real_vrf_leakage_006
+[2026-07-14T20:07:26.877636+00:00]   Progress vrf_leakage: 2/10
+[2026-07-14T20:07:26.877695+00:00] Normal operations for 15.6 minutes...
+[2026-07-14T20:15:15.897345+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-14T20:15:18.343458+00:00] Baseline traffic: 73 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-14T20:15:23.225764+00:00]    iperf3 client running (~73 Mbps)
+[2026-07-14T20:23:10.315989+00:00] --- Run 7: congestion_breach (run_id=real_congestion_breach_007) ---
+[2026-07-14T20:23:10.316379+00:00]   congestion_breach run=real_congestion_breach_007: 95->10mbit over 10.7min, 5 steps
+[2026-07-14T20:38:48.696417+00:00]   Logged: 2026-07-14T20:23:10.316364+00:00 -> 2026-07-14T20:34:06.733050+00:00
+[2026-07-14T20:38:58.109823+00:00]   Cleanup complete for real_congestion_breach_007
+[2026-07-14T20:38:58.110094+00:00]   Progress congestion_breach: 2/10
+[2026-07-14T20:38:58.110136+00:00] Normal operations for 18.6 minutes...
+[2026-07-14T20:48:19.333896+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-14T20:48:21.818139+00:00] Baseline traffic: 19 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-14T20:48:53.771412+00:00]    iperf3 client running (~19 Mbps)
+[2026-07-14T20:58:13.198425+00:00] --- Run 8: tunnel_degradation (run_id=real_tunnel_degradation_008) ---
+[2026-07-14T20:58:13.198767+00:00]   tunnel_degradation run=real_tunnel_degradation_008: ramping to 11.1% loss / 44ms delay over 11.6min
+[2026-07-14T21:11:59.858408+00:00]   Logged: 2026-07-14T20:58:13.198752+00:00 -> 2026-07-14T21:06:01.235317+00:00
+[2026-07-14T21:12:04.617146+00:00]   Cleanup complete for real_tunnel_degradation_008
+[2026-07-14T21:12:04.617508+00:00]   Progress tunnel_degradation: 2/10
+[2026-07-14T21:12:04.617560+00:00] Normal operations for 24.7 minutes...
+[2026-07-14T21:24:27.383705+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-14T21:24:29.796580+00:00] Baseline traffic: 23 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-14T21:24:34.472820+00:00]    iperf3 client running (~23 Mbps)
+[2026-07-14T21:36:54.275566+00:00] --- Run 9: congestion_breach (run_id=real_congestion_breach_009) ---
+[2026-07-14T21:36:54.275903+00:00]   congestion_breach run=real_congestion_breach_009: 95->12mbit over 13.7min, 4 steps
+[2026-07-14T21:54:10.198686+00:00]   Logged: 2026-07-14T21:36:54.275894+00:00 -> 2026-07-14T21:50:50.603321+00:00
+[2026-07-14T21:54:15.241117+00:00]   Cleanup complete for real_congestion_breach_009
+[2026-07-14T21:54:15.241477+00:00]   Progress congestion_breach: 3/10
+[2026-07-14T21:54:15.241525+00:00] Normal operations for 17.4 minutes...
+[2026-07-14T22:03:00.662281+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-14T22:03:02.122288+00:00] Baseline traffic: 42 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-14T22:03:07.074019+00:00]    iperf3 client running (~42 Mbps)
+[2026-07-14T22:11:50.619279+00:00] --- Run 10: bgp_route_flap (run_id=real_bgp_route_flap_010) ---
+[2026-07-14T22:11:50.619611+00:00]   bgp_route_flap run=real_bgp_route_flap_010: 3 slow flaps over 10.7min, then 5 rapid flaps
+[2026-07-14T22:23:53.958296+00:00]   Logged: 2026-07-14T22:11:50.619597+00:00 -> 2026-07-14T22:22:37.423113+00:00
+[2026-07-14T22:23:55.395564+00:00]   Cleanup complete for real_bgp_route_flap_010
+[2026-07-14T22:23:55.396074+00:00]   Progress bgp_route_flap: 3/10
+[2026-07-14T22:23:55.396168+00:00] Normal operations for 19.7 minutes...
+[2026-07-14T22:33:48.115785+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-14T22:33:50.610158+00:00] Baseline traffic: 75 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-14T22:33:55.507590+00:00]    iperf3 client running (~75 Mbps)
+[2026-07-14T22:43:46.416589+00:00] --- Run 11: vrf_leakage (run_id=real_vrf_leakage_011) ---
+[2026-07-14T22:43:46.416918+00:00]   vrf_leakage run=real_vrf_leakage_011: injecting wrong route-target import on station2 ADMIN vrf, precursor 5.7min + hold 6.0min
+[2026-07-14T22:55:30.657415+00:00]   Logged: 2026-07-14T22:43:46.416903+00:00 -> 2026-07-14T22:49:31.016280+00:00
+[2026-07-14T22:55:32.019737+00:00]   Cleanup complete for real_vrf_leakage_011
+[2026-07-14T22:55:32.020238+00:00]   Progress vrf_leakage: 3/10
+[2026-07-14T22:55:32.020325+00:00] Normal operations for 24.4 minutes...
+[2026-07-14T23:07:46.990784+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-14T23:07:48.406336+00:00] Baseline traffic: 17 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-14T23:07:53.282699+00:00]    iperf3 client running (~17 Mbps)
+[2026-07-14T23:20:06.417354+00:00] --- Run 12: tunnel_degradation (run_id=real_tunnel_degradation_012) ---
+[2026-07-14T23:20:06.417624+00:00]   tunnel_degradation run=real_tunnel_degradation_012: ramping to 9.8% loss / 39ms delay over 11.5min
+[2026-07-14T23:33:50.955687+00:00]   Logged: 2026-07-14T23:20:06.417610+00:00 -> 2026-07-14T23:28:46.539435+00:00
+[2026-07-14T23:33:55.480894+00:00]   Cleanup complete for real_tunnel_degradation_012
+[2026-07-14T23:33:55.481398+00:00]   Progress tunnel_degradation: 3/10
+[2026-07-14T23:33:55.481464+00:00] Normal operations for 20.0 minutes...
+[2026-07-14T23:43:58.936083+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-14T23:44:01.425142+00:00] Baseline traffic: 66 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-14T23:44:07.363958+00:00]    iperf3 client running (~66 Mbps)
+[2026-07-14T23:54:08.940433+00:00] --- Run 13: vrf_leakage (run_id=real_vrf_leakage_013) ---
+[2026-07-14T23:54:08.940756+00:00]   vrf_leakage run=real_vrf_leakage_013: injecting wrong route-target import on station2 ADMIN vrf, precursor 3.5min + hold 7.8min
+[2026-07-15T00:05:30.324259+00:00]   Logged: 2026-07-14T23:54:08.940743+00:00 -> 2026-07-14T23:57:40.187091+00:00
+[2026-07-15T00:05:31.929169+00:00]   Cleanup complete for real_vrf_leakage_013
+[2026-07-15T00:05:31.929645+00:00]   Progress vrf_leakage: 4/10
+[2026-07-15T00:05:31.929730+00:00] Normal operations for 18.9 minutes...
+[2026-07-15T00:14:59.632322+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T00:15:01.028693+00:00] Baseline traffic: 71 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T00:15:05.894494+00:00]    iperf3 client running (~71 Mbps)
+[2026-07-15T00:24:31.797547+00:00] --- Run 14: bgp_route_flap (run_id=real_bgp_route_flap_014) ---
+[2026-07-15T00:24:31.797882+00:00]   bgp_route_flap run=real_bgp_route_flap_014: 2 slow flaps over 11.0min, then 5 rapid flaps
+[2026-07-15T00:36:55.415543+00:00]   Logged: 2026-07-15T00:24:31.797868+00:00 -> 2026-07-15T00:35:36.904736+00:00
+[2026-07-15T00:37:16.384348+00:00]   Cleanup complete for real_bgp_route_flap_014
+[2026-07-15T00:37:16.384616+00:00]   Progress bgp_route_flap: 4/10
+[2026-07-15T00:37:16.384659+00:00] Normal operations for 25.0 minutes...
+[2026-07-15T00:49:48.400678+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T00:49:50.900142+00:00] Baseline traffic: 62 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T00:49:58.824081+00:00]    iperf3 client running (~62 Mbps)
+[2026-07-15T01:02:27.796198+00:00] --- Run 15: tunnel_degradation (run_id=real_tunnel_degradation_015) ---
+[2026-07-15T01:02:27.796530+00:00]   tunnel_degradation run=real_tunnel_degradation_015: ramping to 11.5% loss / 45ms delay over 9.0min
+[2026-07-15T01:15:14.885242+00:00]   Logged: 2026-07-15T01:02:27.796521+00:00 -> 2026-07-15T01:09:42.631277+00:00
+[2026-07-15T01:15:17.617563+00:00]   Cleanup complete for real_tunnel_degradation_015
+[2026-07-15T01:15:17.617994+00:00]   Progress tunnel_degradation: 4/10
+[2026-07-15T01:15:17.618061+00:00] Normal operations for 20.3 minutes...
+[2026-07-15T01:25:28.242124+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T01:25:31.797750+00:00] Baseline traffic: 63 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T01:25:36.774797+00:00]    iperf3 client running (~63 Mbps)
+[2026-07-15T01:35:45.507376+00:00] --- Run 16: congestion_breach (run_id=real_congestion_breach_016) ---
+[2026-07-15T01:35:45.507713+00:00]   congestion_breach run=real_congestion_breach_016: 95->9mbit over 6.9min, 3 steps
+[2026-07-15T01:48:57.560493+00:00]   Logged: 2026-07-15T01:35:45.507699+00:00 -> 2026-07-15T01:42:50.001078+00:00
+[2026-07-15T01:48:59.941146+00:00]   Cleanup complete for real_congestion_breach_016
+[2026-07-15T01:48:59.941637+00:00]   Progress congestion_breach: 4/10
+[2026-07-15T01:48:59.941720+00:00] Normal operations for 16.5 minutes...
+[2026-07-15T01:57:17.619664+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T01:57:19.057727+00:00] Baseline traffic: 32 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T01:57:23.979021+00:00]    iperf3 client running (~32 Mbps)
+[2026-07-15T02:05:39.825058+00:00] --- Run 17: congestion_breach (run_id=real_congestion_breach_017) ---
+[2026-07-15T02:05:39.825393+00:00]   congestion_breach run=real_congestion_breach_017: 95->12mbit over 11.3min, 4 steps
+[2026-07-15T02:21:44.439286+00:00]   Logged: 2026-07-15T02:05:39.825379+00:00 -> 2026-07-15T02:17:14.296124+00:00
+[2026-07-15T02:21:47.203742+00:00]   Cleanup complete for real_congestion_breach_017
+[2026-07-15T02:21:47.204116+00:00]   Progress congestion_breach: 5/10
+[2026-07-15T02:21:47.204168+00:00] Normal operations for 16.2 minutes...
+[2026-07-15T02:29:57.036955+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T02:29:58.483095+00:00] Baseline traffic: 19 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T02:30:04.387023+00:00]    iperf3 client running (~19 Mbps)
+[2026-07-15T02:38:11.160356+00:00] --- Run 18: vrf_leakage (run_id=real_vrf_leakage_018) ---
+[2026-07-15T02:38:11.160675+00:00]   vrf_leakage run=real_vrf_leakage_018: injecting wrong route-target import on station2 ADMIN vrf, precursor 6.6min + hold 6.1min
+[2026-07-15T02:50:53.235534+00:00]   Logged: 2026-07-15T02:38:11.160662+00:00 -> 2026-07-15T02:44:46.691164+00:00
+[2026-07-15T02:50:54.643499+00:00]   Cleanup complete for real_vrf_leakage_018
+[2026-07-15T02:50:54.643862+00:00]   Progress vrf_leakage: 5/10
+[2026-07-15T02:50:54.643912+00:00] Normal operations for 20.7 minutes...
+[2026-07-15T03:01:16.184821+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T03:01:17.626290+00:00] Baseline traffic: 52 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T03:01:24.630504+00:00]    iperf3 client running (~52 Mbps)
+[2026-07-15T03:11:44.298376+00:00] --- Run 19: bgp_route_flap (run_id=real_bgp_route_flap_019) ---
+[2026-07-15T03:11:44.298711+00:00]   bgp_route_flap run=real_bgp_route_flap_019: 3 slow flaps over 11.5min, then 7 rapid flaps
+[2026-07-15T03:25:01.297591+00:00]   Logged: 2026-07-15T03:11:44.298697+00:00 -> 2026-07-15T03:23:13.547070+00:00
+[2026-07-15T03:25:03.633146+00:00]   Cleanup complete for real_bgp_route_flap_019
+[2026-07-15T03:25:03.633426+00:00]   Progress bgp_route_flap: 5/10
+[2026-07-15T03:25:03.633467+00:00] Normal operations for 20.3 minutes...
+[2026-07-15T03:35:13.749709+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T03:35:24.763379+00:00] Baseline traffic: 84 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T03:35:31.701268+00:00]    iperf3 client running (~84 Mbps)
+[2026-07-15T03:45:39.963745+00:00] --- Run 20: tunnel_degradation (run_id=real_tunnel_degradation_020) ---
+[2026-07-15T03:45:39.964102+00:00]   tunnel_degradation run=real_tunnel_degradation_020: ramping to 11.3% loss / 45ms delay over 10.3min
+[2026-07-15T03:58:59.713548+00:00]   Logged: 2026-07-15T03:45:39.964093+00:00 -> 2026-07-15T03:53:59.850214+00:00
+[2026-07-15T03:59:02.161539+00:00]   Cleanup complete for real_tunnel_degradation_020
+[2026-07-15T03:59:02.161881+00:00]   Progress tunnel_degradation: 5/10
+[2026-07-15T03:59:02.161937+00:00] Normal operations for 17.0 minutes...
+[2026-07-15T04:07:35.560227+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T04:07:37.006391+00:00] Baseline traffic: 62 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T04:07:41.903105+00:00]    iperf3 client running (~62 Mbps)
+[2026-07-15T04:16:13.393162+00:00] --- Run 21: tunnel_degradation (run_id=real_tunnel_degradation_021) ---
+[2026-07-15T04:16:13.393524+00:00]   tunnel_degradation run=real_tunnel_degradation_021: ramping to 11.0% loss / 44ms delay over 10.4min
+[2026-07-15T04:27:45.818069+00:00]   Logged: 2026-07-15T04:16:13.393506+00:00 -> 2026-07-15T04:23:12.746307+00:00
+[2026-07-15T04:27:47.735206+00:00]   Cleanup complete for real_tunnel_degradation_021
+[2026-07-15T04:27:47.735609+00:00]   Progress tunnel_degradation: 6/10
+[2026-07-15T04:27:47.735663+00:00] Normal operations for 16.6 minutes...
+[2026-07-15T04:36:08.123659+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T04:36:09.649833+00:00] Baseline traffic: 84 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T04:36:15.545809+00:00]    iperf3 client running (~84 Mbps)
+[2026-07-15T04:44:34.030145+00:00] --- Run 22: bgp_route_flap (run_id=real_bgp_route_flap_022) ---
+[2026-07-15T04:44:34.030503+00:00]   bgp_route_flap run=real_bgp_route_flap_022: 4 slow flaps over 8.5min, then 5 rapid flaps
+[2026-07-15T04:54:04.804395+00:00]    SSH timeout on station1@192.168.50.10
+[2026-07-15T04:55:01.769845+00:00]   Logged: 2026-07-15T04:44:34.030487+00:00 -> 2026-07-15T04:53:06.496612+00:00
+[2026-07-15T04:55:22.682663+00:00]   Cleanup complete for real_bgp_route_flap_022
+[2026-07-15T04:55:22.683076+00:00]   Progress bgp_route_flap: 6/10
+[2026-07-15T04:55:22.683124+00:00] Normal operations for 15.7 minutes...
+[2026-07-15T05:03:16.509715+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T05:03:19.014250+00:00] Baseline traffic: 21 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T05:03:23.934060+00:00]    iperf3 client running (~21 Mbps)
+[2026-07-15T05:11:14.867065+00:00] --- Run 23: vrf_leakage (run_id=real_vrf_leakage_023) ---
+[2026-07-15T05:11:14.867383+00:00]   vrf_leakage run=real_vrf_leakage_023: injecting wrong route-target import on station2 ADMIN vrf, precursor 4.4min + hold 9.0min
+[2026-07-15T05:24:40.910390+00:00]   Logged: 2026-07-15T05:11:14.867368+00:00 -> 2026-07-15T05:15:41.376228+00:00
+[2026-07-15T05:24:42.559936+00:00]   Cleanup complete for real_vrf_leakage_023
+[2026-07-15T05:24:42.560214+00:00]   Progress vrf_leakage: 6/10
+[2026-07-15T05:24:42.560261+00:00] Normal operations for 24.7 minutes...
+[2026-07-15T05:37:05.738332+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T05:37:08.370484+00:00] Baseline traffic: 35 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T05:37:13.225783+00:00]    iperf3 client running (~35 Mbps)
+[2026-07-15T05:49:33.314637+00:00] --- Run 24: congestion_breach (run_id=real_congestion_breach_024) ---
+[2026-07-15T05:49:33.314919+00:00]   congestion_breach run=real_congestion_breach_024: 95->11mbit over 6.3min, 5 steps
+[2026-07-15T06:02:45.116754+00:00]   Logged: 2026-07-15T05:49:33.314905+00:00 -> 2026-07-15T05:56:05.777058+00:00
+[2026-07-15T06:02:50.398371+00:00]   Cleanup complete for real_congestion_breach_024
+[2026-07-15T06:02:50.398740+00:00]   Progress congestion_breach: 6/10
+[2026-07-15T06:02:50.398805+00:00] Normal operations for 24.7 minutes...
+[2026-07-15T06:15:11.956779+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T06:15:32.979145+00:00] Baseline traffic: 74 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T06:15:37.896957+00:00]    iperf3 client running (~74 Mbps)
+[2026-07-15T06:27:57.614146+00:00] --- Run 25: tunnel_degradation (run_id=real_tunnel_degradation_025) ---
+[2026-07-15T06:27:57.614410+00:00]   tunnel_degradation run=real_tunnel_degradation_025: ramping to 7.8% loss / 30ms delay over 7.2min
+[2026-07-15T06:36:44.735269+00:00]   Logged: 2026-07-15T06:27:57.614396+00:00 -> 2026-07-15T06:33:22.362061+00:00
+[2026-07-15T06:36:46.540574+00:00]   Cleanup complete for real_tunnel_degradation_025
+[2026-07-15T06:36:46.540890+00:00]   Progress tunnel_degradation: 7/10
+[2026-07-15T06:36:46.540940+00:00] Normal operations for 20.6 minutes...
+[2026-07-15T06:47:07.668626+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T06:47:10.168840+00:00] Baseline traffic: 62 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T06:47:16.039571+00:00]    iperf3 client running (~62 Mbps)
+[2026-07-15T06:57:35.413104+00:00] --- Run 26: bgp_route_flap (run_id=real_bgp_route_flap_026) ---
+[2026-07-15T06:57:35.413323+00:00]   bgp_route_flap run=real_bgp_route_flap_026: 4 slow flaps over 11.6min, then 5 rapid flaps
+[2026-07-15T07:00:50.097762+00:00]    SSH timeout on station1@192.168.50.10
+[2026-07-15T07:10:46.222576+00:00]   Logged: 2026-07-15T06:57:35.413313+00:00 -> 2026-07-15T07:09:35.452774+00:00
+[2026-07-15T07:10:47.624354+00:00]   Cleanup complete for real_bgp_route_flap_026
+[2026-07-15T07:10:47.624784+00:00]   Progress bgp_route_flap: 7/10
+[2026-07-15T07:10:47.624848+00:00] Normal operations for 17.5 minutes...
+[2026-07-15T07:19:33.556229+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T07:19:36.077227+00:00] Baseline traffic: 70 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T07:19:41.997442+00:00]    iperf3 client running (~70 Mbps)
+[2026-07-15T07:28:26.011127+00:00] --- Run 27: congestion_breach (run_id=real_congestion_breach_027) ---
+[2026-07-15T07:28:26.011356+00:00]   congestion_breach run=real_congestion_breach_027: 95->7mbit over 10.6min, 4 steps
+[2026-07-15T07:42:18.896342+00:00]   Logged: 2026-07-15T07:28:26.011345+00:00 -> 2026-07-15T07:39:12.821926+00:00
+[2026-07-15T07:42:24.482138+00:00]   Cleanup complete for real_congestion_breach_027
+[2026-07-15T07:42:24.482519+00:00]   Progress congestion_breach: 7/10
+[2026-07-15T07:42:24.482579+00:00] Normal operations for 19.2 minutes...
+[2026-07-15T07:52:02.876648+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T07:52:05.376391+00:00] Baseline traffic: 21 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T07:52:10.196330+00:00]    iperf3 client running (~21 Mbps)
+[2026-07-15T08:01:45.499197+00:00] --- Run 28: vrf_leakage (run_id=real_vrf_leakage_028) ---
+[2026-07-15T08:01:45.499534+00:00]   vrf_leakage run=real_vrf_leakage_028: injecting wrong route-target import on station2 ADMIN vrf, precursor 7.8min + hold 5.0min
+[2026-07-15T08:14:29.977079+00:00]   Logged: 2026-07-15T08:01:45.499520+00:00 -> 2026-07-15T08:09:32.507440+00:00
+[2026-07-15T08:14:37.563362+00:00]   Cleanup complete for real_vrf_leakage_028
+[2026-07-15T08:14:37.563811+00:00]   Progress vrf_leakage: 7/10
+[2026-07-15T08:14:37.563907+00:00] Normal operations for 23.3 minutes...
+[2026-07-15T08:26:19.132747+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T08:26:21.643216+00:00] Baseline traffic: 49 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T08:26:30.322483+00:00]    iperf3 client running (~49 Mbps)
+[2026-07-15T08:38:10.159277+00:00] --- Run 29: tunnel_degradation (run_id=real_tunnel_degradation_029) ---
+[2026-07-15T08:38:10.159673+00:00]   tunnel_degradation run=real_tunnel_degradation_029: ramping to 9.5% loss / 37ms delay over 11.7min
+[2026-07-15T08:49:45.181811+00:00]   Logged: 2026-07-15T08:38:10.159657+00:00 -> 2026-07-15T08:46:02.854245+00:00
+[2026-07-15T08:49:47.369161+00:00]   Cleanup complete for real_tunnel_degradation_029
+[2026-07-15T08:49:47.369498+00:00]   Progress tunnel_degradation: 8/10
+[2026-07-15T08:49:47.369595+00:00] Normal operations for 15.4 minutes...
+[2026-07-15T08:57:31.327696+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T08:57:32.765763+00:00] Baseline traffic: 41 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T08:57:37.675734+00:00]    iperf3 client running (~41 Mbps)
+[2026-07-15T09:05:19.813132+00:00] --- Run 30: bgp_route_flap (run_id=real_bgp_route_flap_030) ---
+[2026-07-15T09:05:19.813439+00:00]   bgp_route_flap run=real_bgp_route_flap_030: 3 slow flaps over 6.5min, then 4 rapid flaps
+[2026-07-15T09:05:39.817985+00:00]    SSH timeout on station1@192.168.50.10
+[2026-07-15T09:12:55.063130+00:00]   Logged: 2026-07-15T09:05:19.813423+00:00 -> 2026-07-15T09:12:10.863807+00:00
+[2026-07-15T09:13:16.120128+00:00]   Cleanup complete for real_bgp_route_flap_030
+[2026-07-15T09:13:16.120486+00:00]   Progress bgp_route_flap: 8/10
+[2026-07-15T09:13:16.120548+00:00] Normal operations for 23.4 minutes...
+[2026-07-15T09:24:58.809085+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T09:25:00.270992+00:00] Baseline traffic: 27 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T09:25:05.191143+00:00]    iperf3 client running (~27 Mbps)
+[2026-07-15T09:36:46.029134+00:00] --- Run 31: vrf_leakage (run_id=real_vrf_leakage_031) ---
+[2026-07-15T09:36:46.029384+00:00]   vrf_leakage run=real_vrf_leakage_031: injecting wrong route-target import on station2 ADMIN vrf, precursor 4.3min + hold 5.9min
+[2026-07-15T09:46:55.015560+00:00]   Logged: 2026-07-15T09:36:46.029371+00:00 -> 2026-07-15T09:41:02.085607+00:00
+[2026-07-15T09:46:57.719145+00:00]   Cleanup complete for real_vrf_leakage_031
+[2026-07-15T09:46:57.725993+00:00]   Progress vrf_leakage: 8/10
+[2026-07-15T09:46:57.726268+00:00] Normal operations for 23.5 minutes...
+[2026-07-15T09:58:45.465902+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T09:58:51.055909+00:00] Baseline traffic: 46 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T09:59:16.174665+00:00]    iperf3 client running (~46 Mbps)
+[2026-07-15T10:11:01.962497+00:00] --- Run 32: congestion_breach (run_id=real_congestion_breach_032) ---
+[2026-07-15T10:11:01.962785+00:00]   congestion_breach run=real_congestion_breach_032: 95->12mbit over 13.5min, 3 steps
+[2026-07-15T10:29:36.929827+00:00]   Logged: 2026-07-15T10:11:01.962772+00:00 -> 2026-07-15T10:24:38.528285+00:00
+[2026-07-15T10:29:43.336134+00:00]   Cleanup complete for real_congestion_breach_032
+[2026-07-15T10:29:43.338672+00:00]   Progress congestion_breach: 8/10
+[2026-07-15T10:29:43.338756+00:00] Normal operations for 18.2 minutes...
+[2026-07-15T10:38:51.974710+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T10:38:54.483026+00:00] Baseline traffic: 22 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T10:38:59.348076+00:00]    iperf3 client running (~22 Mbps)
+[2026-07-15T10:48:05.031864+00:00] --- Run 33: vrf_leakage (run_id=real_vrf_leakage_033) ---
+[2026-07-15T10:48:05.032312+00:00]   vrf_leakage run=real_vrf_leakage_033: injecting wrong route-target import on station2 ADMIN vrf, precursor 4.0min + hold 5.0min
+[2026-07-15T10:57:09.878205+00:00]   Logged: 2026-07-15T10:48:05.032299+00:00 -> 2026-07-15T10:52:07.938518+00:00
+[2026-07-15T10:57:13.461144+00:00]   Cleanup complete for real_vrf_leakage_033
+[2026-07-15T10:57:13.461458+00:00]   Progress vrf_leakage: 9/10
+[2026-07-15T10:57:13.461515+00:00] Normal operations for 19.6 minutes...
+[2026-07-15T11:07:03.887403+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T11:07:07.385482+00:00] Baseline traffic: 36 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T11:07:21.820958+00:00]    iperf3 client exited unexpectedly, check /tmp/iperf3-lan.log on station1
+[2026-07-15T11:17:10.385158+00:00] --- Run 34: tunnel_degradation (run_id=real_tunnel_degradation_034) ---
+[2026-07-15T11:17:10.385427+00:00]   tunnel_degradation run=real_tunnel_degradation_034: ramping to 7.9% loss / 31ms delay over 6.6min
+[2026-07-15T11:26:12.236313+00:00]   Logged: 2026-07-15T11:17:10.385414+00:00 -> 2026-07-15T11:22:27.744811+00:00
+[2026-07-15T11:26:13.839980+00:00]   Cleanup complete for real_tunnel_degradation_034
+[2026-07-15T11:26:13.840309+00:00]   Progress tunnel_degradation: 9/10
+[2026-07-15T11:26:13.840363+00:00] Normal operations for 15.2 minutes...
+[2026-07-15T11:33:50.556102+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T11:33:52.007449+00:00] Baseline traffic: 51 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T11:34:01.086374+00:00]    iperf3 client running (~51 Mbps)
+[2026-07-15T11:41:35.907070+00:00] --- Run 35: bgp_route_flap (run_id=real_bgp_route_flap_035) ---
+[2026-07-15T11:41:35.907224+00:00]   bgp_route_flap run=real_bgp_route_flap_035: 3 slow flaps over 11.4min, then 6 rapid flaps
+[2026-07-15T11:54:29.645441+00:00]    SSH timeout on station1@192.168.50.10
+[2026-07-15T11:54:42.643135+00:00]   Logged: 2026-07-15T11:41:35.907218+00:00 -> 2026-07-15T11:53:01.155677+00:00
+[2026-07-15T11:54:44.201994+00:00]   Cleanup complete for real_bgp_route_flap_035
+[2026-07-15T11:54:44.202435+00:00]   Progress bgp_route_flap: 9/10
+[2026-07-15T11:54:44.202501+00:00] Normal operations for 23.2 minutes...
+[2026-07-15T12:06:20.878425+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T12:06:25.392985+00:00] Baseline traffic: 54 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T12:06:30.249786+00:00]    iperf3 client running (~54 Mbps)
+[2026-07-15T12:18:05.057563+00:00] --- Run 36: congestion_breach (run_id=real_congestion_breach_036) ---
+[2026-07-15T12:18:05.057974+00:00]   congestion_breach run=real_congestion_breach_036: 95->5mbit over 7.1min, 4 steps
+[2026-07-15T12:28:58.029842+00:00]   Logged: 2026-07-15T12:18:05.057954+00:00 -> 2026-07-15T12:25:20.564213+00:00
+[2026-07-15T12:29:03.872095+00:00]   Cleanup complete for real_congestion_breach_036
+[2026-07-15T12:29:03.872445+00:00]   Progress congestion_breach: 9/10
+[2026-07-15T12:29:03.872526+00:00] Normal operations for 17.3 minutes...
+[2026-07-15T12:37:45.457614+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T12:37:47.967071+00:00] Baseline traffic: 17 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T12:37:52.807546+00:00]    iperf3 client running (~17 Mbps)
+[2026-07-15T12:46:31.483128+00:00] --- Run 37: bgp_route_flap (run_id=real_bgp_route_flap_037) ---
+[2026-07-15T12:46:31.483404+00:00]   bgp_route_flap run=real_bgp_route_flap_037: 4 slow flaps over 11.9min, then 4 rapid flaps
+[2026-07-15T12:59:43.223315+00:00]   Logged: 2026-07-15T12:46:31.483392+00:00 -> 2026-07-15T12:58:28.109078+00:00
+[2026-07-15T12:59:44.704960+00:00]   Cleanup complete for real_bgp_route_flap_037
+[2026-07-15T12:59:44.705379+00:00]   Progress bgp_route_flap: 10/10
+[2026-07-15T12:59:44.705446+00:00] Normal operations for 23.4 minutes...
+[2026-07-15T13:11:30.785900+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T13:11:33.305063+00:00] Baseline traffic: 37 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T13:11:39.172118+00:00]    iperf3 client running (~37 Mbps)
+[2026-07-15T13:23:22.337385+00:00] --- Run 38: vrf_leakage (run_id=real_vrf_leakage_038) ---
+[2026-07-15T13:23:22.337641+00:00]   vrf_leakage run=real_vrf_leakage_038: injecting wrong route-target import on station2 ADMIN vrf, precursor 7.2min + hold 6.0min
+[2026-07-15T13:36:31.224260+00:00]   Logged: 2026-07-15T13:23:22.337631+00:00 -> 2026-07-15T13:30:33.302447+00:00
+[2026-07-15T13:36:32.669843+00:00]   Cleanup complete for real_vrf_leakage_038
+[2026-07-15T13:36:32.670160+00:00]   Progress vrf_leakage: 10/10
+[2026-07-15T13:36:32.670225+00:00] Normal operations for 20.8 minutes...
+[2026-07-15T13:46:57.240034+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T13:46:58.686387+00:00] Baseline traffic: 15 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T13:47:03.594902+00:00]    iperf3 client running (~15 Mbps)
+[2026-07-15T13:57:26.174609+00:00] --- Run 39: tunnel_degradation (run_id=real_tunnel_degradation_039) ---
+[2026-07-15T13:57:26.174949+00:00]   tunnel_degradation run=real_tunnel_degradation_039: ramping to 8.1% loss / 31ms delay over 7.7min
+[2026-07-15T14:06:18.111987+00:00]   Logged: 2026-07-15T13:57:26.174934+00:00 -> 2026-07-15T14:03:17.095353+00:00
+[2026-07-15T14:06:19.851368+00:00]   Cleanup complete for real_tunnel_degradation_039
+[2026-07-15T14:06:19.851657+00:00]   Progress tunnel_degradation: 10/10
+[2026-07-15T14:06:19.851711+00:00] Normal operations for 17.6 minutes...
+[2026-07-15T14:15:09.832994+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-15T14:15:20.850062+00:00] Baseline traffic: 40 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-15T14:15:30.069039+00:00]    iperf3 client running (~40 Mbps)
+[2026-07-15T14:24:18.049404+00:00] --- Run 40: congestion_breach (run_id=real_congestion_breach_040) ---
+[2026-07-15T14:24:18.049683+00:00]   congestion_breach run=real_congestion_breach_040: 95->5mbit over 10.6min, 4 steps
+[2026-07-15T14:39:25.939626+00:00]   Logged: 2026-07-15T14:24:18.049670+00:00 -> 2026-07-15T14:35:03.073440+00:00
+[2026-07-15T14:39:31.586794+00:00]   Cleanup complete for real_congestion_breach_040
+[2026-07-15T14:39:31.587124+00:00]   Progress congestion_breach: 10/10
+[2026-07-15T14:39:31.587171+00:00] ============================================================
+[2026-07-15T14:39:31.587200+00:00] CAMPAIGN FINISHED: 40/40 runs completed
+[2026-07-15T14:39:31.587228+00:00] By type: {'congestion_breach': 10, 'tunnel_degradation': 10, 'bgp_route_flap': 10, 'vrf_leakage': 10} (targets: {'congestion_breach': 10, 'tunnel_degradation': 10, 'bgp_route_flap': 10, 'vrf_leakage': 10})
+[2026-07-15T14:40:11.972557+00:00] Exported /home/brain/deca-isro/data/rpi-net/runs/20260714_165648_tier6_x10/network_telemetry.csv (93809 rows)
+[2026-07-15T14:40:12.302366+00:00] Exported /home/brain/deca-isro/data/rpi-net/runs/20260714_165648_tier6_x10/network_campaign_export.csv (15639 rows)
+[2026-07-15T14:40:12.314678+00:00] ============================================================
+[2026-07-15T14:40:12.314837+00:00] VALIDATING fault_injection_log.csv
+[2026-07-15T14:40:12.314866+00:00] ============================================================
+[2026-07-15T14:40:12.315105+00:00] Total runs: 40
+[2026-07-15T14:40:12.315290+00:00]   congestion_breach     n=10  avg= 10.5min  spread= 2.7min
+[2026-07-15T14:40:12.315410+00:00]   tunnel_degradation    n=10  avg=  7.0min  spread= 1.2min
+[2026-07-15T14:40:12.315532+00:00]   bgp_route_flap        n=10  avg= 10.2min  spread= 1.9min
+[2026-07-15T14:40:12.315650+00:00]   vrf_leakage           n=10  avg=  5.1min  spread= 1.6min
+[2026-07-15T14:40:12.315698+00:00] VALIDATION RESULT: PASS
+[2026-07-15T14:40:12.315730+00:00] ============================================================

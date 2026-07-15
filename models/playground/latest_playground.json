@@ -1,6 +1,6 @@
 {
-  "playground_date": "2026-07-15T15:48:47.327289+00:00",
-  "exam_seed": 1784130519,
+  "playground_date": "2026-07-15T15:53:44.249724+00:00",
+  "exam_seed": 20260715,
   "holdout_frac": 0.2,
   "holdout_policy": "random",
   "n_lake_rows": 23909,
@@ -20,10 +20,10 @@
       "role": "Unknown weirdness / anomaly precursor",
       "n_rows": 4782,
       "primary_metric": "roc_auc",
-      "roc_auc": 0.5745286458993937,
-      "average_precision": 0.18823098280786732,
+      "roc_auc": 0.5712274232008321,
+      "average_precision": 0.191023806751489,
       "anomaly_rate_true": 0.16520284399832705,
-      "anomaly_rate_pred_mean_p": 0.16518237103305347
+      "anomaly_rate_pred_mean_p": 0.1651046522975168
     },
     {
       "model": "fault_classifier_xgb",
@@ -34,39 +34,39 @@
       "phase": "school_exam_A",
       "rare_boost": 1.0,
       "primary_metric": "macro_f1",
-      "macro_f1": 0.7729161709241483,
-      "weighted_f1": 0.9170393739657665,
-      "accuracy": 0.9148891677122543,
-      "mean_rare_recall": 0.5682926829268293,
+      "macro_f1": 0.8015280640554238,
+      "weighted_f1": 0.925236627667205,
+      "accuracy": 0.924508573818486,
+      "mean_rare_recall": 0.6130081300813008,
       "per_class": {
         "healthy": {
-          "precision": 0.9582059123343527,
-          "recall": 0.9418837675350702,
-          "f1": 0.9499747347145022,
+          "precision": 0.9609434440781132,
+          "recall": 0.9491482965931863,
+          "f1": 0.9550094517958412,
           "support": 3992
         },
         "congestion_breach": {
-          "precision": 0.935361216730038,
-          "recall": 0.9761904761904762,
-          "f1": 0.9553398058252427,
+          "precision": 0.9427480916030534,
+          "recall": 0.9801587301587301,
+          "f1": 0.9610894941634242,
           "support": 252
         },
         "tunnel_degradation": {
-          "precision": 0.8764044943820225,
-          "recall": 0.9176470588235294,
-          "f1": 0.896551724137931,
+          "precision": 0.8256410256410256,
+          "recall": 0.9470588235294117,
+          "f1": 0.8821917808219178,
           "support": 170
         },
         "bgp_route_flap": {
-          "precision": 0.5364963503649635,
+          "precision": 0.5675675675675675,
           "recall": 0.6,
-          "f1": 0.5664739884393064,
+          "f1": 0.5833333333333334,
           "support": 245
         },
         "vrf_leakage": {
-          "precision": 0.46153846153846156,
-          "recall": 0.5365853658536586,
-          "f1": 0.49624060150375937,
+          "precision": 0.6260162601626016,
+          "recall": 0.6260162601626016,
+          "f1": 0.6260162601626016,
           "support": 123
         }
       }
@@ -74,13 +74,13 @@
     {
       "model": "lstm_ttb",
       "role": "When will it break? (minutes to breach)",
-      "n_sequences": 1953,
+      "n_sequences": 1938,
       "seq_len": 16,
       "primary_metric": "mae_minutes",
-      "mae_minutes": 2.4658039001365655,
-      "rmse_minutes": 3.022573944254345,
-      "mean_true_ttb": 4.537336948489503,
-      "mean_pred_ttb": 4.048168182373047
+      "mae_minutes": 2.4666671342246933,
+      "rmse_minutes": 3.061328768635766,
+      "mean_true_ttb": 4.614206541640867,
+      "mean_pred_ttb": 4.003092288970947
     },
     {
       "model": "prophet_ifInOctets",
@@ -150,8 +150,8 @@
       "model": "isolation_forest",
       "role": "Unknown weirdness / anomaly precursor",
       "primary_metric": "roc_auc",
-      "roc_auc": 0.5745286458993937,
-      "average_precision": 0.18823098280786732,
+      "roc_auc": 0.5712274232008321,
+      "average_precision": 0.191023806751489,
       "macro_f1": null,
       "accuracy": null,
       "mean_rare_recall": null,
@@ -170,9 +170,9 @@
       "primary_metric": "macro_f1",
       "roc_auc": null,
       "average_precision": null,
-      "macro_f1": 0.7729161709241483,
-      "accuracy": 0.9148891677122543,
-      "mean_rare_recall": 0.5682926829268293,
+      "macro_f1": 0.8015280640554238,
+      "accuracy": 0.924508573818486,
+      "mean_rare_recall": 0.6130081300813008,
       "mae_minutes": null,
       "n_sequences": null,
       "mae": null,
@@ -191,8 +191,8 @@
       "macro_f1": null,
       "accuracy": null,
       "mean_rare_recall": null,
-      "mae_minutes": 2.4658039001365655,
-      "n_sequences": 1953,
+      "mae_minutes": 2.4666671342246933,
+      "n_sequences": 1938,
       "mae": null,
       "smape": null,
       "score_mode": null,

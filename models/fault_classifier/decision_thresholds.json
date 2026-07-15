@@ -1,6 +1,6 @@
 {
   "mode": "weighted_multiclass",
-  "gate_thr": 0.6,
+  "gate_thr": 0.5,
   "class_thr": {
     "healthy": 1.0,
     "congestion_breach": 1.0,
@@ -8,7 +8,50 @@
     "bgp_route_flap": 1.0,
     "vrf_leakage": 1.0
   },
-  "exam_macro_f1": 0.7245251546584006,
-  "exam_mean_rare_recall": 0.4521486643437863,
-  "rare_boost": 1.0
+  "exam_macro_f1": 0.7712106985695955,
+  "exam_mean_rare_recall": 0.7272440683590509,
+  "rare_boost": 1.0,
+  "loom": {
+    "enabled": true,
+    "enter_k": 3,
+    "exit_k": 2,
+    "note": "Sticky hysteresis on chronological streams only; duration is not a feature",
+    "metrics": {
+      "date": "2026-07-15T16:53:48.048203+00:00",
+      "tail_frac": 0.25,
+      "n_test": 3910,
+      "delta_macro_f1": 0.09413742323484398,
+      "raw": {
+        "macro_f1": 0.7860342042528912,
+        "accuracy": 0.8557544757033249,
+        "mean_rare_recall": 0.8870967741935484,
+        "per_class_f1": {
+          "healthy": 0.8994082840236687,
+          "congestion_breach": 0.9673202614379085,
+          "tunnel_degradation": 0.7975460122699386,
+          "bgp_route_flap": 0.6086956521739131,
+          "vrf_leakage": 0.6572008113590264
+        }
+      },
+      "persistent": {
+        "macro_f1": 0.8801716274877351,
+        "accuracy": 0.9381074168797954,
+        "mean_rare_recall": 0.9014336917562724,
+        "per_class_f1": {
+          "healthy": 0.9580152671755725,
+          "congestion_breach": 0.9630606860158312,
+          "tunnel_degradation": 0.75625,
+          "bgp_route_flap": 0.8580968280467446,
+          "vrf_leakage": 0.8654353562005277
+        }
+      },
+      "persistence_summary": {
+        "n": 3910,
+        "frames_changed": 510,
+        "raw_fault_frames": 1434,
+        "sticky_fault_frames": 1078,
+        "fault_frames_suppressed": 356
+      }
+    }
+  }
 }

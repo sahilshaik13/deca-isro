@@ -44,3 +44,10 @@ obsidian/.obsidian/workspaces.json
 obsidian/.obsidian/cache
 obsidian/.obsidian/plugins/cursor-integration/
 obsidian/.trash/
+
+# In-progress lab campaigns — keep off remote until finished
+data/rpi-net/runs/20260715_231056/
+
+# Local training / campaign run logs (artifacts stay tracked)
+models/**/*.log
+*.run.log

@@ -229,9 +229,11 @@ Before the stack: visual signatures of each lab fault (campaign `20260713_155333
 | --- | --- |
 | `fault_classifier_xgb.pkl` | Gate + fault_clf + full_clf + thresholds / mode |
 | `label_encoder.pkl` | Class names, `smote: false` |
-| `decision_thresholds.json` | `gate_thr`, per-class thr, val scores |
+| `decision_thresholds.json` | `gate_thr`, per-class thr, exam scores, **`loom`** (`enter_k`/`exit_k` + optional `metrics` boost) |
 | `feature_attribution.json` | Top gain features |
 | `scorecard.png` | Confusion + per-class F1 |
+
+Live chronological predictions: `scripts/deca_inference.py` (`predict_fault_stream` / `apply_loom`). Measure boost: `scripts/deca_score_temporal.py`. Design: `docs/DECA_TEMPORAL_LOOM.md`.
 
 ![Feature attribution](assets/models/feature_attribution.png)
 

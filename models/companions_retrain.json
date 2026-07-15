@@ -1,11 +1,11 @@
 {
-  "date": "2026-07-15T15:48:25.304303+00:00",
-  "n_rows": 23909,
+  "date": "2026-07-15T16:38:04.021340+00:00",
+  "n_rows": 23790,
   "isolation_forest": {
-    "auc": 0.5821220852042288,
+    "auc": 0.6659272620257666,
     "contamination": 0.08,
-    "test_n": 5978,
-    "anomaly_rate_test": 0.16510538641686182
+    "test_n": 5948,
+    "anomaly_rate_test": 0.16593813046402153
   },
   "prophet": [
     {
@@ -25,7 +25,7 @@
     }
   ],
   "lstm": {
-    "mae_minutes": 2.0142433643341064,
+    "mae_minutes": 1.4955568313598633,
     "n_sequences_used": 1316,
     "n_sequences_available": 1316,
     "test_n": 264

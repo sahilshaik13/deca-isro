@@ -1,0 +1,93 @@
+{
+  "notebook_date": "2026-07-15T16:17:22.037033+00:00",
+  "exam_seed": 20260715,
+  "n_lake_rows": 23909,
+  "exam_label_counts": {
+    "healthy": 3992,
+    "congestion_breach": 252,
+    "tunnel_degradation": 170,
+    "bgp_route_flap": 245,
+    "vrf_leakage": 123
+  },
+  "results": {
+    "isolation_forest": {
+      "roc_auc": 0.5712274232008321
+    },
+    "fault_classifier": {
+      "macro_f1": 0.8015280640554238,
+      "accuracy": 0.924508573818486,
+      "mean_rare_recall": 0.6130081300813008,
+      "head_family": "wm",
+      "rare_boost": 1.0,
+      "per_class": {
+        "healthy": {
+          "precision": 0.9609434440781132,
+          "recall": 0.9491482965931863,
+          "f1-score": 0.9550094517958412,
+          "support": 3992.0
+        },
+        "congestion_breach": {
+          "precision": 0.9427480916030534,
+          "recall": 0.9801587301587301,
+          "f1-score": 0.9610894941634242,
+          "support": 252.0
+        },
+        "tunnel_degradation": {
+          "precision": 0.8256410256410256,
+          "recall": 0.9470588235294117,
+          "f1-score": 0.8821917808219178,
+          "support": 170.0
+        },
+        "bgp_route_flap": {
+          "precision": 0.5675675675675675,
+          "recall": 0.6,
+          "f1-score": 0.5833333333333334,
+          "support": 245.0
+        },
+        "vrf_leakage": {
+          "precision": 0.6260162601626016,
+          "recall": 0.6260162601626016,
+          "f1-score": 0.6260162601626016,
+          "support": 123.0
+        }
+      }
+    },
+    "lstm": {
+      "mae_minutes": 2.4666671342246933,
+      "n": 1938
+    },
+    "prophet": [
+      {
+        "metric": "ifInOctets",
+        "mae": 1815526623.4985828,
+        "n_hold": 1068
+      },
+      {
+        "metric": "jitter_ms",
+        "mae": 185.8157215680775,
+        "n_hold": 1600
+      },
+      {
+        "metric": "bgp_update_rate",
+        "mae": 8882.195127066649,
+        "n_hold": 64
+      }
+    ],
+    "topology": {
+      "eccentricity": {
+        "PE1": 1,
+        "PE2": 1,
+        "CORE": 1
+      }
+    }
+  },
+  "school_exam": {
+    "date": "2026-07-15T15:41:39.383700+00:00",
+    "head_family": "wm",
+    "rare_boost": 1.0,
+    "exam_macro_f1": 0.7245251546584006,
+    "exam_mean_rare_recall": 0.4521486643437863,
+    "baseline_macro_f1": 0.71,
+    "promoted": true
+  }
+}

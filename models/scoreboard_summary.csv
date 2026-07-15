@@ -1,7 +1,6 @@
 Component,Primary score,Notes
-Isolation Forest + Platt,ROC-AUC 0.720,Unsupervised precursor / dashboard confidence
-XGBoost Phase 1 (tiers 1–3),"Macro-F1 0.721, Acc 0.94",mode=weighted_multiclass; rare recall ↑; no SMOTE
-LSTM time-to-breach,MAE 2.133 min,"623 network sequences, T=16"
-Prophet ×3,Fit complete,4502 / 8000 / 320 points (ifInOctets / jitter / bgp)
-Attribution,"Top: bgp_update_rate_rolling_std, bgp_update_rate_rolling_mean, bgp_update_rate_accel",Stage-2 XGB gain; no SMOTE
-Topology,"e(v)={'PE1': 1, 'PE2': 1, 'CORE': 1}",PE1–PE2–CORE digraph
+Isolation Forest + Platt,ROC-AUC 0.571,Live artifact on mixed paper
+Fault classifier (promoted),"Macro-F1 0.802, Acc 0.92",family=wm β=1.0; rareR=0.6130081300813008
+LSTM time-to-breach,MAE 2.467 min,n=1938 sequences on paper
+Prophet ×3,honest-refit holdout,ifInOctets=1.816e+09 / jitter_ms=185.8 / bgp_update_rate=8882
+Topology,"e(v)={'PE1': 1, 'PE2': 1, 'CORE': 1}",PE1–PE2–CORE

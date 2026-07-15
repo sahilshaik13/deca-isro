@@ -1,0 +1,42 @@
+{
+  "date": "2026-07-15T16:53:48.048203+00:00",
+  "enter_k": 3,
+  "exit_k": 2,
+  "tail_frac": 0.25,
+  "n_test": 3910,
+  "raw": {
+    "name": "raw_frame",
+    "macro_f1": 0.7860342042528912,
+    "accuracy": 0.8557544757033249,
+    "mean_rare_recall": 0.8870967741935484,
+    "per_class_f1": {
+      "healthy": 0.8994082840236687,
+      "congestion_breach": 0.9673202614379085,
+      "tunnel_degradation": 0.7975460122699386,
+      "bgp_route_flap": 0.6086956521739131,
+      "vrf_leakage": 0.6572008113590264
+    }
+  },
+  "persistent": {
+    "name": "persistent",
+    "macro_f1": 0.8801716274877351,
+    "accuracy": 0.9381074168797954,
+    "mean_rare_recall": 0.9014336917562724,
+    "per_class_f1": {
+      "healthy": 0.9580152671755725,
+      "congestion_breach": 0.9630606860158312,
+      "tunnel_degradation": 0.75625,
+      "bgp_route_flap": 0.8580968280467446,
+      "vrf_leakage": 0.8654353562005277
+    }
+  },
+  "delta_macro_f1": 0.09413742323484398,
+  "persistence_summary": {
+    "n": 3910,
+    "frames_changed": 510,
+    "raw_fault_frames": 1434,
+    "sticky_fault_frames": 1078,
+    "fault_frames_suppressed": 356
+  },
+  "note": "Duration is not a feature \u2014 persistence is consecutive pattern agreement only"
+}

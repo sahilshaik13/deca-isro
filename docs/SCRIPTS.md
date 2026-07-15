@@ -13,8 +13,8 @@ Paths resolve via [`_paths.py`](../scripts/_paths.py) (`data/`, `models/`), not 
 | --- | --- |
 | Shared | `_paths.py` |
 | Public lake | `fetch_public_data.py`, `routeviews.py`, `riperis.py`, `parse_bgp.py`, `ripe_atlas.py`, `bgpstream.py`, `ioda.py`, `ioda_client.py`, `cisco_scraper.py` |
-| Lab campaign | `deca_fault_campaign.py` |
-| Unify / train prep | `rebuild_unified.py`, `deca_school_exam_train.py`, `deca_mlops_orchestrator.py`, `deca_model_playground.py`, `deca_model_experts.py`, `deca_retrain_companions.py` |
+| Lab campaign | `deca_fault_campaign.py`, `deca_circumstance_campaign.py` |
+| Unify / train prep | `rebuild_unified.py`, `deca_school_exam_train.py`, `deca_mlops_orchestrator.py`, `deca_model_playground.py`, `deca_model_experts.py`, `deca_retrain_companions.py`, `deca_inference.py`, `deca_score_temporal.py`, `deca_train_circumstance.py` |
 | Station ops | `deca_deploy_stations.sh`, `deca_heal_telemetry.sh`, `deca_fix_prom_vpn.sh`, `deca_debug_vpn_prom.sh` |
 
 **Not a script (training):** [`notebook/DECA_Model_Training.ipynb`](../notebook/DECA_Model_Training.ipynb) — see README / [`DECA_ROI_TIERS.md`](DECA_ROI_TIERS.md).  
@@ -157,6 +157,28 @@ python scripts/deca_fault_campaign.py --run-id <existing_id> --per-type 10
 
 Details: [`DECA_ROI_TIERS.md`](DECA_ROI_TIERS.md) · station map: [`STATION_NETWORK_SETUP.md`](STATION_NETWORK_SETUP.md).
 
+### `deca_circumstance_campaign.py`
+
+| | |
+| --- | --- |
+| **Purpose** | Temporal Loom **circumstance** experiment: 5 events × 4 faults (20), capturing 3 phases per event — `circumstance` (run-up) → `breach` → `recovery` — to train on the **existence** of a fault's cause pattern, not just the breach frame. |
+| **Use case** | Feed the loom’s circumstance awareness; distinguish forming faults from aborted near-misses. Duration is never a feature. |
+| **Needs** | Same as `deca_fault_campaign.py` (lab SSH + Prometheus). Reuses its injectors. |
+| **Command** | `python scripts/deca_circumstance_campaign.py --per-type 5` · `--run-id <id>` (resumable) |
+| **Output** (under `data/rpi-net/runs/<run-id>/`) | `circumstance_log.csv` (event_id, fault_type, circumstance_start, breach_time, recovery_time), plus compatible `fault_injection_log.csv` / `network_telemetry.csv` / `network_campaign_export.csv` (phase + `circumstance_label` columns). |
+| **Then** | `python scripts/rebuild_unified.py --rpi-run <run-id>` → adds `circumstance_label` + `event_phase` (additive; 5-class model + loom unchanged). |
+| **Doc** | [`DECA_TEMPORAL_LOOM.md`](DECA_TEMPORAL_LOOM.md) §7 Warp 4 |
+
+### `deca_train_circumstance.py`
+
+| | |
+| --- | --- |
+| **Purpose** | Train the Temporal Loom **existence** head on `circumstance_label` (run-up ∪ breach). Multi-scale features only — no duration. |
+| **Use case** | After rebuild with a circumstance campaign; deferred safely if labels missing. Live loom pre-arms (`enter_k→prearm_enter_k`) when existence agrees. |
+| **Command** | `python scripts/deca_train_circumstance.py` · `--rare-boost 1.5` · `--exam-seed N` |
+| **Output** | `models/circumstance/circumstance_xgb.pkl` + `metrics.json` — or `deferred.json` if lake has no existence signal yet |
+| **Doc** | [`DECA_TEMPORAL_LOOM.md`](DECA_TEMPORAL_LOOM.md) |
+
 ---
 
 ## Unify / train prep
@@ -218,6 +240,16 @@ Notes: synthetic = **0**; IODA/BGP outage CSVs are **not** applied as row labels
 | **Command** | `python scripts/deca_retrain_companions.py` |
 | **Flags** | `--skip-if` · `--skip-prophet` · `--skip-lstm` · `--skip-topology` |
 | **Output** | Updates under `models/isolation_forest/`, `prophet_*/`, `lstm/`, `topology/`; patches `models/manifest.json`; writes `models/companions_retrain.json` |
+
+### `deca_inference.py` / `deca_score_temporal.py`
+
+| | |
+| --- | --- |
+| **Purpose** | **Temporal Loom** — sticky persistence / hysteresis after the frame classifier (pattern over consecutive frames — **not** fault duration as a feature). Promote bakes `loom` into the classifier bundle; temporal scorer measures raw vs sticky and writes boost metrics into `decision_thresholds.json`. |
+| **Use case** | Kill single-tick false starts on chronological streams; live alerts use `predict_fault_stream` / `apply_loom`. |
+| **Command** | `python scripts/deca_score_temporal.py` · `--enter-k 3 --exit-k 2` · `--no-write-promoted` |
+| **Output** | `models/temporal_persist_score.json`; patches `models/fault_classifier/decision_thresholds.json` → `loom` + `loom.metrics` |
+| **Doc** | `docs/DECA_TEMPORAL_LOOM.md` |
 
 ---
 
