@@ -133,6 +133,12 @@ def main() -> int:
         help="Fix paper (forces --once). Omit for fresh random questions every cycle",
     )
     parser.add_argument("--rare-boosts", type=str, default="1,1.5,2,3")
+    parser.add_argument(
+        "--families",
+        type=str,
+        default="plain,wm,moe",
+        help="Head families each cycle: plain=champion, wm=cluster booster, moe=cluster + per-fault experts",
+    )
     parser.add_argument("--baseline-macro-f1", type=float, default=None)
     parser.add_argument("--min-rare-recall-drop", type=float, default=0.03)
     args = parser.parse_args()
@@ -169,6 +175,7 @@ def main() -> int:
     from deca_school_exam_train import run_school_exam
 
     boosts = [float(x) for x in args.rare_boosts.split(",") if x.strip()]
+    fams = [x.strip() for x in args.families.split(",") if x.strip()]
     cycle_logs: list[dict] = []
     final_result: dict | None = None
     final_action = "exhausted"
@@ -185,6 +192,7 @@ def main() -> int:
             holdout_policy=args.holdout_policy,
             exam_seed=seed,
             rare_boosts=boosts,
+            families=fams,
             auto_promote=False,  # orchestrator owns promote after SCORE
             baseline_macro_f1=args.baseline_macro_f1,
             min_rare_recall_drop=args.min_rare_recall_drop,

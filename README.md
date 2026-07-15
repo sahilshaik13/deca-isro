@@ -26,6 +26,7 @@ Current campaign job: `20260713_155333` — **21 usable fault runs** (validation
 | [`docs/DATA_GEN.md`](docs/DATA_GEN.md) | Reproduce the data lake (script map + recipe) |
 | [`docs/SCRIPTS.md`](docs/SCRIPTS.md) | Every script: purpose, use case, command, outputs |
 | [`docs/MODELS.md`](docs/MODELS.md) | Every model: purpose, metrics, artifacts + graphs |
+| [`docs/DECA_TEST_SCORES.md`](docs/DECA_TEST_SCORES.md) | Initial → School Exam → playground scores in one place |
 | [`docs/DECA_MLOps_Continuous_Learning_Pipeline.md`](docs/DECA_MLOps_Continuous_Learning_Pipeline.md) | School Exam MLOps — `python scripts/deca_mlops_orchestrator.py` |
 | Playground | `python scripts/deca_model_playground.py` → `models/playground/scoreboard.md` |
 | [`docs/DATA_SAMPLE.md`](docs/DATA_SAMPLE.md) | Inventory of every curated file / sample tables |

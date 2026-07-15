@@ -14,7 +14,7 @@ Paths resolve via [`_paths.py`](../scripts/_paths.py) (`data/`, `models/`), not 
 | Shared | `_paths.py` |
 | Public lake | `fetch_public_data.py`, `routeviews.py`, `riperis.py`, `parse_bgp.py`, `ripe_atlas.py`, `bgpstream.py`, `ioda.py`, `ioda_client.py`, `cisco_scraper.py` |
 | Lab campaign | `deca_fault_campaign.py` |
-| Unify / train prep | `rebuild_unified.py`, `deca_school_exam_train.py`, `deca_mlops_orchestrator.py`, `deca_model_playground.py` |
+| Unify / train prep | `rebuild_unified.py`, `deca_school_exam_train.py`, `deca_mlops_orchestrator.py`, `deca_model_playground.py`, `deca_model_experts.py` |
 | Station ops | `deca_deploy_stations.sh`, `deca_heal_telemetry.sh`, `deca_fix_prom_vpn.sh`, `deca_debug_vpn_prom.sh` |
 
 **Not a script (training):** [`notebook/DECA_Model_Training.ipynb`](../notebook/DECA_Model_Training.ipynb) — see README / [`DECA_ROI_TIERS.md`](DECA_ROI_TIERS.md).  
@@ -181,11 +181,13 @@ Notes: synthetic = **0**; IODA/BGP outage CSVs are **not** applied as row labels
 
 | | |
 | --- | --- |
-| **Purpose** | Mode A School Exam engine: **fresh stratified exam paper each run** → Phase‑1 β sweep → promotion gate vs `manifest.json`. |
+| **Purpose** | Mode A School Exam engine: **fresh stratified exam paper each run** → per‑head β sweep → promotion gate vs `manifest.json`. Heads: `plain` (champion booster), `wm` (KMeans **cluster** layer + mild reg), `moe` (**mixture of per‑fault experts** + stacked meta‑gate). |
 | **Use case** | Low-level exam runs; prefer **`deca_mlops_orchestrator.py`** for automated promote/keep. |
 | **Command** | `python scripts/deca_school_exam_train.py` · `--auto-promote` to apply gate · `--exam-seed 42` to replay |
-| **Flags** | `--holdout-policy random\|time_tail` · `--exam-seed` · `--holdout-frac` · `--rare-boosts` · `--auto-promote` |
-| **Output** | `models/school_exam/weight_sweep.csv`, `latest_exam.json` |
+| **Flags** | `--families plain,wm,moe` · `--report-seeds N` (repeated-holdout spread) · `--holdout-policy random\|time_tail` · `--exam-seed` · `--holdout-frac` · `--rare-boosts` · `--auto-promote` |
+| **Output** | `models/school_exam/weight_sweep.csv` (per family+β), `latest_exam.json`; with `--report-seeds`: `seed_report.{json,md}` |
+| **Gate** | Candidate must beat the **honest same-paper champion config** (`plain` retrained on the blind pool), floored at the manifest baseline. Deployed artifact's same-paper score is reported but **leakage-inflated** (not the bar). |
+| **Note** | Head configs live in `scripts/deca_model_experts.py`. All heads share the exact same gated inference path — the machine promotes a deeper head **only if it beats the champion on a fresh paper**. On the current lake, `wm`/`moe` **lose** to `plain` (see ROI Tier 5.5). |
 
 ### `deca_mlops_orchestrator.py`
 
@@ -194,7 +196,7 @@ Notes: synthetic = **0**; IODA/BGP outage CSVs are **not** applied as row labels
 | **Purpose** | **Teach → test → examine → score → improve** loop with a **fresh random exam paper every cycle** until GATE PASS (promote) or `--max-cycles`. No human judge. |
 | **Use case** | Continuous learning on current lake (Mode A) or after a completed campaign (Mode B). |
 | **Command** | `python scripts/deca_mlops_orchestrator.py` · `--max-cycles 5` · `--once` · `--dry-run` · `--mode B --rpi-run <id>` |
-| **Flags** | `--max-cycles` · `--once` · `--dry-run` · `--mode A\|B` · `--rpi-run` · exam flags |
+| **Flags** | `--max-cycles` · `--once` · `--dry-run` · `--mode A\|B` · `--rpi-run` · `--families plain,wm,moe` · exam flags |
 | **Output** | `orchestrator_latest.json`, `orchestrator_history.jsonl`, exam artifacts; promotes `models/fault_classifier/` on PASS |
 
 ### `deca_model_playground.py`

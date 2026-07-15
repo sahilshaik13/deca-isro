@@ -1,0 +1,132 @@
+{
+  "report_date": "2026-07-15T12:56:35.761008+00:00",
+  "technique": "repeated holdout validation (fresh stratified paper per seed) + promotion gate",
+  "n_seeds": 3,
+  "seeds": [
+    1646872011,
+    1793109396,
+    266670594
+  ],
+  "families": [
+    "plain"
+  ],
+  "rare_boosts": [
+    1.0
+  ],
+  "holdout_frac": 0.2,
+  "holdout_policy": "random",
+  "challenger_wins_over_plain": 0,
+  "gate_pass_count": 0,
+  "summary": {
+    "champion_plain": {
+      "macro_f1": {
+        "mean": 0.7138093067672334,
+        "std": 0.012021313589955292,
+        "min": 0.7015823402426667,
+        "max": 0.730152351987265,
+        "n": 3
+      },
+      "mean_rare_recall": {
+        "mean": 0.6246031746031746,
+        "std": 0.050417131267263306,
+        "min": 0.5535714285714286,
+        "max": 0.6654761904761906,
+        "n": 3
+      },
+      "f1_vrf_leakage": {
+        "mean": 0.46611057624275665,
+        "std": 0.028756595994053193,
+        "min": 0.43564356435643564,
+        "max": 0.5046728971962616,
+        "n": 3
+      },
+      "f1_bgp_route_flap": {
+        "mean": 0.40803277832872276,
+        "std": 0.023513246435804616,
+        "min": 0.37755102040816324,
+        "max": 0.43478260869565216,
+        "n": 3
+      }
+    },
+    "best_family": {
+      "macro_f1": {
+        "mean": 0.7138093067672334,
+        "std": 0.012021313589955292,
+        "min": 0.7015823402426667,
+        "max": 0.730152351987265,
+        "n": 3
+      },
+      "mean_rare_recall": {
+        "mean": 0.6246031746031746,
+        "std": 0.050417131267263306,
+        "min": 0.5535714285714286,
+        "max": 0.6654761904761906,
+        "n": 3
+      },
+      "f1_vrf_leakage": {
+        "mean": 0.46611057624275665,
+        "std": 0.028756595994053193,
+        "min": 0.43564356435643564,
+        "max": 0.5046728971962616,
+        "n": 3
+      },
+      "f1_bgp_route_flap": {
+        "mean": 0.40803277832872276,
+        "std": 0.023513246435804616,
+        "min": 0.37755102040816324,
+        "max": 0.43478260869565216,
+        "n": 3
+      }
+    }
+  },
+  "per_seed": [
+    {
+      "seed": 1646872011,
+      "champion_family": "plain",
+      "champion_macro_f1": 0.7015823402426667,
+      "champion_rare_f1": {
+        "vrf_leakage": 0.43564356435643564,
+        "bgp_route_flap": 0.4117647058823529
+      },
+      "best_family": "plain",
+      "best_macro_f1": 0.7015823402426667,
+      "best_rare_f1": {
+        "vrf_leakage": 0.43564356435643564,
+        "bgp_route_flap": 0.4117647058823529
+      },
+      "gate_ok": false
+    },
+    {
+      "seed": 1793109396,
+      "champion_family": "plain",
+      "champion_macro_f1": 0.7096932280717686,
+      "champion_rare_f1": {
+        "vrf_leakage": 0.4580152671755725,
+        "bgp_route_flap": 0.37755102040816324
+      },
+      "best_family": "plain",
+      "best_macro_f1": 0.7096932280717686,
+      "best_rare_f1": {
+        "vrf_leakage": 0.4580152671755725,
+        "bgp_route_flap": 0.37755102040816324
+      },
+      "gate_ok": false
+    },
+    {
+      "seed": 266670594,
+      "champion_family": "plain",
+      "champion_macro_f1": 0.730152351987265,
+      "champion_rare_f1": {
+        "vrf_leakage": 0.5046728971962616,
+        "bgp_route_flap": 0.43478260869565216
+      },
+      "best_family": "plain",
+      "best_macro_f1": 0.730152351987265,
+      "best_rare_f1": {
+        "vrf_leakage": 0.5046728971962616,
+        "bgp_route_flap": 0.43478260869565216
+      },
+      "gate_ok": false
+    }
+  ]
+}

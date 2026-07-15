@@ -158,7 +158,8 @@ $$
 
 ![Classifier scorecard](assets/models/scorecard.png)
 
-CSV mirrors: `models/scoreboard_summary.csv`, `models/scoreboard_per_class.csv`.
+CSV mirrors: `models/scoreboard_summary.csv`, `models/scoreboard_per_class.csv`.  
+**Score timeline (initial → learnt → playground):** [`DECA_TEST_SCORES.md`](DECA_TEST_SCORES.md).
 
 ---
 
@@ -220,6 +221,7 @@ Before the stack: visual signatures of each lab fault (campaign `20260713_155333
 | **Purpose** | Multiclass `unified_label` (healthy + four lab faults) with Tiers 1–3. |
 | **Use case** | Operational fault ID after / with the anomaly gate. |
 | **How trained** | Anomaly gate + inverse-frequency weights + val-tuned thresholds; **SMOTE refused**. Mode this run: `weighted_multiclass`, `gate_thr=0.40`. |
+| **Candidate heads** | School Exam sweeps three heads and promotes only the gate winner: `plain` (this champion), `wm` (KMeans cluster layer + reg), `moe` (mixture of per-fault experts + stacked gate). On the current lake `plain` wins — deeper heads overfit the ~40-row rare classes (see [`DECA_ROI_TIERS.md`](DECA_ROI_TIERS.md) Tier 5.5). |
 | **Primary metrics** | Macro-F1 **0.721** · Acc **0.94** |
 | **Artifacts** | |
 

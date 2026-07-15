@@ -124,6 +124,36 @@ Not wired into `rebuild_unified.py` yet. Track as Phase 3 when campaign volume a
 
 ---
 
+## Tier 5.5 — Deep heads: cluster layer & mixture-of-experts (tested → gate-rejected)
+
+### Intent
+
+Ask whether *architecture* — more "thinking" capacity, clustering, and specialist experts — can lift rare-class F1 without new data. Implemented as opt-in fault-classifier heads in `scripts/deca_model_experts.py`, all sharing the exact gated inference path so the **School Exam gate is the judge**:
+
+- **`plain`** — the current champion booster (XGB, lr 0.08, depth 5, no reg). The control.
+- **`wm`** — KMeans **cluster** layer (centroid distances + soft memberships appended to the 20 features) + a deeper, mildly regularized booster (`min_child_weight`, `gamma`, L1/L2 — previously all unset).
+- **`moe`** — a generalist booster **plus one one-vs-rest expert per fault class**, blended by a logistic "gating" meta-learner trained on out-of-fold predictions (a stacked / mixture-of-experts head).
+
+### Result (same blind paper, `--exam-seed 42`)
+
+| Head | Exam Macro-F1 | Mean rare recall | BGP F1 | VRF F1 |
+| --- | ---: | ---: | ---: | ---: |
+| `plain` (champion config) | **0.722** | 0.55 | 0.51 | 0.47 |
+| `wm` (clusters + reg) | 0.719 | 0.52 | 0.49 | 0.45 |
+| `moe` (experts + gate) | 0.658 | 0.53 | 0.41 | 0.34 |
+
+### Reading
+
+- The **cluster layer is a wash** (−0.003 macro): 8 KMeans centroids on 20 rolling features add no signal the trees didn't already have.
+- The **mixture-of-experts is clearly worse** (−0.064 macro): with ~40–60 rare test rows, per-class experts + a meta-gate have far too many parameters and overfit — the same failure mode that made Tier-4 SMOTE a bad idea.
+- All three **fail the promotion gate**, so the machine keeps the champion. This is the point: capacity is not the bottleneck, **separable rare-fault physics is**.
+
+### Application status
+
+Heads stay wired and **auto-audited every orchestrator cycle** (`--families plain,wm,moe`). They are *not* the default champion. When Tier 6 / Tier 5 supply more separable rare faults, the gate will promote a deeper head **the moment it actually earns it** — no manual switch. Until then: **data > architecture.**
+
+---
+
 ## Tier 6 — Scale CE–PE–CE fault campaign (next physical step)
 
 ### Intent

@@ -3,6 +3,8 @@
 This is the **training methodology** for DECA — not “wait for more data then click retrain.”  
 The stack already uses Phase‑1 gates / inverse‑frequency weights / thresholds; this pipeline adds a **School Exam** around that so you **adjust weights under a blind test + promotion gate** instead of trusting a single random split.
 
+> **Terminology.** "School Exam" is the demo-friendly name. In standard ML terms this is **repeated holdout (Monte-Carlo cross) validation** with an automated **promotion gate** (a.k.a. champion/challenger or shadow-then-promote). Use the standard terms in any written report; keep "School Exam" for casual explanation. It is a recognized technique, not a bespoke invention.
+
 | Mode | When | New campaign data? |
 | --- | --- | --- |
 | **A — Same-lake School Exam** | **Now** (Tier‑6 still running / no time for another campaign) | No — hold out a blind slice of the **current** 17,050‑row lake |
@@ -21,7 +23,7 @@ Normal training: fit → report once on a **fixed** split the model can overfit 
 2. **Unit test** — score the *active* model on that new paper first  
 3. **Study hall** — retrain with **recomputed / boosted** sample weights + threshold retune (**never** on exam rows)  
 4. **Great exam** — score the candidate on the **same new paper**  
-5. **Promote** only if the candidate beats `models/manifest.json` (Macro‑F1 **0.721** baseline)
+5. **Promote** only if the candidate beats the **honest incumbent on the same paper** — the champion *config* (`plain`) retrained on the same blind pool — floored at the historical manifest number (**0.721**). The deployed artifact is also scored, but it trained on ~80% of the lake so its same-paper score is **leakage-inflated** and reported for transparency only.
 
 No SMOTE. Weights change because class counts (or an explicit rare boost) change — that is the “adjust the weights” lever when you cannot inject more BGP/VRF faults yet.
 
@@ -131,19 +133,38 @@ $$
 \mathrm{Macro\text{-}F1} = \frac{1}{K}\sum_{c=1}^{K} F1_c
 $$
 
-### Promotion gate
+### Promotion gate (apples-to-apples on the same paper)
 
-Let $M^\star$ = baseline Macro‑F1 from `models/manifest.json` (≈ **0.721**), $R$ = mean BGP+VRF recall on the exam, $R_{\max}$ = best mean rare recall among this sitting’s $\beta$ sweep, $\delta$ = `--min-rare-recall-drop` (default soft slack).
+The bar is the **honest incumbent scored on the same fresh paper**, not the stale manifest number. Let:
+
+- $M_{\mathrm{champ}}$ = best Macro‑F1 of the champion config (`plain` family) retrained on this paper's blind pool — the honest incumbent;
+- $M^\star$ = historical baseline from `models/manifest.json` (≈ **0.721**) — used as a **floor**;
+- $R_{\mathrm{champ}}$ = that champion's mean BGP+VRF recall on the exam;
+- $\delta$ = `--min-rare-recall-drop` (soft slack);
+- $M_{\mathrm{active}}$ = deployed artifact's same-paper Macro‑F1 — **reported only** (leakage-inflated, not the bar).
+
+$$
+\mathrm{bar} = \max\!\left(M_{\mathrm{champ}},\ M^\star\right)
+$$
 
 $$
 \mathrm{GATE} =
 \begin{cases}
-\mathrm{PASS} & \text{if }\ \mathrm{Macro\text{-}F1}_{\mathrm{cand}} \ge M^\star
+\mathrm{PASS} & \text{if }\ \mathrm{Macro\text{-}F1}_{\mathrm{cand}} \ge \mathrm{bar}
 \ \land\
-R \ge R_{\max}-\delta \\
+R_{\mathrm{cand}} \ge R_{\mathrm{champ}}-\delta \\
 \mathrm{FAIL} & \text{otherwise}
 \end{cases}
 $$
+
+**Why not compare to the deployed artifact directly?** It trained on ~80% of the lake, so most of today's random exam rows leaked into its training — its same-paper score is optimistic. Comparing an honestly-trained candidate to a leaky incumbent would freeze the system. The champion *config* retrained on the same honest pool is the fair incumbent.
+
+**Real vs noise.** With only ~40–60 rare rows per paper, run **repeated holdout across several seeds** and require the challenger to win *consistently*, not on one lucky paper:
+
+```bash
+python scripts/deca_school_exam_train.py --report-seeds 5 --families plain --rare-boosts 1
+# → models/school_exam/seed_report.md  (mean ± std [min,max] for Macro-F1, BGP F1, VRF F1)
+```
 
 ---
 

@@ -23,6 +23,7 @@ from sklearn.pipeline import Pipeline
 from xgboost import XGBClassifier
 
 from _paths import MODELS_DIR, PROCESSED_DIR, REPO_ROOT
+from deca_model_experts import ClusterAugment, MixtureOfExperts
 from rebuild_unified import UNIFIED_LABELS, to_unified_label
 
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -71,7 +72,7 @@ def inverse_frequency_weights(y: np.ndarray, *, rare_ids: set[int], boost: float
 def predict_weighted_multiclass(gate, full_clf, X, *, healthy_idx, gate_thr, class_thr):
     p_anom = gate.predict_proba(X)[:, 1]
     p_full = full_clf.predict_proba(X)
-    full_classes = list(full_clf.named_steps["xgb"].classes_)
+    full_classes = list(full_clf.classes_)
     preds = np.full(len(p_anom), healthy_idx, dtype=int)
     for i in range(len(p_anom)):
         if p_anom[i] < gate_thr:
@@ -89,7 +90,7 @@ def tune_thresholds(gate, full_clf, X_val, y_val, *, healthy_idx, rare_ids):
     thr_grid = [0.50, 0.65, 0.80, 1.00, 1.20]
     best = {"gate_thr": 0.5, "class_thr": {}, "score": -1.0, "macro_f1": -1.0}
     p_full = full_clf.predict_proba(X_val)
-    full_classes = list(full_clf.named_steps["xgb"].classes_)
+    full_classes = list(full_clf.classes_)
     p_anom = gate.predict_proba(X_val)[:, 1]
 
     def rare_aware(yt, yp):
@@ -124,42 +125,82 @@ def tune_thresholds(gate, full_clf, X_val, y_val, *, healthy_idx, rare_ids):
     return best
 
 
+# Champion config = the simple booster currently promoted. Kept as an explicit
+# baseline family so every "improvement" is judged head-to-head on the same paper.
+PLAIN_XGB = dict(n_estimators=250, max_depth=5, learning_rate=0.08, subsample=0.9, colsample_bytree=0.9)
+# Mildly regularized deeper booster (opt-in). Gentle values so rare-class splits survive.
+REG_XGB = dict(
+    n_estimators=350, max_depth=5, learning_rate=0.06, subsample=0.9, colsample_bytree=0.85,
+    min_child_weight=2, gamma=0.1, reg_alpha=0.2, reg_lambda=1.5,
+)
+
+# family → (full-head xgb params, cluster layer?, expert xgb params or None)
+FAMILY_CFG = {
+    "plain": (PLAIN_XGB, False, None),
+    "wm": (REG_XGB, True, None),
+    "moe": (REG_XGB, True, dict(REG_XGB, n_estimators=250, max_depth=4)),
+}
+
+
 def make_xgb(**kw):
-    return XGBClassifier(
-        n_estimators=kw.get("n_estimators", 250),
-        max_depth=kw.get("max_depth", 5),
-        learning_rate=0.08,
-        subsample=0.9,
-        colsample_bytree=0.9,
-        random_state=RANDOM_STATE,
-        n_jobs=-1,
-    )
+    """Thin XGB factory. Only the keys passed are overridden; XGBoost defaults
+    otherwise (so PLAIN stays exactly the current champion, no hidden reg)."""
+    params = dict(random_state=RANDOM_STATE, n_jobs=-1, eval_metric="mlogloss")
+    params.update(kw)
+    return XGBClassifier(**params)
 
 
-def train_phase1(X_fit, y_fit, X_val, y_val, *, healthy_idx, rare_ids, boost: float):
+def xgb_pipeline(xgb_params: dict, *, cluster: bool) -> Pipeline:
+    """Impute → (KMeans cluster layer) → XGB. classes_ delegates to the xgb step."""
+    steps = [("imputer", SimpleImputer(strategy="median", keep_empty_features=True))]
+    if cluster:
+        steps.append(("cluster", ClusterAugment(n_clusters=8, random_state=RANDOM_STATE)))
+    steps.append(("xgb", make_xgb(**xgb_params)))
+    return Pipeline(steps)
+
+
+def build_gate(X_fit, y_fit, *, healthy_idx):
     y_bin = (y_fit != healthy_idx).astype(int)
-    gate = Pipeline(
-        [
-            ("imputer", SimpleImputer(strategy="median", keep_empty_features=True)),
-            ("xgb", make_xgb(n_estimators=200, max_depth=4)),
-        ]
-    )
+    gate = xgb_pipeline(dict(n_estimators=200, max_depth=4, learning_rate=0.08,
+                             subsample=0.9, colsample_bytree=0.9), cluster=False)
     gate.fit(
         X_fit,
         y_bin,
         xgb__sample_weight=inverse_frequency_weights(y_bin, rare_ids=set(), boost=1.0),
     )
+    return gate
 
-    full_clf = Pipeline(
-        [
-            ("imputer", SimpleImputer(strategy="median", keep_empty_features=True)),
-            ("xgb", make_xgb()),
-        ]
-    )
-    full_clf.fit(
-        X_fit,
-        y_fit,
-        xgb__sample_weight=inverse_frequency_weights(y_fit, rare_ids=rare_ids, boost=boost),
+
+def build_full_head(family, X_fit, y_fit, *, healthy_idx, rare_ids, boost):
+    """plain → current champion booster. wm → cluster + mild reg booster.
+    moe → generalist + per-fault expert boosters, gated by a stacked meta-learner."""
+    if family not in FAMILY_CFG:
+        raise ValueError(f"unknown head family {family!r} (choices: {list(FAMILY_CFG)})")
+    xgb_params, cluster, expert_params = FAMILY_CFG[family]
+    sw = inverse_frequency_weights(y_fit, rare_ids=rare_ids, boost=boost)
+    if expert_params is not None:
+        fault_ids = sorted(int(c) for c in np.unique(y_fit) if int(c) != healthy_idx)
+        head = MixtureOfExperts(
+            base_factory=lambda: xgb_pipeline(xgb_params, cluster=cluster),
+            expert_factory=lambda: xgb_pipeline(expert_params, cluster=cluster),
+            expert_class_ids=fault_ids,
+            random_state=RANDOM_STATE,
+        )
+        head.fit(X_fit, y_fit, sample_weight=sw)
+        return head
+    head = xgb_pipeline(xgb_params, cluster=cluster)
+    head.fit(X_fit, y_fit, xgb__sample_weight=sw)
+    return head
+
+
+def train_phase1(
+    X_fit, y_fit, X_val, y_val, *, healthy_idx, rare_ids, boost: float,
+    family: str = "plain", gate=None,
+):
+    if gate is None:
+        gate = build_gate(X_fit, y_fit, healthy_idx=healthy_idx)
+    full_clf = build_full_head(
+        family, X_fit, y_fit, healthy_idx=healthy_idx, rare_ids=rare_ids, boost=boost
     )
     best = tune_thresholds(
         gate, full_clf, X_val, y_val, healthy_idx=healthy_idx, rare_ids=rare_ids
@@ -323,6 +364,7 @@ def promote_candidate(
             "global_to_local": {},
             "rare_global_ids": best["rare_ids"],
             "phase": "school_exam_A",
+            "head_family": best.get("family", "wm"),
             "rare_boost": best["row"]["rare_boost"],
         },
         clf_dir / "fault_classifier_xgb.pkl",
@@ -359,6 +401,7 @@ def promote_candidate(
         man = json.loads(man_path.read_text())
         man["school_exam"] = {
             "date": datetime.now(timezone.utc).isoformat(),
+            "head_family": best.get("family", "wm"),
             "rare_boost": best["row"]["rare_boost"],
             "exam_macro_f1": cand,
             "exam_mean_rare_recall": rare,
@@ -370,6 +413,7 @@ def promote_candidate(
                 m["metrics"] = {
                     "phase": "school_exam_A",
                     "mode": "weighted_multiclass",
+                    "head_family": best.get("family", "wm"),
                     "macro_f1": cand,
                     "weighted_f1": best["exam"]["weighted_f1"],
                     "mean_rare_recall": rare,
@@ -390,6 +434,7 @@ def run_school_exam(
     holdout_policy: str = "random",
     exam_seed: int | None = None,
     rare_boosts: list[float] | None = None,
+    families: list[str] | None = None,
     auto_promote: bool = False,
     baseline_macro_f1: float | None = None,
     min_rare_recall_drop: float = 0.03,
@@ -398,6 +443,7 @@ def run_school_exam(
 ) -> dict:
     """Run full School Exam pipeline; optionally auto-promote when gate passes."""
     boosts = rare_boosts or [1.0, 1.5, 2.0, 3.0]
+    fams = families or ["plain", "wm", "moe"]
     seed = exam_seed if exam_seed is not None else int(datetime.now(timezone.utc).timestamp())
     rng = np.random.default_rng(seed)
 
@@ -471,70 +517,80 @@ def run_school_exam(
     print(f"Lake rows={len(df):,}  features={len(feats)}  exam rows={len(X_exam):,}")
     print(f"Baseline Macro-F1 to beat: {baseline:.4f}")
     print(f"Rare boosts β={boosts}")
+    print(f"Heads (families): {fams}  [plain=champion, wm=cluster booster, moe=cluster + per-fault experts]")
     print(f"Classes: {le_classes}")
+
+    # Gate is family- and β-independent → train once (cluster-augmented, regularized).
+    print("\n=== Teaching the anomaly gate (once) ===")
+    gate = build_gate(X_fit, y_fit, healthy_idx=healthy_idx)
 
     results = []
     best = None
 
-    for beta in boosts:
-        print(f"\n=== Study hall  β={beta} ===")
-        gate, full_clf, thr = train_phase1(
-            X_fit,
-            y_fit,
-            X_val,
-            y_val,
-            healthy_idx=healthy_idx,
-            rare_ids=rare_ids,
-            boost=beta,
-        )
-        exam = evaluate(
-            gate,
-            full_clf,
-            X_exam,
-            y_exam,
-            healthy_idx=healthy_idx,
-            gate_thr=thr["gate_thr"],
-            class_thr=thr["class_thr"],
-            le_classes=le_classes,
-            rare_idx_list=rare_idx_list,
-        )
-        row = {
-            "rare_boost": beta,
-            "gate_thr": thr["gate_thr"],
-            "val_macro_f1": thr["macro_f1"],
-            "exam_macro_f1": exam["macro_f1"],
-            "exam_weighted_f1": exam["weighted_f1"],
-            "exam_mean_rare_recall": exam["mean_rare_recall"],
-            "per_class_f1": {c: float(exam["report"][c]["f1-score"]) for c in le_classes},
-        }
-        print(
-            f"  val macro-F1={thr['macro_f1']:.4f}  "
-            f"EXAM macro-F1={exam['macro_f1']:.4f}  "
-            f"rare-recall={exam['mean_rare_recall']:.4f}  "
-            f"gate_thr={thr['gate_thr']:.2f}"
-        )
-        for c in RARE:
-            if c in exam["report"]:
-                print(
-                    f"    {c}: P={exam['report'][c]['precision']:.2f} "
-                    f"R={exam['report'][c]['recall']:.2f} "
-                    f"F1={exam['report'][c]['f1-score']:.2f}"
-                )
-        results.append(row)
-        payload = {
-            "gate": gate,
-            "full_clf": full_clf,
-            "thr": thr,
-            "exam": exam,
-            "row": row,
-            "le_classes": le_classes,
-            "healthy_idx": healthy_idx,
-            "rare_ids": list(rare_ids),
-            "class_to_idx": class_to_idx,
-            "feats": feats,
-        }
-        if best is None or exam["macro_f1"] > best["exam"]["macro_f1"]:
-            best = payload
+    for family in fams:
+        for beta in boosts:
+            print(f"\n=== Study hall  head={family}  β={beta} ===")
+            _, full_clf, thr = train_phase1(
+                X_fit,
+                y_fit,
+                X_val,
+                y_val,
+                healthy_idx=healthy_idx,
+                rare_ids=rare_ids,
+                boost=beta,
+                family=family,
+                gate=gate,
+            )
+            exam = evaluate(
+                gate,
+                full_clf,
+                X_exam,
+                y_exam,
+                healthy_idx=healthy_idx,
+                gate_thr=thr["gate_thr"],
+                class_thr=thr["class_thr"],
+                le_classes=le_classes,
+                rare_idx_list=rare_idx_list,
+            )
+            row = {
+                "family": family,
+                "rare_boost": beta,
+                "gate_thr": thr["gate_thr"],
+                "val_macro_f1": thr["macro_f1"],
+                "exam_macro_f1": exam["macro_f1"],
+                "exam_weighted_f1": exam["weighted_f1"],
+                "exam_mean_rare_recall": exam["mean_rare_recall"],
+                "per_class_f1": {c: float(exam["report"][c]["f1-score"]) for c in le_classes},
+            }
+            print(
+                f"  val macro-F1={thr['macro_f1']:.4f}  "
+                f"EXAM macro-F1={exam['macro_f1']:.4f}  "
+                f"rare-recall={exam['mean_rare_recall']:.4f}  "
+                f"gate_thr={thr['gate_thr']:.2f}"
+            )
+            for c in RARE:
+                if c in exam["report"]:
+                    print(
+                        f"    {c}: P={exam['report'][c]['precision']:.2f} "
+                        f"R={exam['report'][c]['recall']:.2f} "
+                        f"F1={exam['report'][c]['f1-score']:.2f}"
+                    )
+            results.append(row)
+            payload = {
+                "gate": gate,
+                "full_clf": full_clf,
+                "thr": thr,
+                "exam": exam,
+                "row": row,
+                "family": family,
+                "le_classes": le_classes,
+                "healthy_idx": healthy_idx,
+                "rare_ids": list(rare_ids),
+                "class_to_idx": class_to_idx,
+                "feats": feats,
+            }
+            if best is None or exam["macro_f1"] > best["exam"]["macro_f1"]:
+                best = payload
 
     assert best is not None
     out_dir = MODELS_DIR / "school_exam"
@@ -543,6 +599,7 @@ def run_school_exam(
     pd.DataFrame(
         [
             {
+                "family": r.get("family", "wm"),
                 "rare_boost": r["rare_boost"],
                 "exam_macro_f1": r["exam_macro_f1"],
                 "exam_mean_rare_recall": r["exam_mean_rare_recall"],
@@ -555,8 +612,35 @@ def run_school_exam(
 
     cand = best["exam"]["macro_f1"]
     rare = best["exam"]["mean_rare_recall"]
-    rare_floor = max(r["exam_mean_rare_recall"] for r in results) - min_rare_recall_drop
-    gate_ok = cand >= baseline and rare >= rare_floor
+
+    # --- Promotion gate (apples-to-apples on THIS paper) --------------------
+    # The bar is the *honest* incumbent, scored on the same fresh paper — NOT
+    # the stale manifest number. The honest incumbent is the champion config
+    # (`plain` family) retrained on the same blind pool; the *deployed* artifact
+    # is also scored (unit test) but is leakage-inflated (it trained on ~80% of
+    # the lake, so today's random rows mostly leaked in), so it is reported for
+    # transparency, not used as the bar. Stale manifest is a floor only.
+    plain_rows = [r for r in results if r.get("family") == "plain"]
+    if plain_rows:
+        champ = max(plain_rows, key=lambda r: r["exam_macro_f1"])
+        champ_macro = float(champ["exam_macro_f1"])
+        champ_rare = float(champ["exam_mean_rare_recall"])
+        gate_basis = "honest_same_paper_champion_config"
+    elif unit_test is not None:
+        champ_macro = float(unit_test["macro_f1"])
+        champ_rare = float(unit_test["mean_rare_recall"])
+        gate_basis = "active_same_paper_leakage_inflated"
+    else:
+        champ_macro = baseline
+        champ_rare = max(r["exam_mean_rare_recall"] for r in results) - min_rare_recall_drop
+        gate_basis = "manifest_baseline_cold_start"
+
+    active_macro = float(unit_test["macro_f1"]) if unit_test else None
+    active_rare = float(unit_test["mean_rare_recall"]) if unit_test else None
+
+    bar_macro = max(champ_macro, baseline)  # never promote below the historical honest number
+    rare_floor = champ_rare - min_rare_recall_drop
+    gate_ok = cand >= bar_macro and rare >= rare_floor
 
     report = {
         "training_date": datetime.now(timezone.utc).isoformat(),
@@ -572,6 +656,13 @@ def run_school_exam(
         "gate": {
             "candidate_macro_f1": cand,
             "candidate_mean_rare_recall": rare,
+            "basis": gate_basis,
+            "bar_macro_f1": bar_macro,
+            "champion_same_paper_macro_f1": champ_macro,
+            "champion_same_paper_rare_recall": champ_rare,
+            "active_same_paper_macro_f1": active_macro,
+            "active_same_paper_rare_recall": active_rare,
+            "manifest_baseline_macro_f1": baseline,
             "rare_recall_floor": rare_floor,
             "passed": gate_ok,
         },
@@ -582,8 +673,14 @@ def run_school_exam(
     print(f"\nWrote {summary_path}")
     print(f"Wrote {report_path}")
 
-    print("\n=== Great Exam / promotion gate ===")
-    print(f"  candidate Macro-F1={cand:.4f}  baseline={baseline:.4f}")
+    print("\n=== Great Exam / promotion gate (repeated-holdout validation) ===")
+    print(f"  candidate Macro-F1={cand:.4f}")
+    print(
+        f"  bar={bar_macro:.4f} = max(honest champion same-paper {champ_macro:.4f}, "
+        f"manifest floor {baseline:.4f})   [basis={gate_basis}]"
+    )
+    if active_macro is not None:
+        print(f"  deployed artifact (same paper, leakage-inflated)={active_macro:.4f}  [informational only]")
     print(f"  candidate rare-recall={rare:.4f}  floor≈{rare_floor:.4f}")
     print(f"  GATE: {'PASS' if gate_ok else 'FAIL'}")
 
@@ -615,6 +712,182 @@ def run_school_exam(
     }
 
 
+def _agg(values: list[float]) -> dict:
+    a = np.asarray(values, dtype=float)
+    return {
+        "mean": float(a.mean()),
+        "std": float(a.std(ddof=0)),
+        "min": float(a.min()),
+        "max": float(a.max()),
+        "n": int(a.size),
+    }
+
+
+def run_seed_report(
+    *,
+    n_seeds: int = 5,
+    families: list[str] | None = None,
+    rare_boosts: list[float] | None = None,
+    holdout_frac: float = 0.20,
+    holdout_policy: str = "random",
+    base_seed: int | None = None,
+) -> dict:
+    """Repeated-holdout validation across N fresh papers.
+
+    Reports the *spread* (mean / std / min / max) of macro-F1, mean rare recall
+    and per rare-class F1 — for both the honest champion config (`plain`) and the
+    overall best family each paper. This answers "is the VRF/BGP gain real or
+    just one lucky seed?" far more defensibly than a single number.
+    """
+    fams = families or ["plain", "wm", "moe"]
+    boosts = rare_boosts or [1.0, 1.5, 2.0, 3.0]
+    ss = np.random.default_rng(
+        base_seed if base_seed is not None else int(datetime.now(timezone.utc).timestamp())
+    )
+    seeds = [int(ss.integers(1, 2**31 - 1)) for _ in range(n_seeds)]
+
+    rare_names = [c for c in RARE]
+    per_seed: list[dict] = []
+    champ_series: dict[str, list[float]] = {"macro_f1": [], "mean_rare_recall": []}
+    best_series: dict[str, list[float]] = {"macro_f1": [], "mean_rare_recall": []}
+    for c in rare_names:
+        champ_series[f"f1_{c}"] = []
+        best_series[f"f1_{c}"] = []
+    challenger_wins = 0
+    gate_pass = 0
+
+    for i, s in enumerate(seeds, 1):
+        print(f"\n{'#' * 60}\n# SEED {i}/{n_seeds}  exam_seed={s}\n{'#' * 60}")
+        rep = run_school_exam(
+            holdout_frac=holdout_frac,
+            holdout_policy=holdout_policy,
+            exam_seed=s,
+            rare_boosts=boosts,
+            families=fams,
+            auto_promote=False,
+            unit_test_active=True,
+            mode_label="seed_report",
+        )
+        sweep = rep["sweep"]
+        plain_rows = [r for r in sweep if r.get("family") == "plain"]
+        champ = max(plain_rows, key=lambda r: r["exam_macro_f1"]) if plain_rows else rep["best"]
+        best = rep["best"]
+        if best.get("family") != "plain":
+            challenger_wins += 1
+        if rep["gate_ok"]:
+            gate_pass += 1
+
+        champ_series["macro_f1"].append(champ["exam_macro_f1"])
+        champ_series["mean_rare_recall"].append(champ["exam_mean_rare_recall"])
+        best_series["macro_f1"].append(best["exam_macro_f1"])
+        best_series["mean_rare_recall"].append(best["exam_mean_rare_recall"])
+        for c in rare_names:
+            champ_series[f"f1_{c}"].append(float(champ["per_class_f1"].get(c, 0.0)))
+            best_series[f"f1_{c}"].append(float(best["per_class_f1"].get(c, 0.0)))
+
+        per_seed.append(
+            {
+                "seed": s,
+                "champion_family": champ.get("family", "plain"),
+                "champion_macro_f1": champ["exam_macro_f1"],
+                "champion_rare_f1": {c: float(champ["per_class_f1"].get(c, 0.0)) for c in rare_names},
+                "best_family": best.get("family"),
+                "best_macro_f1": best["exam_macro_f1"],
+                "best_rare_f1": {c: float(best["per_class_f1"].get(c, 0.0)) for c in rare_names},
+                "gate_ok": rep["gate_ok"],
+            }
+        )
+
+    summary = {
+        "champion_plain": {k: _agg(v) for k, v in champ_series.items()},
+        "best_family": {k: _agg(v) for k, v in best_series.items()},
+    }
+    report = {
+        "report_date": datetime.now(timezone.utc).isoformat(),
+        "technique": "repeated holdout validation (fresh stratified paper per seed) + promotion gate",
+        "n_seeds": n_seeds,
+        "seeds": seeds,
+        "families": fams,
+        "rare_boosts": boosts,
+        "holdout_frac": holdout_frac,
+        "holdout_policy": holdout_policy,
+        "challenger_wins_over_plain": challenger_wins,
+        "gate_pass_count": gate_pass,
+        "summary": summary,
+        "per_seed": per_seed,
+    }
+
+    out_dir = MODELS_DIR / "school_exam"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "seed_report.json").write_text(json.dumps(report, indent=2))
+
+    def fmt(a: dict) -> str:
+        return f"{a['mean']:.3f} ± {a['std']:.3f}  [{a['min']:.3f}, {a['max']:.3f}]"
+
+    lines = [
+        "# DECA repeated-holdout validation — rare-class stability",
+        "",
+        f"- **When:** `{report['report_date']}`",
+        f"- **Seeds:** {n_seeds} fresh stratified papers `{seeds}`",
+        f"- **Families:** {fams} · β={boosts}",
+        f"- **Challenger (wm/moe) beat plain on:** {challenger_wins}/{n_seeds} papers",
+        f"- **Gate PASS:** {gate_pass}/{n_seeds} papers",
+        "",
+        "Technique: **repeated holdout validation** with an automated **promotion gate** "
+        "(demo name: \"School Exam\"). Ranges below are mean ± std [min, max] across seeds.",
+        "",
+        "## Honest champion config (`plain`, retrained per paper)",
+        "",
+        "| Metric | Range across seeds |",
+        "| --- | --- |",
+        f"| Macro-F1 | {fmt(summary['champion_plain']['macro_f1'])} |",
+        f"| Mean rare recall | {fmt(summary['champion_plain']['mean_rare_recall'])} |",
+    ]
+    for c in rare_names:
+        lines.append(f"| {c} F1 | {fmt(summary['champion_plain'][f'f1_{c}'])} |")
+    lines += [
+        "",
+        "## Best family per paper (challenger allowed)",
+        "",
+        "| Metric | Range across seeds |",
+        "| --- | --- |",
+        f"| Macro-F1 | {fmt(summary['best_family']['macro_f1'])} |",
+        f"| Mean rare recall | {fmt(summary['best_family']['mean_rare_recall'])} |",
+    ]
+    for c in rare_names:
+        lines.append(f"| {c} F1 | {fmt(summary['best_family'][f'f1_{c}'])} |")
+    lines += [
+        "",
+        "## Per-seed detail",
+        "",
+        "| Seed | Champion Macro | Best family | Best Macro | Gate |",
+        "| --- | ---: | --- | ---: | --- |",
+    ]
+    for r in per_seed:
+        lines.append(
+            f"| {r['seed']} | {r['champion_macro_f1']:.3f} | {r['best_family']} | "
+            f"{r['best_macro_f1']:.3f} | {'PASS' if r['gate_ok'] else 'FAIL'} |"
+        )
+    lines += [
+        "",
+        "> Reading: a wide std or low min on a rare class means that class's F1 is "
+        "**seed-sensitive (noise)**; a tight band means the number is **real**. "
+        "Promote only when the challenger wins consistently, not on one lucky paper.",
+        "",
+    ]
+    (out_dir / "seed_report.md").write_text("\n".join(lines))
+
+    print(f"\n{'=' * 60}")
+    print("REPEATED-HOLDOUT SUMMARY")
+    print(f"{'=' * 60}")
+    print(f"  champion plain  Macro-F1 : {fmt(summary['champion_plain']['macro_f1'])}")
+    for c in rare_names:
+        print(f"  champion plain  {c} F1 : {fmt(summary['champion_plain'][f'f1_{c}'])}")
+    print(f"  challenger beat plain on {challenger_wins}/{n_seeds} papers; gate PASS {gate_pass}/{n_seeds}")
+    print(f"  Wrote {out_dir / 'seed_report.md'}")
+    return report
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="DECA School Exam train (Mode A)")
     parser.add_argument("--holdout-frac", type=float, default=0.20)
@@ -637,6 +910,12 @@ def main() -> None:
         help="Comma-separated β multipliers for BGP/VRF sample weights",
     )
     parser.add_argument(
+        "--families",
+        type=str,
+        default="plain,wm,moe",
+        help="Head families: plain=champion booster, wm=cluster booster, moe=cluster + per-fault experts",
+    )
+    parser.add_argument(
         "--auto-promote",
         "--promote",
         dest="auto_promote",
@@ -655,13 +934,31 @@ def main() -> None:
         action="store_true",
         help="Skip scoring the active classifier on the new exam paper",
     )
+    parser.add_argument(
+        "--report-seeds",
+        type=int,
+        default=0,
+        help="Repeated-holdout validation: run N fresh papers and report rare-class spread (no promote)",
+    )
     args = parser.parse_args()
     boosts = [float(x) for x in args.rare_boosts.split(",") if x.strip()]
+    fams = [x.strip() for x in args.families.split(",") if x.strip()]
+    if args.report_seeds and args.report_seeds > 1:
+        run_seed_report(
+            n_seeds=args.report_seeds,
+            families=fams,
+            rare_boosts=boosts,
+            holdout_frac=args.holdout_frac,
+            holdout_policy=args.holdout_policy,
+            base_seed=args.exam_seed,
+        )
+        return
     run_school_exam(
         holdout_frac=args.holdout_frac,
         holdout_policy=args.holdout_policy,
         exam_seed=args.exam_seed,
         rare_boosts=boosts,
+        families=fams,
         auto_promote=args.auto_promote,
         baseline_macro_f1=args.baseline_macro_f1,
         min_rare_recall_drop=args.min_rare_recall_drop,
