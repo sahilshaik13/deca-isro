@@ -59,6 +59,9 @@ Trimming Atlas was a **composition** decision first; disk (~2.4 GB → ~19 MB) w
 
 _Snapshot from rebuild after upsample fix + public-outage provenance split. Synthetic = **0** (deliberate)._
 
+> **Canonical feature-matrix size = 17,050** (re-verified by re-running `rebuild_unified.py`).  
+> An earlier terminal paste of **~41,080** was from a **stale pre-fix rebuild** that incorrectly upsampled sparse public series (e.g. Atlas 1-min → 15s, ~4× row inflation on public features → ~39.8k `healthy`). Current `engineer_features()` only downfills when native cadence is denser than the step; minute/sparse series keep native timestamps. Raw merge stays **81,592** either way; fault-labeled counts (**430 / 306 / 300 / 210**) are unchanged. Docs and the scoreboard are tied to **17,050**, not 41,080.
+
 ### Raw merge (`deca_unified_raw.parquet` — 81,592 rows)
 
 | Source | Rows | Share | Notes |

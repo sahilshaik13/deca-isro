@@ -3,7 +3,8 @@
 This document outlines the theoretical foundations, core formulas, and structural training methodology for the DECA predictive analytics pipeline (ISRO BAH 2026). It now also records the **applied realization** from the 2026-07-14 training run on the current unified lake (`notebook/DECA_Model_Training.ipynb`).
 
 Orchestration: `python scripts/rebuild_unified.py` → open `notebook/DECA_Model_Training.ipynb`  
-Artifacts: `models/manifest.json` plus one folder per model family under `models/`
+Artifacts: `models/manifest.json` plus one folder per model family under `models/`  
+**Catalog (purpose · metrics · graphs):** [`MODELS.md`](MODELS.md)
 
 ---
 
@@ -13,8 +14,8 @@ Artifacts: `models/manifest.json` plus one folder per model family under `models
 | --- | --- | ---: |
 | Raw telemetry merge | `data/processed/deca_unified_raw.parquet` | 81,592 |
 | Feature matrix | `data/processed/deca_unified_dataset.parquet` | **17,050** |
-| Campaign ground truth | `data/rpi-net/runs/20260713_155333/` (21 usable faults) | — |
-| Fault windows used for labels | `data/processed/deca_unified_fault_log.csv` | 21 |
+
+> **17,050 is the current Lake.** A prior terminal line of ~41,080 was a pre-fix upsample artifact (sparse public series → 15s); see [`DATA_SAMPLE.md`](DATA_SAMPLE.md). Re-run `rebuild_unified.py` still prints **17,050**. Fault windows / raw **81,592** unchanged.
 
 **Sources in the feature matrix**
 

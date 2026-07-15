@@ -24,6 +24,9 @@ Current campaign job: `20260713_155333` — **21 usable fault runs** (validation
 | Doc | Use when |
 | --- | --- |
 | [`docs/DATA_GEN.md`](docs/DATA_GEN.md) | Reproduce the data lake (script map + recipe) |
+| [`docs/SCRIPTS.md`](docs/SCRIPTS.md) | Every script: purpose, use case, command, outputs |
+| [`docs/MODELS.md`](docs/MODELS.md) | Every model: purpose, metrics, artifacts + graphs |
+| [`docs/DECA_MLOps_Continuous_Learning_Pipeline.md`](docs/DECA_MLOps_Continuous_Learning_Pipeline.md) | School Exam training (Mode A now / Mode B after Tier-6) |
 | [`docs/DATA_SAMPLE.md`](docs/DATA_SAMPLE.md) | Inventory of every curated file / sample tables |
 | [`docs/DECA_Model_Development_Blueprint.md`](docs/DECA_Model_Development_Blueprint.md) | Formulas, Phase-1 ROI, scorecards |
 | [`docs/DECA_ROI_TIERS.md`](docs/DECA_ROI_TIERS.md) | Tiers 1–6 formulas + application + Tier-6 campaign command |

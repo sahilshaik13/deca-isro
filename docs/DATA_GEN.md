@@ -2,6 +2,8 @@
 
 Only the Python tools needed to **reproduce the data lake that exists today** live under [`scripts/`](../scripts/). Docs live under [`docs/`](./).
 
+**Full per-script catalog (purpose · use case · outputs):** [`SCRIPTS.md`](SCRIPTS.md).
+
 ## Kept scripts (`scripts/`)
 
 | Script | Produces |

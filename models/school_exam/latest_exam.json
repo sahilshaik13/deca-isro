@@ -1,0 +1,56 @@
+{
+  "training_date": "2026-07-15T07:50:29.340556+00:00",
+  "mode": "school_exam_A",
+  "exam_seed": 1784101821,
+  "holdout_policy": "random",
+  "baseline_macro_f1": 0.7211168811173485,
+  "holdout_frac": 0.2,
+  "best": {
+    "rare_boost": 1.0,
+    "gate_thr": 0.5,
+    "val_macro_f1": 0.7348815145373472,
+    "exam_macro_f1": 0.7207464290698847,
+    "exam_weighted_f1": 0.9534571971372464,
+    "exam_mean_rare_recall": 0.5166666666666666,
+    "per_class_f1": {
+      "healthy": 0.9737135574318942,
+      "congestion_breach": 0.8715083798882681,
+      "tunnel_degradation": 0.8780487804878049,
+      "bgp_route_flap": 0.4383561643835616,
+      "vrf_leakage": 0.4421052631578947
+    }
+  },
+  "sweep": [
+    {
+      "rare_boost": 1.0,
+      "gate_thr": 0.5,
+      "val_macro_f1": 0.7348815145373472,
+      "exam_macro_f1": 0.7207464290698847,
+      "exam_weighted_f1": 0.9534571971372464,
+      "exam_mean_rare_recall": 0.5166666666666666,
+      "per_class_f1": {
+        "healthy": 0.9737135574318942,
+        "congestion_breach": 0.8715083798882681,
+        "tunnel_degradation": 0.8780487804878049,
+        "bgp_route_flap": 0.4383561643835616,
+        "vrf_leakage": 0.4421052631578947
+      }
+    },
+    {
+      "rare_boost": 2.0,
+      "gate_thr": 0.5,
+      "val_macro_f1": 0.7214971795389957,
+      "exam_macro_f1": 0.720592153247295,
+      "exam_weighted_f1": 0.9495393763084133,
+      "exam_mean_rare_recall": 0.6011904761904763,
+      "per_class_f1": {
+        "healthy": 0.9693664795509223,
+        "congestion_breach": 0.8876404494382022,
+        "tunnel_degradation": 0.8780487804878049,
+        "bgp_route_flap": 0.4117647058823529,
+        "vrf_leakage": 0.45614035087719296
+      }
+    }
+  ],
+  "anti_memorization": "fresh stratified exam draw each run unless --exam-seed is fixed"
+}

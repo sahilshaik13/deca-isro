@@ -1,5 +1,12 @@
 # DECA Station Network Setup
 
+## Start
+- To Check the status of the stations 
+```bash
+check stations
+```
+---
+
 Physical CE–PE–CE lab on three Raspberry Pis + laptop orchestrator. This is the **authoritative station networking reference** for plug-and-play restore and ISRO handover.
 
 **Apply / restore everything:**
@@ -351,3 +358,40 @@ Fault campaign SSH targets: `station1@192.168.50.10`, `station2@192.168.50.20`, 
 - Data generation: [`DATA_GEN.md`](DATA_GEN.md)
 - Prior failure log (duplicates, MOBIKE, DNS): `~/deca-workspace/troubleshooting.md` (if present)
 - Model blueprint: [`DECA_Model_Development_Blueprint.md`](DECA_Model_Development_Blueprint.md)
+
+## 11. Breakdown
+
+If validation breaks at **stage 6** (IPsec / VPN path), redeploy then re-check:
+
+```bash
+bash ~/deca-isro/scripts/deca_deploy_stations.sh
+bash ~/deca_diagnostic.sh
+```
+
+### IP addresses inside `deca_deploy_stations.sh`
+
+Lab LAN form: `192.168.50.x`
+
+| Station | Role | `x` | Address |
+| --- | --- | ---: | --- |
+| `station1` | PE1 | **10** | `192.168.50.10` |
+| `station2` | PE2 | **20** | `192.168.50.20` |
+| `station3` | CORE | **30** | `192.168.50.30` |
+| laptop | management | **1** | `192.168.50.1` |
+
+The deploy script SSHs to `station1` / `station2` / `station3`, then branches VRF safety-net routes by reading each PE’s eth0 address:
+
+```bash
+# pattern inside the watchdog / vtysh blocks
+IP=$(ip -4 -br addr show eth0 | awk '{print $3}' | cut -d/ -f1)
+case "$IP" in
+  192.168.50.10)  # PE1 — peer is x=20
+      vtysh ... "ip route 10.100.2.1/32 192.168.50.20 nexthop-vrf default" ...
+      ;;
+  192.168.50.20)  # PE2 — peer is x=10
+      vtysh ... "ip route 10.100.1.1/32 192.168.50.10 nexthop-vrf default" ...
+      ;;
+esac
+```
+
+VPN check target (CE-B loopback): `10.100.2.1` (ping from `ce-a` on PE1).

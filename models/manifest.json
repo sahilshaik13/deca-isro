@@ -1,5 +1,5 @@
 {
-  "training_date": "2026-07-14T16:34:16.668891+00:00",
+  "training_date": "2026-07-15T06:37:31.625835+00:00",
   "row_counts_by_source": {
     "network": 8772,
     "public": 8278
@@ -59,7 +59,7 @@
       },
       {
         "Component": "LSTM time-to-breach",
-        "Primary score": "MAE 2.227 min",
+        "Primary score": "MAE 2.133 min",
         "Notes": "623 network sequences, T=16"
       },
       {
@@ -233,7 +233,7 @@
       "file": "models/lstm/fault_lstm_v1.keras",
       "type": "keras",
       "metrics": {
-        "mae_minutes": 2.2273709774017334,
+        "mae_minutes": 2.133385419845581,
         "n_sequences": 623
       }
     },
