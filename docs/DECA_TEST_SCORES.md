@@ -1,30 +1,69 @@
 # DECA test scores
 
-Score timeline for DECA after **Tier‑6 new campaign data** + the **School Exam classroom** (repeated holdout + promotion gate).
+Score timeline for DECA after **Tier‑6**, **Temporal Loom**, and **circumstance circ_v2** (`20260715_191519_circ_v2`).
 
-| Lake | Rows | BGP | VRF | Campaign |
+| Lake | Rows (features) | BGP | VRF | Campaigns |
 | --- | ---: | ---: | ---: | --- |
-| **Before** | 17,050 | 300 | 210 | `20260713_155333` |
-| **After (now)** | **23,909** | **1,224** | **615** | + `20260714_165648_tier6_x10` (40 faults, 10×4) |
+| Before | 17,050 | 300 | 210 | `20260713_155333` |
+| Tier‑6 | ~24k | 1,224 | 615 | + `20260714_165648_tier6_x10` (40 faults) |
+| **Now (merged)** | **31,653** | **1,764** | **1,422** | + `20260715_191519_circ_v2` (20 circumstance events) |
 
-Sources: `models/school_exam/seed_report.md` · `models/school_exam/latest_exam.json` · `models/playground/scoreboard.md` · `models/companions_retrain.json`
+Sources: `models/school_exam/latest_exam.json` · `models/temporal_persist_score.json` · `models/circumstance/metrics.json` · `docs/DECA_TEMPORAL_LOOM.md`
 
 ---
 
 ## Timeline at a glance
 
-| Stage | Lake | What | Fault classifier Macro‑F1 | BGP F1 | VRF F1 |
+| Stage | Lake | What | Fault Macro‑F1 | BGP F1 | VRF F1 |
 | --- | --- | --- | ---: | ---: | ---: |
-| **1. Initial** | old 17k | Notebook Phase‑1 train | **0.721** | 0.42 | 0.52 |
-| **2. Classroom** | new 24k | School Exam promote (`wm` head) | **0.725** | 0.45 | 0.46 |
-| **3. Playground** | new 24k | Mixed blind paper (live models) | **0.802** | **0.58** | **0.63** |
-| **4. Temporal Loom** | new 24k | Chronological sticky (`enter_k=3`) | **0.880** | **0.86** | **0.87** |
+| **1. Initial** | old 17k | Notebook Phase‑1 | **0.721** | 0.42 | 0.52 |
+| **2. Classroom** | Tier‑6 | School Exam promote | **0.725** | 0.45 | 0.46 |
+| **3. Playground** | Tier‑6 | Mixed blind paper | **0.802** | **0.58** | **0.63** |
+| **4. Temporal Loom** | Tier‑6 | Sticky chrono tail | **0.880** | **0.86** | **0.87** |
+| **5. circ_v2 merge** | merged 32k | School Exam re-baseline promote | **0.758** | 0.50 | 0.65 |
+| **6. Sticky (merged)** | merged 32k | Chrono tail + loom | **0.908** | **0.77** | **0.90** |
 
-![Fault classifier Macro-F1 and rare recall across stages](assets/scores/fault_classifier_stages.png)
+**Loom (merged lake):** raw Macro 0.841 → sticky **0.908** (Δ **+0.066**).  
+**Circumstance existence head:** Macro **0.719** · VRF F1 **0.830** · BGP F1 **0.484** — see below.
 
-**Classroom** = School Exam engine (study hall β sweep + great exam + gate).  
-**Did scores improve?** Yes on the rare faults that Matter — especially **BGP** (0.42 → **0.58** playground F1) after 4× more labelled flaps. Congestion / tunnel stay strong. VRF playground F1 also rose (0.52 → **0.63**).  
-**Loom** adds another **+0.094 Macro‑F1** on the chronological network tail (raw 0.786 → sticky **0.880**) — see `docs/DECA_TEMPORAL_LOOM.md`.
+---
+
+## circ_v2 + Temporal Loom — per fault (current live)
+
+### Sticky chrono tail (`n=5874`, enter_k=3)
+
+| Fault | Raw F1 | Sticky F1 | Δ |
+| --- | ---: | ---: | ---: |
+| healthy | 0.895 | **0.947** | +0.052 |
+| congestion_breach | 0.943 | **0.967** | +0.024 |
+| tunnel_degradation | 0.909 | **0.947** | +0.038 |
+| bgp_route_flap | 0.616 | **0.774** | +0.158 |
+| vrf_leakage | 0.844 | **0.903** | +0.059 |
+| **Macro** | 0.841 | **0.908** | +0.066 |
+
+### School Exam promote (random paper, raw)
+
+| Fault | F1 |
+| --- | ---: |
+| healthy | 0.913 |
+| congestion_breach | 0.879 |
+| tunnel_degradation | 0.848 |
+| bgp_route_flap | 0.502 |
+| vrf_leakage | 0.645 |
+| **Macro** | **0.758** (`plain` β=1.0) |
+
+### Circumstance existence head
+
+| Fault | F1 |
+| --- | ---: |
+| healthy | 0.950 |
+| congestion_breach | 0.676 |
+| tunnel_degradation | 0.653 |
+| bgp_route_flap | 0.484 |
+| vrf_leakage | **0.830** |
+| **Macro** | **0.719** · Acc **0.913** |
+
+Campaign quality (empirical): **~8.7 / 10** — BGP existence still the soft spot. Full design notes: [`DECA_TEMPORAL_LOOM.md`](DECA_TEMPORAL_LOOM.md).
 
 ---
 

@@ -19,32 +19,39 @@ The “loom” is the pattern-over-time layer that sits **after** the frame clas
 
 ---
 
-## Results boost (Tier‑6 multi-scale champion)
+## Results boost
 
-Chronological network **tail 25%** (`n=3910`), loom `enter_k=3` / `exit_k=2`.  
-Artifacts: `models/temporal_persist_score.json` and `decision_thresholds.json` → `loom.metrics` (baked into the live model).
+### After circ_v2 merge + promote (`20260715_191519_circ_v2` + Tier‑6)
+
+Chronological network **tail 25%** (`n=5874`), loom `enter_k=3` / `exit_k=2`.
 
 | Mode | Macro‑F1 | Acc | BGP F1 | VRF F1 | Rare recall |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Raw frame | 0.786 | 0.856 | 0.609 | 0.657 | 0.887 |
-| **Sticky loom** | **0.880** | **0.938** | **0.858** | **0.865** | **0.901** |
-| **Δ (boost)** | **+0.094** | **+0.082** | **+0.249** | **+0.208** | **+0.014** |
+| Raw frame | 0.841 | 0.871 | 0.616 | 0.844 | 0.823 |
+| **Sticky loom** | **0.908** | **0.933** | **0.774** | **0.903** | 0.814 |
+| **Δ (boost)** | **+0.066** | **+0.061** | **+0.158** | **+0.059** | −0.009 |
 
 | Persistence summary | Value |
 | --- | ---: |
-| Frames changed | 510 |
-| Raw fault frames → sticky | 1434 → 1078 |
-| Fault frames suppressed | **356** (mostly aborted spikes) |
+| Frames changed | 694 |
+| Raw fault frames → sticky | 2497 → 2097 |
+| Fault frames suppressed | **400** |
 
-Classroom (random paper, **no** loom — expected):
+**Circumstance existence head** (exam paper, not sticky): Macro‑F1 **0.719** · Acc **0.913** · VRF F1 **0.830** · BGP F1 **0.484** · rareR **0.858**. Artifact: `models/circumstance/`.
 
-| Metric | After multi-scale promote |
-| --- | ---: |
-| Exam Macro‑F1 | ~0.75–0.77 |
-| BGP / VRF F1 | ~0.55 / ~0.51 |
-| 3-seed Macro | ~0.748 ± 0.008 |
+Classroom promote (random paper): Macro‑F1 **0.758** (`plain` β=1.0) after Mode‑B re-baseline on the merged lake.
 
-Tunnel F1 can dip slightly under sticky (sticky clears less aggressively mid-event) — rare BGP/VRF and overall Macro are the win.
+### Prior Tier‑6-only sticky (historical)
+
+Chronological network **tail 25%** (`n=3910`):
+
+| Mode | Macro‑F1 | Acc | BGP F1 | VRF F1 |
+| --- | ---: | ---: | ---: | ---: |
+| Raw frame | 0.786 | 0.856 | 0.609 | 0.657 |
+| Sticky loom | 0.880 | 0.938 | 0.858 | 0.865 |
+| Δ | +0.094 | +0.082 | +0.249 | +0.208 |
+
+Artifacts: `models/temporal_persist_score.json` and `decision_thresholds.json` → `loom.metrics`.
 
 ---
 
@@ -279,6 +286,76 @@ You *can* add more later if ops invents new fault types (that is a new **class**
 
 **Practical takeaway:** 4 cause-*families*, infinitely many *instances* — the loom is for the latter; the labels keep the former manageable.
 
+### What the circumstance campaign extracts (exactly)
+
+Each finished run under `data/rpi-net/runs/<id>/` produces:
+
+| Artifact | What it is | Used for |
+| --- | --- | --- |
+| `circumstance_log.csv` | `event_id`, `fault_type`, `circumstance_start`, `breach_time`, `recovery_time`, precursor/breach minutes, `run_id` | Existence + phase labels; true TTB anchor = `breach_time` |
+| `fault_injection_log.csv` | Compat log (`fault_start`→`breach_time`) | Older rebuild path; overridden when circumstance log present |
+| `network_telemetry.csv` | Long-form Prom scrape + **BGP flap pulses** (`bgp_update_rate`) | Feature lake (octets, jitter, loss, BGP rate) |
+| `network_campaign_export.csv` | Pivoted metrics + `event_phase` + `circumstance_label` + `fault_type` | Sanity plots / audit before training |
+| `bgp_update_samples.csv` | Soft-clear pulse series (Prom has no FRR BGP counter) | Merged into telemetry for BGP family visibility |
+| `campaign_state.json` / `campaign_run.log` | Resume + audit | Ops only |
+
+**Label semantics after rebuild** (`label_circumstance_existence`):
+
+| Column | Meaning |
+| --- | --- |
+| `event_phase` | `circumstance` (ramp) · `breach` (hold) · `none` |
+| `circumstance_label` | Which fault’s **situation exists** (ramp ∪ breach), else `healthy` |
+| `fault_type` / `unified_label` | Aligned to the same existence window when circumstance log is present |
+| `time_to_breach_minutes` | Minutes to **true** `breach_time` (not recovery, not duration-as-feature) |
+
+Multi-scale features (`*_slope`, `*_accel`, `*_w2m_*`) are built from telemetry **shape** — injector wall-clock length is never an XGB column.
+
+Active campaign id: **`20260715_191519_circ_v2`** (completed; superseded killed run `20260715_231056`).
+
+### Campaign quality rating
+
+#### Historical first design — **7.5 / 10**
+
+Strong as a **first circumstance campaign** (3-phase labeling, balanced 5×4, resume, near-misses, existence wiring). Not a 9+ yet — telemetry coverage and some family physics were thin, and dual logs could confuse “what trains what.”
+
+**Already good (then and now)**
+
+- True **circumstance → breach → recovery** stamps (varied precursor lengths)
+- Reuses proven injectors (no untested chaos)
+- Resumable, interleaved quota, cleanup, near-misses
+- Additive `circumstance_label` path without breaking the 5-class + loom stack
+
+#### Fixes (done before `circ_v2` restart)
+
+| Fix | Why | Status |
+| --- | --- | --- |
+| BGP pulses → `bgp_update_rate` in export | BGP circumstance was invisible (no FRR Prom series) | **Done** |
+| Align dual logs via circumstance rebuild | Ramp-only vs full-span conflict | **Done** |
+| Mid-campaign Prom snapshot after each event | Crash ≠ lose hours of telemetry | **Done** |
+| Richer VRF (RT + PE2 symptom ramp) | Pure RT+wait had weak graph signature | **Done** |
+| Sanity plots after finish | Catch empty VRF/BGP windows before training | **Still to do** after run completes |
+
+**Provisional design score after fixes: ~8.5 / 10.** After `circ_v2` finish + train: sticky Macro **0.908**, VRF existence F1 **0.830** — treat empirical campaign quality as **~8.7 / 10** (BGP existence still the soft spot at ~0.48).
+
+#### Do **not** “fix” (and why)
+
+| Don’t | Why |
+| --- | --- |
+| Stop mid-run to rewrite injectors again | Finish balanced 20 on `circ_v2`, then iterate |
+| Add duration / “usual length” features | Breaks the loom rule; teaches schedule, not pattern |
+| Invent infinite new fault mechanisms this run | Finite families + varied instances is the design |
+| Replace sticky loom with RAG “explanations” | RAG is why/how-to-ops; not a substitute for scores/TTB |
+| Merge randomly with dirty incomplete exports | Wait for `VALIDATION PASS` + `network_telemetry.csv` |
+| Raise `enter_k` a lot to “feel safer” | Hides rare streaks; fix data visibility first |
+
+#### Bottom line
+
+| Score | Meaning |
+| --- | ---: |
+| First campaign design | **7.5** |
+| After BGP/VRF/export/label upgrades | **~8.5** (provisional) |
+| Proven (post-finish audit + train) | **TBD** |
+
 ```bash
 # hardware campaign (SSHes to lab Pis; ~4–6 h for 20 events + rests)
 python scripts/deca_circumstance_campaign.py --per-type 5
@@ -287,9 +364,7 @@ python scripts/deca_circumstance_campaign.py --per-type 5
 python scripts/rebuild_unified.py --rpi-run <new_run_id>
 ```
 
-Do **not** paste `<new_run_id>` literally — substitute the printed run directory name.
-
-Outputs per run dir: `circumstance_log.csv` (event_id, fault_type, 3 phase stamps), plus the usual `fault_injection_log.csv` / `network_telemetry.csv` (so the existing 5-class + loom pipeline keeps working unchanged).
+Do **not** paste `<new_run_id>` literally — substitute the printed run directory name (current: `20260715_191519_circ_v2`).
 
 **Existence head (wired):**
 
@@ -341,13 +416,14 @@ python scripts/deca_retrain_companions.py   # optional
 python scripts/deca_score_temporal.py       # measure + bake loom metrics into live model
 ```
 
-After circumstance campaign `20260715_231056` finishes, rebuild with **both** runs then re-train school exam + circumstance:
+After circumstance campaign `20260715_191519_circ_v2` (**done** — VALIDATION PASS 5×4), rebuild with both runs then re-train:
 
 ```bash
 python scripts/rebuild_unified.py \
   --rpi-run 20260714_165648_tier6_x10 \
-  --rpi-run 20260715_231056
-python scripts/deca_school_exam_train.py --auto-promote --families plain,wm --rare-boosts 1,1.5
+  --rpi-run 20260715_191519_circ_v2
+python scripts/deca_school_exam_train.py --auto-promote --families plain,wm --rare-boosts 1,1.5 \
+  --baseline-macro-f1 0.75   # Mode-B re-baseline when lake distribution shifts
 python scripts/deca_train_circumstance.py
 python scripts/deca_score_temporal.py
 ```

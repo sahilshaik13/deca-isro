@@ -174,7 +174,8 @@ class CircumstanceCampaign:
             dfc.log(f"  cleanup complete for {run_id}")
 
     # ── phase-aware Prometheus export ─────────────────────────────────────────
-    def export(self) -> None:
+    def export(self, *, snapshot: bool = False) -> None:
+        """Pull Prom telemetry (+ BGP pulse samples). Safe to call mid-campaign."""
         try:
             import pandas as pd
             import requests
@@ -233,14 +234,36 @@ class CircumstanceCampaign:
                         }
                     )
 
+        # Lab Prom has no FRR BGP series — merge flap pulse samples if present.
+        bgp_path = self.run_dir / "bgp_update_samples.csv"
+        if bgp_path.exists():
+            try:
+                import pandas as pd  # noqa: F811
+
+                bgp = pd.read_csv(bgp_path)
+                for _, r in bgp.iterrows():
+                    rows.append(
+                        {
+                            "timestamp": str(r["timestamp"]),
+                            "host": str(r.get("host", "station1")),
+                            "metric": "bgp_update_rate",
+                            "value": float(r["value"]),
+                        }
+                    )
+            except Exception as exc:  # noqa: BLE001
+                dfc.log(f"BGP sample merge warn: {exc}")
+
         if not rows:
             dfc.log("Prometheus export: no rows (is Prometheus running on localhost:9090?)")
             return
 
+        import pandas as pd  # local: may already be imported
+
         tele = pd.DataFrame(rows)
         tele_path = self.run_dir / "network_telemetry.csv"
         tele.to_csv(tele_path, index=False)
-        dfc.log(f"Exported {tele_path} ({len(tele)} rows)")
+        tag = "snapshot" if snapshot else "final"
+        dfc.log(f"Exported {tele_path} ({len(tele)} rows) [{tag}]")
 
         pivot = tele.pivot_table(
             index=["timestamp", "host"], columns="metric", values="value", aggfunc="mean"
@@ -251,30 +274,32 @@ class CircumstanceCampaign:
             pivot["throughput_out_mbps"] = pivot["throughput_out_bps"] * 8 / 1e6
 
         # Phase-aware + existence labels from the rich circumstance log.
-        pivot["timestamp_dt"] = pd.to_datetime(pivot["timestamp"], utc=True)
-        pivot["fault_type"] = "none"        # breach-only class (event)
-        pivot["event_phase"] = "none"       # circumstance | breach | none
-        pivot["circumstance_label"] = "healthy"  # existence: fault situation present?
+        # Mixed ISO strings (with/without micros) — use ISO8601, not strict default.
+        pivot["timestamp_dt"] = pd.to_datetime(pivot["timestamp"], utc=True, format="ISO8601")
+        pivot["fault_type"] = "none"
+        pivot["event_phase"] = "none"
+        pivot["circumstance_label"] = "healthy"
         pivot["run_id"] = ""
         if self.circ_log.exists():
             events = pd.read_csv(self.circ_log)
             for _, ev in events.iterrows():
-                cs = pd.to_datetime(ev["circumstance_start"], utc=True)
-                bt = pd.to_datetime(ev["breach_time"], utc=True)
-                rt = pd.to_datetime(ev["recovery_time"], utc=True)
+                cs = pd.to_datetime(ev["circumstance_start"], utc=True, format="ISO8601")
+                bt = pd.to_datetime(ev["breach_time"], utc=True, format="ISO8601")
+                rt = pd.to_datetime(ev["recovery_time"], utc=True, format="ISO8601")
                 circ_mask = (pivot["timestamp_dt"] >= cs) & (pivot["timestamp_dt"] < bt)
                 breach_mask = (pivot["timestamp_dt"] >= bt) & (pivot["timestamp_dt"] <= rt)
                 exist_mask = circ_mask | breach_mask
                 pivot.loc[circ_mask, "event_phase"] = "circumstance"
                 pivot.loc[breach_mask, "event_phase"] = "breach"
-                pivot.loc[breach_mask, "fault_type"] = ev["fault_type"]
+                # Align: fault present for existence window (ramp ∪ breach)
+                pivot.loc[exist_mask, "fault_type"] = ev["fault_type"]
                 pivot.loc[exist_mask, "circumstance_label"] = ev["fault_type"]
                 pivot.loc[exist_mask, "run_id"] = ev["run_id"]
         pivot = pivot.drop(columns=["timestamp_dt"])
 
         export_path = self.run_dir / "network_campaign_export.csv"
         pivot.to_csv(export_path, index=False)
-        dfc.log(f"Exported {export_path} ({len(pivot)} rows)")
+        dfc.log(f"Exported {export_path} ({len(pivot)} rows) [{tag}]")
 
     # ── validation ────────────────────────────────────────────────────────────
     def validate(self) -> None:
@@ -371,6 +396,11 @@ class CircumstanceCampaign:
                 f"  Progress {fault_type}: "
                 f"{state['completed_by_type'][fault_type]}/{self.per_type}"
             )
+            # Crash-safe: refresh Prom + labels after every event
+            try:
+                self.export(snapshot=True)
+            except Exception as exc:  # noqa: BLE001
+                dfc.log(f"  mid-campaign export warn: {exc}")
 
             # Let the network fully recover so the next circumstance starts clean.
             settle = random.uniform(*RECOVERY_SETTLE)
@@ -383,7 +413,7 @@ class CircumstanceCampaign:
         dfc.log(f"By type: {state['completed_by_type']}")
         dfc.clear_all_faults()
         dfc.run_ssh(dfc.PE1_SSH, "pkill iperf3", quiet=True)
-        self.export()
+        self.export(snapshot=False)
         self.validate()
 
 

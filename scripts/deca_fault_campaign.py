@@ -206,6 +206,30 @@ def inject_tunnel_degradation(run_id: str):
     return fault_start, breach_time
 
 
+def stamp_bgp_update_pulse(*, host: str = "station1", count: float | None = None) -> None:
+    """Append a bgp_update_rate sample into the current run dir (Prom has no BGP series).
+
+    Lab Prometheus scrape has no FRR BGP counters — soft clears would be invisible
+    in multi-scale BGP features. Each flap stamps a pulse; export merges these into
+    ``network_telemetry.csv`` as metric ``bgp_update_rate``.
+    """
+    path = LOG_FILE.parent / "bgp_update_samples.csv"
+    val = float(count if count is not None else random.uniform(8.0, 40.0))
+    write_header = not path.exists() or path.stat().st_size == 0
+    with open(path, "a", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        if write_header:
+            w.writerow(["timestamp", "host", "metric", "value"])
+        w.writerow(
+            [
+                datetime.now(timezone.utc).isoformat(),
+                host,
+                "bgp_update_rate",
+                f"{val:.4f}",
+            ]
+        )
+
+
 def inject_bgp_route_flap(run_id: str):
     precursor_minutes = random.uniform(6, 12)
     num_precursor_flaps = random.randint(2, 4)
@@ -221,6 +245,7 @@ def inject_bgp_route_flap(run_id: str):
     gap = (precursor_minutes * 60) / max(num_precursor_flaps, 1)
     for _ in range(num_precursor_flaps):
         run_ssh(PE1_SSH, "sudo vtysh -c 'clear bgp 10.1.3.1 soft'")
+        stamp_bgp_update_pulse(count=random.uniform(6.0, 18.0))
         time.sleep(gap)
         if _shutdown_requested:
             return fault_start, datetime.now(timezone.utc)
@@ -228,21 +253,29 @@ def inject_bgp_route_flap(run_id: str):
     breach_time = datetime.now(timezone.utc)
     for _ in range(breach_flaps):
         run_ssh(PE1_SSH, "sudo vtysh -c 'clear bgp 10.1.3.1 soft'")
+        stamp_bgp_update_pulse(count=random.uniform(20.0, 55.0))
         time.sleep(breach_interval)
 
     return fault_start, breach_time
 
 
 def inject_vrf_leakage(run_id: str):
-    # Match other faults: variable precursor until "breach", then variable hold.
-    # (Old code slept a fixed 90s before stamping breach_time → every duration ~1.5min.)
-    precursor_minutes = random.uniform(3, 8)
+    """Wrong RT import + progressive PE2 path symptoms so the run-up is visible.
+
+    Pure RT-wait left almost no telemetry shape (hard class). Circumstance phase
+    now ramps mild netem on PE2 while the leak is live — measurable jitter/loss
+    without turning it into PE1 tunnel_degradation.
+    """
+    precursor_minutes = random.uniform(4, 9)
     breach_hold_minutes = random.uniform(4, 9)
+    steps = random.randint(3, 5)
+    final_loss = random.uniform(1.5, 4.0)
+    final_delay = random.randint(8, 20)
 
     fault_start = datetime.now(timezone.utc)
     log(
-        f"  vrf_leakage run={run_id}: injecting wrong route-target import on "
-        f"station2 ADMIN vrf, precursor {precursor_minutes:.1f}min + "
+        f"  vrf_leakage run={run_id}: wrong RT import + PE2 symptom ramp "
+        f"to {final_loss:.1f}%/{final_delay}ms over {precursor_minutes:.1f}min, "
         f"hold {breach_hold_minutes:.1f}min"
     )
 
@@ -256,14 +289,31 @@ def inject_vrf_leakage(run_id: str):
         log("  vrf_leakage: failed to inject route-target, skipping this run")
         return fault_start, fault_start
 
-    time.sleep(precursor_minutes * 60)
-    if _shutdown_requested:
-        return fault_start, datetime.now(timezone.utc)
+    step_gap = (precursor_minutes * 60) / steps
+    for i in range(1, steps + 1):
+        loss = final_loss * i / steps
+        delay = int(final_delay * i / steps)
+        run_ssh(
+            PE2_SSH,
+            f"sudo tc qdisc replace dev eth0 root netem delay {delay}ms "
+            f"{max(delay // 3, 1)}ms loss {loss:.1f}%",
+        )
+        # Soft control noise — leak often accompanies mild BGP churn
+        if i % 2 == 0:
+            run_ssh(PE2_SSH, "sudo vtysh -c 'clear bgp * soft'", quiet=True)
+            stamp_bgp_update_pulse(host="station2", count=random.uniform(4.0, 14.0))
+        time.sleep(step_gap)
+        if _shutdown_requested:
+            return fault_start, datetime.now(timezone.utc)
 
     breach_time = datetime.now(timezone.utc)
+    run_ssh(
+        PE2_SSH,
+        f"sudo tc qdisc replace dev eth0 root netem delay {final_delay}ms "
+        f"{max(final_delay // 3, 1)}ms loss {final_loss:.1f}%",
+    )
     time.sleep(breach_hold_minutes * 60)
     return fault_start, breach_time
-
 
 def inject_near_miss_aborted(run_id: str):
     """Short stress that clears before becoming a real fault — false-start pattern.

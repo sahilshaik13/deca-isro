@@ -169,17 +169,17 @@
         "phase": "school_exam_A",
         "mode": "weighted_multiclass",
         "head_family": "plain",
-        "macro_f1": 0.7712106985695955,
-        "weighted_f1": 0.9106117475092343,
-        "mean_rare_recall": 0.7272440683590509,
+        "macro_f1": 0.7576165878322125,
+        "weighted_f1": 0.8727355177170416,
+        "mean_rare_recall": 0.671497825479791,
         "gate_thr": 0.5,
         "rare_boost": 1.0,
         "per_class_f1": {
-          "healthy": 0.942204827136334,
-          "congestion_breach": 0.9579158316633266,
-          "tunnel_degradation": 0.884393063583815,
-          "bgp_route_flap": 0.5777126099706745,
-          "vrf_leakage": 0.49382716049382713
+          "healthy": 0.9132035770647028,
+          "congestion_breach": 0.8794326241134752,
+          "tunnel_degradation": 0.8483920367534457,
+          "bgp_route_flap": 0.5016872890888638,
+          "vrf_leakage": 0.645367412140575
         },
         "smote": false,
         "loom": {
@@ -187,7 +187,7 @@
           "enter_k": 3,
           "exit_k": 2
         },
-        "loom_persistent_macro_f1": 0.8801716274877351
+        "loom_persistent_macro_f1": 0.90770183571231
       }
     },
     {
@@ -256,15 +256,32 @@
         "n_sequences_available": 1316,
         "test_n": 264
       }
+    },
+    {
+      "name": "circumstance_existence_xgb",
+      "path": "models/circumstance/circumstance_xgb.pkl",
+      "role": "Does fault X's circumstance exist? (run-up \u222a breach)",
+      "metrics": {
+        "macro_f1": 0.7185980576693035,
+        "accuracy": 0.9132701421800948,
+        "mean_rare_recall": 0.8578904991948471,
+        "per_class_f1": {
+          "healthy": 0.9503997093023255,
+          "congestion_breach": 0.6761061946902654,
+          "tunnel_degradation": 0.6525198938992043,
+          "bgp_route_flap": 0.4837758112094395,
+          "vrf_leakage": 0.8301886792452831
+        }
+      }
     }
   ],
   "school_exam": {
-    "date": "2026-07-15T16:49:03.477266+00:00",
+    "date": "2026-07-16T06:13:55.278422+00:00",
     "head_family": "plain",
     "rare_boost": 1.0,
-    "exam_macro_f1": 0.7712106985695955,
-    "exam_mean_rare_recall": 0.7272440683590509,
-    "baseline_macro_f1": 0.7465534582824739,
+    "exam_macro_f1": 0.7576165878322125,
+    "exam_mean_rare_recall": 0.671497825479791,
+    "baseline_macro_f1": 0.75,
     "promoted": true,
     "loom": {
       "enabled": true,
@@ -272,11 +289,16 @@
       "exit_k": 2
     },
     "loom_metrics": {
-      "raw_macro_f1": 0.7860342042528912,
-      "persistent_macro_f1": 0.8801716274877351,
-      "delta_macro_f1": 0.09413742323484398
+      "raw_macro_f1": 0.8413533177468742,
+      "persistent_macro_f1": 0.90770183571231,
+      "delta_macro_f1": 0.06634851796543584
     }
   },
   "companions_retrain_date": "2026-07-15T16:38:04.018722+00:00",
-  "n_rows": 23790
+  "n_rows": 23790,
+  "circumstance": {
+    "date": "2026-07-16T06:12:41.435748+00:00",
+    "macro_f1": 0.7185980576693035,
+    "ready": true
+  }
 }

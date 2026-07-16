@@ -166,7 +166,8 @@ Details: [`DECA_ROI_TIERS.md`](DECA_ROI_TIERS.md) · station map: [`STATION_NETW
 | **Needs** | Same as `deca_fault_campaign.py` (lab SSH + Prometheus). Reuses its injectors. |
 | **Command** | `python scripts/deca_circumstance_campaign.py --per-type 5` · `--run-id <id>` (resumable) |
 | **Output** (under `data/rpi-net/runs/<run-id>/`) | `circumstance_log.csv` (event_id, fault_type, circumstance_start, breach_time, recovery_time), plus compatible `fault_injection_log.csv` / `network_telemetry.csv` / `network_campaign_export.csv` (phase + `circumstance_label` columns). |
-| **Then** | `python scripts/rebuild_unified.py --rpi-run <run-id>` → adds `circumstance_label` + `event_phase` (additive; 5-class model + loom unchanged). |
+| **Then** | Merge with Tier‑6: `rebuild_unified.py --rpi-run 20260714_165648_tier6_x10 --rpi-run 20260715_191519_circ_v2` → `circumstance_label` + `event_phase`. |
+| **Completed run** | `20260715_191519_circ_v2` (20/20, VALIDATION PASS) |
 | **Doc** | [`DECA_TEMPORAL_LOOM.md`](DECA_TEMPORAL_LOOM.md) §7 Warp 4 |
 
 ### `deca_train_circumstance.py`

@@ -239,6 +239,24 @@ Live chronological predictions: `scripts/deca_inference.py` (`predict_fault_stre
 
 ---
 
+## `circumstance/` (existence head — Warp 4)
+
+| | |
+| --- | --- |
+| **Purpose** | Predict which fault’s **circumstance exists** (run-up ∪ breach), else `healthy`. |
+| **Use case** | Pre-arm sticky loom when existence agrees; dashboard “forming” outlook. |
+| **How trained** | `deca_train_circumstance.py` on `circumstance_label` after a circumstance campaign rebuild. |
+| **Primary metrics** | Exam Macro‑F1 **0.719** · VRF F1 **0.830** · BGP F1 **0.484** (circ_v2 merged lake). |
+| **Artifacts** | |
+
+| File | Role |
+| --- | --- |
+| `circumstance_xgb.pkl` | XGB multiclass + feature columns + `healthy_idx` |
+| `metrics.json` | Exam scores, per-class F1, lake existence counts |
+| `deferred.json` | Written only when lake has no existence signal yet |
+
+---
+
 ## `prophet_*` (×3)
 
 | | |

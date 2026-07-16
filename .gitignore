@@ -45,9 +45,12 @@ obsidian/.obsidian/cache
 obsidian/.obsidian/plugins/cursor-integration/
 obsidian/.trash/
 
-# In-progress lab campaigns — keep off remote until finished
-data/rpi-net/runs/20260715_231056/
+# In-progress / incomplete lab runs — do not push until finished (has telemetry)
+# Add a run id here while a campaign is actively writing.
+# data/rpi-net/runs/<in_progress_id>/
 
 # Local training / campaign run logs (artifacts stay tracked)
 models/**/*.log
 *.run.log
+*_nohup.out
+*.bak_*

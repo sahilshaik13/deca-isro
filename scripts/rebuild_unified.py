@@ -32,6 +32,7 @@ METRIC_MAP = {
     "drop_out_rate": "packet_loss_pct",
     "ifInOctets": "ifInOctets",
     "ifOutOctets": "ifOutOctets",
+    "bgp_update_rate": "bgp_update_rate",
 }
 
 # Shared classification vocabulary across network + public sources.
@@ -171,12 +172,12 @@ def label_circumstance_existence(
 ) -> pd.DataFrame:
     """Additive existence + phase labels from circumstance campaign logs.
 
-    Does **not** touch ``fault_type`` / ``unified_label`` (the 5-class event model
-    and Temporal Loom stay intact). Adds two columns for a future circumstance head:
+    Does **not** require changing School Exam. When a ``circumstance_log.csv`` is
+    present, also aligns ``fault_type`` / ``unified_label`` / TTB on the same
+    windows so dual logs do not teach conflicting spans:
 
-    - ``circumstance_label`` — which fault's *situation exists* here (run-up **or**
-      breach), else ``healthy``. This is the "train on the basis of existence" target.
-    - ``event_phase`` — ``circumstance`` (pre-breach ramp) / ``breach`` / ``none``.
+    - ``circumstance`` + ``breach`` phases → fault class present (existence)
+    - ``time_to_breach_minutes`` relative to true ``breach_time`` (not recovery)
 
     Absolute durations are never emitted as features — only row labels by time.
     """
@@ -204,9 +205,18 @@ def label_circumstance_existence(
             idx = features.index
             circ_mask = net & (idx >= cs) & (idx < bt)
             breach_mask = net & (idx >= bt) & (idx <= rt)
+            exist = circ_mask | breach_mask
             features.loc[circ_mask, "event_phase"] = "circumstance"
             features.loc[breach_mask, "event_phase"] = "breach"
-            features.loc[circ_mask | breach_mask, "circumstance_label"] = ft
+            features.loc[exist, "circumstance_label"] = ft
+            # Align event labels with existence (override ramp-only injection log)
+            features.loc[exist, "fault_type"] = ft
+            features.loc[exist, "unified_label"] = ft
+            features.loc[exist, "is_anomaly"] = 1
+            if exist.any():
+                features.loc[exist, "time_to_breach_minutes"] = (
+                    bt - features.index[exist]
+                ).total_seconds() / 60.0
             n_events += 1
 
     if n_events:
@@ -223,7 +233,11 @@ def _clean_telemetry(tele: pd.DataFrame, *, campaign_id: str) -> pd.DataFrame:
     tele["timestamp"] = pd.to_datetime(tele["timestamp"], utc=True, errors="coerce")
     tele["value"] = pd.to_numeric(tele["value"], errors="coerce")
     tele["metric"] = tele["metric"].map(lambda m: METRIC_MAP.get(m, m))
-    tele = tele[tele["metric"].isin({"ifInOctets", "ifOutOctets", "jitter_ms", "packet_loss_pct"})]
+    tele = tele[
+        tele["metric"].isin(
+            {"ifInOctets", "ifOutOctets", "jitter_ms", "packet_loss_pct", "bgp_update_rate"}
+        )
+    ]
     before = len(tele)
     tele = tele.dropna(subset=["timestamp", "value", "host", "metric"])
     tele = tele[np.isfinite(tele["value"])]
