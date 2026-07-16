@@ -224,9 +224,15 @@ IF AUC dropped because the lake is denser in faults (anomaly rate ↑, contamina
 
 Fault classifier F1 for each class: **Initial (old) → Classroom (new) → Playground (new)**.
 
-> Cursor’s Markdown preview often strips SVG/HTML. Open in a browser:
-
-**[Open line chart (HTML)](per_fault_f1_line.html)** · [PNG](per_fault_f1_line.png) · [SVG](per_fault_f1_line.svg)
+```mermaid
+xychart-beta
+    title "Per-fault F1: Initial vs Classroom vs Playground"
+    x-axis [healthy, congestion, tunnel, bgp_flap, vrf_leakage]
+    y-axis "F1 score" 0 --> 1
+    line "Initial" [0.97, 0.89, 0.81, 0.42, 0.52]
+    line "Classroom" [0.944, 0.930, 0.838, 0.449, 0.462]
+    line "Playground" [0.96, 0.96, 0.88, 0.58, 0.63]
+```
 
 | Fault | 1. Initial | 2. Classroom | 3. Playground | Δ (Initial → Playground) |
 | --- | ---: | ---: | ---: | ---: |
