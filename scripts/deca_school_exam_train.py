@@ -73,19 +73,39 @@ def inverse_frequency_weights(y: np.ndarray, *, rare_ids: set[int], boost: float
 
 
 def predict_weighted_multiclass(gate, full_clf, X, *, healthy_idx, gate_thr, class_thr):
+    preds, _ = predict_weighted_multiclass_with_confidence(
+        gate, full_clf, X, healthy_idx=healthy_idx, gate_thr=gate_thr, class_thr=class_thr
+    )
+    return preds
+
+
+def predict_weighted_multiclass_with_confidence(
+    gate, full_clf, X, *, healthy_idx, gate_thr, class_thr
+):
+    """Frame labels plus per-frame confidence for the Temporal Loom soft streak.
+
+    Confidence is the threshold-adjusted winning score (same ratio the argmax
+    uses). It can exceed 1.0 when a class clears its decision threshold with
+    room to spare — a strong single-frame signal can therefore accumulate toward
+    entry faster than several weak wobbles around threshold.
+    """
     p_anom = gate.predict_proba(X)[:, 1]
     p_full = full_clf.predict_proba(X)
     full_classes = list(full_clf.classes_)
     preds = np.full(len(p_anom), healthy_idx, dtype=int)
+    conf = np.zeros(len(p_anom), dtype=np.float64)
     for i in range(len(p_anom)):
         if p_anom[i] < gate_thr:
+            conf[i] = float(1.0 - p_anom[i])
             continue
         scores = [
             p_full[i, j] / max(class_thr.get(int(cid), 1.0), 1e-6)
             for j, cid in enumerate(full_classes)
         ]
-        preds[i] = int(full_classes[int(np.argmax(scores))])
-    return preds
+        best_j = int(np.argmax(scores))
+        preds[i] = int(full_classes[best_j])
+        conf[i] = float(scores[best_j])
+    return preds, conf
 
 
 def tune_thresholds(gate, full_clf, X_val, y_val, *, healthy_idx, rare_ids):

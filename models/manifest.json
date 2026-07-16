@@ -184,10 +184,25 @@
         "smote": false,
         "loom": {
           "enabled": true,
-          "enter_k": 3,
-          "exit_k": 2
+          "enter_k": 2,
+          "exit_k": 2,
+          "enter_k_by_class": {},
+          "exit_k_by_class": {
+            "bgp_route_flap": 3,
+            "vrf_leakage": 3
+          },
+          "advisory_enabled": true,
+          "advisory_enter_k": 2,
+          "advisory_exit_k": 1,
+          "ttb_gate_enabled": false,
+          "ttb_gate_tolerance": 0,
+          "soft_streak_enabled": true,
+          "branch_agreement_enabled": false,
+          "branch_secondary_family": "wm",
+          "topology_gate_enabled": false,
+          "topology_min_neighbors": 1
         },
-        "loom_persistent_macro_f1": 0.90770183571231
+        "loom_persistent_macro_f1": 0.9328304013250731
       }
     },
     {
@@ -285,13 +300,28 @@
     "promoted": true,
     "loom": {
       "enabled": true,
-      "enter_k": 3,
-      "exit_k": 2
+      "enter_k": 2,
+      "exit_k": 2,
+      "enter_k_by_class": {},
+      "exit_k_by_class": {
+        "bgp_route_flap": 3,
+        "vrf_leakage": 3
+      },
+      "advisory_enabled": true,
+      "advisory_enter_k": 2,
+      "advisory_exit_k": 1,
+      "ttb_gate_enabled": false,
+      "ttb_gate_tolerance": 0,
+      "soft_streak_enabled": true,
+      "branch_agreement_enabled": false,
+      "branch_secondary_family": "wm",
+      "topology_gate_enabled": false,
+      "topology_min_neighbors": 1
     },
     "loom_metrics": {
       "raw_macro_f1": 0.8413533177468742,
-      "persistent_macro_f1": 0.90770183571231,
-      "delta_macro_f1": 0.06634851796543584
+      "persistent_macro_f1": 0.9328304013250731,
+      "delta_macro_f1": 0.09147708357819895
     }
   },
   "companions_retrain_date": "2026-07-15T16:38:04.018722+00:00",

@@ -246,10 +246,10 @@ Notes: synthetic = **0**; IODA/BGP outage CSVs are **not** applied as row labels
 
 | | |
 | --- | --- |
-| **Purpose** | **Temporal Loom** — sticky persistence / hysteresis after the frame classifier (pattern over consecutive frames — **not** fault duration as a feature). Promote bakes `loom` into the classifier bundle; temporal scorer measures raw vs sticky and writes boost metrics into `decision_thresholds.json`. |
-| **Use case** | Kill single-tick false starts on chronological streams; live alerts use `predict_fault_stream` / `apply_loom`. |
-| **Command** | `python scripts/deca_score_temporal.py` · `--enter-k 3 --exit-k 2` · `--no-write-promoted` |
-| **Output** | `models/temporal_persist_score.json`; patches `models/fault_classifier/decision_thresholds.json` → `loom` + `loom.metrics` |
+| **Purpose** | **Temporal Loom** — sticky persistence after the frame classifier (not duration-as-feature), with per-class `enter_k`/`exit_k`, two-tier advisory/confirmed, optional TTB gate (off), **soft streak** entry (on), optional **branch agreement** plain+wm (off), optional **topology neighbor gate** (off). See `DECA_TEMPORAL_LOOM.md` §4 for measured sweeps. |
+| **Use case** | Kill single-tick false starts on chronological streams; live alerts use `predict_fault_stream` / `apply_loom` (confirmed only) or `predict_fault_stream_two_tier` / `apply_two_tier_loom` (advisory + confirmed). |
+| **Command** | `python scripts/deca_score_temporal.py` · `--soft-streak --enter-k 2` · `--branch-agreement` · `--topology-gate` · `--topology-min-neighbors 1` · `--advisory-enter-k 2` · `--ttb-gate` · `--no-write-promoted` · per-class overrides as before |
+| **Output** | `models/temporal_persist_score.json` (raw/persistent/advisory + lead/branch/topo stats); patches `decision_thresholds.json` → `loom` + `loom.metrics` |
 | **Doc** | `docs/DECA_TEMPORAL_LOOM.md` |
 
 ---

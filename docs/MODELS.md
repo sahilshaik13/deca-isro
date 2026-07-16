@@ -229,7 +229,7 @@ Before the stack: visual signatures of each lab fault (campaign `20260713_155333
 | --- | --- |
 | `fault_classifier_xgb.pkl` | Gate + fault_clf + full_clf + thresholds / mode |
 | `label_encoder.pkl` | Class names, `smote: false` |
-| `decision_thresholds.json` | `gate_thr`, per-class thr, exam scores, **`loom`** (`enter_k`/`exit_k` + optional `metrics` boost) |
+| `decision_thresholds.json` | `gate_thr`, per-class thr, exam scores, **`loom`** (`enter_k`/`exit_k` + per-class overrides + `advisory_*` two-tier + `ttb_gate_*` (off) + `soft_streak_enabled` (on) + `branch_agreement_*` (off) + `topology_gate_*` (off) + optional `metrics`) |
 | `feature_attribution.json` | Top gain features |
 | `scorecard.png` | Confusion + per-class F1 |
 

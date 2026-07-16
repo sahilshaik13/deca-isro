@@ -21,25 +21,102 @@ Sources: `models/school_exam/latest_exam.json` · `models/temporal_persist_score
 | **3. Playground** | Tier‑6 | Mixed blind paper | **0.802** | **0.58** | **0.63** |
 | **4. Temporal Loom** | Tier‑6 | Sticky chrono tail | **0.880** | **0.86** | **0.87** |
 | **5. circ_v2 merge** | merged 32k | School Exam re-baseline promote | **0.758** | 0.50 | 0.65 |
-| **6. Sticky (merged)** | merged 32k | Chrono tail + loom | **0.908** | **0.77** | **0.90** |
+| **6. Sticky (merged, global loom)** | merged 32k | Chrono tail + loom | **0.908** | 0.77 | 0.90 |
+| **7. Sticky (merged, per-class loom)** | merged 32k | Chrono tail + per-class exit_k | **0.912** | **0.79** | **0.91** |
+| **8. Sticky (merged, soft streak)** | merged 32k | Chrono tail + soft confidence entry | **0.933** | **0.87** | **0.92** |
 
-**Loom (merged lake):** raw Macro 0.841 → sticky **0.908** (Δ **+0.066**).  
+**Loom (merged lake, soft streak + per-class exit_k):** raw Macro 0.841 → sticky **0.933** (Δ **+0.092**).  
 **Circumstance existence head:** Macro **0.719** · VRF F1 **0.830** · BGP F1 **0.484** — see below.
 
 ---
 
 ## circ_v2 + Temporal Loom — per fault (current live)
 
-### Sticky chrono tail (`n=5874`, enter_k=3)
+### Sticky chrono tail (`n=5874`) — per-class exit + soft confidence entry (live)
 
-| Fault | Raw F1 | Sticky F1 | Δ |
+Per-class hysteresis (§4 of [`DECA_TEMPORAL_LOOM.md`](DECA_TEMPORAL_LOOM.md)): the naive "fast enter for flappy faults" hurt BGP (F1 dropped to 0.543 at hard `enter_k=1`); what actually won on exit was **more patience for BGP flap and VRF leakage** (`exit_k=3`). **Soft streak** (confidence-weighted entry, `enter_k=2` cumulative threshold) then lifted BGP again without hurting the rest.
+
+| Fault | Raw F1 | Sticky (hard) | Sticky (per-class) | **Sticky (soft, live)** | Δ vs raw |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| healthy | 0.895 | 0.947 | 0.946 | **0.959** | +0.064 |
+| congestion_breach | 0.943 | 0.967 | 0.967 | **0.969** | +0.026 |
+| tunnel_degradation | 0.909 | 0.947 | 0.947 | **0.948** | +0.039 |
+| bgp_route_flap | 0.616 | 0.774 | 0.790 | **0.874** | **+0.258** |
+| vrf_leakage | 0.844 | 0.903 | 0.911 | **0.915** | **+0.071** |
+| **Macro** | 0.841 | 0.908 | 0.912 | **0.933** | **+0.092** |
+
+Live config: `models/fault_classifier/decision_thresholds.json` → `soft_streak_enabled=true`, `enter_k=2` (confidence threshold), `exit_k_by_class = {"bgp_route_flap": 3, "vrf_leakage": 3}`.
+
+### Two-tier loom — advisory vs confirmed (`n=5874`)
+
+Same state machine run twice: **advisory** (`enter_k=2`, `exit_k=1` — "may be forming") alongside **confirmed** (the tuned loom above — "now declared"). See §4 of [`DECA_TEMPORAL_LOOM.md`](DECA_TEMPORAL_LOOM.md) for the full sweep.
+
+| Mode | Macro‑F1 | BGP F1 | VRF F1 |
 | --- | ---: | ---: | ---: |
-| healthy | 0.895 | **0.947** | +0.052 |
-| congestion_breach | 0.943 | **0.967** | +0.024 |
-| tunnel_degradation | 0.909 | **0.947** | +0.038 |
-| bgp_route_flap | 0.616 | **0.774** | +0.158 |
-| vrf_leakage | 0.844 | **0.903** | +0.059 |
-| **Macro** | 0.841 | **0.908** | +0.066 |
+| Raw frame | 0.841 | 0.616 | 0.844 |
+| Advisory (`enter_k=2`) | 0.873 | 0.637 | 0.891 |
+| **Confirmed (per-class + soft streak)** | **0.933** | **0.874** | **0.915** |
+
+| Advisory lead-time metric (15 real fault events in tail) | Value |
+| --- | ---: |
+| Events advisory caught | 15 / 15 |
+| Events confirmed caught | 15 / 15 |
+| **Mean lead** (advisory correct before confirmed) | **3.8 frames** |
+| Max lead | 15 frames |
+| Advisory-only window (frames) | 93 |
+| … correct early warning | 25 |
+| … wrong-class | 0 |
+| … pure noise | 68 |
+| **Lead-window precision** | **0.269** |
+
+Read honestly: advisory isn't a second model — it's the same classifier declared on a shorter fuse, so ~73% of its early-only frames are noise. The payoff is a genuinely richer dashboard story (early heads-up vs. trustworthy alarm), not a free accuracy win. Swept `enter_k=1` (no debounce): lead grows to 7.5 frames but precision drops to 0.149 — mostly noise, not adopted.
+
+### "What" + "when" binding — LSTM TTB gate (tried, measured, shipped **off**)
+
+Extra idea: only let the confirmed tier commit entry if the LSTM's time-to-breach trend is *also* falling over the same window as the classifier's streak. Swept — it's a net loss at this window size:
+
+| `ttb_gate_tolerance` | Confirmed Macro‑F1 | Real events still caught |
+| --- | ---: | ---: |
+| Off (baseline) | **0.912** | 15 / 15 |
+| 0 (strict) | 0.628 ↓↓ | 9 / 15 |
+| 1 | 0.903 ↓ | 15 / 15 |
+| ≥2 | 0.912 (no-op at `enter_k=3`) | 15 / 15 |
+
+The LSTM's ~2‑minute MAE makes its frame-to-frame TTB output too noisy to be reliably monotonic over a 3-frame window — the gate blocks genuine buildups, not just noisy misclassifications. Kept in code (`--ttb-gate`, `--ttb-gate-tolerance`) for experimentation, default `ttb_gate_enabled=False`. Full sweep + reasoning: [`DECA_TEMPORAL_LOOM.md`](DECA_TEMPORAL_LOOM.md) §4.
+
+### Soft streak — confidence-weighted entry (measured, shipped **on**)
+
+Replace the hard consecutive-frame entry counter with a running sum of per-frame classifier confidence. Strong frames commit faster; weak wobbles need more evidence. Exit stays frame-based.
+
+| Mode | Confirmed Macro‑F1 | BGP F1 | VRF F1 |
+| --- | ---: | ---: | ---: |
+| Hard streak (`enter_k=3` frames) | 0.912 | 0.790 | 0.911 |
+| **Soft streak (`enter_k=2` conf)** | **0.933** | **0.874** | **0.915** |
+
+The biggest win is BGP (0.790 → 0.874) — exactly where per-class hard hysteresis still left headroom. Live: `soft_streak_enabled=True`, `enter_k=2` (cumulative confidence threshold while soft is on). Full sweep: [`DECA_TEMPORAL_LOOM.md`](DECA_TEMPORAL_LOOM.md) §4.
+
+### Multi-branch agreement — plain + wm (tried, shipped **off**)
+
+Run promoted `plain` and challenger `wm` in parallel; entry requires the full streak to agree on both. Branches only agree on **41.5%** of raw fault frames — strict agreement devastates Macro‑F1:
+
+| Mode | Confirmed Macro‑F1 | BGP F1 |
+| --- | ---: | ---: |
+| Soft streak alone | **0.933** | **0.874** |
+| + branch agreement (`wm`) | 0.524 ↓↓ | 0.501 |
+
+`branch_agreement_enabled=False` in live config. CLI: `--branch-agreement`.
+
+### Topology correlation — neighbor echo (tried, shipped **off**)
+
+Require ≥1 topology neighbor (PE1/CORE/PE2 graph) to echo the same fault at the same timestamp. Neighbor agree rate is **85%** on fault frames, but gating still costs Macro‑F1:
+
+| `topology_min_neighbors` | Confirmed Macro‑F1 |
+| --- | ---: |
+| Off (soft baseline) | **0.933** |
+| 1 | 0.927 ↓ |
+| 2 | 0.929 ↓ |
+
+`topology_gate_enabled=False` in live config. CLI: `--topology-gate`. Full reasoning: [`DECA_TEMPORAL_LOOM.md`](DECA_TEMPORAL_LOOM.md) §4.
 
 ### School Exam promote (random paper, raw)
 
@@ -222,7 +299,7 @@ IF AUC dropped because the lake is denser in faults (anomaly rate ↑, contamina
 
 ## Per-fault F1 improvement (bar chart per fault)
 
-Fault classifier F1 for each class: **Initial (old) → Classroom (new) → Playground (new) → Loom raw (merged) → Loom sticky (merged)**.
+Fault classifier F1 for each class: **Initial (old) → Classroom (new) → Playground (new) → Loom raw (merged) → Loom sticky hard → Loom soft (live)**.
 
 > Mermaid's `xychart-beta` overlaps multiple `bar` series on one axis instead of grouping them, so each fault gets its own mini chart with **stage on the x-axis** — bars are directly comparable within a fault.
 
@@ -231,9 +308,9 @@ Fault classifier F1 for each class: **Initial (old) → Classroom (new) → Play
 ```mermaid
 xychart-beta
     title "healthy — F1 by stage"
-    x-axis [Initial, Classroom, Playground, "Loom raw", "Loom sticky"]
+    x-axis [Initial, Classroom, Playground, "Loom raw", "Loom hard", "Loom soft"]
     y-axis "F1 score" 0 --> 1
-    bar [0.97, 0.944, 0.96, 0.895, 0.947]
+    bar [0.97, 0.944, 0.96, 0.895, 0.947, 0.959]
 ```
 
 **congestion_breach**
@@ -241,9 +318,9 @@ xychart-beta
 ```mermaid
 xychart-beta
     title "congestion_breach — F1 by stage"
-    x-axis [Initial, Classroom, Playground, "Loom raw", "Loom sticky"]
+    x-axis [Initial, Classroom, Playground, "Loom raw", "Loom hard", "Loom soft"]
     y-axis "F1 score" 0 --> 1
-    bar [0.89, 0.930, 0.96, 0.943, 0.967]
+    bar [0.89, 0.930, 0.96, 0.943, 0.967, 0.969]
 ```
 
 **tunnel_degradation**
@@ -251,9 +328,9 @@ xychart-beta
 ```mermaid
 xychart-beta
     title "tunnel_degradation — F1 by stage"
-    x-axis [Initial, Classroom, Playground, "Loom raw", "Loom sticky"]
+    x-axis [Initial, Classroom, Playground, "Loom raw", "Loom hard", "Loom soft"]
     y-axis "F1 score" 0 --> 1
-    bar [0.81, 0.838, 0.88, 0.909, 0.947]
+    bar [0.81, 0.838, 0.88, 0.909, 0.947, 0.948]
 ```
 
 **bgp_route_flap**
@@ -261,9 +338,9 @@ xychart-beta
 ```mermaid
 xychart-beta
     title "bgp_route_flap — F1 by stage"
-    x-axis [Initial, Classroom, Playground, "Loom raw", "Loom sticky"]
+    x-axis [Initial, Classroom, Playground, "Loom raw", "Loom hard", "Loom soft"]
     y-axis "F1 score" 0 --> 1
-    bar [0.42, 0.449, 0.58, 0.616, 0.774]
+    bar [0.42, 0.449, 0.58, 0.616, 0.790, 0.874]
 ```
 
 **vrf_leakage**
@@ -271,20 +348,20 @@ xychart-beta
 ```mermaid
 xychart-beta
     title "vrf_leakage — F1 by stage"
-    x-axis [Initial, Classroom, Playground, "Loom raw", "Loom sticky"]
+    x-axis [Initial, Classroom, Playground, "Loom raw", "Loom hard", "Loom soft"]
     y-axis "F1 score" 0 --> 1
-    bar [0.52, 0.462, 0.63, 0.844, 0.903]
+    bar [0.52, 0.462, 0.63, 0.844, 0.911, 0.915]
 ```
 
-| Fault | 1. Initial | 2. Classroom | 3. Playground | 4. Loom raw | 5. Loom sticky | Δ (Initial → Loom sticky) |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| healthy | 0.97 | 0.944 | 0.96 | 0.895 | **0.947** | −0.02 |
-| congestion_breach | 0.89 | 0.930 | 0.96 | 0.943 | **0.967** | **+0.08** |
-| tunnel_degradation | 0.81 | 0.838 | 0.88 | 0.909 | **0.947** | **+0.14** |
-| bgp_route_flap | 0.42 | 0.449 | 0.58 | 0.616 | **0.774** | **+0.35** |
-| vrf_leakage | 0.52 | 0.462 | 0.63 | 0.844 | **0.903** | **+0.38** |
+| Fault | 1. Initial | 2. Classroom | 3. Playground | 4. Loom raw | 5. Loom hard | 6. Loom soft | Δ (Initial → soft) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| healthy | 0.97 | 0.944 | 0.96 | 0.895 | 0.946 | **0.959** | −0.01 |
+| congestion_breach | 0.89 | 0.930 | 0.96 | 0.943 | 0.967 | **0.969** | **+0.08** |
+| tunnel_degradation | 0.81 | 0.838 | 0.88 | 0.909 | 0.947 | **0.948** | **+0.14** |
+| bgp_route_flap | 0.42 | 0.449 | 0.58 | 0.616 | 0.790 | **0.874** | **+0.45** |
+| vrf_leakage | 0.52 | 0.462 | 0.63 | 0.844 | 0.911 | **0.915** | **+0.40** |
 
-Loom raw/sticky are scored on the **chrono-ordered tail** (`n=5874`, merged lake) — not directly comparable holdouts to the Initial/Classroom/Playground papers, but they're the same live promoted classifier's numbers with sticky persistence switched on. See [`DECA_TEMPORAL_LOOM.md`](DECA_TEMPORAL_LOOM.md) for the full raw-vs-sticky methodology.
+Loom raw/sticky/soft are scored on the **chrono-ordered tail** (`n=5874`, merged lake). "Loom soft" is the live promoted config: **soft confidence entry** (`soft_streak_enabled=true`, `enter_k=2`) plus **per-class exit** (`exit_k=3` for BGP/VRF) — see [`DECA_TEMPORAL_LOOM.md`](DECA_TEMPORAL_LOOM.md) §4.
 
 ---
 
