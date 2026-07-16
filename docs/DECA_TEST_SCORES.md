@@ -220,27 +220,31 @@ IF AUC dropped because the lake is denser in faults (anomaly rate ↑, contamina
 
 ---
 
-## Per-fault F1 improvement (line chart)
+## Per-fault F1 improvement (bar chart)
 
-Fault classifier F1 for each class: **Initial (old) → Classroom (new) → Playground (new)**.
+Fault classifier F1 for each class: **Initial (old) → Classroom (new) → Playground (new) → Loom raw (merged) → Loom sticky (merged)**.
 
 ```mermaid
 xychart-beta
-    title "Per-fault F1: Initial vs Classroom vs Playground"
+    title "Per-fault F1: Initial vs Classroom vs Playground vs Loom"
     x-axis [healthy, congestion, tunnel, bgp_flap, vrf_leakage]
     y-axis "F1 score" 0 --> 1
-    line "Initial" [0.97, 0.89, 0.81, 0.42, 0.52]
-    line "Classroom" [0.944, 0.930, 0.838, 0.449, 0.462]
-    line "Playground" [0.96, 0.96, 0.88, 0.58, 0.63]
+    bar "Initial" [0.97, 0.89, 0.81, 0.42, 0.52]
+    bar "Classroom" [0.944, 0.930, 0.838, 0.449, 0.462]
+    bar "Playground" [0.96, 0.96, 0.88, 0.58, 0.63]
+    bar "Loom raw" [0.895, 0.943, 0.909, 0.616, 0.844]
+    bar "Loom sticky" [0.947, 0.967, 0.947, 0.774, 0.903]
 ```
 
-| Fault | 1. Initial | 2. Classroom | 3. Playground | Δ (Initial → Playground) |
-| --- | ---: | ---: | ---: | ---: |
-| healthy | 0.97 | 0.944 | 0.96 | −0.01 |
-| congestion_breach | 0.89 | 0.930 | **0.96** | **+0.07** |
-| tunnel_degradation | 0.81 | 0.838 | 0.88 | +0.07 |
-| bgp_route_flap | 0.42 | 0.449 | **0.58** | **+0.16** |
-| vrf_leakage | 0.52 | 0.462 | **0.63** | **+0.11** |
+| Fault | 1. Initial | 2. Classroom | 3. Playground | 4. Loom raw | 5. Loom sticky | Δ (Initial → Loom sticky) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| healthy | 0.97 | 0.944 | 0.96 | 0.895 | **0.947** | −0.02 |
+| congestion_breach | 0.89 | 0.930 | 0.96 | 0.943 | **0.967** | **+0.08** |
+| tunnel_degradation | 0.81 | 0.838 | 0.88 | 0.909 | **0.947** | **+0.14** |
+| bgp_route_flap | 0.42 | 0.449 | 0.58 | 0.616 | **0.774** | **+0.35** |
+| vrf_leakage | 0.52 | 0.462 | 0.63 | 0.844 | **0.903** | **+0.38** |
+
+Loom raw/sticky are scored on the **chrono-ordered tail** (`n=5874`, merged lake) — not directly comparable holdouts to the Initial/Classroom/Playground papers, but they're the same live promoted classifier's numbers with sticky persistence switched on. See [`DECA_TEMPORAL_LOOM.md`](DECA_TEMPORAL_LOOM.md) for the full raw-vs-sticky methodology.
 
 ---
 
