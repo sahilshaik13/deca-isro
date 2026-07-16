@@ -220,20 +220,60 @@ IF AUC dropped because the lake is denser in faults (anomaly rate ↑, contamina
 
 ---
 
-## Per-fault F1 improvement (bar chart)
+## Per-fault F1 improvement (bar chart per fault)
 
 Fault classifier F1 for each class: **Initial (old) → Classroom (new) → Playground (new) → Loom raw (merged) → Loom sticky (merged)**.
 
+> Mermaid's `xychart-beta` overlaps multiple `bar` series on one axis instead of grouping them, so each fault gets its own mini chart with **stage on the x-axis** — bars are directly comparable within a fault.
+
+**healthy**
+
 ```mermaid
 xychart-beta
-    title "Per-fault F1: Initial vs Classroom vs Playground vs Loom"
-    x-axis [healthy, congestion, tunnel, bgp_flap, vrf_leakage]
+    title "healthy — F1 by stage"
+    x-axis [Initial, Classroom, Playground, "Loom raw", "Loom sticky"]
     y-axis "F1 score" 0 --> 1
-    bar "Initial" [0.97, 0.89, 0.81, 0.42, 0.52]
-    bar "Classroom" [0.944, 0.930, 0.838, 0.449, 0.462]
-    bar "Playground" [0.96, 0.96, 0.88, 0.58, 0.63]
-    bar "Loom raw" [0.895, 0.943, 0.909, 0.616, 0.844]
-    bar "Loom sticky" [0.947, 0.967, 0.947, 0.774, 0.903]
+    bar [0.97, 0.944, 0.96, 0.895, 0.947]
+```
+
+**congestion_breach**
+
+```mermaid
+xychart-beta
+    title "congestion_breach — F1 by stage"
+    x-axis [Initial, Classroom, Playground, "Loom raw", "Loom sticky"]
+    y-axis "F1 score" 0 --> 1
+    bar [0.89, 0.930, 0.96, 0.943, 0.967]
+```
+
+**tunnel_degradation**
+
+```mermaid
+xychart-beta
+    title "tunnel_degradation — F1 by stage"
+    x-axis [Initial, Classroom, Playground, "Loom raw", "Loom sticky"]
+    y-axis "F1 score" 0 --> 1
+    bar [0.81, 0.838, 0.88, 0.909, 0.947]
+```
+
+**bgp_route_flap**
+
+```mermaid
+xychart-beta
+    title "bgp_route_flap — F1 by stage"
+    x-axis [Initial, Classroom, Playground, "Loom raw", "Loom sticky"]
+    y-axis "F1 score" 0 --> 1
+    bar [0.42, 0.449, 0.58, 0.616, 0.774]
+```
+
+**vrf_leakage**
+
+```mermaid
+xychart-beta
+    title "vrf_leakage — F1 by stage"
+    x-axis [Initial, Classroom, Playground, "Loom raw", "Loom sticky"]
+    y-axis "F1 score" 0 --> 1
+    bar [0.52, 0.462, 0.63, 0.844, 0.903]
 ```
 
 | Fault | 1. Initial | 2. Classroom | 3. Playground | 4. Loom raw | 5. Loom sticky | Δ (Initial → Loom sticky) |
