@@ -1,0 +1,121 @@
+{
+  "run_id": "specificity_exam_v2",
+  "passed": true,
+  "pass_bar": {
+    "near_miss_fa": 0,
+    "near_miss_scored": 4,
+    "calm_spurious": 0,
+    "bgp_confirms": 0,
+    "require": {
+      "near_miss_fa": 0,
+      "calm_spurious": 0,
+      "bgp_confirms": 0
+    }
+  },
+  "phases": [
+    {
+      "phase_id": "warm",
+      "kind": "calm",
+      "t0": "2026-07-18T15:37:43.130090+00:00",
+      "t1": "2026-07-18T15:44:43.139726+00:00",
+      "note": "Feature warm-up; not scored",
+      "pass": true,
+      "detail": "warm-up \u2014 not scored"
+    },
+    {
+      "phase_id": "calm_a",
+      "kind": "calm",
+      "t0": "2026-07-18T15:44:43.139968+00:00",
+      "t1": "2026-07-18T15:48:43.163131+00:00",
+      "note": "Early calm \u2014 different length than v1",
+      "pass": true,
+      "detail": "spurious=0",
+      "spurious": []
+    },
+    {
+      "phase_id": "nm01",
+      "kind": "near_miss",
+      "t0": "2026-07-18T15:48:43.163541+00:00",
+      "t1": "2026-07-18T15:49:50.460545+00:00",
+      "note": "Longer bait than v1 nm01",
+      "pass": true,
+      "detail": "FA=False class=None",
+      "false_alarm": false,
+      "class": null
+    },
+    {
+      "phase_id": "calm_b",
+      "kind": "calm",
+      "t0": "2026-07-18T15:49:50.460776+00:00",
+      "t1": "2026-07-18T15:56:50.468046+00:00",
+      "note": "Longer recover stretch",
+      "pass": true,
+      "detail": "spurious=0",
+      "spurious": []
+    },
+    {
+      "phase_id": "nm02",
+      "kind": "near_miss",
+      "t0": "2026-07-18T15:56:50.468526+00:00",
+      "t1": "2026-07-18T15:57:26.417566+00:00",
+      "note": "Shorter bait than v1 nm02",
+      "pass": true,
+      "detail": "FA=False class=None",
+      "false_alarm": false,
+      "class": null
+    },
+    {
+      "phase_id": "calm_c",
+      "kind": "calm",
+      "t0": "2026-07-18T15:57:26.417803+00:00",
+      "t1": "2026-07-18T16:00:26.440798+00:00",
+      "note": "Short calm between baits",
+      "pass": true,
+      "detail": "spurious=0",
+      "spurious": []
+    },
+    {
+      "phase_id": "nm03",
+      "kind": "near_miss",
+      "t0": "2026-07-18T16:00:26.441247+00:00",
+      "t1": "2026-07-18T16:01:21.325798+00:00",
+      "note": "Longest bait \u2014 past soft enter patience",
+      "pass": true,
+      "detail": "FA=False class=None",
+      "false_alarm": false,
+      "class": null
+    },
+    {
+      "phase_id": "calm_d",
+      "kind": "calm",
+      "t0": "2026-07-18T16:01:21.326096+00:00",
+      "t1": "2026-07-18T16:07:21.346044+00:00",
+      "note": "Final calm \u2014 longer than v1",
+      "pass": true,
+      "detail": "spurious=0",
+      "spurious": []
+    },
+    {
+      "phase_id": "nm04",
+      "kind": "near_miss",
+      "t0": "2026-07-18T16:07:21.346440+00:00",
+      "t1": "2026-07-18T16:08:07.282364+00:00",
+      "note": "Fourth bait \u2014 v1 had only three",
+      "pass": true,
+      "detail": "FA=False class=None",
+      "false_alarm": false,
+      "class": null
+    },
+    {
+      "phase_id": "calm_e",
+      "kind": "calm",
+      "t0": "2026-07-18T16:08:07.282604+00:00",
+      "t1": "2026-07-18T16:12:07.345154+00:00",
+      "note": "Close-out calm",
+      "pass": true,
+      "detail": "spurious=0",
+      "spurious": []
+    }
+  ],
+  "bgp_confirms": []
+}

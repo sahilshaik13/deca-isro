@@ -1,0 +1,13 @@
+fault_type,fault_start,breach_time,run_id
+bgp_route_flap,2026-07-21T12:05:26.967657+00:00,2026-07-21T12:14:07.291057+00:00,compound_bgp_route_flap_01_bgp_route_flap
+vrf_leakage,2026-07-21T12:05:26.967944+00:00,2026-07-21T12:13:24.362077+00:00,compound_bgp_route_flap_01_vrf_leakage
+bgp_route_flap,2026-07-21T12:26:38.211430+00:00,2026-07-21T12:37:20.722467+00:00,compound_bgp_route_flap_02_bgp_route_flap
+vrf_leakage,2026-07-21T12:26:38.211650+00:00,2026-07-21T12:34:45.587099+00:00,compound_bgp_route_flap_02_vrf_leakage
+bgp_route_flap,2026-07-21T12:49:38.431450+00:00,2026-07-21T12:57:47.997054+00:00,compound_bgp_route_flap_03_bgp_route_flap
+vrf_leakage,2026-07-21T12:49:38.431605+00:00,2026-07-21T12:57:04.381047+00:00,compound_bgp_route_flap_03_vrf_leakage
+bgp_route_flap,2026-07-21T13:08:00.514601+00:00,2026-07-21T13:16:04.269079+00:00,compound_bgp_route_flap_04_bgp_route_flap
+vrf_leakage,2026-07-21T13:08:00.514837+00:00,2026-07-21T13:16:35.686245+00:00,compound_bgp_route_flap_04_vrf_leakage
+bgp_route_flap,2026-07-21T13:31:51.886457+00:00,2026-07-21T13:38:43.733775+00:00,compound_bgp_route_flap_05_bgp_route_flap
+vrf_leakage,2026-07-21T13:31:51.886794+00:00,2026-07-21T13:37:44.003379+00:00,compound_bgp_route_flap_05_vrf_leakage
+bgp_route_flap,2026-07-21T13:52:30.763119+00:00,2026-07-21T14:03:53.545087+00:00,compound_bgp_route_flap_06_bgp_route_flap
+vrf_leakage,2026-07-21T13:52:30.763469+00:00,2026-07-21T14:00:21.096068+00:00,compound_bgp_route_flap_06_vrf_leakage

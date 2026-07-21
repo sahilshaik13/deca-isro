@@ -12,11 +12,15 @@ Physical CE–PE–CE lab on three Raspberry Pis + laptop orchestrator. This is 
 **Apply / restore everything:**
 
 ```bash
-bash ~/deca-isro/scripts/deca_deploy_stations.sh
-# optional alias:
-# cp -f ~/deca-isro/scripts/deca_deploy_stations.sh ~/deca-deploy.sh && bash ~/deca-deploy.sh
+# Preferred laptop ops live under lab/ (see lab/README.md)
+bash ~/deca-isro/lab/deca-deploy.sh
+bash ~/deca-isro/lab/deca_diagnostic.sh   # expect [7/8] VPN ping + [8/8] 3/3 Telegraf
 
-bash ~/deca_diagnostic.sh   # expect [7/8] VPN ping + [8/8] 3/3 Telegraf
+# Also available under scripts/ (same job, slightly different packaging):
+# bash ~/deca-isro/scripts/deca_deploy_stations.sh
+
+# Optional: keep old ~/ shortcuts → lab/
+# bash ~/deca-isro/lab/link_home.sh
 ```
 
 Cold boot: power-cycle all three Pis, wait **≥120s** (watchdog sleeps 60s), then re-run the diagnostic.
@@ -78,7 +82,7 @@ Host station3
 
 `10.10.1.0/30 10.100.1.1/32  ===  10.10.2.0/30 10.100.2.1/32`
 
-**Diagnostic gold path:** from `ce-a`, `ping 10.100.2.1` (script: `~/deca_diagnostic.sh` step 7).
+**Diagnostic gold path:** from `ce-a`, `ping 10.100.2.1` (script: `lab/deca_diagnostic.sh` step 7).
 
 ---
 
@@ -319,7 +323,8 @@ sudo systemctl restart telegraf
 ## 8. Verify (expected green)
 
 ```bash
-bash ~/deca_diagnostic.sh
+bash lab/deca_diagnostic.sh
+# or, after lab/link_home.sh: bash ~/deca_diagnostic.sh
 ```
 
 | Step | Expect |
@@ -337,8 +342,12 @@ Helpers:
 
 | Script | Role |
 | --- | --- |
-| `scripts/deca_deploy_stations.sh` | Full plug-and-play |
-| `scripts/deca_heal_telemetry.sh` | Quick ns / IPsec / Telegraf restart |
+| `lab/deca-deploy.sh` | Full plug-and-play (laptop ops pack) |
+| `lab/deca-heal-telemetry.sh` | Quick ns / IPsec / Telegraf restart |
+| `lab/deca_diagnostic.sh` | Master health check |
+| `lab/run_traffic.sh` | Laptop iperf (not during fault campaigns) |
+| `scripts/deca_deploy_stations.sh` | Alternate deploy packaging |
+| `scripts/deca_heal_telemetry.sh` | Alternate heal packaging |
 | `scripts/deca_fix_prom_vpn.sh` | Prom TSDB wipe + VRF statics |
 | `scripts/deca_debug_vpn_prom.sh` | Deep debug |
 
@@ -346,7 +355,7 @@ Helpers:
 
 ## 9. Campaign note
 
-Do **not** run laptop `~/run_traffic.sh` during `deca_fault_campaign.py` — it fights eth0 baseline iperf on the VPN path. Use campaign traffic only.
+Do **not** run laptop `lab/run_traffic.sh` during `deca_fault_campaign.py` — it fights eth0 baseline iperf on the VPN path. Use campaign traffic only.
 
 Fault campaign SSH targets: `station1@192.168.50.10`, `station2@192.168.50.20`, `station3@192.168.50.30` (`scripts/deca_fault_campaign.py`).
 
@@ -355,6 +364,8 @@ Fault campaign SSH targets: `station1@192.168.50.10`, `station2@192.168.50.20`, 
 ## 10. Related docs
 
 - Architecture / ML: [`what_is_this.md`](what_is_this.md)
+- Blind live-network test: [`DECA_BLIND_TEST.md`](DECA_BLIND_TEST.md)
+- Lab laptop ops pack: [`../lab/README.md`](../lab/README.md)
 - Data generation: [`DATA_GEN.md`](DATA_GEN.md)
 - Prior failure log (duplicates, MOBIKE, DNS): `~/deca-workspace/troubleshooting.md` (if present)
 - Model blueprint: [`DECA_Model_Development_Blueprint.md`](DECA_Model_Development_Blueprint.md)
@@ -364,8 +375,8 @@ Fault campaign SSH targets: `station1@192.168.50.10`, `station2@192.168.50.20`, 
 If validation breaks at **stage 6** (IPsec / VPN path), redeploy then re-check:
 
 ```bash
-bash ~/deca-isro/scripts/deca_deploy_stations.sh
-bash ~/deca_diagnostic.sh
+bash ~/deca-isro/lab/deca-deploy.sh
+bash ~/deca-isro/lab/deca_diagnostic.sh
 ```
 
 ### IP addresses inside `deca_deploy_stations.sh`

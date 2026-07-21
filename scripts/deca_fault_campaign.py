@@ -4,6 +4,7 @@ import json
 import random
 import signal
 import subprocess
+import threading
 import time
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -37,6 +38,9 @@ PROMETHEUS_STEP = "15"
 
 _shutdown_requested = False
 _campaign_start: datetime | None = None
+# Serialises the BGP-pulse CSV append so concurrent (compound/overlapping)
+# injectors running in separate threads can't interleave a row.
+_pulse_lock = threading.Lock()
 
 
 def init_run_paths(run_id: str | None = None) -> str:
@@ -131,9 +135,12 @@ def generate_dynamic_traffic() -> None:
 def clear_all_faults() -> None:
     run_ssh(PE1_SSH, "sudo tc qdisc del dev eth0 root 2>/dev/null", quiet=True)
     run_ssh(PE2_SSH, "sudo tc qdisc del dev eth0 root 2>/dev/null", quiet=True)
+    # Real deployed VRF is "vrf-admin" (see `show vrf`), NOT "ADMIN" — a stray
+    # "ADMIN" bgp-vrf instance from before this fix is a zebra-detached no-op
+    # and is removed separately, once, by scripts/deca_vrf_cleanup_admin_stub.py.
     run_ssh(
         PE2_SSH,
-        "sudo vtysh -c 'conf t' -c 'router bgp 65001 vrf ADMIN' "
+        "sudo vtysh -c 'conf t' -c 'router bgp 65001 vrf vrf-admin' "
         "-c 'address-family ipv4 unicast' -c 'no rt vpn import 65001:100' "
         "-c 'exit-address-family' -c 'end'",
         quiet=True,
@@ -215,19 +222,20 @@ def stamp_bgp_update_pulse(*, host: str = "station1", count: float | None = None
     """
     path = LOG_FILE.parent / "bgp_update_samples.csv"
     val = float(count if count is not None else random.uniform(8.0, 40.0))
-    write_header = not path.exists() or path.stat().st_size == 0
-    with open(path, "a", newline="", encoding="utf-8") as fh:
-        w = csv.writer(fh)
-        if write_header:
-            w.writerow(["timestamp", "host", "metric", "value"])
-        w.writerow(
-            [
-                datetime.now(timezone.utc).isoformat(),
-                host,
-                "bgp_update_rate",
-                f"{val:.4f}",
-            ]
-        )
+    with _pulse_lock:
+        write_header = not path.exists() or path.stat().st_size == 0
+        with open(path, "a", newline="", encoding="utf-8") as fh:
+            w = csv.writer(fh)
+            if write_header:
+                w.writerow(["timestamp", "host", "metric", "value"])
+            w.writerow(
+                [
+                    datetime.now(timezone.utc).isoformat(),
+                    host,
+                    "bgp_update_rate",
+                    f"{val:.4f}",
+                ]
+            )
 
 
 def inject_bgp_route_flap(run_id: str):
@@ -265,6 +273,12 @@ def inject_vrf_leakage(run_id: str):
     Pure RT-wait left almost no telemetry shape (hard class). Circumstance phase
     now ramps mild netem on PE2 while the leak is live — measurable jitter/loss
     without turning it into PE1 tunnel_degradation.
+
+    FIXED 2026-07-20: this previously targeted a zebra-detached "vrf ADMIN" bgp
+    instance (no such kernel VRF exists — the real one is "vrf-admin"), so the
+    RT import never actually leaked a route into any table. Every prior
+    vrf_leakage run's telemetry shape came only from the netem ramp below, not
+    a real control-plane leak. See docs/TIER5_VRF_ROUTE_COUNT.md §0.
     """
     precursor_minutes = random.uniform(4, 9)
     breach_hold_minutes = random.uniform(4, 9)
@@ -281,7 +295,7 @@ def inject_vrf_leakage(run_id: str):
 
     ok = run_ssh(
         PE2_SSH,
-        "sudo vtysh -c 'conf t' -c 'router bgp 65001 vrf ADMIN' "
+        "sudo vtysh -c 'conf t' -c 'router bgp 65001 vrf vrf-admin' "
         "-c 'address-family ipv4 unicast' -c 'rt vpn import 65001:100' "
         "-c 'exit-address-family' -c 'end'",
     )
@@ -315,14 +329,20 @@ def inject_vrf_leakage(run_id: str):
     time.sleep(breach_hold_minutes * 60)
     return fault_start, breach_time
 
-def inject_near_miss_aborted(run_id: str):
+def inject_near_miss_aborted(run_id: str, hold_s: float | None = None):
     """Short stress that clears before becoming a real fault — false-start pattern.
 
     Logged as ``precursor_aborted`` so rebuild maps it to healthy: the classifier
     learns onset spikes that die are *not* congestion/BGP/VRF.
     Window length only labels rows; duration is never a classifier feature.
+
+    ``hold_s``: fixed hold seconds for deterministic playlist exams; when omitted,
+    draws ``uniform(25, 55)`` (legacy random control / chaos bait).
     """
-    hold_s = random.uniform(25, 55)
+    if hold_s is None:
+        hold_s = random.uniform(25, 55)
+    else:
+        hold_s = float(hold_s)
     fault_start = datetime.now(timezone.utc)
     log(f"NEAR-MISS aborted onset for {hold_s:.0f}s (not a real fault)...")
     try:
@@ -330,6 +350,28 @@ def inject_near_miss_aborted(run_id: str):
         time.sleep(hold_s)
     finally:
         run_ssh(PE1_SSH, "sudo tc qdisc del dev eth0 root 2>/dev/null", quiet=True)
+    breach_time = datetime.now(timezone.utc)
+    return fault_start, breach_time
+
+
+def inject_near_miss_pe2_aborted(run_id: str, hold_s: float | None = None):
+    """PE2 (station2) aborted onset — teaches calm-path cry-wolf on the far PE.
+
+    Specificity exam v1 failed calm stretches with ``vrf_leakage`` /
+    ``tunnel_degradation`` confirms on station2. Mild netem that clears before
+    becoming a real VRF/tunnel event, labeled ``precursor_aborted`` → healthy.
+    """
+    if hold_s is None:
+        hold_s = random.uniform(25, 55)
+    else:
+        hold_s = float(hold_s)
+    fault_start = datetime.now(timezone.utc)
+    log(f"NEAR-MISS PE2 aborted onset for {hold_s:.0f}s (not a real fault)...")
+    try:
+        run_ssh(PE2_SSH, "sudo tc qdisc replace dev eth0 root netem delay 20ms loss 2%")
+        time.sleep(hold_s)
+    finally:
+        run_ssh(PE2_SSH, "sudo tc qdisc del dev eth0 root 2>/dev/null", quiet=True)
     breach_time = datetime.now(timezone.utc)
     return fault_start, breach_time
 
@@ -529,6 +571,11 @@ def export_prometheus_csv() -> None:
         "jitter_ms": "avg by (host) (ping_standard_deviation_ms)",
         "latency_ms": "avg by (host) (ping_average_response_ms)",
         "drop_out_rate": 'sum by (host) (rate(net_drop_out{interface="eth0"}[1m]))',
+        # Tier 5 — orthogonal control-plane fingerprint, mirror of deca_live_common.
+        # Prometheus series is "vrf_route_count_value" (Telegraf field suffix).
+        "vrf_route_count": 'max by (host) (vrf_route_count_value{vrf="vrf-admin"})',
+        # Tier 5b — live bgp_route_flap fingerprint, mirror of deca_live_common.
+        "bgp_flap_count": 'max by (host) (bgp_flap_count_value{neighbor="10.1.3.1"})',
     }
 
     rows = []

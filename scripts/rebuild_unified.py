@@ -33,6 +33,8 @@ METRIC_MAP = {
     "ifInOctets": "ifInOctets",
     "ifOutOctets": "ifOutOctets",
     "bgp_update_rate": "bgp_update_rate",
+    "vrf_route_count": "vrf_route_count",  # Tier 5 — FRR ADMIN route count, station2
+    "bgp_flap_count": "bgp_flap_count",  # Tier 5b — FRR routeRefresh churn, station1
 }
 
 # Shared classification vocabulary across network + public sources.
@@ -81,6 +83,14 @@ def engineer_features(
     - short (default 2 min): ``{metric}_w2m_slope`` / …
       — instant flaps / onset spikes
 
+    Each metric/scale also gets a baseline-relative companion family
+    (``{metric}{suffix}_z_slope`` / ``_z_rolling_*`` / ``_z_accel``): the same four
+    stats computed on a per-(run, metric) robust z-score (median/MAD baseline,
+    estimated fresh per run — not a fixed constant) instead of the raw value.
+    These are what make the feature plane portable across networks running at a
+    different absolute traffic scale (see docs/ISRO_PORTABILITY.md) — the model
+    can learn "3 MAD above this host's own normal" rather than "above 40 Mbps".
+
     Duration of a labelled fault is **not** a feature (pattern only).
     Never upsample sparse public series past native cadence.
     """
@@ -107,6 +117,21 @@ def engineer_features(
                 g = series.to_frame("value")
 
             dt = max(median_gap, step_seconds)
+
+            # Tier 5c — robust per-(run, metric) baseline for scale-free companions below.
+            # Median/MAD (not mean/std) so the small minority of fault-window samples in
+            # a run don't pull the "normal" estimate toward the anomaly itself. Center and
+            # scale are always estimated fresh from this run's own series — never a fixed
+            # constant tuned to our lab's traffic — which is what makes the *_z_* features
+            # below portable to a network with a different absolute traffic scale without
+            # any code change (see docs/ISRO_PORTABILITY.md).
+            baseline_center = float(g["value"].median())
+            baseline_scale = float((g["value"] - baseline_center).abs().median()) * 1.4826
+            if not np.isfinite(baseline_scale) or baseline_scale < 1e-9:
+                fallback = float(g["value"].std())
+                baseline_scale = fallback if np.isfinite(fallback) and fallback > 1e-9 else 1.0
+            z = (g["value"] - baseline_center) / baseline_scale
+
             out = pd.DataFrame(index=g.index)
             for _name, win_min, suffix in scales:
                 win = f"{win_min}min"
@@ -115,6 +140,15 @@ def engineer_features(
                 out[f"{metric}{suffix}_rolling_std"] = g["value"].rolling(win).std()
                 out[f"{metric}{suffix}_rolling_mean"] = g["value"].rolling(win).mean()
                 out[f"{metric}{suffix}_accel"] = slope.diff() / dt
+
+                # Baseline-relative companions (same 4 stats, computed on the robust
+                # z-score series instead of the raw value) — "deviation from this run's
+                # own normal" rather than a fixed absolute magnitude.
+                z_slope = z.diff() / dt
+                out[f"{metric}{suffix}_z_slope"] = z_slope
+                out[f"{metric}{suffix}_z_rolling_std"] = z.rolling(win).std()
+                out[f"{metric}{suffix}_z_rolling_mean"] = z.rolling(win).mean()
+                out[f"{metric}{suffix}_z_accel"] = z_slope.diff() / dt
             metric_frames.append(out)
 
         if not metric_frames:
@@ -235,7 +269,15 @@ def _clean_telemetry(tele: pd.DataFrame, *, campaign_id: str) -> pd.DataFrame:
     tele["metric"] = tele["metric"].map(lambda m: METRIC_MAP.get(m, m))
     tele = tele[
         tele["metric"].isin(
-            {"ifInOctets", "ifOutOctets", "jitter_ms", "packet_loss_pct", "bgp_update_rate"}
+            {
+                "ifInOctets",
+                "ifOutOctets",
+                "jitter_ms",
+                "packet_loss_pct",
+                "bgp_update_rate",
+                "vrf_route_count",  # Tier 5
+                "bgp_flap_count",  # Tier 5b
+            }
         )
     ]
     before = len(tele)

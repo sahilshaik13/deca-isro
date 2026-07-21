@@ -1,0 +1,155 @@
+[2026-07-19T15:15:38.612540+00:00] Run directory: /home/brain/deca-isro/data/rpi-net/runs/compound_overlap_w2_20260719_2045
+[2026-07-19T15:15:38.612739+00:00] ============================================================
+[2026-07-19T15:15:38.612808+00:00] DECA COMPOUND OVERLAP CAMPAIGN — 4× each PE1 + vrf_leakage (retry=2)
+[2026-07-19T15:15:38.612865+00:00] ============================================================
+[2026-07-19T15:15:41.649990+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T15:15:42.991074+00:00] Baseline traffic: 51 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T15:15:47.715190+00:00]    iperf3 client running (~51 Mbps)
+[2026-07-19T15:15:47.715352+00:00] Normal ops before compound congestion_breach+vrf_leakage 5.3 min...
+[2026-07-19T15:21:06.203611+00:00] Compound slot congestion_breach #1 attempt 1/3
+[2026-07-19T15:21:06.203875+00:00] === COMPOUND congestion_breach_01: congestion_breach (station1) + vrf_leakage (station2) ===
+[2026-07-19T15:21:06.204376+00:00]   congestion_breach run=congestion_breach_01_congestion_breach: 95->12mbit over 10.7min, 3 steps
+[2026-07-19T15:21:06.204658+00:00]   vrf_leakage run=congestion_breach_01_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.3%/11ms over 7.2min, hold 6.2min
+[2026-07-19T15:38:14.549438+00:00] Logged congestion_breach 2026-07-19T15:21:06.204356+00:00 -> 2026-07-19T15:31:57.833485+00:00
+[2026-07-19T15:38:14.549503+00:00] Logged vrf_leakage 2026-07-19T15:21:06.204637+00:00 -> 2026-07-19T15:28:22.046056+00:00
+[2026-07-19T15:38:19.757078+00:00]   recovery settle 3.2 min...
+[2026-07-19T15:41:34.371327+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T15:41:55.394584+00:00] Baseline traffic: 69 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T15:42:20.892547+00:00]    iperf3 client exited unexpectedly, check /tmp/iperf3-lan.log on station1
+[2026-07-19T15:42:20.892678+00:00] Normal ops before compound congestion_breach+vrf_leakage 4.9 min...
+[2026-07-19T15:47:16.337767+00:00] Compound slot congestion_breach #2 attempt 1/3
+[2026-07-19T15:47:16.337979+00:00] === COMPOUND congestion_breach_02: congestion_breach (station1) + vrf_leakage (station2) ===
+[2026-07-19T15:47:16.338512+00:00]   congestion_breach run=congestion_breach_02_congestion_breach: 95->5mbit over 9.2min, 3 steps
+[2026-07-19T15:47:16.338814+00:00]   vrf_leakage run=congestion_breach_02_vrf_leakage: wrong RT import + PE2 symptom ramp to 3.1%/16ms over 6.7min, hold 6.0min
+[2026-07-19T16:01:55.486431+00:00] Logged congestion_breach 2026-07-19T15:47:16.338491+00:00 -> 2026-07-19T15:56:38.221064+00:00
+[2026-07-19T16:01:55.486570+00:00] Logged vrf_leakage 2026-07-19T15:47:16.338795+00:00 -> 2026-07-19T15:54:05.040047+00:00
+[2026-07-19T16:02:00.954590+00:00]   recovery settle 3.8 min...
+[2026-07-19T16:05:49.207162+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T16:05:50.671052+00:00] Baseline traffic: 53 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T16:05:56.571459+00:00]    iperf3 client running (~53 Mbps)
+[2026-07-19T16:05:56.571585+00:00] Normal ops before compound congestion_breach+vrf_leakage 4.6 min...
+[2026-07-19T16:10:32.257676+00:00] Compound slot congestion_breach #3 attempt 1/3
+[2026-07-19T16:10:32.257938+00:00] === COMPOUND congestion_breach_03: congestion_breach (station1) + vrf_leakage (station2) ===
+[2026-07-19T16:10:32.258437+00:00]   congestion_breach run=congestion_breach_03_congestion_breach: 95->5mbit over 11.1min, 5 steps
+[2026-07-19T16:10:32.258634+00:00]   vrf_leakage run=congestion_breach_03_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.6%/18ms over 4.6min, hold 8.5min
+[2026-07-19T16:26:46.363761+00:00] Logged congestion_breach 2026-07-19T16:10:32.258414+00:00 -> 2026-07-19T16:21:55.803290+00:00
+[2026-07-19T16:26:46.363852+00:00] Logged vrf_leakage 2026-07-19T16:10:32.258625+00:00 -> 2026-07-19T16:15:10.577816+00:00
+[2026-07-19T16:26:53.051361+00:00]   recovery settle 3.3 min...
+[2026-07-19T16:30:11.497671+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T16:30:25.580517+00:00] Baseline traffic: 67 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T16:30:30.256610+00:00]    iperf3 client running (~67 Mbps)
+[2026-07-19T16:30:30.256713+00:00] Normal ops before compound tunnel_degradation+vrf_leakage 4.9 min...
+[2026-07-19T16:35:24.585460+00:00] Compound slot tunnel_degradation #1 attempt 1/3
+[2026-07-19T16:35:24.585633+00:00] === COMPOUND tunnel_degradation_01: tunnel_degradation (station1) + vrf_leakage (station2) ===
+[2026-07-19T16:35:24.585887+00:00]   tunnel_degradation run=tunnel_degradation_01_tunnel_degradation: ramping to 11.9% loss / 45ms delay over 7.1min
+[2026-07-19T16:35:24.586194+00:00]   vrf_leakage run=tunnel_degradation_01_vrf_leakage: wrong RT import + PE2 symptom ramp to 1.9%/17ms over 4.8min, hold 4.2min
+[2026-07-19T16:46:41.953116+00:00] Logged tunnel_degradation 2026-07-19T16:35:24.585879+00:00 -> 2026-07-19T16:41:09.549533+00:00
+[2026-07-19T16:46:41.953208+00:00] Logged vrf_leakage 2026-07-19T16:35:24.586171+00:00 -> 2026-07-19T16:40:15.714954+00:00
+[2026-07-19T16:46:44.143179+00:00]   recovery settle 3.1 min...
+[2026-07-19T16:49:51.413236+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T16:49:53.925320+00:00] Baseline traffic: 66 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T16:49:58.822370+00:00]    iperf3 client running (~66 Mbps)
+[2026-07-19T16:49:58.822533+00:00] Normal ops before compound congestion_breach+vrf_leakage 4.9 min...
+[2026-07-19T16:54:54.976382+00:00] Compound slot congestion_breach #4 attempt 1/3
+[2026-07-19T16:54:54.976623+00:00] === COMPOUND congestion_breach_04: congestion_breach (station1) + vrf_leakage (station2) ===
+[2026-07-19T16:54:54.976947+00:00]   congestion_breach run=congestion_breach_04_congestion_breach: 95->5mbit over 13.7min, 3 steps
+[2026-07-19T16:54:54.977169+00:00]   vrf_leakage run=congestion_breach_04_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.4%/14ms over 5.2min, hold 6.7min
+[2026-07-19T17:11:50.997803+00:00] Logged congestion_breach 2026-07-19T16:54:54.976935+00:00 -> 2026-07-19T17:08:40.335478+00:00
+[2026-07-19T17:11:50.997989+00:00] Logged vrf_leakage 2026-07-19T16:54:54.977155+00:00 -> 2026-07-19T17:00:12.712210+00:00
+[2026-07-19T17:11:56.560842+00:00]   recovery settle 3.3 min...
+[2026-07-19T17:15:14.716221+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T17:15:16.160345+00:00] Baseline traffic: 84 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T17:15:21.022954+00:00]    iperf3 client running (~84 Mbps)
+[2026-07-19T17:15:21.023068+00:00] Normal ops before compound bgp_route_flap+vrf_leakage 4.4 min...
+[2026-07-19T17:19:46.767234+00:00] Compound slot bgp_route_flap #1 attempt 1/3
+[2026-07-19T17:19:46.767460+00:00] === COMPOUND bgp_route_flap_01: bgp_route_flap (station1) + vrf_leakage (station2) ===
+[2026-07-19T17:19:46.767840+00:00]   bgp_route_flap run=bgp_route_flap_01_bgp_route_flap: 3 slow flaps over 6.2min, then 7 rapid flaps
+[2026-07-19T17:19:46.768225+00:00]   vrf_leakage run=bgp_route_flap_01_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.4%/20ms over 8.9min, hold 8.4min
+[2026-07-19T17:24:20.779947+00:00]    SSH timeout on station1@192.168.50.10
+[2026-07-19T17:37:09.811706+00:00] Logged bgp_route_flap 2026-07-19T17:19:46.767824+00:00 -> 2026-07-19T17:26:25.196892+00:00
+[2026-07-19T17:37:09.811892+00:00] Logged vrf_leakage 2026-07-19T17:19:46.768207+00:00 -> 2026-07-19T17:28:45.780715+00:00
+[2026-07-19T17:37:11.543802+00:00]   recovery settle 2.8 min...
+[2026-07-19T17:40:03.642704+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T17:40:24.666119+00:00] Baseline traffic: 22 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T17:40:30.565920+00:00]    iperf3 client running (~22 Mbps)
+[2026-07-19T17:40:30.566037+00:00] Normal ops before compound tunnel_degradation+vrf_leakage 5.1 min...
+[2026-07-19T17:45:36.099599+00:00] Compound slot tunnel_degradation #2 attempt 1/3
+[2026-07-19T17:45:36.099828+00:00] === COMPOUND tunnel_degradation_02: tunnel_degradation (station1) + vrf_leakage (station2) ===
+[2026-07-19T17:45:36.100256+00:00]   tunnel_degradation run=tunnel_degradation_02_tunnel_degradation: ramping to 8.0% loss / 31ms delay over 11.2min
+[2026-07-19T17:45:36.100552+00:00]   vrf_leakage run=tunnel_degradation_02_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.1%/10ms over 6.2min, hold 7.3min
+[2026-07-19T17:59:12.589460+00:00] Logged tunnel_degradation 2026-07-19T17:45:36.100239+00:00 -> 2026-07-19T17:54:38.166092+00:00
+[2026-07-19T17:59:12.589589+00:00] Logged vrf_leakage 2026-07-19T17:45:36.100540+00:00 -> 2026-07-19T17:51:52.130028+00:00
+[2026-07-19T17:59:14.486621+00:00]   recovery settle 3.4 min...
+[2026-07-19T18:02:39.117763+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T18:02:46.419054+00:00] Baseline traffic: 26 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T18:02:55.427940+00:00]    iperf3 client running (~26 Mbps)
+[2026-07-19T18:02:55.428265+00:00] Normal ops before compound tunnel_degradation+vrf_leakage 4.8 min...
+[2026-07-19T18:07:43.329034+00:00] Compound slot tunnel_degradation #3 attempt 1/3
+[2026-07-19T18:07:43.329266+00:00] === COMPOUND tunnel_degradation_03: tunnel_degradation (station1) + vrf_leakage (station2) ===
+[2026-07-19T18:07:43.329657+00:00]   tunnel_degradation run=tunnel_degradation_03_tunnel_degradation: ramping to 9.2% loss / 36ms delay over 12.0min
+[2026-07-19T18:07:43.329918+00:00]   vrf_leakage run=tunnel_degradation_03_vrf_leakage: wrong RT import + PE2 symptom ramp to 3.8%/8ms over 6.5min, hold 8.2min
+[2026-07-19T18:22:29.757304+00:00] Logged tunnel_degradation 2026-07-19T18:07:43.329641+00:00 -> 2026-07-19T18:17:21.212297+00:00
+[2026-07-19T18:22:29.757461+00:00] Logged vrf_leakage 2026-07-19T18:07:43.329904+00:00 -> 2026-07-19T18:14:16.474624+00:00
+[2026-07-19T18:22:33.024714+00:00]   recovery settle 3.1 min...
+[2026-07-19T18:25:38.734268+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T18:25:40.185076+00:00] Baseline traffic: 29 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T18:25:47.000845+00:00]    iperf3 client running (~29 Mbps)
+[2026-07-19T18:25:47.000972+00:00] Normal ops before compound tunnel_degradation+vrf_leakage 3.9 min...
+[2026-07-19T18:29:42.588047+00:00] Compound slot tunnel_degradation #4 attempt 1/3
+[2026-07-19T18:29:42.588323+00:00] === COMPOUND tunnel_degradation_04: tunnel_degradation (station1) + vrf_leakage (station2) ===
+[2026-07-19T18:29:42.588664+00:00]   tunnel_degradation run=tunnel_degradation_04_tunnel_degradation: ramping to 11.4% loss / 45ms delay over 11.1min
+[2026-07-19T18:29:42.588864+00:00]   vrf_leakage run=tunnel_degradation_04_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.2%/9ms over 8.4min, hold 8.8min
+[2026-07-19T18:46:57.393976+00:00] Logged tunnel_degradation 2026-07-19T18:29:42.588648+00:00 -> 2026-07-19T18:38:38.907034+00:00
+[2026-07-19T18:46:57.394241+00:00] Logged vrf_leakage 2026-07-19T18:29:42.588852+00:00 -> 2026-07-19T18:38:11.838080+00:00
+[2026-07-19T18:47:00.791470+00:00]   recovery settle 3.9 min...
+[2026-07-19T18:50:58.831821+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T18:51:09.840238+00:00] Baseline traffic: 31 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T18:51:14.831901+00:00]    iperf3 client running (~31 Mbps)
+[2026-07-19T18:51:14.832029+00:00] Normal ops before compound bgp_route_flap+vrf_leakage 4.8 min...
+[2026-07-19T18:56:04.763101+00:00] Compound slot bgp_route_flap #2 attempt 1/3
+[2026-07-19T18:56:04.763273+00:00] === COMPOUND bgp_route_flap_02: bgp_route_flap (station1) + vrf_leakage (station2) ===
+[2026-07-19T18:56:04.763661+00:00]   bgp_route_flap run=bgp_route_flap_02_bgp_route_flap: 4 slow flaps over 10.0min, then 4 rapid flaps
+[2026-07-19T18:56:04.763816+00:00]   vrf_leakage run=bgp_route_flap_02_vrf_leakage: wrong RT import + PE2 symptom ramp to 1.7%/20ms over 7.6min, hold 6.7min
+[2026-07-19T19:10:28.822414+00:00] Logged bgp_route_flap 2026-07-19T18:56:04.763642+00:00 -> 2026-07-19T19:06:16.673422+00:00
+[2026-07-19T19:10:28.822579+00:00] Logged vrf_leakage 2026-07-19T18:56:04.763808+00:00 -> 2026-07-19T19:03:46.816033+00:00
+[2026-07-19T19:10:34.643428+00:00]   recovery settle 4.0 min...
+[2026-07-19T19:14:35.253242+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T19:14:37.714952+00:00] Baseline traffic: 20 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T19:14:43.617118+00:00]    iperf3 client running (~20 Mbps)
+[2026-07-19T19:14:43.617223+00:00] Normal ops before compound bgp_route_flap+vrf_leakage 4.2 min...
+[2026-07-19T19:18:53.335762+00:00] Compound slot bgp_route_flap #3 attempt 1/3
+[2026-07-19T19:18:53.335946+00:00] === COMPOUND bgp_route_flap_03: bgp_route_flap (station1) + vrf_leakage (station2) ===
+[2026-07-19T19:18:53.336350+00:00]   bgp_route_flap run=bgp_route_flap_03_bgp_route_flap: 3 slow flaps over 11.0min, then 6 rapid flaps
+[2026-07-19T19:18:53.336570+00:00]   vrf_leakage run=bgp_route_flap_03_vrf_leakage: wrong RT import + PE2 symptom ramp to 3.2%/12ms over 5.0min, hold 8.3min
+[2026-07-19T19:32:19.804746+00:00] Logged bgp_route_flap 2026-07-19T19:18:53.336330+00:00 -> 2026-07-19T19:29:57.851386+00:00
+[2026-07-19T19:32:19.804909+00:00] Logged vrf_leakage 2026-07-19T19:18:53.336556+00:00 -> 2026-07-19T19:23:57.325824+00:00
+[2026-07-19T19:32:21.398889+00:00]   recovery settle 3.1 min...
+[2026-07-19T19:35:30.476591+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T19:35:39.457051+00:00] Baseline traffic: 41 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T19:35:51.664059+00:00]    iperf3 client running (~41 Mbps)
+[2026-07-19T19:35:51.664171+00:00] Normal ops before compound bgp_route_flap+vrf_leakage 4.5 min...
+[2026-07-19T19:40:18.907224+00:00] Compound slot bgp_route_flap #4 attempt 1/3
+[2026-07-19T19:40:18.907461+00:00] === COMPOUND bgp_route_flap_04: bgp_route_flap (station1) + vrf_leakage (station2) ===
+[2026-07-19T19:40:18.907885+00:00]   bgp_route_flap run=bgp_route_flap_04_bgp_route_flap: 2 slow flaps over 11.5min, then 6 rapid flaps
+[2026-07-19T19:40:18.908123+00:00]   vrf_leakage run=bgp_route_flap_04_vrf_leakage: wrong RT import + PE2 symptom ramp to 3.2%/9ms over 8.7min, hold 4.8min
+[2026-07-19T19:54:00.873554+00:00] Logged bgp_route_flap 2026-07-19T19:40:18.907866+00:00 -> 2026-07-19T19:51:54.267098+00:00
+[2026-07-19T19:54:00.873683+00:00] Logged vrf_leakage 2026-07-19T19:40:18.908113+00:00 -> 2026-07-19T19:49:08.235817+00:00
+[2026-07-19T19:54:03.772315+00:00]   recovery settle 3.8 min...
+[2026-07-19T19:57:56.313947+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T19:57:58.794884+00:00] Baseline traffic: 27 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T19:58:03.724587+00:00]    iperf3 client running (~27 Mbps)
+[2026-07-19T19:58:03.724694+00:00] ============================================================
+[2026-07-19T19:58:03.724724+00:00] COMPOUND OVERLAP CAMPAIGN DONE — pe1 counts {'congestion_breach': 4, 'tunnel_degradation': 4, 'bgp_route_flap': 4} attempts=12
+[2026-07-19T19:58:03.724749+00:00] ============================================================
+[2026-07-19T19:58:06.738648+00:00] Exported /home/brain/deca-isro/data/rpi-net/runs/compound_overlap_w2_20260719_2045/network_telemetry.csv (20337 rows)
+[2026-07-19T19:58:06.837822+00:00] Exported /home/brain/deca-isro/data/rpi-net/runs/compound_overlap_w2_20260719_2045/network_campaign_export.csv (3390 rows)
+[2026-07-19T19:58:06.840091+00:00] ============================================================
+[2026-07-19T19:58:06.840231+00:00] VALIDATING fault_injection_log.csv
+[2026-07-19T19:58:06.840258+00:00] ============================================================
+[2026-07-19T19:58:06.840444+00:00] Total runs: 24
+[2026-07-19T19:58:06.840588+00:00]   congestion_breach     n=4  avg= 11.3min  spread= 1.8min
+[2026-07-19T19:58:06.840698+00:00]   tunnel_degradation    n=4  avg=  8.3min  spread= 1.8min
+[2026-07-19T19:58:06.840793+00:00]   bgp_route_flap        n=4  avg=  9.9min  spread= 2.2min
+[2026-07-19T19:58:06.840897+00:00]   vrf_leakage           n=12  avg=  6.7min  spread= 1.6min
+[2026-07-19T19:58:06.840937+00:00] VALIDATION RESULT: PASS
+[2026-07-19T19:58:06.840970+00:00] ============================================================

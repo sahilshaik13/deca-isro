@@ -1,0 +1,80 @@
+[2026-07-18T12:22:44.480838+00:00] Run directory: /home/brain/deca-isro/data/rpi-net/runs/vrf_recall_20260718_1752
+[2026-07-18T12:22:44.480936+00:00] ============================================================
+[2026-07-18T12:22:44.480972+00:00] DECA VRF RECALL CAMPAIGN — vrf=5 tunnel=2
+[2026-07-18T12:22:44.481017+00:00] ============================================================
+[2026-07-18T12:22:49.008793+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-18T12:22:50.442070+00:00] Baseline traffic: 43 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-18T12:22:56.439469+00:00]    iperf3 client running (~43 Mbps)
+[2026-07-18T12:22:56.439600+00:00] Normal ops before real vrf_leakage 5.4 min...
+[2026-07-18T12:28:23.463212+00:00] === REAL vrf_leakage 1 run_id=recall_vrf_leakage_001 ===
+[2026-07-18T12:28:23.463478+00:00]   vrf_leakage run=recall_vrf_leakage_001: wrong RT import + PE2 symptom ramp to 3.6%/16ms over 5.6min, hold 5.5min
+[2026-07-18T12:39:38.014347+00:00] Logged vrf_leakage 2026-07-18T12:28:23.463465+00:00 -> 2026-07-18T12:34:07.571141+00:00
+[2026-07-18T12:39:49.286781+00:00]   recovery settle 3.5 min...
+[2026-07-18T12:43:20.948057+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-18T12:43:23.475798+00:00] Baseline traffic: 73 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-18T12:43:49.897766+00:00]    iperf3 client running (~73 Mbps)
+[2026-07-18T12:43:49.897892+00:00] Normal ops before real tunnel_degradation 4.7 min...
+[2026-07-18T12:48:32.700184+00:00] === REAL tunnel_degradation 1 run_id=recall_tunnel_degradation_001 ===
+[2026-07-18T12:48:32.700467+00:00]   tunnel_degradation run=recall_tunnel_degradation_001: ramping to 10.7% loss / 42ms delay over 10.6min
+[2026-07-18T13:02:21.613913+00:00] Logged tunnel_degradation 2026-07-18T12:48:32.700452+00:00 -> 2026-07-18T12:57:08.849640+00:00
+[2026-07-18T13:02:25.017826+00:00]   recovery settle 3.7 min...
+[2026-07-18T13:06:10.508452+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-18T13:06:31.532079+00:00] Baseline traffic: 63 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-18T13:06:39.182159+00:00]    iperf3 client running (~63 Mbps)
+[2026-07-18T13:06:39.182273+00:00] Normal ops before real vrf_leakage 5.8 min...
+[2026-07-18T13:12:28.251096+00:00] === REAL vrf_leakage 2 run_id=recall_vrf_leakage_002 ===
+[2026-07-18T13:12:28.251310+00:00]   vrf_leakage run=recall_vrf_leakage_002: wrong RT import + PE2 symptom ramp to 3.0%/20ms over 4.2min, hold 6.1min
+[2026-07-18T13:22:47.339232+00:00] Logged vrf_leakage 2026-07-18T13:12:28.251301+00:00 -> 2026-07-18T13:16:41.827489+00:00
+[2026-07-18T13:22:51.228551+00:00]   recovery settle 3.0 min...
+[2026-07-18T13:25:55.655077+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-18T13:26:03.595207+00:00] Baseline traffic: 38 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-18T13:26:10.533607+00:00]    iperf3 client running (~38 Mbps)
+[2026-07-18T13:26:10.533715+00:00] Normal ops before real tunnel_degradation 5.8 min...
+[2026-07-18T13:31:59.280823+00:00] === REAL tunnel_degradation 2 run_id=recall_tunnel_degradation_002 ===
+[2026-07-18T13:31:59.281135+00:00]   tunnel_degradation run=recall_tunnel_degradation_002: ramping to 7.8% loss / 30ms delay over 6.3min
+[2026-07-18T13:32:09.292994+00:00]    SSH failed on station1@192.168.50.10: Connection timed out during banner exchange
+Connection to 192.168.50.10 port 22 timed out
+[2026-07-18T13:40:00.496143+00:00] Logged tunnel_degradation 2026-07-18T13:31:59.281119+00:00 -> 2026-07-18T13:36:55.779869+00:00
+[2026-07-18T13:40:03.462130+00:00]   recovery settle 3.5 min...
+[2026-07-18T13:43:37.286295+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-18T13:43:38.744044+00:00] Baseline traffic: 33 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-18T13:43:43.659076+00:00]    iperf3 client running (~33 Mbps)
+[2026-07-18T13:43:43.659184+00:00] Normal ops before real vrf_leakage 4.4 min...
+[2026-07-18T13:48:07.253618+00:00] === REAL vrf_leakage 3 run_id=recall_vrf_leakage_003 ===
+[2026-07-18T13:48:07.253832+00:00]   vrf_leakage run=recall_vrf_leakage_003: wrong RT import + PE2 symptom ramp to 2.5%/20ms over 7.5min, hold 9.0min
+[2026-07-18T14:04:40.486652+00:00] Logged vrf_leakage 2026-07-18T13:48:07.253816+00:00 -> 2026-07-18T13:55:41.915047+00:00
+[2026-07-18T14:04:42.605128+00:00]   recovery settle 3.3 min...
+[2026-07-18T14:07:59.520521+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-18T14:08:00.957502+00:00] Baseline traffic: 40 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-18T14:08:06.863419+00:00]    iperf3 client running (~40 Mbps)
+[2026-07-18T14:08:06.863531+00:00] Normal ops before real vrf_leakage 6.1 min...
+[2026-07-18T14:14:13.835479+00:00] === REAL vrf_leakage 4 run_id=recall_vrf_leakage_004 ===
+[2026-07-18T14:14:13.835781+00:00]   vrf_leakage run=recall_vrf_leakage_004: wrong RT import + PE2 symptom ramp to 3.1%/11ms over 6.5min, hold 4.5min
+[2026-07-18T14:25:21.293189+00:00] Logged vrf_leakage 2026-07-18T14:14:13.835749+00:00 -> 2026-07-18T14:20:48.434101+00:00
+[2026-07-18T14:25:36.126130+00:00]   recovery settle 3.3 min...
+[2026-07-18T14:28:58.610522+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-18T14:29:03.212466+00:00] Baseline traffic: 51 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-18T14:29:19.694309+00:00]    iperf3 client exited unexpectedly, check /tmp/iperf3-lan.log on station1
+[2026-07-18T14:29:19.694418+00:00] Normal ops before real vrf_leakage 5.7 min...
+[2026-07-18T14:35:01.461108+00:00] === REAL vrf_leakage 5 run_id=recall_vrf_leakage_005 ===
+[2026-07-18T14:35:01.461291+00:00]   vrf_leakage run=recall_vrf_leakage_005: wrong RT import + PE2 symptom ramp to 3.2%/11ms over 8.9min, hold 4.3min
+[2026-07-18T14:48:21.578914+00:00] Logged vrf_leakage 2026-07-18T14:35:01.461282+00:00 -> 2026-07-18T14:44:03.789559+00:00
+[2026-07-18T14:48:29.553198+00:00]   recovery settle 4.5 min...
+[2026-07-18T14:52:59.205171+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-18T14:53:00.654063+00:00] Baseline traffic: 84 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-18T14:53:17.031639+00:00]    iperf3 client running (~84 Mbps)
+[2026-07-18T14:53:17.031770+00:00] ============================================================
+[2026-07-18T14:53:17.031811+00:00] VRF RECALL CAMPAIGN DONE — {'vrf_leakage': 5, 'tunnel_degradation': 2}
+[2026-07-18T14:53:17.031845+00:00] ============================================================
+[2026-07-18T14:53:21.384789+00:00] Exported /home/brain/deca-isro/data/rpi-net/runs/vrf_recall_20260718_1752/network_telemetry.csv (10851 rows)
+[2026-07-18T14:53:21.435616+00:00] Exported /home/brain/deca-isro/data/rpi-net/runs/vrf_recall_20260718_1752/network_campaign_export.csv (1809 rows)
+[2026-07-18T14:53:21.436912+00:00] ============================================================
+[2026-07-18T14:53:21.437032+00:00] VALIDATING fault_injection_log.csv
+[2026-07-18T14:53:21.437066+00:00] ============================================================
+[2026-07-18T14:53:21.437212+00:00] Total runs: 7
+[2026-07-18T14:53:21.437250+00:00]   congestion_breach     WARN: zero runs recorded
+[2026-07-18T14:53:21.437402+00:00]   tunnel_degradation    n=2  avg=  6.8min  spread= 2.6min
+[2026-07-18T14:53:21.437441+00:00]   bgp_route_flap        WARN: zero runs recorded
+[2026-07-18T14:53:21.437537+00:00]   vrf_leakage           n=5  avg=  6.6min  spread= 1.8min
+[2026-07-18T14:53:21.437585+00:00] VALIDATION RESULT: WARN -- review flags before training
+[2026-07-18T14:53:21.437630+00:00] ============================================================

@@ -33,7 +33,11 @@ Current campaign job: `20260713_155333` — **21 usable fault runs** (validation
 | [`docs/DECA_Model_Development_Blueprint.md`](docs/DECA_Model_Development_Blueprint.md) | Formulas, Phase-1 ROI, scorecards |
 | [`docs/DECA_ROI_TIERS.md`](docs/DECA_ROI_TIERS.md) | Tiers 1–6 formulas + application + Tier-6 campaign command |
 | [`docs/STATION_NETWORK_SETUP.md`](docs/STATION_NETWORK_SETUP.md) | Pi CE/PE units, IPsec, VRF, Prometheus |
+| [`docs/DECA_SPECIFICITY_EXAM.md`](docs/DECA_SPECIFICITY_EXAM.md) | Deterministic calm/near-miss FP exam (playlist trust bar) |
+| [`lab/`](lab/README.md) | Laptop ↔ Pi cluster ops (diagnostic, deploy, heal, traffic) |
 | [`docs/what_is_this.md`](docs/what_is_this.md) | Architecture overview |
+| [`docs/REPO_FILE_MANIFEST.md`](docs/REPO_FILE_MANIFEST.md) | Every file/folder in the repo, defined — for handing to a validator |
+| [`docs/RISEN_FROM_THE_FALLEN.md`](docs/RISEN_FROM_THE_FALLEN.md) | The whole fault-detection story in plain language, no jargon — read this before the technical docs |
 | [`docs/DECA_Full_Pipeline.md`](docs/DECA_Full_Pipeline.md) | Earlier end-to-end pipeline notes |
 | [`docs/DECA SETUP.pdf`](docs/DECA%20SETUP.pdf) | Lab setup PDF |
 | [`docs/[Pub] ISRO BAH 2026 _ Idea Submission Template.pdf`](docs/%5BPub%5D%20ISRO%20BAH%202026%20_%20Idea%20Submission%20Template.pdf) | BAH submission template |

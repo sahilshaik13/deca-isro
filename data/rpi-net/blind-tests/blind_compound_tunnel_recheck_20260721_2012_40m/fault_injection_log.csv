@@ -1,0 +1,3 @@
+fault_type,fault_start,breach_time,run_id
+tunnel_degradation,2026-07-21T14:45:12.063082+00:00,2026-07-21T14:52:07.794053+00:00,real_blind_compound_tunnel_recheck_20260721_2012_40m_cg01_e01_tunnel_degradation
+vrf_leakage,2026-07-21T14:45:12.063351+00:00,2026-07-21T14:50:50.229054+00:00,real_blind_compound_tunnel_recheck_20260721_2012_40m_cg01_e02_vrf_leakage

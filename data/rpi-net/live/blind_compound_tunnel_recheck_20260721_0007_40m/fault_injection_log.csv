@@ -1,0 +1,4 @@
+fault_type,fault_start,breach_time,run_id
+precursor_aborted,2026-07-20T18:37:49.464436+00:00,2026-07-20T18:38:23.826318+00:00,real_blind_compound_tunnel_recheck_20260721_0007_40m_nm01
+tunnel_degradation,2026-07-20T18:40:21.457860+00:00,2026-07-20T18:47:37.892073+00:00,real_blind_compound_tunnel_recheck_20260721_0007_40m_cg01_e01_tunnel_degradation
+vrf_leakage,2026-07-20T18:40:21.458108+00:00,2026-07-20T18:44:41.295516+00:00,real_blind_compound_tunnel_recheck_20260721_0007_40m_cg01_e02_vrf_leakage

@@ -1,0 +1,16 @@
+{"ts": "2026-07-18T15:06:22.931093+00:00", "phase_id": "warm", "kind": "calm", "status": "start", "minutes": 8.0, "score_spurious": false, "note": "Feature warm-up; not scored for spurious"}
+{"ts": "2026-07-18T15:14:23.006838+00:00", "phase_id": "warm", "kind": "calm", "status": "end", "score_spurious": false}
+{"ts": "2026-07-18T15:14:23.007276+00:00", "phase_id": "calm_a", "kind": "calm", "status": "start", "minutes": 6.0, "score_spurious": true, "note": "Residual tunnel/congestion cry-wolf"}
+{"ts": "2026-07-18T15:20:23.042078+00:00", "phase_id": "calm_a", "kind": "calm", "status": "end", "score_spurious": true}
+{"ts": "2026-07-18T15:20:23.042460+00:00", "phase_id": "nm01", "kind": "near_miss", "status": "start", "hold_s": 30.0, "event_id": "specificity_exam_v1_nm01", "score_near_miss": true, "note": "Discrimination bait"}
+{"ts": "2026-07-18T15:21:11.779392+00:00", "phase_id": "nm01", "kind": "near_miss", "status": "end", "event_id": "specificity_exam_v1_nm01", "score_near_miss": true}
+{"ts": "2026-07-18T15:21:11.779584+00:00", "phase_id": "calm_b", "kind": "calm", "status": "start", "minutes": 5.0, "score_spurious": true, "note": "Recover / residual spurious"}
+{"ts": "2026-07-18T15:26:11.879563+00:00", "phase_id": "calm_b", "kind": "calm", "status": "end", "score_spurious": true}
+{"ts": "2026-07-18T15:26:11.879912+00:00", "phase_id": "nm02", "kind": "near_miss", "status": "start", "hold_s": 40.0, "event_id": "specificity_exam_v1_nm02", "score_near_miss": true, "note": "Discrimination bait"}
+{"ts": "2026-07-18T15:26:56.528025+00:00", "phase_id": "nm02", "kind": "near_miss", "status": "end", "event_id": "specificity_exam_v1_nm02", "score_near_miss": true}
+{"ts": "2026-07-18T15:26:56.528212+00:00", "phase_id": "calm_c", "kind": "calm", "status": "start", "minutes": 5.0, "score_spurious": true, "note": "Residual FPs"}
+{"ts": "2026-07-18T15:31:56.571385+00:00", "phase_id": "calm_c", "kind": "calm", "status": "end", "score_spurious": true}
+{"ts": "2026-07-18T15:31:56.571788+00:00", "phase_id": "nm03", "kind": "near_miss", "status": "start", "hold_s": 35.0, "event_id": "specificity_exam_v1_nm03", "score_near_miss": true, "note": "Discrimination bait"}
+{"ts": "2026-07-18T15:32:35.186927+00:00", "phase_id": "nm03", "kind": "near_miss", "status": "end", "event_id": "specificity_exam_v1_nm03", "score_near_miss": true}
+{"ts": "2026-07-18T15:32:35.187147+00:00", "phase_id": "calm_d", "kind": "calm", "status": "start", "minutes": 4.0, "score_spurious": true, "note": "Final calm"}
+{"ts": "2026-07-18T15:36:35.227083+00:00", "phase_id": "calm_d", "kind": "calm", "status": "end", "score_spurious": true}

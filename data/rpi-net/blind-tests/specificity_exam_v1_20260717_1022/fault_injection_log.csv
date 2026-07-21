@@ -1,0 +1,4 @@
+fault_type,fault_start,breach_time,run_id
+precursor_aborted,2026-07-17T05:06:19.478368+00:00,2026-07-17T05:06:51.877781+00:00,real_specificity_exam_v1_20260717_1022_nm01
+precursor_aborted,2026-07-17T05:11:53.422281+00:00,2026-07-17T05:12:35.659135+00:00,real_specificity_exam_v1_20260717_1022_nm02
+precursor_aborted,2026-07-17T05:17:38.151838+00:00,2026-07-17T05:18:14.295055+00:00,real_specificity_exam_v1_20260717_1022_nm03

@@ -1,0 +1,3 @@
+fault_type,fault_start,breach_time,run_id
+precursor_aborted,2026-07-21T08:45:20.213216+00:00,2026-07-21T08:45:54.033518+00:00,real_control_post_overlap_20260721_1409_20m_nm01
+precursor_aborted,2026-07-21T08:52:37.048709+00:00,2026-07-21T08:53:27.542549+00:00,real_control_post_overlap_20260721_1409_20m_nm02

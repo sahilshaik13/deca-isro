@@ -1,0 +1,19 @@
+{
+  "run_id": "control_echo_20260719_1027_30m",
+  "seed": 601777,
+  "minutes_budget": 30.0,
+  "min_events": 5,
+  "max_events": 6,
+  "near_misses": 4,
+  "simulate": false,
+  "time_scale": 1.0,
+  "armed_at": null,
+  "control": true,
+  "playlist": null,
+  "fault_types": [
+    "congestion_breach",
+    "tunnel_degradation",
+    "bgp_route_flap",
+    "vrf_leakage"
+  ]
+}

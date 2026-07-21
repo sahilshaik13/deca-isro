@@ -1,0 +1,83 @@
+{
+  "summary": {
+    "run_id": "blind_compound_tunnel_degradation_20260719_1317_40m",
+    "circumstances_created": 2,
+    "detected": 1,
+    "detection_rate": 0.5,
+    "class_correct": 1,
+    "class_accuracy": 0.5,
+    "class_correct_eventually": 1,
+    "class_accuracy_eventually": 0.5,
+    "missed": 1,
+    "compound_events": 2,
+    "near_misses": 1,
+    "near_miss_false_alarms": 0,
+    "spurious_false_alarms": 0,
+    "mean_confirmed_lead_min": 2.3,
+    "mean_advisory_lead_min": 2.8,
+    "eta_mae_min": 1.0,
+    "severity_scored": 1,
+    "severity_agreement": 0.0,
+    "severity_pearson_r": null,
+    "severity_pairs": 1,
+    "graded_at": "2026-07-19T08:02:53.261770+00:00",
+    "severity_from_prometheus": true
+  },
+  "events": [
+    {
+      "event_id": "blind_compound_tunnel_degradation_20260719_1317_40m_cg01_e01_tunnel_degradation",
+      "fault_type": "tunnel_degradation",
+      "compound_group": "blind_compound_tunnel_degradation_20260719_1317_40m_cg01",
+      "host": "station1",
+      "fault_start": "2026-07-19T07:51:14.731350+00:00",
+      "breach_time": "2026-07-19T07:57:04.718440+00:00",
+      "detected": true,
+      "predicted_class": "tunnel_degradation",
+      "class_correct": true,
+      "class_correct_eventually": true,
+      "advisory_class_correct": true,
+      "confirmed_lead_min": 2.3,
+      "advisory_lead_min": 2.8,
+      "eta_pred_min": 3.3,
+      "eta_actual_min": 2.3,
+      "eta_error_min": 1.0,
+      "model_severity": "high",
+      "model_severity_score": 0.955,
+      "actual_severity": "low",
+      "actual_severity_score": 0.0,
+      "severity_match": false
+    },
+    {
+      "event_id": "blind_compound_tunnel_degradation_20260719_1317_40m_cg01_e02_vrf_leakage",
+      "fault_type": "vrf_leakage",
+      "compound_group": "blind_compound_tunnel_degradation_20260719_1317_40m_cg01",
+      "host": "station2",
+      "fault_start": "2026-07-19T07:51:14.731735+00:00",
+      "breach_time": "2026-07-19T07:55:26.304633+00:00",
+      "detected": false,
+      "predicted_class": null,
+      "class_correct": false,
+      "class_correct_eventually": false,
+      "advisory_class_correct": false,
+      "confirmed_lead_min": null,
+      "advisory_lead_min": 2.7,
+      "eta_pred_min": null,
+      "eta_actual_min": null,
+      "eta_error_min": null,
+      "model_severity": null,
+      "model_severity_score": null,
+      "actual_severity": "high",
+      "actual_severity_score": 1.111,
+      "severity_match": false
+    }
+  ],
+  "near_miss_false_alarms": [
+    {
+      "event_id": "blind_compound_tunnel_degradation_20260719_1317_40m_nm01",
+      "host": "station1",
+      "false_alarm": false,
+      "class": null
+    }
+  ],
+  "spurious_false_alarms": []
+}

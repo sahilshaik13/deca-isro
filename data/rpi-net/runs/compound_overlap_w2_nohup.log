@@ -1,0 +1,543 @@
+=== PIPELINE compound overlap run_id=compound_overlap_w2_20260719_2045 per_pe1=4 ===
+lab cleared (faults + iperf)
+[2026-07-19T15:15:38.612540+00:00] Run directory: /home/brain/deca-isro/data/rpi-net/runs/compound_overlap_w2_20260719_2045
+[2026-07-19T15:15:38.612739+00:00] ============================================================
+[2026-07-19T15:15:38.612808+00:00] DECA COMPOUND OVERLAP CAMPAIGN — 4× each PE1 + vrf_leakage (retry=2)
+[2026-07-19T15:15:38.612865+00:00] ============================================================
+[2026-07-19T15:15:41.649990+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T15:15:42.991074+00:00] Baseline traffic: 51 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T15:15:47.715190+00:00]    iperf3 client running (~51 Mbps)
+[2026-07-19T15:15:47.715352+00:00] Normal ops before compound congestion_breach+vrf_leakage 5.3 min...
+[2026-07-19T15:21:06.203611+00:00] Compound slot congestion_breach #1 attempt 1/3
+[2026-07-19T15:21:06.203875+00:00] === COMPOUND congestion_breach_01: congestion_breach (station1) + vrf_leakage (station2) ===
+[2026-07-19T15:21:06.204376+00:00]   congestion_breach run=congestion_breach_01_congestion_breach: 95->12mbit over 10.7min, 3 steps
+[2026-07-19T15:21:06.204658+00:00]   vrf_leakage run=congestion_breach_01_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.3%/11ms over 7.2min, hold 6.2min
+[2026-07-19T15:38:14.549438+00:00] Logged congestion_breach 2026-07-19T15:21:06.204356+00:00 -> 2026-07-19T15:31:57.833485+00:00
+[2026-07-19T15:38:14.549503+00:00] Logged vrf_leakage 2026-07-19T15:21:06.204637+00:00 -> 2026-07-19T15:28:22.046056+00:00
+[2026-07-19T15:38:19.757078+00:00]   recovery settle 3.2 min...
+[2026-07-19T15:41:34.371327+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T15:41:55.394584+00:00] Baseline traffic: 69 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T15:42:20.892547+00:00]    iperf3 client exited unexpectedly, check /tmp/iperf3-lan.log on station1
+[2026-07-19T15:42:20.892678+00:00] Normal ops before compound congestion_breach+vrf_leakage 4.9 min...
+[2026-07-19T15:47:16.337767+00:00] Compound slot congestion_breach #2 attempt 1/3
+[2026-07-19T15:47:16.337979+00:00] === COMPOUND congestion_breach_02: congestion_breach (station1) + vrf_leakage (station2) ===
+[2026-07-19T15:47:16.338512+00:00]   congestion_breach run=congestion_breach_02_congestion_breach: 95->5mbit over 9.2min, 3 steps
+[2026-07-19T15:47:16.338814+00:00]   vrf_leakage run=congestion_breach_02_vrf_leakage: wrong RT import + PE2 symptom ramp to 3.1%/16ms over 6.7min, hold 6.0min
+[2026-07-19T16:01:55.486431+00:00] Logged congestion_breach 2026-07-19T15:47:16.338491+00:00 -> 2026-07-19T15:56:38.221064+00:00
+[2026-07-19T16:01:55.486570+00:00] Logged vrf_leakage 2026-07-19T15:47:16.338795+00:00 -> 2026-07-19T15:54:05.040047+00:00
+[2026-07-19T16:02:00.954590+00:00]   recovery settle 3.8 min...
+[2026-07-19T16:05:49.207162+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T16:05:50.671052+00:00] Baseline traffic: 53 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T16:05:56.571459+00:00]    iperf3 client running (~53 Mbps)
+[2026-07-19T16:05:56.571585+00:00] Normal ops before compound congestion_breach+vrf_leakage 4.6 min...
+[2026-07-19T16:10:32.257676+00:00] Compound slot congestion_breach #3 attempt 1/3
+[2026-07-19T16:10:32.257938+00:00] === COMPOUND congestion_breach_03: congestion_breach (station1) + vrf_leakage (station2) ===
+[2026-07-19T16:10:32.258437+00:00]   congestion_breach run=congestion_breach_03_congestion_breach: 95->5mbit over 11.1min, 5 steps
+[2026-07-19T16:10:32.258634+00:00]   vrf_leakage run=congestion_breach_03_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.6%/18ms over 4.6min, hold 8.5min
+[2026-07-19T16:26:46.363761+00:00] Logged congestion_breach 2026-07-19T16:10:32.258414+00:00 -> 2026-07-19T16:21:55.803290+00:00
+[2026-07-19T16:26:46.363852+00:00] Logged vrf_leakage 2026-07-19T16:10:32.258625+00:00 -> 2026-07-19T16:15:10.577816+00:00
+[2026-07-19T16:26:53.051361+00:00]   recovery settle 3.3 min...
+[2026-07-19T16:30:11.497671+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T16:30:25.580517+00:00] Baseline traffic: 67 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T16:30:30.256610+00:00]    iperf3 client running (~67 Mbps)
+[2026-07-19T16:30:30.256713+00:00] Normal ops before compound tunnel_degradation+vrf_leakage 4.9 min...
+[2026-07-19T16:35:24.585460+00:00] Compound slot tunnel_degradation #1 attempt 1/3
+[2026-07-19T16:35:24.585633+00:00] === COMPOUND tunnel_degradation_01: tunnel_degradation (station1) + vrf_leakage (station2) ===
+[2026-07-19T16:35:24.585887+00:00]   tunnel_degradation run=tunnel_degradation_01_tunnel_degradation: ramping to 11.9% loss / 45ms delay over 7.1min
+[2026-07-19T16:35:24.586194+00:00]   vrf_leakage run=tunnel_degradation_01_vrf_leakage: wrong RT import + PE2 symptom ramp to 1.9%/17ms over 4.8min, hold 4.2min
+[2026-07-19T16:46:41.953116+00:00] Logged tunnel_degradation 2026-07-19T16:35:24.585879+00:00 -> 2026-07-19T16:41:09.549533+00:00
+[2026-07-19T16:46:41.953208+00:00] Logged vrf_leakage 2026-07-19T16:35:24.586171+00:00 -> 2026-07-19T16:40:15.714954+00:00
+[2026-07-19T16:46:44.143179+00:00]   recovery settle 3.1 min...
+[2026-07-19T16:49:51.413236+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T16:49:53.925320+00:00] Baseline traffic: 66 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T16:49:58.822370+00:00]    iperf3 client running (~66 Mbps)
+[2026-07-19T16:49:58.822533+00:00] Normal ops before compound congestion_breach+vrf_leakage 4.9 min...
+[2026-07-19T16:54:54.976382+00:00] Compound slot congestion_breach #4 attempt 1/3
+[2026-07-19T16:54:54.976623+00:00] === COMPOUND congestion_breach_04: congestion_breach (station1) + vrf_leakage (station2) ===
+[2026-07-19T16:54:54.976947+00:00]   congestion_breach run=congestion_breach_04_congestion_breach: 95->5mbit over 13.7min, 3 steps
+[2026-07-19T16:54:54.977169+00:00]   vrf_leakage run=congestion_breach_04_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.4%/14ms over 5.2min, hold 6.7min
+[2026-07-19T17:11:50.997803+00:00] Logged congestion_breach 2026-07-19T16:54:54.976935+00:00 -> 2026-07-19T17:08:40.335478+00:00
+[2026-07-19T17:11:50.997989+00:00] Logged vrf_leakage 2026-07-19T16:54:54.977155+00:00 -> 2026-07-19T17:00:12.712210+00:00
+[2026-07-19T17:11:56.560842+00:00]   recovery settle 3.3 min...
+[2026-07-19T17:15:14.716221+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T17:15:16.160345+00:00] Baseline traffic: 84 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T17:15:21.022954+00:00]    iperf3 client running (~84 Mbps)
+[2026-07-19T17:15:21.023068+00:00] Normal ops before compound bgp_route_flap+vrf_leakage 4.4 min...
+[2026-07-19T17:19:46.767234+00:00] Compound slot bgp_route_flap #1 attempt 1/3
+[2026-07-19T17:19:46.767460+00:00] === COMPOUND bgp_route_flap_01: bgp_route_flap (station1) + vrf_leakage (station2) ===
+[2026-07-19T17:19:46.767840+00:00]   bgp_route_flap run=bgp_route_flap_01_bgp_route_flap: 3 slow flaps over 6.2min, then 7 rapid flaps
+[2026-07-19T17:19:46.768225+00:00]   vrf_leakage run=bgp_route_flap_01_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.4%/20ms over 8.9min, hold 8.4min
+[2026-07-19T17:24:20.779947+00:00]    SSH timeout on station1@192.168.50.10
+[2026-07-19T17:37:09.811706+00:00] Logged bgp_route_flap 2026-07-19T17:19:46.767824+00:00 -> 2026-07-19T17:26:25.196892+00:00
+[2026-07-19T17:37:09.811892+00:00] Logged vrf_leakage 2026-07-19T17:19:46.768207+00:00 -> 2026-07-19T17:28:45.780715+00:00
+[2026-07-19T17:37:11.543802+00:00]   recovery settle 2.8 min...
+[2026-07-19T17:40:03.642704+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T17:40:24.666119+00:00] Baseline traffic: 22 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T17:40:30.565920+00:00]    iperf3 client running (~22 Mbps)
+[2026-07-19T17:40:30.566037+00:00] Normal ops before compound tunnel_degradation+vrf_leakage 5.1 min...
+[2026-07-19T17:45:36.099599+00:00] Compound slot tunnel_degradation #2 attempt 1/3
+[2026-07-19T17:45:36.099828+00:00] === COMPOUND tunnel_degradation_02: tunnel_degradation (station1) + vrf_leakage (station2) ===
+[2026-07-19T17:45:36.100256+00:00]   tunnel_degradation run=tunnel_degradation_02_tunnel_degradation: ramping to 8.0% loss / 31ms delay over 11.2min
+[2026-07-19T17:45:36.100552+00:00]   vrf_leakage run=tunnel_degradation_02_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.1%/10ms over 6.2min, hold 7.3min
+[2026-07-19T17:59:12.589460+00:00] Logged tunnel_degradation 2026-07-19T17:45:36.100239+00:00 -> 2026-07-19T17:54:38.166092+00:00
+[2026-07-19T17:59:12.589589+00:00] Logged vrf_leakage 2026-07-19T17:45:36.100540+00:00 -> 2026-07-19T17:51:52.130028+00:00
+[2026-07-19T17:59:14.486621+00:00]   recovery settle 3.4 min...
+[2026-07-19T18:02:39.117763+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T18:02:46.419054+00:00] Baseline traffic: 26 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T18:02:55.427940+00:00]    iperf3 client running (~26 Mbps)
+[2026-07-19T18:02:55.428265+00:00] Normal ops before compound tunnel_degradation+vrf_leakage 4.8 min...
+[2026-07-19T18:07:43.329034+00:00] Compound slot tunnel_degradation #3 attempt 1/3
+[2026-07-19T18:07:43.329266+00:00] === COMPOUND tunnel_degradation_03: tunnel_degradation (station1) + vrf_leakage (station2) ===
+[2026-07-19T18:07:43.329657+00:00]   tunnel_degradation run=tunnel_degradation_03_tunnel_degradation: ramping to 9.2% loss / 36ms delay over 12.0min
+[2026-07-19T18:07:43.329918+00:00]   vrf_leakage run=tunnel_degradation_03_vrf_leakage: wrong RT import + PE2 symptom ramp to 3.8%/8ms over 6.5min, hold 8.2min
+[2026-07-19T18:22:29.757304+00:00] Logged tunnel_degradation 2026-07-19T18:07:43.329641+00:00 -> 2026-07-19T18:17:21.212297+00:00
+[2026-07-19T18:22:29.757461+00:00] Logged vrf_leakage 2026-07-19T18:07:43.329904+00:00 -> 2026-07-19T18:14:16.474624+00:00
+[2026-07-19T18:22:33.024714+00:00]   recovery settle 3.1 min...
+[2026-07-19T18:25:38.734268+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T18:25:40.185076+00:00] Baseline traffic: 29 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T18:25:47.000845+00:00]    iperf3 client running (~29 Mbps)
+[2026-07-19T18:25:47.000972+00:00] Normal ops before compound tunnel_degradation+vrf_leakage 3.9 min...
+[2026-07-19T18:29:42.588047+00:00] Compound slot tunnel_degradation #4 attempt 1/3
+[2026-07-19T18:29:42.588323+00:00] === COMPOUND tunnel_degradation_04: tunnel_degradation (station1) + vrf_leakage (station2) ===
+[2026-07-19T18:29:42.588664+00:00]   tunnel_degradation run=tunnel_degradation_04_tunnel_degradation: ramping to 11.4% loss / 45ms delay over 11.1min
+[2026-07-19T18:29:42.588864+00:00]   vrf_leakage run=tunnel_degradation_04_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.2%/9ms over 8.4min, hold 8.8min
+[2026-07-19T18:46:57.393976+00:00] Logged tunnel_degradation 2026-07-19T18:29:42.588648+00:00 -> 2026-07-19T18:38:38.907034+00:00
+[2026-07-19T18:46:57.394241+00:00] Logged vrf_leakage 2026-07-19T18:29:42.588852+00:00 -> 2026-07-19T18:38:11.838080+00:00
+[2026-07-19T18:47:00.791470+00:00]   recovery settle 3.9 min...
+[2026-07-19T18:50:58.831821+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T18:51:09.840238+00:00] Baseline traffic: 31 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T18:51:14.831901+00:00]    iperf3 client running (~31 Mbps)
+[2026-07-19T18:51:14.832029+00:00] Normal ops before compound bgp_route_flap+vrf_leakage 4.8 min...
+[2026-07-19T18:56:04.763101+00:00] Compound slot bgp_route_flap #2 attempt 1/3
+[2026-07-19T18:56:04.763273+00:00] === COMPOUND bgp_route_flap_02: bgp_route_flap (station1) + vrf_leakage (station2) ===
+[2026-07-19T18:56:04.763661+00:00]   bgp_route_flap run=bgp_route_flap_02_bgp_route_flap: 4 slow flaps over 10.0min, then 4 rapid flaps
+[2026-07-19T18:56:04.763816+00:00]   vrf_leakage run=bgp_route_flap_02_vrf_leakage: wrong RT import + PE2 symptom ramp to 1.7%/20ms over 7.6min, hold 6.7min
+[2026-07-19T19:10:28.822414+00:00] Logged bgp_route_flap 2026-07-19T18:56:04.763642+00:00 -> 2026-07-19T19:06:16.673422+00:00
+[2026-07-19T19:10:28.822579+00:00] Logged vrf_leakage 2026-07-19T18:56:04.763808+00:00 -> 2026-07-19T19:03:46.816033+00:00
+[2026-07-19T19:10:34.643428+00:00]   recovery settle 4.0 min...
+[2026-07-19T19:14:35.253242+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T19:14:37.714952+00:00] Baseline traffic: 20 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T19:14:43.617118+00:00]    iperf3 client running (~20 Mbps)
+[2026-07-19T19:14:43.617223+00:00] Normal ops before compound bgp_route_flap+vrf_leakage 4.2 min...
+[2026-07-19T19:18:53.335762+00:00] Compound slot bgp_route_flap #3 attempt 1/3
+[2026-07-19T19:18:53.335946+00:00] === COMPOUND bgp_route_flap_03: bgp_route_flap (station1) + vrf_leakage (station2) ===
+[2026-07-19T19:18:53.336350+00:00]   bgp_route_flap run=bgp_route_flap_03_bgp_route_flap: 3 slow flaps over 11.0min, then 6 rapid flaps
+[2026-07-19T19:18:53.336570+00:00]   vrf_leakage run=bgp_route_flap_03_vrf_leakage: wrong RT import + PE2 symptom ramp to 3.2%/12ms over 5.0min, hold 8.3min
+[2026-07-19T19:32:19.804746+00:00] Logged bgp_route_flap 2026-07-19T19:18:53.336330+00:00 -> 2026-07-19T19:29:57.851386+00:00
+[2026-07-19T19:32:19.804909+00:00] Logged vrf_leakage 2026-07-19T19:18:53.336556+00:00 -> 2026-07-19T19:23:57.325824+00:00
+[2026-07-19T19:32:21.398889+00:00]   recovery settle 3.1 min...
+[2026-07-19T19:35:30.476591+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T19:35:39.457051+00:00] Baseline traffic: 41 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T19:35:51.664059+00:00]    iperf3 client running (~41 Mbps)
+[2026-07-19T19:35:51.664171+00:00] Normal ops before compound bgp_route_flap+vrf_leakage 4.5 min...
+[2026-07-19T19:40:18.907224+00:00] Compound slot bgp_route_flap #4 attempt 1/3
+[2026-07-19T19:40:18.907461+00:00] === COMPOUND bgp_route_flap_04: bgp_route_flap (station1) + vrf_leakage (station2) ===
+[2026-07-19T19:40:18.907885+00:00]   bgp_route_flap run=bgp_route_flap_04_bgp_route_flap: 2 slow flaps over 11.5min, then 6 rapid flaps
+[2026-07-19T19:40:18.908123+00:00]   vrf_leakage run=bgp_route_flap_04_vrf_leakage: wrong RT import + PE2 symptom ramp to 3.2%/9ms over 8.7min, hold 4.8min
+[2026-07-19T19:54:00.873554+00:00] Logged bgp_route_flap 2026-07-19T19:40:18.907866+00:00 -> 2026-07-19T19:51:54.267098+00:00
+[2026-07-19T19:54:00.873683+00:00] Logged vrf_leakage 2026-07-19T19:40:18.908113+00:00 -> 2026-07-19T19:49:08.235817+00:00
+[2026-07-19T19:54:03.772315+00:00]   recovery settle 3.8 min...
+[2026-07-19T19:57:56.313947+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T19:57:58.794884+00:00] Baseline traffic: 27 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T19:58:03.724587+00:00]    iperf3 client running (~27 Mbps)
+[2026-07-19T19:58:03.724694+00:00] ============================================================
+[2026-07-19T19:58:03.724724+00:00] COMPOUND OVERLAP CAMPAIGN DONE — pe1 counts {'congestion_breach': 4, 'tunnel_degradation': 4, 'bgp_route_flap': 4} attempts=12
+[2026-07-19T19:58:03.724749+00:00] ============================================================
+[2026-07-19T19:58:06.738648+00:00] Exported /home/brain/deca-isro/data/rpi-net/runs/compound_overlap_w2_20260719_2045/network_telemetry.csv (20337 rows)
+[2026-07-19T19:58:06.837822+00:00] Exported /home/brain/deca-isro/data/rpi-net/runs/compound_overlap_w2_20260719_2045/network_campaign_export.csv (3390 rows)
+[2026-07-19T19:58:06.840091+00:00] ============================================================
+[2026-07-19T19:58:06.840231+00:00] VALIDATING fault_injection_log.csv
+[2026-07-19T19:58:06.840258+00:00] ============================================================
+[2026-07-19T19:58:06.840444+00:00] Total runs: 24
+[2026-07-19T19:58:06.840588+00:00]   congestion_breach     n=4  avg= 11.3min  spread= 1.8min
+[2026-07-19T19:58:06.840698+00:00]   tunnel_degradation    n=4  avg=  8.3min  spread= 1.8min
+[2026-07-19T19:58:06.840793+00:00]   bgp_route_flap        n=4  avg=  9.9min  spread= 2.2min
+[2026-07-19T19:58:06.840897+00:00]   vrf_leakage           n=12  avg=  6.7min  spread= 1.6min
+[2026-07-19T19:58:06.840937+00:00] VALIDATION RESULT: PASS
+[2026-07-19T19:58:06.840970+00:00] ============================================================
+=== REBUILD ===
+RPI_RUNS=['20260713_155333', '20260714_165648_tier6_x10', '20260715_191519_circ_v2', 'compound_overlap_20260719_1735', 'compound_overlap_w2_20260719_2045', 'spec_data_20260717_2352', 'vrf_recall_20260718_1752']
+=== Loading RPi campaign(s) ===
+  loading campaign 20260713_155333
+    clean telemetry 20260713_155333: 52723 → 35152 rows
+    clean faults 20260713_155333: 21 → 21 windows
+  loading campaign 20260714_165648_tier6_x10
+    clean telemetry 20260714_165648_tier6_x10: 93809 → 62547 rows
+    clean faults 20260714_165648_tier6_x10: 40 → 40 windows
+  loading campaign 20260715_191519_circ_v2
+    clean telemetry 20260715_191519_circ_v2: 47253 → 31472 rows
+    clean faults 20260715_191519_circ_v2: 27 → 27 windows
+  loading campaign compound_overlap_20260719_1735
+    clean telemetry compound_overlap_20260719_1735: 9429 → 6287 rows
+    clean faults compound_overlap_20260719_1735: 12 → 12 windows
+  loading campaign compound_overlap_w2_20260719_2045
+    clean telemetry compound_overlap_w2_20260719_2045: 20337 → 13559 rows
+    clean faults compound_overlap_w2_20260719_2045: 24 → 24 windows
+  loading campaign spec_data_20260717_2352
+    clean telemetry spec_data_20260717_2352: 35801 → 23843 rows
+    clean faults spec_data_20260717_2352: 24 → 24 windows
+  loading campaign vrf_recall_20260718_1752
+    clean telemetry vrf_recall_20260718_1752: 10851 → 7235 rows
+    clean faults vrf_recall_20260718_1752: 7 → 7 windows
+  merged network rows=180095  fault windows=155
+  network_df=180095  fault_windows=155
+=== Loading public lake ===
+  mawi_sample: 15 rows
+  cisco_sandbox: 232 rows
+  bgp_update_rates_full: 320 rows
+  ripe_atlas_ping_sampled: 187971 probe rows -> 7200 minute buckets x2 metrics
+  ripe_atlas_ping_baseline: 13902 rows
+  public fault labels from bgp_routing_labels.csv: 1138 events (span 2026-07-05 02:20:00+00:00 → 2026-07-13 00:00:00+00:00) — provenance only, not applied
+  public fault labels from ioda_outage_labels.csv: 1138 events (span 2026-07-05 02:20:00+00:00 → 2026-07-13 00:00:00+00:00) — provenance only, not applied
+  public_df=28869
+  NOTE: IODA/BGP outage labels are NOT merged into the training labeler — no overlapping public telemetry for those Jul-5-centric windows.
+=== Synthetic ===
+  synthetic: 0 rows (deliberate — RPi ground truth replaces synthetic noise)
+  wrote public_outage_labels_provenance.csv (2276 rows) — inventory only
+
+=== Provenance audit ===
+  network   :   180095 rows  ( 86.2%)
+  synthetic :        0 rows  (  0.0%)
+  public    :    28869 rows  ( 13.8%)
+  TOTAL     :   208964 rows (pre-dropna)
+  unified_raw after clean: 208964
+  training fault windows (RPi only): 155
+  backed up deca_unified_raw.parquet -> deca_unified_raw.parquet.bak_pre_rebuild
+  backed up deca_unified_dataset.parquet -> deca_unified_dataset.parquet.bak_pre_rebuild
+
+Wrote /home/brain/deca-isro/data/processed/deca_unified_raw.parquet (208964 rows)
+
+=== Feature engineering ===
+  features=53133 rows, cols=42
+  features by source: {'network': 44974, 'public': 8159}
+
+=== Circumstance existence labels (additive) ===
+  circumstance existence labels applied for 20 events
+circumstance_label
+healthy               50133
+congestion_breach       981
+vrf_leakage             807
+tunnel_degradation      672
+bgp_route_flap          540
+Wrote /home/brain/deca-isro/data/processed/deca_unified_dataset.parquet (53133 rows)
+
+Fault type distribution:
+fault_type
+none                  41033
+vrf_leakage            3639
+congestion_breach      3364
+bgp_route_flap         2589
+tunnel_degradation     2346
+precursor_aborted       162
+
+Unified label distribution:
+unified_label
+healthy               41195
+vrf_leakage            3639
+congestion_breach      3364
+bgp_route_flap         2589
+tunnel_degradation     2346
+
+By source × unified_label:
+source   unified_label     
+network  bgp_route_flap         2589
+         congestion_breach      3364
+         healthy               33036
+         tunnel_degradation     2346
+         vrf_leakage            3639
+public   healthy                8159
+=== SCHOOL EXAM PROMOTE ===
+Exam paper seed=1784491093  policy=random  (new questions each run unless --exam-seed fixed)
+Exam label counts: {'healthy': 8239, 'congestion_breach': 673, 'tunnel_degradation': 469, 'bgp_route_flap': 518, 'vrf_leakage': 728}
+
+=== Unit test (active model on new paper) ===
+  Macro-F1=0.7079  rare-recall=0.5714
+Lake rows=53,133  features=40  exam rows=10,627
+Baseline Macro-F1 to beat: 0.7170
+Rare boosts β=[1.0, 1.5, 2.0, 3.0]
+Heads (families): ['plain', 'wm', 'moe']  [plain=champion, wm=cluster booster, moe=cluster + per-fault experts]
+Classes: ['healthy', 'congestion_breach', 'tunnel_degradation', 'bgp_route_flap', 'vrf_leakage']
+
+=== Teaching the anomaly gate (once) ===
+
+=== Study hall  head=plain  β=1.0 ===
+  val macro-F1=0.6962  EXAM macro-F1=0.7028  rare-recall=0.5410  gate_thr=0.50
+    bgp_route_flap: P=0.34 R=0.45 F1=0.39
+    vrf_leakage: P=0.56 R=0.64 F1=0.60
+
+=== Study hall  head=plain  β=1.5 ===
+  val macro-F1=0.6960  EXAM macro-F1=0.7029  rare-recall=0.5511  gate_thr=0.50
+    bgp_route_flap: P=0.34 R=0.45 F1=0.39
+    vrf_leakage: P=0.55 R=0.65 F1=0.60
+
+=== Study hall  head=plain  β=2.0 ===
+  val macro-F1=0.6936  EXAM macro-F1=0.7022  rare-recall=0.5628  gate_thr=0.50
+    bgp_route_flap: P=0.33 R=0.45 F1=0.38
+    vrf_leakage: P=0.53 R=0.68 F1=0.59
+
+=== Study hall  head=plain  β=3.0 ===
+  val macro-F1=0.6929  EXAM macro-F1=0.7038  rare-recall=0.5660  gate_thr=0.50
+    bgp_route_flap: P=0.33 R=0.46 F1=0.39
+    vrf_leakage: P=0.53 R=0.67 F1=0.60
+
+=== Study hall  head=wm  β=1.0 ===
+  val macro-F1=0.6937  EXAM macro-F1=0.7027  rare-recall=0.5379  gate_thr=0.50
+    bgp_route_flap: P=0.34 R=0.44 F1=0.39
+    vrf_leakage: P=0.56 R=0.63 F1=0.59
+
+=== Study hall  head=wm  β=1.5 ===
+  val macro-F1=0.6958  EXAM macro-F1=0.6992  rare-recall=0.5372  gate_thr=0.50
+    bgp_route_flap: P=0.33 R=0.43 F1=0.38
+    vrf_leakage: P=0.53 R=0.64 F1=0.58
+
+=== Study hall  head=wm  β=2.0 ===
+  val macro-F1=0.6923  EXAM macro-F1=0.7017  rare-recall=0.5521  gate_thr=0.50
+    bgp_route_flap: P=0.33 R=0.44 F1=0.38
+    vrf_leakage: P=0.53 R=0.66 F1=0.59
+
+=== Study hall  head=wm  β=3.0 ===
+  val macro-F1=0.6914  EXAM macro-F1=0.7006  rare-recall=0.5570  gate_thr=0.50
+    bgp_route_flap: P=0.33 R=0.45 F1=0.38
+    vrf_leakage: P=0.52 R=0.67 F1=0.59
+
+=== Study hall  head=moe  β=1.0 ===
+  val macro-F1=0.6792  EXAM macro-F1=0.6896  rare-recall=0.5557  gate_thr=0.50
+    bgp_route_flap: P=0.32 R=0.45 F1=0.37
+    vrf_leakage: P=0.48 R=0.66 F1=0.56
+
+=== Study hall  head=moe  β=1.5 ===
+  val macro-F1=0.6797  EXAM macro-F1=0.6876  rare-recall=0.5525  gate_thr=0.50
+    bgp_route_flap: P=0.32 R=0.45 F1=0.37
+    vrf_leakage: P=0.49 R=0.66 F1=0.56
+
+=== Study hall  head=moe  β=2.0 ===
+  val macro-F1=0.6796  EXAM macro-F1=0.6871  rare-recall=0.5627  gate_thr=0.50
+    bgp_route_flap: P=0.32 R=0.45 F1=0.38
+    vrf_leakage: P=0.48 R=0.67 F1=0.56
+
+=== Study hall  head=moe  β=3.0 ===
+  val macro-F1=0.6717  EXAM macro-F1=0.6813  rare-recall=0.5675  gate_thr=0.50
+    bgp_route_flap: P=0.32 R=0.45 F1=0.37
+    vrf_leakage: P=0.47 R=0.68 F1=0.55
+
+Wrote /home/brain/deca-isro/models/school_exam/weight_sweep.csv
+Wrote /home/brain/deca-isro/models/school_exam/latest_exam.json
+
+=== Great Exam / promotion gate (repeated-holdout validation) ===
+  candidate Macro-F1=0.7038
+  bar=0.7170 = max(honest champion same-paper 0.7038, manifest floor 0.7170)   [basis=honest_same_paper_champion_config]
+  deployed artifact (same paper, leakage-inflated)=0.7079  [informational only]
+  candidate rare-recall=0.5660  floor≈0.5360
+  GATE: FAIL
+  Auto-promote: gate FAIL — keeping active models/
+=== SOFT STREAK ===
+Network rows=44,974  temporal test tail=11,244  from 2026-07-17 20:16:15+00:00
+  soft_streak ENABLED  enter threshold=3 cumulative confidence  (mean fault conf=0.829 when gate open)
+
+=== Temporal Loom score (chronological network tail) ===
+  loom global fallback  enter_k=3  exit_k=2
+  soft_streak ON   entry uses cumulative confidence >= enter_k (3); exit stays frame-based
+    congestion_breach    enter_k=3  exit_k=2
+    tunnel_degradation   enter_k=4  exit_k=2
+    bgp_route_flap       enter_k=3  exit_k=3
+    vrf_leakage          enter_k=3  exit_k=3
+  raw_frame     Macro-F1=0.5681  Acc=0.7256  rareR=0.4034
+    bgp_route_flap: F1=0.392
+    vrf_leakage: F1=0.449
+  persistent    Macro-F1=0.5943  Acc=0.7506  rareR=0.3512
+    bgp_route_flap: F1=0.455
+    vrf_leakage: F1=0.413
+  advisory      Macro-F1=0.5776  Acc=0.7745  rareR=0.2858
+    bgp_route_flap: F1=0.348
+    vrf_leakage: F1=0.432
+  boost ΔMacro-F1=+0.0262  frames_changed=1779  fault frames 4466 → 3802 (suppressed 664)
+
+  advisory tier  enter_k=2  exit_k=1
+    events=50  advisory caught=34  confirmed caught=33
+    mean lead=10.27 frames  max lead=67 frames  (over 33 events where both caught it)
+    advisory-only window: 406 frames — 163 correct early warning, 94 wrong-class, 149 pure noise  (precision=0.401)
+
+Wrote /home/brain/deca-isro/models/temporal_persist_score.json
+Patched loom into promoted artifacts (/home/brain/deca-isro/models/fault_classifier/decision_thresholds.json)
+PROMOTE gate_ok=False candidate=0.7038170953024172 bar=0.717
+=== TRUST: 20m control ===
+==============================================================
+ DECA BLIND TEST  run_id=control_post_overlap_20260720_0133_20m  start_at=now  budget=20m
+==============================================================
+Pre-flight: run 'bash ~/deca_diagnostic.sh' and confirm all green,
+and that Prometheus is healthy: curl -s localhost:9090/-/ready
+Operator NOC feed will stream to: data/rpi-net/live/control_post_overlap_20260720_0133_20m/operator_feed.log  (tail -f to watch)
+
+Operator armed (pid 737010). tail -f data/rpi-net/live/control_post_overlap_20260720_0133_20m/operator_feed.log
+[2026-07-19T20:03:47.939473+00:00] ================================================================
+[2026-07-19T20:03:47.939556+00:00] DECA BLIND CONTROL (all-healthy) armed — run_id=control_post_overlap_20260720_0133_20m seed=558247 (SEALED)
+[2026-07-19T20:03:47.939589+00:00] Budget 20 min | NO real faults | 2 near-miss bait(s) | simulate=False
+[2026-07-19T20:03:47.939640+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/control_post_overlap_20260720_0133_20m/ground_truth.sealed.jsonl
+[2026-07-19T20:03:47.939666+00:00] ================================================================
+[2026-07-19T20:03:51.251431+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T20:03:52.731181+00:00] Baseline traffic: 81 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T20:03:58.644762+00:00]    iperf3 client running (~81 Mbps)
+[2026-07-19T20:03:58.644898+00:00] [control] healthy baseline 6.8 min...
+[2026-07-19T20:10:47.853571+00:00] [control] near-miss control_post_overlap_20260720_0133_20m_nm01 (bait — MUST stay healthy)
+[2026-07-19T20:10:47.853887+00:00] NEAR-MISS aborted onset for 36s (not a real fault)...
+[2026-07-19T20:11:24.762926+00:00] [control] sealed control_post_overlap_20260720_0133_20m_nm01: 2026-07-19T20:10:47.853870+00:00 -> 2026-07-19T20:11:24.762537+00:00
+[2026-07-19T20:11:45.744297+00:00] [control] healthy baseline 5.9 min...
+[2026-07-19T20:17:42.256046+00:00] [control] near-miss control_post_overlap_20260720_0133_20m_nm02 (bait — MUST stay healthy)
+[2026-07-19T20:17:42.256354+00:00] NEAR-MISS aborted onset for 31s (not a real fault)...
+[2026-07-19T20:18:14.524454+00:00] [control] sealed control_post_overlap_20260720_0133_20m_nm02: 2026-07-19T20:17:42.256342+00:00 -> 2026-07-19T20:18:14.524227+00:00
+[2026-07-19T20:18:30.786619+00:00] [control] healthy baseline 5.3 min to end (no baits left)...
+[2026-07-19T20:23:48.039832+00:00] ================================================================
+[2026-07-19T20:23:48.040099+00:00] BLIND CONTROL COMPLETE — 0 real faults, 2 near-misses
+[2026-07-19T20:23:48.040204+00:00] Any confirmed alarm here is a false positive. Grade with:
+[2026-07-19T20:23:48.040295+00:00]   python scripts/deca_blind_scorecard.py --run-id control_post_overlap_20260720_0133_20m
+[2026-07-19T20:23:48.040383+00:00] ================================================================
+Chaos finished; letting the operator settle for 30s before stopping...
+Operator ignored SIGINT — sending TERM...
+
+Grading...
+====================================================================
+  DECA BLIND TEST SCORECARD — control_post_overlap_20260720_0133_20m
+====================================================================
+  Circumstances the network created : 0
+  Detected by the models            : 0  (rate None)
+  Correct fault class (first decl)  : 0  (accuracy None)
+  Correct class (ever, in-window)   : 0  (accuracy None)
+  Missed                            : 0
+  Mean confirmed lead before breach : None min
+  Mean advisory lead before breach  : None min  (class-agnostic; 'something forming')
+  LSTM ETA mean abs error           : None min
+  Severity bucket agreement         : None  (0 scored)
+  Severity continuous Pearson r     : None  (0 pairs)
+  Near-miss false alarms            : 0 / 2
+  Spurious false alarms             : 0
+====================================================================
+  Per-circumstance:
+====================================================================
+
+  scorecard.json -> /home/brain/deca-isro/data/rpi-net/live/control_post_overlap_20260720_0133_20m/scorecard.json
+  canvas         -> /home/brain/.cursor/projects/home-brain-deca-isro/canvases/deca-blind-test.canvas.tsx
+=== VERIFY: tunnel+VRF compound blind ===
+==============================================================
+ DECA BLIND TEST  run_id=blind_compound_tunnel_recheck_20260720_0154_40m  start_at=now  budget=40m
+==============================================================
+Pre-flight: run 'bash ~/deca_diagnostic.sh' and confirm all green,
+and that Prometheus is healthy: curl -s localhost:9090/-/ready
+Operator NOC feed will stream to: data/rpi-net/live/blind_compound_tunnel_recheck_20260720_0154_40m/operator_feed.log  (tail -f to watch)
+
+Operator armed (pid 743677). tail -f data/rpi-net/live/blind_compound_tunnel_recheck_20260720_0154_40m/operator_feed.log
+[2026-07-19T20:24:37.619713+00:00] ================================================================
+[2026-07-19T20:24:37.619796+00:00] DECA BLIND CHAOS armed — run_id=blind_compound_tunnel_recheck_20260720_0154_40m seed=222300 (SEALED)
+[2026-07-19T20:24:37.619831+00:00] Budget 40 min | target 2-2 events + 1 near-misses | simulate=False
+[2026-07-19T20:24:37.619859+00:00] Fault pool: ['congestion_breach', 'tunnel_degradation', 'bgp_route_flap', 'vrf_leakage']
+[2026-07-19T20:24:37.619883+00:00] Compound prob=1.0 pe1=tunnel_degradation
+[2026-07-19T20:24:37.619934+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/blind_compound_tunnel_recheck_20260720_0154_40m/ground_truth.sealed.jsonl
+[2026-07-19T20:24:37.619960+00:00] ================================================================
+[2026-07-19T20:24:41.033261+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T20:24:43.534464+00:00] Baseline traffic: 76 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T20:24:49.435737+00:00]    iperf3 client running (~76 Mbps)
+[2026-07-19T20:24:49.435903+00:00] [chaos] near-miss blind_compound_tunnel_recheck_20260720_0154_40m_nm01 (bait — should stay healthy)
+[2026-07-19T20:24:49.435941+00:00] NEAR-MISS aborted onset for 35s (not a real fault)...
+[2026-07-19T20:25:27.026098+00:00] [chaos] normal ops 3.0 min...
+[2026-07-19T20:28:26.298189+00:00] [chaos] === COMPOUND blind_compound_tunnel_recheck_20260720_0154_40m_cg01: tunnel_degradation (station1) + vrf_leakage (station2) OVERLAPPING, 36 min budget left ===
+[2026-07-19T20:28:26.298948+00:00]   tunnel_degradation run=blind_compound_tunnel_recheck_20260720_0154_40m_cg01_tunnel_degradation: ramping to 11.1% loss / 44ms delay over 8.4min
+[2026-07-19T20:28:26.299271+00:00]   vrf_leakage run=blind_compound_tunnel_recheck_20260720_0154_40m_cg01_vrf_leakage: wrong RT import + PE2 symptom ramp to 3.5%/18ms over 8.8min, hold 5.7min
+[2026-07-19T20:43:06.372176+00:00] [chaos] sealed blind_compound_tunnel_recheck_20260720_0154_40m_cg01_e01_tunnel_degradation (compound blind_compound_tunnel_recheck_20260720_0154_40m_cg01): 2026-07-19T20:28:26.298931+00:00 -> 2026-07-19T20:35:14.866397+00:00
+[2026-07-19T20:43:06.372588+00:00] [chaos] sealed blind_compound_tunnel_recheck_20260720_0154_40m_cg01_e02_vrf_leakage (compound blind_compound_tunnel_recheck_20260720_0154_40m_cg01): 2026-07-19T20:28:26.299262+00:00 -> 2026-07-19T20:37:21.039470+00:00
+[2026-07-19T20:43:09.719385+00:00] ================================================================
+[2026-07-19T20:43:09.719494+00:00] BLIND CHAOS COMPLETE — 2 circumstances, 1 near-misses in 18.5 min
+[2026-07-19T20:43:09.719531+00:00] Run the scorecard AFTER the operator has stopped:
+[2026-07-19T20:43:09.719560+00:00]   python scripts/deca_blind_scorecard.py --run-id blind_compound_tunnel_recheck_20260720_0154_40m
+[2026-07-19T20:43:09.719583+00:00] ================================================================
+Chaos finished; letting the operator settle for 30s before stopping...
+Operator ignored SIGINT — sending TERM...
+
+Grading...
+====================================================================
+  DECA BLIND TEST SCORECARD — blind_compound_tunnel_recheck_20260720_0154_40m
+====================================================================
+  Circumstances the network created : 2
+  Detected by the models            : 1  (rate 0.5)
+  Correct fault class (first decl)  : 1  (accuracy 0.5)
+  Correct class (ever, in-window)   : 1  (accuracy 0.5)
+  Missed                            : 1
+  Mean confirmed lead before breach : 5.4 min
+  Mean advisory lead before breach  : 7.2 min  (class-agnostic; 'something forming')
+  LSTM ETA mean abs error           : 0.6 min
+  Severity bucket agreement         : 0.0  (1 scored)
+  Severity continuous Pearson r     : None  (1 pairs)
+  Near-miss false alarms            : 0 / 1
+  Spurious false alarms             : 0
+====================================================================
+  Per-circumstance:
+   [HIT ] tunnel_degradation station1  lead(conf/adv)=5.4/6.2min ETA=4.8/5.4 sev=medium~high ok [cascade cg01]
+   [MISS] vrf_leakage        station2  lead(conf/adv)=None/8.3min ETA=None/None sev=None~low ->None [cascade cg01]
+====================================================================
+
+  scorecard.json -> /home/brain/deca-isro/data/rpi-net/live/blind_compound_tunnel_recheck_20260720_0154_40m/scorecard.json
+  canvas         -> /home/brain/.cursor/projects/home-brain-deca-isro/canvases/deca-blind-test.canvas.tsx
+=== VERIFY: BGP+VRF compound blind ===
+==============================================================
+ DECA BLIND TEST  run_id=blind_compound_bgp_recheck_20260720_0213_40m  start_at=now  budget=40m
+==============================================================
+Pre-flight: run 'bash ~/deca_diagnostic.sh' and confirm all green,
+and that Prometheus is healthy: curl -s localhost:9090/-/ready
+Operator NOC feed will stream to: data/rpi-net/live/blind_compound_bgp_recheck_20260720_0213_40m/operator_feed.log  (tail -f to watch)
+
+Operator armed (pid 749862). tail -f data/rpi-net/live/blind_compound_bgp_recheck_20260720_0213_40m/operator_feed.log
+[2026-07-19T20:43:50.547984+00:00] ================================================================
+[2026-07-19T20:43:50.548083+00:00] DECA BLIND CHAOS armed — run_id=blind_compound_bgp_recheck_20260720_0213_40m seed=413689 (SEALED)
+[2026-07-19T20:43:50.548123+00:00] Budget 40 min | target 2-2 events + 1 near-misses | simulate=False
+[2026-07-19T20:43:50.548149+00:00] Fault pool: ['congestion_breach', 'tunnel_degradation', 'bgp_route_flap', 'vrf_leakage']
+[2026-07-19T20:43:50.548176+00:00] Compound prob=1.0 pe1=bgp_route_flap
+[2026-07-19T20:43:50.548231+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/blind_compound_bgp_recheck_20260720_0213_40m/ground_truth.sealed.jsonl
+[2026-07-19T20:43:50.548258+00:00] ================================================================
+[2026-07-19T20:43:54.195447+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T20:43:56.694139+00:00] Baseline traffic: 81 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T20:44:02.587398+00:00]    iperf3 client running (~81 Mbps)
+[2026-07-19T20:44:02.587556+00:00] [chaos] normal ops 1.3 min...
+[2026-07-19T20:45:20.150572+00:00] [chaos] === COMPOUND blind_compound_bgp_recheck_20260720_0213_40m_cg01: bgp_route_flap (station1) + vrf_leakage (station2) OVERLAPPING, 39 min budget left ===
+[2026-07-19T20:45:20.151208+00:00]   bgp_route_flap run=blind_compound_bgp_recheck_20260720_0213_40m_cg01_bgp_route_flap: 3 slow flaps over 7.4min, then 5 rapid flaps
+[2026-07-19T20:45:20.152007+00:00]   vrf_leakage run=blind_compound_bgp_recheck_20260720_0213_40m_cg01_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.1%/14ms over 8.1min, hold 4.4min
+[2026-07-19T20:57:56.991186+00:00] [chaos] sealed blind_compound_bgp_recheck_20260720_0213_40m_cg01_e01_bgp_route_flap (compound blind_compound_bgp_recheck_20260720_0213_40m_cg01): 2026-07-19T20:45:20.151202+00:00 -> 2026-07-19T20:52:57.407466+00:00
+[2026-07-19T20:57:56.991553+00:00] [chaos] sealed blind_compound_bgp_recheck_20260720_0213_40m_cg01_e02_vrf_leakage (compound blind_compound_bgp_recheck_20260720_0213_40m_cg01): 2026-07-19T20:45:20.151986+00:00 -> 2026-07-19T20:53:29.832689+00:00
+[2026-07-19T20:58:01.277704+00:00] ================================================================
+[2026-07-19T20:58:01.277821+00:00] BLIND CHAOS COMPLETE — 2 circumstances, 0 near-misses in 14.2 min
+[2026-07-19T20:58:01.277854+00:00] Run the scorecard AFTER the operator has stopped:
+[2026-07-19T20:58:01.277883+00:00]   python scripts/deca_blind_scorecard.py --run-id blind_compound_bgp_recheck_20260720_0213_40m
+[2026-07-19T20:58:01.277913+00:00] ================================================================
+Chaos finished; letting the operator settle for 30s before stopping...
+Operator ignored SIGINT — sending TERM...
+
+Grading...
+====================================================================
+  DECA BLIND TEST SCORECARD — blind_compound_bgp_recheck_20260720_0213_40m
+====================================================================
+  Circumstances the network created : 2
+  Detected by the models            : 1  (rate 0.5)
+  Correct fault class (first decl)  : 1  (accuracy 0.5)
+  Correct class (ever, in-window)   : 1  (accuracy 0.5)
+  Missed                            : 1
+  Mean confirmed lead before breach : -0.6 min
+  Mean advisory lead before breach  : -0.2 min  (class-agnostic; 'something forming')
+  LSTM ETA mean abs error           : 4.2 min
+  Severity bucket agreement         : 0.0  (1 scored)
+  Severity continuous Pearson r     : None  (1 pairs)
+  Near-miss false alarms            : 0 / 0
+  Spurious false alarms             : 0
+====================================================================
+  Per-circumstance:
+   [MISS] bgp_route_flap     station1  lead(conf/adv)=None/-0.2min ETA=None/None sev=None~medium ->None [cascade cg01]
+   [HIT ] vrf_leakage        station2  lead(conf/adv)=-0.6/-0.1min ETA=3.6/-0.6 sev=medium~high ok [cascade cg01]
+====================================================================
+
+  scorecard.json -> /home/brain/deca-isro/data/rpi-net/live/blind_compound_bgp_recheck_20260720_0213_40m/scorecard.json
+  canvas         -> /home/brain/.cursor/projects/home-brain-deca-isro/canvases/deca-blind-test.canvas.tsx
+PROMOTE gate_ok=False candidate=0.7038170953024172 bar=0.717
+GRADE control_post_overlap_20260720_0133_20m: detect=0/0 class=None spur=0 nm_fa=0
+GRADE blind_compound_tunnel_recheck_20260720_0154_40m: detect=1/2 class=0.5 spur=0 nm_fa=0
+  tunnel_degradation @station1 det=True pred=tunnel_degradation
+  vrf_leakage @station2 det=False pred=None
+GRADE blind_compound_bgp_recheck_20260720_0213_40m: detect=1/2 class=0.5 spur=0 nm_fa=0
+  bgp_route_flap @station1 det=False pred=None
+  vrf_leakage @station2 det=True pred=vrf_leakage
+=== PIPELINE COMPLETE run_id=compound_overlap_w2_20260719_2045 ===

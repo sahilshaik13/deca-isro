@@ -55,27 +55,29 @@ Raw interface counters are insufficient for predictive analytics. The pipeline c
 
 ---
 
-## 4. Machine Learning Blueprint: Nvidia Digital Fingerprinting
+## 4. Machine Learning Blueprint: Gated Anomaly Detection + Multiclass Classification
 
-The training architecture strictly follows Nvidia's **Digital Fingerprinting Blueprint**, a two-stage ensemble model optimized for complex cybersecurity and network intelligence telemetry.
+The training architecture is a **two-stage gated ensemble**, both stages built on gradient-boosted trees (XGBoost), not a deep autoencoder — trees generalize far better than a neural bottleneck on a feature matrix this size (tens of thousands of rows, ~50–100 engineered columns), and every architecture choice here is judged head-to-head against the current champion by a promotion gate before it ships (see `docs/DECA_ROI_TIERS.md`, Tier 5.5).
 
-### Stage 1: Deep Learning Autoencoder (Unsupervised)
-*   **Mechanism:** A neural network trained *exclusively* on healthy, normal baseline traffic (collected during the 15–25 minute rest periods between campaign injections). 
-*   **The Bottleneck:** The architecture forces the 40 engineered features through a highly compressed inner layer (e.g., 8 nodes). To successfully reconstruct the output, the network must learn the fundamental mathematical correlations of a healthy network state.
-*   **The Tripwire:** When a network fault is introduced, the telemetry deviates from the learned baseline. The Autoencoder fails to reconstruct the data accurately, generating a massive spike in Mean Squared Error (MSE):
-    $$MSE = \frac{1}{n} \sum_{i=1}^{n} (Y_i - \hat{Y}_i)^2$$
+### Stage 1: Binary Anomaly Gate (XGBoost)
+*   **Mechanism:** A binary XGBoost classifier (`build_gate()` in `scripts/deca_school_exam_train.py`) trained to separate `healthy` from *any* fault class, using inverse-frequency sample weighting so rare fault classes aren't drowned out by the healthy majority.
+*   **The Tripwire:** Outputs `p(anomaly)` per telemetry window. A configurable probability threshold (`gate_thr` in `models/fault_classifier/decision_thresholds.json`) decides whether the window is even considered for classification — this is what keeps the false-positive rate low on ordinary traffic variation.
 
 ### Stage 2: Multiclass XGBoost Classifier (Supervised)
-*   **The Classification:** The XGBoost model ingests the original 40 structural features *plus* the new MSE reconstruction error calculated by the Autoencoder. 
-*   **The Logic:** While the Autoencoder detects that *something* is wrong, the XGBoost layer maps the specific characteristics of the error to our hardware labels, easily distinguishing between a `vrf_leakage` and a `bgp_route_flap` across varying traffic loads.
+*   **The Classification:** Windows that clear the gate are passed to a multiclass XGBoost head (`build_full_head()`) that maps the engineered feature vector — rolling slope, standard deviation, mean, and acceleration per metric, at both a 10-minute and a 2-minute window — to one of the four fault classes.
+*   **Per-class thresholds:** Each fault class gets its own decision threshold (`class_thr`), tuned jointly with `gate_thr` on a held-out validation split (`tune_thresholds()`) to balance precision against rare-class recall.
+*   **Head families:** Three interchangeable heads are auto-audited every training cycle — `plain` (current champion), `wm` (adds a KMeans cluster layer + mild regularization), `moe` (cluster layer + one specialist expert per fault class, blended by a stacked meta-learner). Deeper heads are *not* automatically preferred — they're promoted only when they beat the champion on the same blind exam paper.
+
+### Temporal layer: sticky hysteresis, not per-frame flapping
+A chronological persistence layer (the "loom," `models/fault_classifier/decision_thresholds.json` → `loom.*`) sits on top of the frame-level classifier: per-class entry/exit frame counters (or cumulative-confidence "soft streak") prevent a single noisy frame from triggering — or clearing — a fault declaration. This is also where an early "advisory" tier lives, flagging "something is forming" ahead of a confirmed declaration.
 
 ---
 
 ## 5. Performance Expectations
 
-Because the engineered feature plane isolates the *velocity* and *acceleration* of metrics rather than relying on static integers, the ensemble model generalizes exceptionally well.
-*   **Expected Accuracy Target:** **92% to 96%** (F1-Score / Macro Average).
-*   **Justification:** The two-stage ensemble practically eliminates false positives. The Autoencoder establishes an incredibly rigid mathematical boundary for "normal" operations, shielding the XGBoost tree-logic from classifying standard heavy traffic loads as congestion breaches.
+Because the engineered feature plane isolates the *velocity* and *acceleration* of metrics rather than relying on static integers, the ensemble model generalizes well on common fault classes and is actively being pushed on the rarer ones.
+*   **Current measured state (see `docs/DECA_ROI_TIERS.md` and `data/rpi-net/runs/CUMULATIVE.md` for the live, continuously-updated numbers):** macro-F1 in the low-0.70s against a 0.717 promotion bar; common classes (`congestion_breach`, `tunnel_degradation`) score F1 in the 0.85–0.95 range, rarer classes (`bgp_route_flap`, `vrf_leakage`) are the active engineering focus, climbing via targeted fault campaigns and new protocol-level features (Tier 5).
+*   **Justification for the gated design:** the binary anomaly gate establishes a cheap, high-recall first filter against ordinary traffic variation, so the multiclass head only has to discriminate *between* faults, not between faults and every shape of normal network noise — this is what keeps the false-positive rate low on healthy traffic (verified via blind control tests with zero real faults: 0 false alarms across every control run to date).
 
 ---
 

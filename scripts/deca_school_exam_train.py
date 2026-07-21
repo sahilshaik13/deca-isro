@@ -72,6 +72,25 @@ def inverse_frequency_weights(y: np.ndarray, *, rare_ids: set[int], boost: float
     return w
 
 
+def _align_to_estimator_features(estimator, X: pd.DataFrame) -> pd.DataFrame:
+    """Reindex X to the exact columns an already-fitted estimator was trained on.
+
+    Feature engineering (rebuild_unified.engineer_features) can grow the lake's
+    column set over time (e.g. Tier 5 vrf_route_count_*) before a candidate
+    model earns promotion. Without this, an un-promoted champion sees "unseen
+    at fit time" columns and sklearn's strict feature-name validation raises —
+    scoring code should silently drop what the active model doesn't know about
+    and let its imputer fill anything the model expects but the frame lacks.
+    """
+    known = getattr(estimator, "feature_names_in_", None)
+    if known is None:
+        return X
+    known = list(known)
+    if list(X.columns) == known:
+        return X
+    return X.reindex(columns=known)
+
+
 def predict_weighted_multiclass(gate, full_clf, X, *, healthy_idx, gate_thr, class_thr):
     preds, _ = predict_weighted_multiclass_with_confidence(
         gate, full_clf, X, healthy_idx=healthy_idx, gate_thr=gate_thr, class_thr=class_thr
@@ -89,8 +108,8 @@ def predict_weighted_multiclass_with_confidence(
     room to spare — a strong single-frame signal can therefore accumulate toward
     entry faster than several weak wobbles around threshold.
     """
-    p_anom = gate.predict_proba(X)[:, 1]
-    p_full = full_clf.predict_proba(X)
+    p_anom = gate.predict_proba(_align_to_estimator_features(gate, X))[:, 1]
+    p_full = full_clf.predict_proba(_align_to_estimator_features(full_clf, X))
     full_classes = list(full_clf.classes_)
     preds = np.full(len(p_anom), healthy_idx, dtype=int)
     conf = np.zeros(len(p_anom), dtype=np.float64)

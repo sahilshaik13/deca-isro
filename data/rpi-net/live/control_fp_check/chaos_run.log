@@ -1,0 +1,51 @@
+[2026-07-16T17:57:36.740659+00:00] ================================================================
+[2026-07-16T17:57:36.740743+00:00] DECA BLIND CONTROL (all-healthy) armed — run_id=control_fp_check seed=749077 (SEALED)
+[2026-07-16T17:57:36.740782+00:00] Budget 30 min | NO real faults | 4 near-miss bait(s) | simulate=False
+[2026-07-16T17:57:36.740837+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/control_fp_check/ground_truth.sealed.jsonl
+[2026-07-16T17:57:36.740863+00:00] ================================================================
+[2026-07-16T17:57:41.977332+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-16T17:57:43.397051+00:00] Baseline traffic: 60 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-16T17:58:07.795039+00:00]    iperf3 client exited unexpectedly, check /tmp/iperf3-lan.log on station1
+[2026-07-16T17:58:07.795260+00:00] [control] healthy baseline 5.2 min...
+[2026-07-16T17:59:16.441887+00:00] ================================================================
+[2026-07-16T17:59:16.441971+00:00] DECA BLIND CONTROL (all-healthy) armed — run_id=control_fp_check seed=352242 (SEALED)
+[2026-07-16T17:59:16.442018+00:00] Budget 30 min | NO real faults | 4 near-miss bait(s) | simulate=False
+[2026-07-16T17:59:16.442081+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/control_fp_check/ground_truth.sealed.jsonl
+[2026-07-16T17:59:16.442109+00:00] ================================================================
+[2026-07-16T17:59:39.177264+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-16T17:59:42.686374+00:00] Baseline traffic: 69 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-16T17:59:51.678831+00:00]    iperf3 client running (~69 Mbps)
+[2026-07-16T17:59:51.679075+00:00] [control] healthy baseline 8.3 min...
+[2026-07-16T18:08:09.485089+00:00] [control] near-miss control_fp_check_nm01 (bait — MUST stay healthy)
+[2026-07-16T18:08:09.485254+00:00] NEAR-MISS aborted onset for 33s (not a real fault)...
+[2026-07-16T18:09:01.112952+00:00] ================================================================
+[2026-07-16T18:09:01.113078+00:00] DECA BLIND CONTROL (all-healthy) armed — run_id=control_fp_check seed=165548 (SEALED)
+[2026-07-16T18:09:01.113133+00:00] Budget 30 min | NO real faults | 4 near-miss bait(s) | simulate=False
+[2026-07-16T18:09:01.113216+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/control_fp_check/ground_truth.sealed.jsonl
+[2026-07-16T18:09:01.113257+00:00] ================================================================
+[2026-07-16T18:09:04.626512+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-16T18:09:15.637262+00:00] Baseline traffic: 73 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-16T18:09:45.640286+00:00]    SSH timeout on station1@192.168.50.10
+[2026-07-16T18:09:45.640412+00:00]    Could not launch iperf3 client on station1
+[2026-07-16T18:09:45.640480+00:00] [control] healthy baseline 6.1 min...
+[2026-07-16T18:15:52.219202+00:00] [control] near-miss control_fp_check_nm01 (bait — MUST stay healthy)
+[2026-07-16T18:15:52.219582+00:00] NEAR-MISS aborted onset for 54s (not a real fault)...
+[2026-07-16T18:16:48.795209+00:00] [control] sealed control_fp_check_nm01: 2026-07-16T18:15:52.219566+00:00 -> 2026-07-16T18:16:48.794900+00:00
+[2026-07-16T18:17:10.008449+00:00] [control] healthy baseline 4.2 min...
+[2026-07-16T18:21:22.011333+00:00] [control] near-miss control_fp_check_nm02 (bait — MUST stay healthy)
+[2026-07-16T18:21:22.011606+00:00] NEAR-MISS aborted onset for 32s (not a real fault)...
+[2026-07-16T18:21:56.222782+00:00] [control] sealed control_fp_check_nm02: 2026-07-16T18:21:22.011595+00:00 -> 2026-07-16T18:21:56.222545+00:00
+[2026-07-16T18:21:57.637442+00:00] [control] healthy baseline 4.0 min...
+[2026-07-16T18:25:57.091047+00:00] [control] near-miss control_fp_check_nm03 (bait — MUST stay healthy)
+[2026-07-16T18:25:57.091439+00:00] NEAR-MISS aborted onset for 54s (not a real fault)...
+[2026-07-16T18:26:52.386064+00:00] [control] sealed control_fp_check_nm03: 2026-07-16T18:25:57.091425+00:00 -> 2026-07-16T18:26:52.385812+00:00
+[2026-07-16T18:26:53.751618+00:00] [control] healthy baseline 8.3 min...
+[2026-07-16T18:35:08.920303+00:00] [control] near-miss control_fp_check_nm04 (bait — MUST stay healthy)
+[2026-07-16T18:35:08.920573+00:00] NEAR-MISS aborted onset for 38s (not a real fault)...
+[2026-07-16T18:35:49.253520+00:00] [control] sealed control_fp_check_nm04: 2026-07-16T18:35:08.920562+00:00 -> 2026-07-16T18:35:49.253284+00:00
+[2026-07-16T18:35:51.661207+00:00] [control] healthy baseline 3.2 min to end (no baits left)...
+[2026-07-16T18:39:01.128256+00:00] ================================================================
+[2026-07-16T18:39:01.128553+00:00] BLIND CONTROL COMPLETE — 0 real faults, 4 near-misses
+[2026-07-16T18:39:01.128643+00:00] Any confirmed alarm here is a false positive. Grade with:
+[2026-07-16T18:39:01.128717+00:00]   python scripts/deca_blind_scorecard.py --run-id control_fp_check
+[2026-07-16T18:39:01.128784+00:00] ================================================================

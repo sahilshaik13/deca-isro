@@ -1,0 +1,15 @@
+{
+  "run_id": "specificity_exam_v1_20260717_1022",
+  "seed": 184740,
+  "minutes_budget": 40.0,
+  "min_events": 5,
+  "max_events": 6,
+  "near_misses": 2,
+  "simulate": false,
+  "time_scale": 1.0,
+  "armed_at": null,
+  "control": false,
+  "playlist": "/home/brain/deca-isro/scripts/playlists/specificity_exam_v1.json",
+  "playlist_id": "specificity_exam_v1",
+  "exam_phases": "/home/brain/deca-isro/data/rpi-net/live/specificity_exam_v1_20260717_1022/exam_phases.jsonl"
+}

@@ -1,0 +1,2 @@
+{"event_id": "control_post_overlap_20260721_1951_20m_nm01", "fault_type": "near_miss", "host": "station1", "fault_start": "2026-07-21T14:30:34.755192+00:00", "breach_time": "2026-07-21T14:31:03.867376+00:00", "is_near_miss": true}
+{"event_id": "control_post_overlap_20260721_1951_20m_nm02", "fault_type": "near_miss", "host": "station1", "fault_start": "2026-07-21T14:38:39.989238+00:00", "breach_time": "2026-07-21T14:39:33.674691+00:00", "is_near_miss": true}

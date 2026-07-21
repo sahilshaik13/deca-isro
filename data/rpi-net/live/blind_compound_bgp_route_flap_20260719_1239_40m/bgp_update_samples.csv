@@ -1,0 +1,11 @@
+timestamp,host,metric,value
+2026-07-19T07:11:46.041163+00:00,station1,bgp_update_rate,14.2597
+2026-07-19T07:13:56.631224+00:00,station1,bgp_update_rate,17.2945
+2026-07-19T07:13:57.791488+00:00,station2,bgp_update_rate,13.1206
+2026-07-19T07:16:08.143397+00:00,station1,bgp_update_rate,6.0662
+2026-07-19T07:18:19.667404+00:00,station1,bgp_update_rate,12.6935
+2026-07-19T07:20:30.154957+00:00,station1,bgp_update_rate,25.5448
+2026-07-19T07:20:48.612815+00:00,station1,bgp_update_rate,37.7834
+2026-07-19T07:21:06.995510+00:00,station1,bgp_update_rate,22.5128
+2026-07-19T07:21:25.408616+00:00,station1,bgp_update_rate,47.1302
+2026-07-19T07:21:42.810180+00:00,station1,bgp_update_rate,21.6640

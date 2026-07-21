@@ -152,12 +152,6 @@ $$
 | bgp_route_flap | 0.31 | 0.68 | 0.42 | 75 |
 | vrf_leakage | 0.43 | 0.65 | 0.52 | 52 |
 
-![Per-class F1](assets/models/per_class_f1.png)
-
-![Precision vs Recall](assets/models/precision_recall.png)
-
-![Classifier scorecard](assets/models/scorecard.png)
-
 CSV mirrors: `models/scoreboard_summary.csv`, `models/scoreboard_per_class.csv`.  
 **Score timeline (initial → learnt → playground):** [`DECA_TEST_SCORES.md`](DECA_TEST_SCORES.md).
 
@@ -183,16 +177,14 @@ models/
 
 ## Fault behaviour (inputs the models learn from)
 
-Before the stack: visual signatures of each lab fault (campaign `20260713_155333`). Generated in notebook **Stage 0b**.
+Before the stack: telemetry signatures of each lab fault (campaign `20260713_155333`).
 
-![Fault signature cheat-sheet](assets/models/fault_signatures.png)
-
-| Fault | Strip plot |
+| Fault | Signature (what ramps together) |
 | --- | --- |
-| congestion_breach | ![congestion](assets/models/congestion_breach_strip.png) |
-| tunnel_degradation | ![tunnel](assets/models/tunnel_degradation_strip.png) |
-| bgp_route_flap | ![bgp](assets/models/bgp_route_flap_strip.png) |
-| vrf_leakage | ![vrf](assets/models/vrf_leakage_strip.png) |
+| congestion_breach | Rising octets + falling throughput slope; jitter/loss before hard cap |
+| tunnel_degradation | Delay + loss + jitter climb together; octets often flatter than congestion |
+| bgp_route_flap | Bursty `bgp_update_rate`; short-scale spikes dominate |
+| vrf_leakage | Subtle until wrong reachability; asymmetric loss/latency without classic congestion ramp |
 
 ---
 
@@ -231,11 +223,10 @@ Before the stack: visual signatures of each lab fault (campaign `20260713_155333
 | `label_encoder.pkl` | Class names, `smote: false` |
 | `decision_thresholds.json` | `gate_thr`, per-class thr, exam scores, **`loom`** (`enter_k`/`exit_k` + per-class overrides + `advisory_*` two-tier + `ttb_gate_*` (off) + `soft_streak_enabled` (on) + `branch_agreement_*` (off) + `topology_gate_*` (off) + optional `metrics`) |
 | `feature_attribution.json` | Top gain features |
-| `scorecard.png` | Confusion + per-class F1 |
 
 Live chronological predictions: `scripts/deca_inference.py` (`predict_fault_stream` / `apply_loom`). Measure boost: `scripts/deca_score_temporal.py`. Design: `docs/DECA_TEMPORAL_LOOM.md`.
 
-![Feature attribution](assets/models/feature_attribution.png)
+Top gain features (this train): BGP rate rolling mean/std, octets slope, jitter rolling std — see `models/feature_attribution.json`.
 
 ---
 
@@ -306,7 +297,7 @@ Live loss + pred-vs-true plots: notebook **Stage 4**.
 | **Primary metric** | $e(\mathrm{PE1})=e(\mathrm{PE2})=e(\mathrm{CORE})=1$ |
 | **Artifacts** | `topology_graph.json`, `topology_graph.pkl` |
 
-![Topology](assets/models/topology.png)
+Lab graph: PE1 (station1) ↔ CORE (station3) ↔ PE2 (station2); overlay PE1–PE2. Used by the temporal loom topology gate (`deca_inference.load_topology_graph`).
 
 ---
 

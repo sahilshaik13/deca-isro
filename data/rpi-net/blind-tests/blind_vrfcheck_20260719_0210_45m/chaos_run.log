@@ -1,0 +1,27 @@
+[2026-07-18T20:41:02.601392+00:00] ================================================================
+[2026-07-18T20:41:02.601476+00:00] DECA BLIND CHAOS armed — run_id=blind_vrfcheck_20260719_0210_45m seed=1784407262 (SEALED)
+[2026-07-18T20:41:02.601512+00:00] Budget 45 min | target 3-4 events + 2 near-misses | simulate=False
+[2026-07-18T20:41:02.601568+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/blind_vrfcheck_20260719_0210_45m/ground_truth.sealed.jsonl
+[2026-07-18T20:41:02.601593+00:00] ================================================================
+[2026-07-18T20:41:05.990940+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-18T20:41:07.426134+00:00] Baseline traffic: 39 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-18T20:41:12.313838+00:00]    iperf3 client running (~39 Mbps)
+[2026-07-18T20:41:12.314015+00:00] [chaos] near-miss blind_vrfcheck_20260719_0210_45m_nm01 (bait — should stay healthy)
+[2026-07-18T20:41:12.314065+00:00] NEAR-MISS aborted onset for 43s (not a real fault)...
+[2026-07-18T20:41:58.090962+00:00] [chaos] normal ops 2.3 min...
+[2026-07-18T20:44:18.392084+00:00] [chaos] === COMPOUND blind_vrfcheck_20260719_0210_45m_cg01: tunnel_degradation (station1) + vrf_leakage (station2) OVERLAPPING, 42 min budget left ===
+[2026-07-18T20:44:18.392629+00:00]   tunnel_degradation run=blind_vrfcheck_20260719_0210_45m_cg01_tunnel_degradation: ramping to 8.8% loss / 34ms delay over 8.4min
+[2026-07-18T20:44:18.392957+00:00]   vrf_leakage run=blind_vrfcheck_20260719_0210_45m_cg01_vrf_leakage: wrong RT import + PE2 symptom ramp to 1.8%/16ms over 7.0min, hold 4.6min
+[2026-07-18T20:56:00.695786+00:00] [chaos] sealed blind_vrfcheck_20260719_0210_45m_cg01_e01_tunnel_degradation (compound blind_vrfcheck_20260719_0210_45m_cg01): 2026-07-18T20:44:18.392619+00:00 -> 2026-07-18T20:50:37.595149+00:00
+[2026-07-18T20:56:00.696115+00:00] [chaos] sealed blind_vrfcheck_20260719_0210_45m_cg01_e02_vrf_leakage (compound blind_vrfcheck_20260719_0210_45m_cg01): 2026-07-18T20:44:18.392946+00:00 -> 2026-07-18T20:51:23.992619+00:00
+[2026-07-18T20:56:02.738980+00:00] [chaos] near-miss blind_vrfcheck_20260719_0210_45m_nm02 (bait — should stay healthy)
+[2026-07-18T20:56:02.739096+00:00] NEAR-MISS aborted onset for 44s (not a real fault)...
+[2026-07-18T20:56:47.784114+00:00] [chaos] normal ops 1.3 min...
+[2026-07-18T20:58:07.066936+00:00] [chaos] === circumstance 3/3: bgp_route_flap (event_id=blind_vrfcheck_20260719_0210_45m_e03_bgp_route_flap, 28 min budget left) ===
+[2026-07-18T20:58:07.067226+00:00]   bgp_route_flap run=blind_vrfcheck_20260719_0210_45m_e03_bgp_route_flap: 3 slow flaps over 12.0min, then 6 rapid flaps
+[2026-07-18T21:12:21.022297+00:00] [chaos] sealed blind_vrfcheck_20260719_0210_45m_e03_bgp_route_flap: 2026-07-18T20:58:07.067216+00:00 -> 2026-07-18T21:10:07.404590+00:00
+[2026-07-18T21:12:22.350104+00:00] ================================================================
+[2026-07-18T21:12:22.350257+00:00] BLIND CHAOS COMPLETE — 3 circumstances, 2 near-misses in 31.3 min
+[2026-07-18T21:12:22.350295+00:00] Run the scorecard AFTER the operator has stopped:
+[2026-07-18T21:12:22.350328+00:00]   python scripts/deca_blind_scorecard.py --run-id blind_vrfcheck_20260719_0210_45m
+[2026-07-18T21:12:22.350360+00:00] ================================================================

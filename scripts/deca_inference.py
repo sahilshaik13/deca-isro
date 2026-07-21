@@ -79,7 +79,15 @@ DEFAULT_EXIT_K = 2
 # Macro-F1 0.9077 → 0.9120 (BGP F1 0.774→0.790, VRF F1 0.903→0.911) with no
 # change to congestion/tunnel, which were already at their best global exit_k.
 # Classes not listed fall back to enter_k/exit_k above.
-DEFAULT_ENTER_K_BY_CLASS: dict[str, int] = {}
+# Soft-streak cumulative confidence thresholds (when soft_streak_enabled).
+# Specificity exam v1 failures: calm_a=vrf@s2, calm_b/nm03=tunnel — raise VRF
+# enter and give tunnel one more soft unit of patience.
+DEFAULT_ENTER_K_BY_CLASS: dict[str, int] = {
+    "tunnel_degradation": 4,
+    "congestion_breach": 3,
+    "bgp_route_flap": 3,
+    "vrf_leakage": 3,
+}
 DEFAULT_EXIT_K_BY_CLASS = {
     "bgp_route_flap": 3,
     "vrf_leakage": 3,
@@ -97,7 +105,9 @@ DEFAULT_LOOM = {
     "exit_k": DEFAULT_EXIT_K,
     "enter_k_by_class": dict(DEFAULT_ENTER_K_BY_CLASS),
     "exit_k_by_class": dict(DEFAULT_EXIT_K_BY_CLASS),
-    "circumstance_prearm": True,
+    # Pre-arm shortened confirmed entry on near-miss onsets (live cry-wolf).
+    # Off for specificity trust; circumstance head still runs for the feed flag.
+    "circumstance_prearm": False,
     "prearm_enter_k": 2,
     "advisory_enabled": True,
     "advisory_enter_k": DEFAULT_ADVISORY_ENTER_K,

@@ -1,80 +1,85 @@
 {
-  "date": "2026-07-16T08:56:14.973220+00:00",
-  "enter_k": 2,
+  "date": "2026-07-21T17:10:22.963394+00:00",
+  "enter_k": 3,
   "exit_k": 2,
-  "enter_k_by_class": {},
+  "enter_k_by_class": {
+    "tunnel_degradation": 4,
+    "congestion_breach": 3,
+    "bgp_route_flap": 3,
+    "vrf_leakage": 3
+  },
   "exit_k_by_class": {
     "bgp_route_flap": 3,
     "vrf_leakage": 3
   },
   "tail_frac": 0.25,
-  "n_test": 5874,
+  "n_test": 13421,
   "raw": {
     "name": "raw_frame",
-    "macro_f1": 0.8413533177468742,
-    "accuracy": 0.8714674838270344,
-    "mean_rare_recall": 0.8231566820276497,
+    "macro_f1": 0.8232876885931002,
+    "accuracy": 0.8718426346769987,
+    "mean_rare_recall": 0.9308254006093766,
     "per_class_f1": {
-      "healthy": 0.8953078765675637,
-      "congestion_breach": 0.9429065743944637,
-      "tunnel_degradation": 0.9087557603686636,
-      "bgp_route_flap": 0.615539858728557,
-      "vrf_leakage": 0.8442565186751233
+      "healthy": 0.8938082779902059,
+      "congestion_breach": 0.8386023294509152,
+      "tunnel_degradation": 0.7467362924281984,
+      "bgp_route_flap": 0.7588349514563106,
+      "vrf_leakage": 0.8784565916398713
     }
   },
   "persistent": {
     "name": "persistent",
-    "macro_f1": 0.9328304013250731,
-    "accuracy": 0.9480762683009875,
-    "mean_rare_recall": 0.8893625192012289,
+    "macro_f1": 0.8374684188128299,
+    "accuracy": 0.8956858654347664,
+    "mean_rare_recall": 0.93088266112603,
     "per_class_f1": {
-      "healthy": 0.9590218997715975,
-      "congestion_breach": 0.968609865470852,
-      "tunnel_degradation": 0.9481765834932822,
-      "bgp_route_flap": 0.8735919899874843,
-      "vrf_leakage": 0.9147516679021498
+      "healthy": 0.9173737110037854,
+      "congestion_breach": 0.889090909090909,
+      "tunnel_degradation": 0.7104477611940299,
+      "bgp_route_flap": 0.7653260445138618,
+      "vrf_leakage": 0.905103668261563
     }
   },
-  "delta_macro_f1": 0.09147708357819895,
+  "delta_macro_f1": 0.014180730219729654,
   "persistence_summary": {
-    "n": 5874,
-    "frames_changed": 701,
-    "raw_fault_frames": 2497,
-    "sticky_fault_frames": 2151,
-    "fault_frames_suppressed": 346
+    "n": 13421,
+    "frames_changed": 1617,
+    "raw_fault_frames": 6532,
+    "sticky_fault_frames": 6117,
+    "fault_frames_suppressed": 415
   },
   "advisory": {
     "name": "advisory",
-    "macro_f1": 0.8732991451615189,
-    "accuracy": 0.9148791283622745,
-    "mean_rare_recall": 0.7070660522273426,
+    "macro_f1": 0.8923078592111523,
+    "accuracy": 0.9300350197451754,
+    "mean_rare_recall": 0.9045782704519374,
     "per_class_f1": {
-      "healthy": 0.9346628181579638,
-      "congestion_breach": 0.9767441860465116,
-      "tunnel_degradation": 0.9265426052889324,
-      "bgp_route_flap": 0.6373626373626373,
-      "vrf_leakage": 0.8911834789515488
+      "healthy": 0.9459967422628743,
+      "congestion_breach": 0.9114155251141552,
+      "tunnel_degradation": 0.8298507462686567,
+      "bgp_route_flap": 0.8463271744028842,
+      "vrf_leakage": 0.9279491080071912
     }
   },
   "advisory_enter_k": 2,
   "advisory_exit_k": 1,
   "advisory_lead": {
-    "events": 15,
-    "advisory_caught_events": 15,
-    "confirmed_caught_events": 15,
-    "events_with_measurable_lead": 15,
-    "mean_lead_frames": 3.8,
-    "max_lead_frames": 15,
-    "lead_frames_total": 115,
-    "lead_correct_frames": 25,
+    "events": 82,
+    "advisory_caught_events": 81,
+    "confirmed_caught_events": 80,
+    "events_with_measurable_lead": 80,
+    "mean_lead_frames": 2.3125,
+    "max_lead_frames": 17,
+    "lead_frames_total": 150,
+    "lead_correct_frames": 59,
     "lead_wrong_class_frames": 0,
-    "lead_false_frames": 90,
-    "lead_precision": 0.21739130434782608
+    "lead_false_frames": 91,
+    "lead_precision": 0.3933333333333333
   },
   "ttb_gate_enabled": false,
   "ttb_gate_tolerance": 0,
   "ttb_coverage_frames": 0,
-  "soft_streak_enabled": true,
+  "soft_streak_enabled": false,
   "branch_agreement_enabled": false,
   "branch_secondary_family": "wm",
   "branch_agreement": null,

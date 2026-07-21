@@ -1,0 +1,200 @@
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:10:16] tick 189[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.95  ETA=  3.2m sev=[32mlow   [0m [2mcirc f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.84  ETA=  8.1m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:10:32] tick 190[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.96  ETA=  3.2m sev=[32mlow   [0m [2mcirc f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.97  ETA=  8.0m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:10:47] tick 191[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.92  ETA=  3.0m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.51  ETA=  7.9m sev=[32mlow   [0m [2mcirc f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:11:02] tick 192[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.61  ETA=  2.8m sev=[32mlow   [0m [2mcirc f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.84  ETA=  7.7m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:11:18] tick 193[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.94  ETA=  3.0m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.89  ETA=  7.7m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:11:33] tick 194[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.95  ETA=  3.2m sev=[33mmedium[0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.77  ETA=  7.4m sev=[33mmedium[0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:11:48] tick 195[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.56  ETA=  3.2m sev=[33mmedium[0m [2mcirc f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.56  ETA=  7.0m sev=[33mmedium[0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:12:04] tick 196[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.94  ETA=  3.6m sev=[33mmedium[0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.59  ETA=  6.7m sev=[33mmedium[0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:12:19] tick 197[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.97  ETA=  3.9m sev=[33mmedium[0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.62  ETA=  6.4m sev=[33mmedium[0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:12:34] tick 198[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.58  ETA=  4.4m sev=[33mmedium[0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.77  ETA=  6.5m sev=[33mmedium[0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:12:50] tick 199[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.93  ETA=  4.6m sev=[33mmedium[0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.67  ETA=  5.7m sev=[33mmedium[0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:13:05] tick 200[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.77  ETA=  4.8m sev=[33mmedium[0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.69  ETA=  5.5m sev=[33mmedium[0m [2mcirc f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:13:20] tick 201[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.96  ETA=  5.6m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.90  ETA=  4.7m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:13:36] tick 202[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.90  ETA=  5.9m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.96  ETA=  4.8m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:13:51] tick 203[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.95  ETA=  6.6m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.95  ETA=  4.4m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:14:06] tick 204[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.95  ETA=  6.4m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.96  ETA=  4.5m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:14:22] tick 205[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.96  ETA=  6.6m sev=[32mlow   [0m [2mcirc f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.95  ETA=  4.4m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:14:37] tick 206[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.98  ETA=  7.2m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.93  ETA=  4.4m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:14:52] tick 207[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.95  ETA=  6.8m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.93  ETA=  4.5m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:15:08] tick 208[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.95  ETA=  7.0m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.88  ETA=  4.7m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:15:23] tick 209[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.94  ETA=  6.5m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.89  ETA=  5.4m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:15:38] tick 210[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.96  ETA=  6.6m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.93  ETA=  5.3m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:15:54] tick 211[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.96  ETA=  6.1m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.95  ETA=  5.8m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:16:09] tick 212[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.97  ETA=  5.7m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.95  ETA=  5.7m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:16:24] tick 213[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.94  ETA=  5.8m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.95  ETA=  6.1m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:16:40] tick 214[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.90  ETA=  4.5m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.92  ETA=  6.2m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:16:55] tick 215[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.94  ETA=  4.2m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.92  ETA=  6.5m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:17:10] tick 216[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.92  ETA=  4.1m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.93  ETA=  6.8m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:17:26] tick 217[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.92  ETA=  3.6m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.93  ETA=  7.1m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:17:41] tick 218[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.89  ETA=  3.6m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.89  ETA=  7.0m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:17:56] tick 219[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.92  ETA=  3.1m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.96  ETA=  7.2m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:18:12] tick 220[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.93  ETA=  2.9m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.96  ETA=  7.0m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:18:27] tick 221[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.96  ETA=  3.0m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.86  ETA=  7.2m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:18:42] tick 222[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.89  ETA=  3.0m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.90  ETA=  7.0m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:18:58] tick 223[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.95  ETA=  3.1m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.96  ETA=  7.0m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:19:13] tick 224[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.97  ETA=  3.1m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.94  ETA=  7.0m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:19:28] tick 225[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.98  ETA=  3.6m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.92  ETA=  6.8m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:19:44] tick 226[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.96  ETA=  3.6m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.95  ETA=  7.1m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:19:59] tick 227[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.96  ETA=  3.9m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.96  ETA=  6.8m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:20:15] tick 228[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.93  ETA=  4.1m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.96  ETA=  7.1m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2121 → 1515 rows
+[2m[05:20:30] tick 229[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.92  ETA=  4.0m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.90  ETA=  6.9m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2121 → 1515 rows
+[2m[05:20:45] tick 230[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.88  ETA=  4.1m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.87  ETA=  7.0m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2121 → 1515 rows
+[2m[05:21:01] tick 231[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.86  ETA=  4.0m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.84  ETA=  6.9m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:21:16] tick 232[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.53  ETA=  3.3m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.59  ETA=  7.1m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:21:31] tick 233[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.66  ETA=  3.3m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.62  ETA=  7.1m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:21:47] tick 234[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.59  ETA=  3.9m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.59  ETA=  7.1m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:22:02] tick 235[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.59  ETA=  3.9m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.61  ETA=  7.3m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:22:17] tick 236[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.54  ETA=  3.9m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.56  ETA=  7.7m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:22:33] tick 237[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.56  ETA=  4.1m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.64  ETA=  7.7m sev=[32mlow   [0m [2m     f=99[0m
+    clean telemetry live: 2124 → 1518 rows
+[2m[05:22:48] tick 238[0m
+  [36mstation1 [0m [32mhealthy[0m                      conf=0.55  ETA=  3.8m sev=[32mlow   [0m [2m     f=99[0m
+  [36mstation2 [0m [32mhealthy[0m                      conf=0.54  ETA=  7.9m sev=[32mlow   [0m [2m     f=99[0m

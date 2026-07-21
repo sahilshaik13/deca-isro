@@ -1,0 +1,59 @@
+==============================================================
+ DECA BLIND TEST  run_id=blind_vrf_isolated_20260719_1333_45m  start_at=now  budget=45m
+==============================================================
+Pre-flight: run 'bash ~/deca_diagnostic.sh' and confirm all green,
+and that Prometheus is healthy: curl -s localhost:9090/-/ready
+Operator NOC feed will stream to: data/rpi-net/live/blind_vrf_isolated_20260719_1333_45m/operator_feed.log  (tail -f to watch)
+
+Operator armed (pid 674569). tail -f data/rpi-net/live/blind_vrf_isolated_20260719_1333_45m/operator_feed.log
+[2026-07-19T08:03:05.594368+00:00] ================================================================
+[2026-07-19T08:03:05.594566+00:00] DECA BLIND CHAOS armed — run_id=blind_vrf_isolated_20260719_1333_45m seed=636859 (SEALED)
+[2026-07-19T08:03:05.594682+00:00] Budget 45 min | target 2-2 events + 1 near-misses | simulate=False
+[2026-07-19T08:03:05.594785+00:00] Fault pool: ['vrf_leakage']
+[2026-07-19T08:03:05.594928+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/blind_vrf_isolated_20260719_1333_45m/ground_truth.sealed.jsonl
+[2026-07-19T08:03:05.595047+00:00] ================================================================
+[2026-07-19T08:03:09.109505+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T08:03:10.586918+00:00] Baseline traffic: 50 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T08:03:15.460187+00:00]    iperf3 client running (~50 Mbps)
+[2026-07-19T08:03:15.460382+00:00] [chaos] normal ops 1.2 min...
+[2026-07-19T08:04:26.539625+00:00] [chaos] === circumstance 1/2: vrf_leakage (event_id=blind_vrf_isolated_20260719_1333_45m_e01_vrf_leakage, 44 min budget left) ===
+[2026-07-19T08:04:26.539917+00:00]   vrf_leakage run=blind_vrf_isolated_20260719_1333_45m_e01_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.5%/13ms over 5.2min, hold 4.0min
+[2026-07-19T08:13:44.883938+00:00] [chaos] sealed blind_vrf_isolated_20260719_1333_45m_e01_vrf_leakage: 2026-07-19T08:04:26.539906+00:00 -> 2026-07-19T08:09:42.881637+00:00
+[2026-07-19T08:13:48.711196+00:00] [chaos] near-miss blind_vrf_isolated_20260719_1333_45m_nm01 (bait — should stay healthy)
+[2026-07-19T08:13:48.711339+00:00] NEAR-MISS aborted onset for 39s (not a real fault)...
+[2026-07-19T08:14:29.052733+00:00] [chaos] normal ops 2.5 min...
+[2026-07-19T08:16:59.855523+00:00] [chaos] === circumstance 2/2: vrf_leakage (event_id=blind_vrf_isolated_20260719_1333_45m_e02_vrf_leakage, 31 min budget left) ===
+[2026-07-19T08:16:59.855677+00:00]   vrf_leakage run=blind_vrf_isolated_20260719_1333_45m_e02_vrf_leakage: wrong RT import + PE2 symptom ramp to 1.9%/8ms over 6.6min, hold 8.5min
+[2026-07-19T08:32:06.972634+00:00] [chaos] sealed blind_vrf_isolated_20260719_1333_45m_e02_vrf_leakage: 2026-07-19T08:16:59.855673+00:00 -> 2026-07-19T08:23:38.284083+00:00
+[2026-07-19T08:32:09.554510+00:00] ================================================================
+[2026-07-19T08:32:09.554646+00:00] BLIND CHAOS COMPLETE — 2 circumstances, 1 near-misses in 29.1 min
+[2026-07-19T08:32:09.554686+00:00] Run the scorecard AFTER the operator has stopped:
+[2026-07-19T08:32:09.554720+00:00]   python scripts/deca_blind_scorecard.py --run-id blind_vrf_isolated_20260719_1333_45m
+[2026-07-19T08:32:09.554753+00:00] ================================================================
+Chaos finished; letting the operator settle for 30s before stopping...
+Operator ignored SIGINT — sending TERM...
+
+Grading...
+====================================================================
+  DECA BLIND TEST SCORECARD — blind_vrf_isolated_20260719_1333_45m
+====================================================================
+  Circumstances the network created : 2
+  Detected by the models            : 2  (rate 1.0)
+  Correct fault class (first decl)  : 2  (accuracy 1.0)
+  Correct class (ever, in-window)   : 2  (accuracy 1.0)
+  Missed                            : 0
+  Mean confirmed lead before breach : 0.1 min
+  Mean advisory lead before breach  : 0.6 min  (class-agnostic; 'something forming')
+  LSTM ETA mean abs error           : 4.1 min
+  Severity bucket agreement         : 1.0  (2 scored)
+  Severity continuous Pearson r     : 1.0  (2 pairs)
+  Near-miss false alarms            : 0 / 1
+  Spurious false alarms             : 0
+====================================================================
+  Per-circumstance:
+   [HIT ] vrf_leakage        station2  lead(conf/adv)=-3.4/-2.4min ETA=3.8/-3.4 sev=low~low ok
+   [HIT ] vrf_leakage        station2  lead(conf/adv)=3.6/3.6min ETA=4.6/3.6 sev=low~low ok
+====================================================================
+
+  scorecard.json -> /home/brain/deca-isro/data/rpi-net/live/blind_vrf_isolated_20260719_1333_45m/scorecard.json
+  canvas         -> /home/brain/.cursor/projects/home-brain-deca-isro/canvases/deca-blind-test.canvas.tsx

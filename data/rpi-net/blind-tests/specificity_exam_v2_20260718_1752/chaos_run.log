@@ -1,0 +1,33 @@
+[2026-07-18T11:47:08.015890+00:00] ================================================================
+[2026-07-18T11:47:08.015977+00:00] DECA BLIND PLAYLIST EXAM armed — run_id=specificity_exam_v2 seed=12114 (SEALED)
+[2026-07-18T11:47:08.016026+00:00] Budget 45 min | playlist=/home/brain/deca-isro/scripts/playlists/specificity_exam_v2.json | simulate=False
+[2026-07-18T11:47:08.016085+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/specificity_exam_v2/ground_truth.sealed.jsonl
+[2026-07-18T11:47:08.016117+00:00] ================================================================
+[2026-07-18T11:47:11.182654+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-18T11:47:13.667062+00:00] Baseline traffic: 52 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-18T11:47:38.116170+00:00]    iperf3 client exited unexpectedly, check /tmp/iperf3-lan.log on station1
+[2026-07-18T11:47:38.116425+00:00] [playlist] loaded /home/brain/deca-isro/scripts/playlists/specificity_exam_v2.json id=specificity_exam_v2 phases=10
+[2026-07-18T11:47:38.116695+00:00] [playlist] warm: calm 7.0 min (score_spurious=False)
+[2026-07-18T11:54:38.216531+00:00] [playlist] calm_a: calm 4.0 min (score_spurious=True)
+[2026-07-18T11:58:38.316647+00:00] [playlist] nm01: near-miss specificity_exam_v2_nm01 hold_s=45 (MUST stay healthy)
+[2026-07-18T11:58:38.316697+00:00] NEAR-MISS aborted onset for 45s (not a real fault)...
+[2026-07-18T11:59:25.707141+00:00] [playlist] sealed specificity_exam_v2_nm01: 2026-07-18T11:58:38.316693+00:00 -> 2026-07-18T11:59:25.706834+00:00
+[2026-07-18T11:59:27.131130+00:00] [playlist] calm_b: calm 7.0 min (score_spurious=True)
+[2026-07-18T12:06:27.231385+00:00] [playlist] nm02: near-miss specificity_exam_v2_nm02 hold_s=28 (MUST stay healthy)
+[2026-07-18T12:06:27.231438+00:00] NEAR-MISS aborted onset for 28s (not a real fault)...
+[2026-07-18T12:06:56.324794+00:00] [playlist] sealed specificity_exam_v2_nm02: 2026-07-18T12:06:27.231435+00:00 -> 2026-07-18T12:06:56.324410+00:00
+[2026-07-18T12:06:59.002145+00:00] [playlist] calm_c: calm 3.0 min (score_spurious=True)
+[2026-07-18T12:09:59.102433+00:00] [playlist] nm03: near-miss specificity_exam_v2_nm03 hold_s=50 (MUST stay healthy)
+[2026-07-18T12:09:59.102473+00:00] NEAR-MISS aborted onset for 50s (not a real fault)...
+[2026-07-18T12:10:53.446942+00:00] [playlist] sealed specificity_exam_v2_nm03: 2026-07-18T12:09:59.102470+00:00 -> 2026-07-18T12:10:53.446726+00:00
+[2026-07-18T12:10:55.962566+00:00] [playlist] calm_d: calm 6.0 min (score_spurious=True)
+[2026-07-18T12:16:56.006213+00:00] [playlist] nm04: near-miss specificity_exam_v2_nm04 hold_s=33 (MUST stay healthy)
+[2026-07-18T12:16:56.006258+00:00] NEAR-MISS aborted onset for 33s (not a real fault)...
+[2026-07-18T12:17:31.193199+00:00] [playlist] sealed specificity_exam_v2_nm04: 2026-07-18T12:16:56.006254+00:00 -> 2026-07-18T12:17:31.192795+00:00
+[2026-07-18T12:17:52.189391+00:00] [playlist] calm_e: calm 4.0 min (score_spurious=True)
+[2026-07-18T12:21:52.286744+00:00] ================================================================
+[2026-07-18T12:21:52.286829+00:00] PLAYLIST EXAM COMPLETE — 0 real faults, 4 near-misses (specificity_exam_v2)
+[2026-07-18T12:21:52.286854+00:00] Grade with scorecard + exam report:
+[2026-07-18T12:21:52.286881+00:00]   python scripts/deca_blind_scorecard.py --run-id specificity_exam_v2
+[2026-07-18T12:21:52.286909+00:00]   python scripts/deca_blind_exam_report.py --run-id specificity_exam_v2
+[2026-07-18T12:21:52.286936+00:00] ================================================================

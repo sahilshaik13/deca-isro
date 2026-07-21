@@ -1,0 +1,370 @@
+{
+  "summary": {
+    "run_id": "blind_20260716_1537_60m",
+    "circumstances_created": 4,
+    "detected": 4,
+    "detection_rate": 1.0,
+    "class_correct": 2,
+    "class_accuracy": 0.5,
+    "class_correct_eventually": 4,
+    "class_accuracy_eventually": 1.0,
+    "missed": 0,
+    "near_misses": 1,
+    "near_miss_false_alarms": 1,
+    "spurious_false_alarms": 49,
+    "mean_confirmed_lead_min": 2.6,
+    "mean_advisory_lead_min": 4.3,
+    "eta_mae_min": 2.7,
+    "severity_scored": 4,
+    "severity_agreement": 0.25,
+    "severity_pearson_r": 0.389,
+    "severity_pairs": 4,
+    "graded_at": "2026-07-16T12:46:27.924463+00:00",
+    "severity_from_prometheus": true
+  },
+  "events": [
+    {
+      "event_id": "blind_20260716_1537_60m_e01_tunnel_degradation",
+      "fault_type": "tunnel_degradation",
+      "host": "station1",
+      "fault_start": "2026-07-16T10:11:42.451872+00:00",
+      "breach_time": "2026-07-16T10:16:53.955876+00:00",
+      "detected": true,
+      "predicted_class": "vrf_leakage",
+      "class_correct": false,
+      "class_correct_eventually": true,
+      "advisory_class_correct": false,
+      "confirmed_lead_min": 4.3,
+      "advisory_lead_min": 5.2,
+      "eta_pred_min": 3.5,
+      "eta_actual_min": 4.3,
+      "eta_error_min": -0.8,
+      "model_severity": "high",
+      "model_severity_score": 0.889,
+      "actual_severity": "medium",
+      "actual_severity_score": 0.435,
+      "severity_match": false
+    },
+    {
+      "event_id": "blind_20260716_1537_60m_e02_tunnel_degradation",
+      "fault_type": "tunnel_degradation",
+      "host": "station1",
+      "fault_start": "2026-07-16T10:22:42.474207+00:00",
+      "breach_time": "2026-07-16T10:31:24.707099+00:00",
+      "detected": true,
+      "predicted_class": "tunnel_degradation",
+      "class_correct": true,
+      "class_correct_eventually": true,
+      "advisory_class_correct": true,
+      "confirmed_lead_min": 5.3,
+      "advisory_lead_min": 7.8,
+      "eta_pred_min": 3.0,
+      "eta_actual_min": 5.3,
+      "eta_error_min": -2.3,
+      "model_severity": "high",
+      "model_severity_score": 0.925,
+      "actual_severity": "low",
+      "actual_severity_score": 0.054,
+      "severity_match": false
+    },
+    {
+      "event_id": "blind_20260716_1537_60m_e03_congestion_breach",
+      "fault_type": "congestion_breach",
+      "host": "station1",
+      "fault_start": "2026-07-16T10:36:43.194612+00:00",
+      "breach_time": "2026-07-16T10:45:01.090900+00:00",
+      "detected": true,
+      "predicted_class": "congestion_breach",
+      "class_correct": true,
+      "class_correct_eventually": true,
+      "advisory_class_correct": true,
+      "confirmed_lead_min": 1.4,
+      "advisory_lead_min": 2.2,
+      "eta_pred_min": 1.9,
+      "eta_actual_min": 1.4,
+      "eta_error_min": 0.5,
+      "model_severity": "medium",
+      "model_severity_score": 0.416,
+      "actual_severity": "low",
+      "actual_severity_score": 0.009,
+      "severity_match": false
+    },
+    {
+      "event_id": "blind_20260716_1537_60m_e04_vrf_leakage",
+      "fault_type": "vrf_leakage",
+      "host": "station2",
+      "fault_start": "2026-07-16T10:53:05.384330+00:00",
+      "breach_time": "2026-07-16T11:01:07.451035+00:00",
+      "detected": true,
+      "predicted_class": "congestion_breach",
+      "class_correct": false,
+      "class_correct_eventually": true,
+      "advisory_class_correct": false,
+      "confirmed_lead_min": -0.6,
+      "advisory_lead_min": 2.2,
+      "eta_pred_min": 6.7,
+      "eta_actual_min": -0.6,
+      "eta_error_min": 7.3,
+      "model_severity": "low",
+      "model_severity_score": 0.126,
+      "actual_severity": "low",
+      "actual_severity_score": 0.131,
+      "severity_match": true
+    }
+  ],
+  "near_miss_false_alarms": [
+    {
+      "event_id": "blind_20260716_1537_60m_nm01",
+      "host": "station1",
+      "false_alarm": true,
+      "class": "congestion_breach"
+    }
+  ],
+  "spurious_false_alarms": [
+    {
+      "host": "station1",
+      "ts": "2026-07-16T10:08:27.887826+00:00",
+      "class": "vrf_leakage"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:01:45.076691+00:00",
+      "class": "vrf_leakage"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:02:46.546626+00:00",
+      "class": "vrf_leakage"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:05:04.897422+00:00",
+      "class": "vrf_leakage"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:06:06.230918+00:00",
+      "class": "vrf_leakage"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:07:38.455242+00:00",
+      "class": "vrf_leakage"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:26:19.085088+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:28:37.386160+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:29:23.642232+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:31:26.634139+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:32:28.065936+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:33:29.531182+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:40:08.666559+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:40:54.753782+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:43:28.364139+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:44:45.089671+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:45:46.622364+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:47:03.441428+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:48:35.558126+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:49:52.372549+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T11:51:39.697405+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T12:01:54.349678+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T12:03:10.991902+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T10:07:57.176050+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T10:12:34.362628+00:00",
+      "class": "tunnel_degradation"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T10:24:06.082782+00:00",
+      "class": "tunnel_degradation"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T10:24:36.805600+00:00",
+      "class": "tunnel_degradation"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T10:25:07.604206+00:00",
+      "class": "tunnel_degradation"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T10:40:45.652173+00:00",
+      "class": "congestion_breach"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T10:49:58.595503+00:00",
+      "class": "congestion_breach"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:25:48.498305+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:26:19.216822+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:27:05.310159+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:28:22.132254+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:31:26.750607+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:33:29.654812+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:34:00.315044+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:35:32.629715+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:36:34.024160+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:38:36.832636+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:39:38.117270+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:40:39.534500+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:42:26.997714+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:43:28.463668+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:45:31.375491+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:46:32.842024+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:47:03.567400+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:49:06.348074+00:00",
+      "class": "bgp_route_flap"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T11:50:07.810941+00:00",
+      "class": "bgp_route_flap"
+    }
+  ]
+}

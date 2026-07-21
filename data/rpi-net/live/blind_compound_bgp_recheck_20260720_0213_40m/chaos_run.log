@@ -1,0 +1,21 @@
+[2026-07-19T20:43:50.547984+00:00] ================================================================
+[2026-07-19T20:43:50.548083+00:00] DECA BLIND CHAOS armed — run_id=blind_compound_bgp_recheck_20260720_0213_40m seed=413689 (SEALED)
+[2026-07-19T20:43:50.548123+00:00] Budget 40 min | target 2-2 events + 1 near-misses | simulate=False
+[2026-07-19T20:43:50.548149+00:00] Fault pool: ['congestion_breach', 'tunnel_degradation', 'bgp_route_flap', 'vrf_leakage']
+[2026-07-19T20:43:50.548176+00:00] Compound prob=1.0 pe1=bgp_route_flap
+[2026-07-19T20:43:50.548231+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/blind_compound_bgp_recheck_20260720_0213_40m/ground_truth.sealed.jsonl
+[2026-07-19T20:43:50.548258+00:00] ================================================================
+[2026-07-19T20:43:54.195447+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T20:43:56.694139+00:00] Baseline traffic: 81 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T20:44:02.587398+00:00]    iperf3 client running (~81 Mbps)
+[2026-07-19T20:44:02.587556+00:00] [chaos] normal ops 1.3 min...
+[2026-07-19T20:45:20.150572+00:00] [chaos] === COMPOUND blind_compound_bgp_recheck_20260720_0213_40m_cg01: bgp_route_flap (station1) + vrf_leakage (station2) OVERLAPPING, 39 min budget left ===
+[2026-07-19T20:45:20.151208+00:00]   bgp_route_flap run=blind_compound_bgp_recheck_20260720_0213_40m_cg01_bgp_route_flap: 3 slow flaps over 7.4min, then 5 rapid flaps
+[2026-07-19T20:45:20.152007+00:00]   vrf_leakage run=blind_compound_bgp_recheck_20260720_0213_40m_cg01_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.1%/14ms over 8.1min, hold 4.4min
+[2026-07-19T20:57:56.991186+00:00] [chaos] sealed blind_compound_bgp_recheck_20260720_0213_40m_cg01_e01_bgp_route_flap (compound blind_compound_bgp_recheck_20260720_0213_40m_cg01): 2026-07-19T20:45:20.151202+00:00 -> 2026-07-19T20:52:57.407466+00:00
+[2026-07-19T20:57:56.991553+00:00] [chaos] sealed blind_compound_bgp_recheck_20260720_0213_40m_cg01_e02_vrf_leakage (compound blind_compound_bgp_recheck_20260720_0213_40m_cg01): 2026-07-19T20:45:20.151986+00:00 -> 2026-07-19T20:53:29.832689+00:00
+[2026-07-19T20:58:01.277704+00:00] ================================================================
+[2026-07-19T20:58:01.277821+00:00] BLIND CHAOS COMPLETE — 2 circumstances, 0 near-misses in 14.2 min
+[2026-07-19T20:58:01.277854+00:00] Run the scorecard AFTER the operator has stopped:
+[2026-07-19T20:58:01.277883+00:00]   python scripts/deca_blind_scorecard.py --run-id blind_compound_bgp_recheck_20260720_0213_40m
+[2026-07-19T20:58:01.277913+00:00] ================================================================

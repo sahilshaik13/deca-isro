@@ -53,4 +53,5 @@ obsidian/.trash/
 models/**/*.log
 *.run.log
 *_nohup.out
+nohup.out
 *.bak_*

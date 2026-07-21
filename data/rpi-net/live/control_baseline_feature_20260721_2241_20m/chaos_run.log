@@ -1,0 +1,22 @@
+[2026-07-21T17:11:18.041170+00:00] ================================================================
+[2026-07-21T17:11:18.041346+00:00] DECA BLIND CONTROL (all-healthy) armed — run_id=control_baseline_feature_20260721_2241_20m seed=58662 (SEALED)
+[2026-07-21T17:11:18.041428+00:00] Budget 20 min | NO real faults | 2 near-miss bait(s) | simulate=False
+[2026-07-21T17:11:18.041533+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/control_baseline_feature_20260721_2241_20m/ground_truth.sealed.jsonl
+[2026-07-21T17:11:18.041604+00:00] ================================================================
+[2026-07-21T17:11:21.527292+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-21T17:11:23.011613+00:00] Baseline traffic: 43 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-21T17:11:27.918739+00:00]    iperf3 client running (~43 Mbps)
+[2026-07-21T17:11:27.918992+00:00] [control] healthy baseline 8.2 min...
+[2026-07-21T17:19:41.462065+00:00] [control] near-miss control_baseline_feature_20260721_2241_20m_nm01 (bait — MUST stay healthy)
+[2026-07-21T17:19:41.462219+00:00] NEAR-MISS aborted onset for 53s (not a real fault)...
+[2026-07-21T17:20:35.292289+00:00] [control] sealed control_baseline_feature_20260721_2241_20m_nm01: 2026-07-21T17:19:41.462213+00:00 -> 2026-07-21T17:20:35.291983+00:00
+[2026-07-21T17:20:36.692393+00:00] [control] healthy baseline 6.4 min...
+[2026-07-21T17:27:03.614090+00:00] [control] near-miss control_baseline_feature_20260721_2241_20m_nm02 (bait — MUST stay healthy)
+[2026-07-21T17:27:03.614341+00:00] NEAR-MISS aborted onset for 48s (not a real fault)...
+[2026-07-21T17:27:52.998941+00:00] [control] sealed control_baseline_feature_20260721_2241_20m_nm02: 2026-07-21T17:27:03.614330+00:00 -> 2026-07-21T17:27:52.998585+00:00
+[2026-07-21T17:27:54.639785+00:00] [control] healthy baseline 3.4 min to end (no baits left)...
+[2026-07-21T17:31:18.141042+00:00] ================================================================
+[2026-07-21T17:31:18.141215+00:00] BLIND CONTROL COMPLETE — 0 real faults, 2 near-misses
+[2026-07-21T17:31:18.141260+00:00] Any confirmed alarm here is a false positive. Grade with:
+[2026-07-21T17:31:18.141299+00:00]   python scripts/deca_blind_scorecard.py --run-id control_baseline_feature_20260721_2241_20m
+[2026-07-21T17:31:18.141329+00:00] ================================================================

@@ -1,0 +1,99 @@
+{
+  "summary": {
+    "run_id": "blind_compound_congestion_breach_20260719_1256_40m",
+    "circumstances_created": 2,
+    "detected": 1,
+    "detection_rate": 0.5,
+    "class_correct": 1,
+    "class_accuracy": 0.5,
+    "class_correct_eventually": 1,
+    "class_accuracy_eventually": 0.5,
+    "missed": 1,
+    "compound_events": 2,
+    "near_misses": 1,
+    "near_miss_false_alarms": 0,
+    "spurious_false_alarms": 3,
+    "mean_confirmed_lead_min": 10.5,
+    "mean_advisory_lead_min": 9.1,
+    "eta_mae_min": 4.1,
+    "severity_scored": 1,
+    "severity_agreement": 1.0,
+    "severity_pearson_r": null,
+    "severity_pairs": 1,
+    "graded_at": "2026-07-19T07:47:00.852685+00:00",
+    "severity_from_prometheus": true
+  },
+  "events": [
+    {
+      "event_id": "blind_compound_congestion_breach_20260719_1256_40m_cg01_e01_congestion_breach",
+      "fault_type": "congestion_breach",
+      "compound_group": "blind_compound_congestion_breach_20260719_1256_40m_cg01",
+      "host": "station1",
+      "fault_start": "2026-07-19T07:30:12.489647+00:00",
+      "breach_time": "2026-07-19T07:43:00.923374+00:00",
+      "detected": true,
+      "predicted_class": "congestion_breach",
+      "class_correct": true,
+      "class_correct_eventually": true,
+      "advisory_class_correct": true,
+      "confirmed_lead_min": 10.5,
+      "advisory_lead_min": 11.3,
+      "eta_pred_min": 6.4,
+      "eta_actual_min": 10.5,
+      "eta_error_min": -4.1,
+      "model_severity": "medium",
+      "model_severity_score": 0.556,
+      "actual_severity": "medium",
+      "actual_severity_score": 0.624,
+      "severity_match": true
+    },
+    {
+      "event_id": "blind_compound_congestion_breach_20260719_1256_40m_cg01_e02_vrf_leakage",
+      "fault_type": "vrf_leakage",
+      "compound_group": "blind_compound_congestion_breach_20260719_1256_40m_cg01",
+      "host": "station2",
+      "fault_start": "2026-07-19T07:30:12.489937+00:00",
+      "breach_time": "2026-07-19T07:37:58.486839+00:00",
+      "detected": false,
+      "predicted_class": null,
+      "class_correct": false,
+      "class_correct_eventually": false,
+      "advisory_class_correct": false,
+      "confirmed_lead_min": null,
+      "advisory_lead_min": 6.8,
+      "eta_pred_min": null,
+      "eta_actual_min": null,
+      "eta_error_min": null,
+      "model_severity": null,
+      "model_severity_score": null,
+      "actual_severity": "high",
+      "actual_severity_score": 1.111,
+      "severity_match": false
+    }
+  ],
+  "near_miss_false_alarms": [
+    {
+      "event_id": "blind_compound_congestion_breach_20260719_1256_40m_nm01",
+      "host": "station1",
+      "false_alarm": false,
+      "class": null
+    }
+  ],
+  "spurious_false_alarms": [
+    {
+      "host": "station2",
+      "ts": "2026-07-19T07:26:20.127770+00:00",
+      "class": "vrf_leakage"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-19T07:27:21.615117+00:00",
+      "class": "vrf_leakage"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-19T07:27:52.383756+00:00",
+      "class": "vrf_leakage"
+    }
+  ]
+}

@@ -1,0 +1,244 @@
+{
+  "summary": {
+    "run_id": "blind_20260716_1924_60m",
+    "circumstances_created": 5,
+    "detected": 5,
+    "detection_rate": 1.0,
+    "class_correct": 4,
+    "class_accuracy": 0.8,
+    "class_correct_eventually": 5,
+    "class_accuracy_eventually": 1.0,
+    "missed": 0,
+    "compound_events": 0,
+    "near_misses": 2,
+    "near_miss_false_alarms": 2,
+    "spurious_false_alarms": 17,
+    "mean_confirmed_lead_min": 3.0,
+    "mean_advisory_lead_min": 3.3,
+    "eta_mae_min": 3.7,
+    "severity_scored": 5,
+    "severity_agreement": 0.8,
+    "severity_pearson_r": -0.595,
+    "severity_pairs": 5,
+    "graded_at": "2026-07-16T15:10:31.083589+00:00",
+    "severity_from_prometheus": true
+  },
+  "events": [
+    {
+      "event_id": "blind_20260716_1924_60m_e01_tunnel_degradation",
+      "fault_type": "tunnel_degradation",
+      "compound_group": null,
+      "host": "station1",
+      "fault_start": "2026-07-16T13:57:40.229826+00:00",
+      "breach_time": "2026-07-16T14:03:17.671093+00:00",
+      "detected": true,
+      "predicted_class": "tunnel_degradation",
+      "class_correct": true,
+      "class_correct_eventually": true,
+      "advisory_class_correct": true,
+      "confirmed_lead_min": 4.9,
+      "advisory_lead_min": 5.2,
+      "eta_pred_min": 4.0,
+      "eta_actual_min": 4.9,
+      "eta_error_min": -0.9,
+      "model_severity": "low",
+      "model_severity_score": 0.168,
+      "actual_severity": "low",
+      "actual_severity_score": 0.0,
+      "severity_match": true
+    },
+    {
+      "event_id": "blind_20260716_1924_60m_e02_vrf_leakage",
+      "fault_type": "vrf_leakage",
+      "compound_group": null,
+      "host": "station2",
+      "fault_start": "2026-07-16T14:11:15.344368+00:00",
+      "breach_time": "2026-07-16T14:17:54.993036+00:00",
+      "detected": true,
+      "predicted_class": "vrf_leakage",
+      "class_correct": true,
+      "class_correct_eventually": true,
+      "advisory_class_correct": true,
+      "confirmed_lead_min": -2.0,
+      "advisory_lead_min": -1.2,
+      "eta_pred_min": 3.6,
+      "eta_actual_min": -2.0,
+      "eta_error_min": 5.6,
+      "model_severity": "low",
+      "model_severity_score": 0.025,
+      "actual_severity": "low",
+      "actual_severity_score": 0.127,
+      "severity_match": true
+    },
+    {
+      "event_id": "blind_20260716_1924_60m_e03_vrf_leakage",
+      "fault_type": "vrf_leakage",
+      "compound_group": null,
+      "host": "station2",
+      "fault_start": "2026-07-16T14:26:46.166909+00:00",
+      "breach_time": "2026-07-16T14:30:53.819265+00:00",
+      "detected": true,
+      "predicted_class": "vrf_leakage",
+      "class_correct": true,
+      "class_correct_eventually": true,
+      "advisory_class_correct": true,
+      "confirmed_lead_min": 2.6,
+      "advisory_lead_min": 2.8,
+      "eta_pred_min": 8.5,
+      "eta_actual_min": 2.6,
+      "eta_error_min": 5.9,
+      "model_severity": "low",
+      "model_severity_score": 0.096,
+      "actual_severity": "low",
+      "actual_severity_score": 0.061,
+      "severity_match": true
+    },
+    {
+      "event_id": "blind_20260716_1924_60m_e04_congestion_breach",
+      "fault_type": "congestion_breach",
+      "compound_group": null,
+      "host": "station1",
+      "fault_start": "2026-07-16T14:40:00.188601+00:00",
+      "breach_time": "2026-07-16T14:48:08.678078+00:00",
+      "detected": true,
+      "predicted_class": "vrf_leakage",
+      "class_correct": false,
+      "class_correct_eventually": true,
+      "advisory_class_correct": false,
+      "confirmed_lead_min": 8.1,
+      "advisory_lead_min": 7.5,
+      "eta_pred_min": 6.1,
+      "eta_actual_min": 8.1,
+      "eta_error_min": -2.0,
+      "model_severity": "low",
+      "model_severity_score": 0.033,
+      "actual_severity": "low",
+      "actual_severity_score": 0.229,
+      "severity_match": true
+    },
+    {
+      "event_id": "blind_20260716_1924_60m_e05_tunnel_degradation",
+      "fault_type": "tunnel_degradation",
+      "compound_group": null,
+      "host": "station1",
+      "fault_start": "2026-07-16T14:54:41.204872+00:00",
+      "breach_time": "2026-07-16T14:59:29.468031+00:00",
+      "detected": true,
+      "predicted_class": "tunnel_degradation",
+      "class_correct": true,
+      "class_correct_eventually": true,
+      "advisory_class_correct": true,
+      "confirmed_lead_min": 1.6,
+      "advisory_lead_min": 2.4,
+      "eta_pred_min": 5.7,
+      "eta_actual_min": 1.6,
+      "eta_error_min": 4.1,
+      "model_severity": "high",
+      "model_severity_score": 0.893,
+      "actual_severity": "low",
+      "actual_severity_score": 0.0,
+      "severity_match": false
+    }
+  ],
+  "near_miss_false_alarms": [
+    {
+      "event_id": "blind_20260716_1924_60m_nm01",
+      "host": "station1",
+      "false_alarm": true,
+      "class": "tunnel_degradation"
+    },
+    {
+      "event_id": "blind_20260716_1924_60m_nm02",
+      "host": "station1",
+      "false_alarm": true,
+      "class": "vrf_leakage"
+    }
+  ],
+  "spurious_false_alarms": [
+    {
+      "host": "station1",
+      "ts": "2026-07-16T14:19:37.243454+00:00",
+      "class": "tunnel_degradation"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T14:20:07.935536+00:00",
+      "class": "congestion_breach"
+    },
+    {
+      "host": "station1",
+      "ts": "2026-07-16T14:28:04.901507+00:00",
+      "class": "vrf_leakage"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T13:58:36.969392+00:00",
+      "class": "tunnel_degradation"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T14:06:02.153424+00:00",
+      "class": "tunnel_degradation"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T14:06:48.341233+00:00",
+      "class": "tunnel_degradation"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T14:07:34.470719+00:00",
+      "class": "tunnel_degradation"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T14:40:54.754399+00:00",
+      "class": "vrf_leakage"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T14:51:41.505767+00:00",
+      "class": "congestion_breach"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T14:52:12.285839+00:00",
+      "class": "congestion_breach"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T14:52:43.012682+00:00",
+      "class": "congestion_breach"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T14:53:13.774108+00:00",
+      "class": "congestion_breach"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T14:57:19.950495+00:00",
+      "class": "tunnel_degradation"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T15:01:10.530510+00:00",
+      "class": "tunnel_degradation"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T15:02:58.236282+00:00",
+      "class": "tunnel_degradation"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T15:04:15.103840+00:00",
+      "class": "tunnel_degradation"
+    },
+    {
+      "host": "station2",
+      "ts": "2026-07-16T15:05:16.554123+00:00",
+      "class": "tunnel_degradation"
+    }
+  ]
+}

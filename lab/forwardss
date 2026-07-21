@@ -1,0 +1,30 @@
+ssh -t station1 'sudo bash -c "
+    # 1. Force the kernel to hand return traffic for the namespace to the veth interface
+    ip rule add from 10.100.2.1/32 iif eth0 lookup 100
+    
+    # 2. Ensure forwarding is enabled on the veth interface
+    sysctl -w net.ipv4.conf.veth-pe-cea.forwarding=1
+    
+    # 3. Flush the namespace firewall to ensure no hidden rules block the reply
+    ip netns exec ce-a iptables -F
+    ip netns exec ce-a iptables -P INPUT ACCEPT
+    ip netns exec ce-a iptables -P OUTPUT ACCEPT
+    ip netns exec ce-a iptables -P FORWARD ACCEPT
+"'
+
+
+
+
+ssh -t station2 'sudo bash -c "
+    # Force traffic destined for the namespace to be looked up in the VRF table
+    ip rule add to 10.100.2.1/32 lookup 100
+    ip rule add to 10.10.2.0/30 lookup 100
+    
+    # Ensure the veth interface inside the namespace is forwarding
+    ip netns exec ce-b sysctl -w net.ipv4.conf.veth-ceb-pe.forwarding=1
+    
+    # Clear the namespace firewall completely
+    ip netns exec ce-b iptables -F
+    ip netns exec ce-b iptables -P INPUT ACCEPT
+    ip netns exec ce-b iptables -P FORWARD ACCEPT
+"'

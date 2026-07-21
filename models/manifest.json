@@ -168,25 +168,30 @@
       "metrics": {
         "phase": "school_exam_A",
         "mode": "weighted_multiclass",
-        "head_family": "plain",
-        "macro_f1": 0.7576165878322125,
-        "weighted_f1": 0.8727355177170416,
-        "mean_rare_recall": 0.671497825479791,
+        "head_family": "wm",
+        "macro_f1": 0.7641920407544074,
+        "weighted_f1": 0.868503869911356,
+        "mean_rare_recall": 0.6182213534892236,
         "gate_thr": 0.5,
         "rare_boost": 1.0,
         "per_class_f1": {
-          "healthy": 0.9132035770647028,
-          "congestion_breach": 0.8794326241134752,
-          "tunnel_degradation": 0.8483920367534457,
-          "bgp_route_flap": 0.5016872890888638,
-          "vrf_leakage": 0.645367412140575
+          "healthy": 0.9164896224873346,
+          "congestion_breach": 0.8685258964143426,
+          "tunnel_degradation": 0.8126195028680688,
+          "bgp_route_flap": 0.4775900073475386,
+          "vrf_leakage": 0.7457351746547523
         },
         "smote": false,
         "loom": {
           "enabled": true,
-          "enter_k": 2,
+          "enter_k": 3,
           "exit_k": 2,
-          "enter_k_by_class": {},
+          "enter_k_by_class": {
+            "tunnel_degradation": 4,
+            "congestion_breach": 3,
+            "bgp_route_flap": 3,
+            "vrf_leakage": 3
+          },
           "exit_k_by_class": {
             "bgp_route_flap": 3,
             "vrf_leakage": 3
@@ -196,13 +201,13 @@
           "advisory_exit_k": 1,
           "ttb_gate_enabled": false,
           "ttb_gate_tolerance": 0,
-          "soft_streak_enabled": true,
+          "soft_streak_enabled": false,
           "branch_agreement_enabled": false,
           "branch_secondary_family": "wm",
           "topology_gate_enabled": false,
           "topology_min_neighbors": 1
         },
-        "loom_persistent_macro_f1": 0.9328304013250731
+        "loom_persistent_macro_f1": 0.8374684188128299
       }
     },
     {
@@ -291,18 +296,23 @@
     }
   ],
   "school_exam": {
-    "date": "2026-07-16T06:13:55.278422+00:00",
-    "head_family": "plain",
+    "date": "2026-07-21T17:09:39.748049+00:00",
+    "head_family": "wm",
     "rare_boost": 1.0,
-    "exam_macro_f1": 0.7576165878322125,
-    "exam_mean_rare_recall": 0.671497825479791,
-    "baseline_macro_f1": 0.75,
+    "exam_macro_f1": 0.7641920407544074,
+    "exam_mean_rare_recall": 0.6182213534892236,
+    "baseline_macro_f1": 0.717145175004925,
     "promoted": true,
     "loom": {
       "enabled": true,
-      "enter_k": 2,
+      "enter_k": 3,
       "exit_k": 2,
-      "enter_k_by_class": {},
+      "enter_k_by_class": {
+        "tunnel_degradation": 4,
+        "congestion_breach": 3,
+        "bgp_route_flap": 3,
+        "vrf_leakage": 3
+      },
       "exit_k_by_class": {
         "bgp_route_flap": 3,
         "vrf_leakage": 3
@@ -312,16 +322,16 @@
       "advisory_exit_k": 1,
       "ttb_gate_enabled": false,
       "ttb_gate_tolerance": 0,
-      "soft_streak_enabled": true,
+      "soft_streak_enabled": false,
       "branch_agreement_enabled": false,
       "branch_secondary_family": "wm",
       "topology_gate_enabled": false,
       "topology_min_neighbors": 1
     },
     "loom_metrics": {
-      "raw_macro_f1": 0.8413533177468742,
-      "persistent_macro_f1": 0.9328304013250731,
-      "delta_macro_f1": 0.09147708357819895
+      "raw_macro_f1": 0.8232876885931002,
+      "persistent_macro_f1": 0.8374684188128299,
+      "delta_macro_f1": 0.014180730219729654
     }
   },
   "companions_retrain_date": "2026-07-15T16:38:04.018722+00:00",

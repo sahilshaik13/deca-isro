@@ -1,0 +1,22 @@
+[2026-07-19T20:03:47.939473+00:00] ================================================================
+[2026-07-19T20:03:47.939556+00:00] DECA BLIND CONTROL (all-healthy) armed — run_id=control_post_overlap_20260720_0133_20m seed=558247 (SEALED)
+[2026-07-19T20:03:47.939589+00:00] Budget 20 min | NO real faults | 2 near-miss bait(s) | simulate=False
+[2026-07-19T20:03:47.939640+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/control_post_overlap_20260720_0133_20m/ground_truth.sealed.jsonl
+[2026-07-19T20:03:47.939666+00:00] ================================================================
+[2026-07-19T20:03:51.251431+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T20:03:52.731181+00:00] Baseline traffic: 81 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T20:03:58.644762+00:00]    iperf3 client running (~81 Mbps)
+[2026-07-19T20:03:58.644898+00:00] [control] healthy baseline 6.8 min...
+[2026-07-19T20:10:47.853571+00:00] [control] near-miss control_post_overlap_20260720_0133_20m_nm01 (bait — MUST stay healthy)
+[2026-07-19T20:10:47.853887+00:00] NEAR-MISS aborted onset for 36s (not a real fault)...
+[2026-07-19T20:11:24.762926+00:00] [control] sealed control_post_overlap_20260720_0133_20m_nm01: 2026-07-19T20:10:47.853870+00:00 -> 2026-07-19T20:11:24.762537+00:00
+[2026-07-19T20:11:45.744297+00:00] [control] healthy baseline 5.9 min...
+[2026-07-19T20:17:42.256046+00:00] [control] near-miss control_post_overlap_20260720_0133_20m_nm02 (bait — MUST stay healthy)
+[2026-07-19T20:17:42.256354+00:00] NEAR-MISS aborted onset for 31s (not a real fault)...
+[2026-07-19T20:18:14.524454+00:00] [control] sealed control_post_overlap_20260720_0133_20m_nm02: 2026-07-19T20:17:42.256342+00:00 -> 2026-07-19T20:18:14.524227+00:00
+[2026-07-19T20:18:30.786619+00:00] [control] healthy baseline 5.3 min to end (no baits left)...
+[2026-07-19T20:23:48.039832+00:00] ================================================================
+[2026-07-19T20:23:48.040099+00:00] BLIND CONTROL COMPLETE — 0 real faults, 2 near-misses
+[2026-07-19T20:23:48.040204+00:00] Any confirmed alarm here is a false positive. Grade with:
+[2026-07-19T20:23:48.040295+00:00]   python scripts/deca_blind_scorecard.py --run-id control_post_overlap_20260720_0133_20m
+[2026-07-19T20:23:48.040383+00:00] ================================================================

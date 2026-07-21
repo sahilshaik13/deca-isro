@@ -1,0 +1,5 @@
+fault_type,fault_start,breach_time,run_id
+precursor_aborted,2026-07-18T16:18:46.622363+00:00,2026-07-18T16:19:23.680343+00:00,real_control_after_vrf_20260718_2142_nm01
+precursor_aborted,2026-07-18T16:23:44.136704+00:00,2026-07-18T16:25:15.176411+00:00,real_control_after_vrf_20260718_2142_nm02
+precursor_aborted,2026-07-18T16:31:29.378586+00:00,2026-07-18T16:31:59.288620+00:00,real_control_after_vrf_20260718_2142_nm03
+precursor_aborted,2026-07-18T16:39:35.929260+00:00,2026-07-18T16:40:17.146122+00:00,real_control_after_vrf_20260718_2142_nm04

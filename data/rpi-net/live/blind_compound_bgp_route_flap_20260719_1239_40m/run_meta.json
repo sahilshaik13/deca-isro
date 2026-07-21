@@ -1,0 +1,21 @@
+{
+  "run_id": "blind_compound_bgp_route_flap_20260719_1239_40m",
+  "seed": 164997,
+  "minutes_budget": 40.0,
+  "min_events": 2,
+  "max_events": 2,
+  "near_misses": 1,
+  "simulate": false,
+  "time_scale": 1.0,
+  "armed_at": null,
+  "control": false,
+  "playlist": null,
+  "fault_types": [
+    "congestion_breach",
+    "tunnel_degradation",
+    "bgp_route_flap",
+    "vrf_leakage"
+  ],
+  "compound_prob": 1.0,
+  "compound_pe1": "bgp_route_flap"
+}

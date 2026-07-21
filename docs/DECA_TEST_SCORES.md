@@ -148,8 +148,6 @@ Campaign quality (empirical): **~8.7 / 10** — BGP existence still the soft spo
 
 Holdout: notebook stratified **25%**. Snapshot from first Phase‑1 train on 17,050 rows.
 
-![Initial individual models](assets/scores/initial_individual_models.png)
-
 ### Every model
 
 | Model | Primary metric | Score | Notes |
@@ -230,8 +228,6 @@ Retrained with `deca_retrain_companions.py` (classifier untouched):
 Run: `python scripts/deca_model_playground.py --exam-seed 20260715 --prophet-refit`  
 Lake **23,909** · exam **4,782** rows · live **promoted `wm`** classifier + retrained companions.
 
-![Playground individual models](assets/scores/playground_individual_models.png)
-
 ### Every model individually
 
 | Model | Primary metric | Score | Extra |
@@ -258,8 +254,6 @@ Lake **23,909** · exam **4,782** rows · live **promoted `wm`** classifier + re
 
 ## Cross-stage comparison (fault classifier)
 
-![Per-class F1 by stage](assets/scores/per_class_f1_stages.png)
-
 | Metric | 1. Initial (old) | 2. Classroom (new) | 3. Playground (new) |
 | --- | ---: | ---: | ---: |
 | Macro‑F1 | 0.721 | **0.725** | **0.802** |
@@ -283,8 +277,6 @@ python scripts/deca_model_playground.py --exam-seed 20260715 --prophet-refit
 ---
 
 ## Cross-stage comparison (companions)
-
-![Companions initial vs playground](assets/scores/companions_initial_vs_playground.png)
 
 | Model | 1. Initial (old) | Retrain (new) | 3. Playground (new) |
 | --- | ---: | ---: | ---: |
@@ -365,11 +357,35 @@ Loom raw/sticky/soft are scored on the **chrono-ordered tail** (`n=5874`, merged
 
 ---
 
+## Live blind network tests (physical lab)
+
+Offline Macro‑F1 is not the same claim as flying blind on the Pi lab. These are sealed adversarial / control runs — see [`DECA_BLIND_TEST.md`](DECA_BLIND_TEST.md) and the aggregate write-up [`BLIND_TEST_AGGREGATE_20260716.md`](results/BLIND_TEST_AGGREGATE_20260716.md).
+
+| Run | Type | Detect | Class first→eventual | Conf lead | Near-miss FA | Spurious | Doc |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| `blind_20260716_1537_60m` | Blind | 4/4 | 50%→100% | 2.6 min | 1/1 | 49 | [doc](results/BLIND_TEST_20260716_1537_60m.md) |
+| `blind_20260716_1924_60m` | Blind | 5/5 | 80%→100% | 3.0 min | 2/2 | 17 | [doc](results/BLIND_TEST_20260716_1924_60m.md) |
+| `control_20260716_1924_60m` | Control | n/a | n/a | n/a | **3/4** | 21 | [doc](results/BLIND_TEST_CONTROL_20260716_1924_60m.md) |
+| `blind_20260718_0848_60m` | Blind | **3/4** | **75%→75%** | **4.6 min** | **0/2** | **3** | [doc](results/BLIND_TEST_20260718_0848_60m.md) |
+| `control_20260718_0848_60m` | Control | n/a | n/a | n/a | **0/4** | **0** | [doc](results/BLIND_TEST_CONTROL_20260718_0848_60m.md) |
+| **Pooled blinds (n=3)** | — | **12/13** | — | — | — | — | [aggregate](results/BLIND_TEST_AGGREGATE_20260718.md) |
+
+**Blind-night range (n=3):** detection 0.75–1.0 · class first 0.50–0.80 · confirmed lead 2.6–4.6 min · spurious 3–49 (latest **3**).  
+**Control cry-wolf (16 Jul):** 3/4 bait FAs + **21 spurious / hour** (18 BGP). Post densify gate (17 Jul `fp_check2`): spurious **5**, BGP **0**. **18 Jul control: 0 NM FA, 0 spurious.**  
+**Specificity exam:** 17 Jul **FAIL** (NM 1/3, spurious 2) → campaign → 18 Jul **PASS** (0/3, 0). Prefer [SPECIFICITY_EXAM_V1.md](results/SPECIFICITY_EXAM_V1.md).  
+**Specificity data campaign (17–18 Jul):** [`SPECIFICITY_DATA_CAMPAIGN_20260717.md`](results/SPECIFICITY_DATA_CAMPAIGN_20260717.md) — promote Macro-F1 **0.722**; soft loom **0.840**.  
+**Severity:** never quote bucket agree alone; Pearson remains weak / negative on latest night.
+
+Artifacts: `data/rpi-net/blind-tests/`. Canvas: `deca-blind-results.canvas.tsx`.
+
+---
+
 ## Bottom line
 
 1. **New data worked** — BGP F1 rose in both honest multi-seed classroom (**+0.07**) and playground (**+0.16** vs initial).
 2. **Classroom promoted a real upgrade** — replaced a model that scored **0.335** on the new lake with a `wm` cluster head at **0.725** exam / **0.802** playground Macro‑F1.
 3. **Cluster head now earns wins** — `wm` beat `plain` on **4/5** fresh papers (it never did on the old lake).
+4. **Live blind (lab):** trust bar **met** on 18 Jul (exam PASS + control 0 spurious). Detection still strong across nights (**12/13** pooled) with one PE2 VRF miss on the latest blind. Quote [aggregate 18 Jul](results/BLIND_TEST_AGGREGATE_20260718.md) — not detection alone, and not the old 21/hour cry-wolf as current.
 
 ---
 
@@ -380,6 +396,8 @@ Loom raw/sticky/soft are scored on the **chrono-ordered tail** (`n=5874`, merged
 | [`MODELS.md`](MODELS.md) | Model catalog |
 | [`DECA_MLOps_Continuous_Learning_Pipeline.md`](DECA_MLOps_Continuous_Learning_Pipeline.md) | School Exam / repeated-holdout |
 | [`DECA_ROI_TIERS.md`](DECA_ROI_TIERS.md) | Tier 5.5 / Tier 6 |
+| [`DECA_BLIND_TEST.md`](DECA_BLIND_TEST.md) | Blind live harness runbook |
+| [`BLIND_TEST_AGGREGATE_20260718.md`](results/BLIND_TEST_AGGREGATE_20260718.md) | Live blind aggregate (through 18 Jul 2026) |
+| [`BLIND_TEST_AGGREGATE_20260716.md`](results/BLIND_TEST_AGGREGATE_20260716.md) | First-night aggregate (historical) |
 | `models/playground/scoreboard.md` | Latest playground |
 | `models/school_exam/seed_report.md` | 5-seed classroom stability |
-| Chart assets | `docs/assets/scores/*.png` |

@@ -9,6 +9,8 @@ Only the Python tools needed to **reproduce the data lake that exists today** li
 | Script | Produces |
 | --- | --- |
 | `deca_fault_campaign.py` | RPi CE–PE–CE fault campaign → `data/rpi-net/runs/<id>/` (`--per-type N` for exact quota; see [`DECA_ROI_TIERS.md`](DECA_ROI_TIERS.md)) |
+| `deca_specificity_data_campaign.py` | Targeted near-miss (PE1+PE2) + confusion-triangle reals → e.g. `spec_data_20260717_2352` ([results write-up](results/SPECIFICITY_DATA_CAMPAIGN_20260717.md)) |
+| `deca_circumstance_campaign.py` | 3-phase circumstance labels → e.g. `20260715_191519_circ_v2` |
 | `routeviews.py` / `riperis.py` | BGP MRT archives (`*updates*.{bz2,gz}`) |
 | `parse_bgp.py` | `bgp_update_rates_full.csv` / `.parquet` |
 | `bgpstream.py` / `ioda.py` (+ `ioda_client.py`) | `bgp_routing_labels.csv`, `ioda_outage_labels.csv` |
@@ -39,6 +41,11 @@ python scripts/cisco_scraper.py
 # 3. Lab ground truth (needs live Pis + Prometheus)
 python scripts/deca_fault_campaign.py
 # resume: python scripts/deca_fault_campaign.py --run-id <id>
+# specificity / cry-wolf teaching (after exam FAIL):
+#   python scripts/deca_specificity_data_campaign.py --run-id spec_data_$(date +%Y%m%d) \
+#     --near-misses-pe1 8 --near-misses-pe2 4 --per-type 3
+
+# Pre-specificity campaign script backups: scripts/backup/
 
 # 4. Build trainable matrices
 python scripts/rebuild_unified.py

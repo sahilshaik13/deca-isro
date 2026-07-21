@@ -90,7 +90,7 @@ start = end - timedelta(hours=72)
 metrics = [
     "ifInOctets", "ifOutOctets", "jitter_ms", "packet_loss_pct",
     "bgp_hold_timer_remaining", "bgp_update_rate", "rekey_duration_ms",
-    "rsvp_path_retransmit_rate", "vrf_route_count"
+    "rsvp_path_retransmit_rate", "vrf_route_count", "bgp_flap_count"
 ]
 
 frames = [export_metric(m, start, end) for m in metrics]

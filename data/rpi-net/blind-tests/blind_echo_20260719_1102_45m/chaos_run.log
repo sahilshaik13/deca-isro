@@ -1,0 +1,30 @@
+[2026-07-19T05:32:21.567627+00:00] ================================================================
+[2026-07-19T05:32:21.567711+00:00] DECA BLIND CHAOS armed — run_id=blind_echo_20260719_1102_45m seed=147024 (SEALED)
+[2026-07-19T05:32:21.567752+00:00] Budget 45 min | target 3-3 events + 2 near-misses | simulate=False
+[2026-07-19T05:32:21.567779+00:00] Fault pool: ['congestion_breach', 'tunnel_degradation']
+[2026-07-19T05:32:21.567832+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/blind_echo_20260719_1102_45m/ground_truth.sealed.jsonl
+[2026-07-19T05:32:21.567859+00:00] ================================================================
+[2026-07-19T05:32:26.276545+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T05:32:28.700067+00:00] Baseline traffic: 51 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T05:32:33.371884+00:00]    iperf3 client running (~51 Mbps)
+[2026-07-19T05:32:33.372127+00:00] [chaos] near-miss blind_echo_20260719_1102_45m_nm01 (bait — should stay healthy)
+[2026-07-19T05:32:33.372207+00:00] NEAR-MISS aborted onset for 32s (not a real fault)...
+[2026-07-19T05:33:05.943337+00:00] [chaos] normal ops 2.2 min...
+[2026-07-19T05:35:20.024634+00:00] [chaos] === circumstance 1/3: congestion_breach (event_id=blind_echo_20260719_1102_45m_e01_congestion_breach, 42 min budget left) ===
+[2026-07-19T05:35:20.024850+00:00]   congestion_breach run=blind_echo_20260719_1102_45m_e01_congestion_breach: 95->12mbit over 12.1min, 4 steps
+[2026-07-19T05:52:28.429362+00:00] [chaos] sealed blind_echo_20260719_1102_45m_e01_congestion_breach: 2026-07-19T05:35:20.024841+00:00 -> 2026-07-19T05:47:37.161050+00:00
+[2026-07-19T05:52:33.761859+00:00] [chaos] near-miss blind_echo_20260719_1102_45m_nm02 (bait — should stay healthy)
+[2026-07-19T05:52:33.761973+00:00] NEAR-MISS aborted onset for 32s (not a real fault)...
+[2026-07-19T05:53:06.606751+00:00] [chaos] normal ops 1.6 min...
+[2026-07-19T05:54:41.098155+00:00] [chaos] === circumstance 2/3: tunnel_degradation (event_id=blind_echo_20260719_1102_45m_e02_tunnel_degradation, 23 min budget left) ===
+[2026-07-19T05:54:41.098410+00:00]   tunnel_degradation run=blind_echo_20260719_1102_45m_e02_tunnel_degradation: ramping to 9.9% loss / 39ms delay over 11.6min
+[2026-07-19T06:07:18.798058+00:00] [chaos] sealed blind_echo_20260719_1102_45m_e02_tunnel_degradation: 2026-07-19T05:54:41.098401+00:00 -> 2026-07-19T06:02:28.686529+00:00
+[2026-07-19T06:07:21.730180+00:00] [chaos] normal ops 2.6 min...
+[2026-07-19T06:09:55.714151+00:00] [chaos] === circumstance 3/3: tunnel_degradation (event_id=blind_echo_20260719_1102_45m_e03_tunnel_degradation, 7 min budget left) ===
+[2026-07-19T06:09:55.714389+00:00]   tunnel_degradation run=blind_echo_20260719_1102_45m_e03_tunnel_degradation: ramping to 11.2% loss / 44ms delay over 11.2min
+[2026-07-19T06:24:24.631575+00:00] [chaos] sealed blind_echo_20260719_1102_45m_e03_tunnel_degradation: 2026-07-19T06:09:55.714382+00:00 -> 2026-07-19T06:18:54.271398+00:00
+[2026-07-19T06:24:28.918885+00:00] ================================================================
+[2026-07-19T06:24:28.919027+00:00] BLIND CHAOS COMPLETE — 3 circumstances, 2 near-misses in 52.1 min
+[2026-07-19T06:24:28.919061+00:00] Run the scorecard AFTER the operator has stopped:
+[2026-07-19T06:24:28.919087+00:00]   python scripts/deca_blind_scorecard.py --run-id blind_echo_20260719_1102_45m
+[2026-07-19T06:24:28.919110+00:00] ================================================================

@@ -9,16 +9,21 @@ source .venv/bin/activate
 
 Paths resolve via [`_paths.py`](../scripts/_paths.py) (`data/`, `models/`), not the shell cwd for I/O.
 
+**Timezone convention — read this before comparing timestamps:** every script in this repo stamps `datetime.now(timezone.utc)` — run-ids, log lines, `declarations.jsonl`/`chaos_run.log` entries, and `models/fault_classifier.bak_<UTC timestamp>/` backup folder names are all **UTC**. The lab machine itself displays **local IST (UTC+5:30)** in `stat`/`ls -la`/`date`. Don't cross-compare a backup folder's name (UTC) against `stat` output on its contents (local IST) without converting — they'll look 5.5 hours apart and can make a clean sequence of events look like a race condition that never happened. When you need to verify ordering of two events (e.g. "did this run start before or after that promotion finished?"), prefer the UTC timestamp *embedded in file content* (log lines, `run_meta.json`, `declarations.jsonl`) over filesystem `stat` metadata — `Birth`/`Modify` times are further unreliable across `shutil.copytree`-style backups, since `copy2` preserves the source's mtime rather than stamping the copy time.
+
 | Group | Scripts |
 | --- | --- |
 | Shared | `_paths.py` |
 | Public lake | `fetch_public_data.py`, `routeviews.py`, `riperis.py`, `parse_bgp.py`, `ripe_atlas.py`, `bgpstream.py`, `ioda.py`, `ioda_client.py`, `cisco_scraper.py` |
-| Lab campaign | `deca_fault_campaign.py`, `deca_circumstance_campaign.py` |
+| Lab campaign | `deca_fault_campaign.py`, `deca_circumstance_campaign.py`, `deca_specificity_data_campaign.py` |
 | Unify / train prep | `rebuild_unified.py`, `deca_school_exam_train.py`, `deca_mlops_orchestrator.py`, `deca_model_playground.py`, `deca_model_experts.py`, `deca_retrain_companions.py`, `deca_inference.py`, `deca_score_temporal.py`, `deca_train_circumstance.py` |
 | Station ops | `deca_deploy_stations.sh`, `deca_heal_telemetry.sh`, `deca_fix_prom_vpn.sh`, `deca_debug_vpn_prom.sh` |
+| Lab laptop ops | [`lab/`](../lab/README.md) — diagnostic, deploy, heal, traffic, step7 checks |
 
 **Not a script (training):** [`notebook/DECA_Model_Training.ipynb`](../notebook/DECA_Model_Training.ipynb) — see README / [`DECA_ROI_TIERS.md`](DECA_ROI_TIERS.md).  
 **Manual:** `data/raw/public/mawi_sample.csv` — no automatable download.
+
+Day-to-day laptop helpers for the physical CE–PE–CE cluster live under **`lab/`** (not `scripts/`). See [`lab/README.md`](../lab/README.md). Optional: `bash lab/link_home.sh` so `~/deca_diagnostic.sh` still resolves.
 
 ---
 
@@ -170,6 +175,20 @@ Details: [`DECA_ROI_TIERS.md`](DECA_ROI_TIERS.md) · station map: [`STATION_NETW
 | **Completed run** | `20260715_191519_circ_v2` (20/20, VALIDATION PASS) |
 | **Doc** | [`DECA_TEMPORAL_LOOM.md`](DECA_TEMPORAL_LOOM.md) §7 Warp 4 |
 
+### `deca_specificity_data_campaign.py`
+
+| | |
+| --- | --- |
+| **Purpose** | Targeted **near-miss + confusion-triangle** data for specificity retrain after exam v1. |
+| **Use case** | Before re-running the playlist exam: teach aborted onsets (PE1 + PE2) as healthy and reinforce tunnel/congestion/VRF/BGP reals. |
+| **Needs** | Lab SSH + Prometheus (same as fault campaign). |
+| **Command** | `python scripts/deca_specificity_data_campaign.py --run-id spec_data_YYYYMMDD --near-misses-pe1 8 --near-misses-pe2 4 --per-type 3` |
+| **Output** | Under `data/rpi-net/runs/<id>/`: `fault_injection_log.csv` (`precursor_aborted` + real types), `bgp_update_samples.csv`, `network_telemetry.csv`, `network_campaign_export.csv`, campaign log. |
+| **Completed run** | `spec_data_20260717_2352` — nm **8+4**, reals **3×4**, VALIDATION WARN (ok to train). Write-up: [`results/SPECIFICITY_DATA_CAMPAIGN_20260717.md`](results/SPECIFICITY_DATA_CAMPAIGN_20260717.md) |
+| **Then** | `rebuild_unified.py --all-rpi-runs` → school-exam train / promote → `deca_score_temporal.py --soft-streak` → same `specificity_exam_v1` playlist. |
+| **Backups** | Pre-edit injectors: [`scripts/backup/`](../scripts/backup/) |
+| **Doc** | [`DECA_SPECIFICITY_EXAM.md`](DECA_SPECIFICITY_EXAM.md) § Next loop |
+
 ### `deca_train_circumstance.py`
 
 | | |
@@ -210,6 +229,16 @@ Notes: synthetic = **0**; IODA/BGP outage CSVs are **not** applied as row labels
 | **Flags** | `--families plain,wm,moe` · `--report-seeds N` (repeated-holdout spread) · `--holdout-policy random\|time_tail` · `--exam-seed` · `--holdout-frac` · `--rare-boosts` · `--auto-promote` |
 | **Output** | `models/school_exam/weight_sweep.csv` (per family+β), `latest_exam.json`; with `--report-seeds`: `seed_report.{json,md}` |
 | **Gate** | Candidate must beat the **honest same-paper champion config** (`plain` retrained on the blind pool), floored at the manifest baseline. Deployed artifact's same-paper score is reported but **leakage-inflated** (not the bar). |
+
+### `deca_bgp_diagnose.py`
+
+| | |
+| --- | --- |
+| **Purpose** | Diagnostic (not part of the regular pipeline): instruments the anomaly **gate** and the full-pipeline **confusion matrix** on the current lake to separate a class-weighting artifact from a genuine gate-separability / data-support problem. Written 21 Jul to root-cause the `bgp_route_flap` F1 collapse (0.51→0.45→0.35) across two VRF-focused campaigns. |
+| **Use case** | Before spending lab time on a new campaign for a class that's regressing — confirm whether the β rare-boost sweep (which never touches `build_gate()`) could plausibly be the cause, or whether it's upstream at the binary gate / a thin feature. |
+| **Command** | `python scripts/deca_bgp_diagnose.py --exam-seed 42 --family plain --beta 1.5` |
+| **Output** | Printed only: class support (fit/exam), per-class gate `p(anomaly)` + flag-rate at several thresholds, full 5×5 confusion matrix, and where a target class's misses actually land. |
+| **Finding (21 Jul)** | `bgp_route_flap` gate `p(anomaly)`=0.516 (flagged 46.6% @ thr 0.50) vs 0.74–0.86 (78–95%) for every other fault — and 53% of true `bgp_route_flap` rows are predicted `healthy`, not confused with another fault. Traced to `inject_bgp_route_flap()` having **no accompanying `netem`/`tbf` perturbation** and relying solely on a **fabricated `stamp_bgp_update_pulse()` scalar** (not a live scrape) — see `DECA_ROI_TIERS.md` Tier 5. |
 | **Note** | Head configs live in `scripts/deca_model_experts.py`. All heads share the exact same gated inference path — the machine promotes a deeper head **only if it beats the champion on a fresh paper**. On the current lake, `wm`/`moe` **lose** to `plain` (see ROI Tier 5.5). |
 
 ### `deca_mlops_orchestrator.py`
@@ -302,6 +331,6 @@ Run from the laptop on the USB lab NIC (`192.168.50.1`). Lab form: `192.168.50.x
 2. Lab: `python scripts/deca_fault_campaign.py --per-type …`  
 3. Fuse: `python scripts/rebuild_unified.py`  
 4. Train: `jupyter notebook notebook/DECA_Model_Training.ipynb`  
-5. Stations sticky: `bash scripts/deca_deploy_stations.sh` then `bash ~/deca_diagnostic.sh`
+5. Stations sticky: `bash lab/deca-deploy.sh` (or `scripts/deca_deploy_stations.sh`) then `bash lab/deca_diagnostic.sh`
 
 Full narrative: [`DATA_GEN.md`](DATA_GEN.md) · inventory: [`DATA_SAMPLE.md`](DATA_SAMPLE.md) · networking: [`STATION_NETWORK_SETUP.md`](STATION_NETWORK_SETUP.md).

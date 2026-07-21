@@ -1,0 +1,39 @@
+[2026-07-16T13:54:57.535369+00:00] ================================================================
+[2026-07-16T13:54:57.535454+00:00] DECA BLIND CHAOS armed — run_id=blind_20260716_1924_60m seed=1784210097 (SEALED)
+[2026-07-16T13:54:57.535492+00:00] Budget 60 min | target 5-6 events + 2 near-misses | simulate=False
+[2026-07-16T13:54:57.535549+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/blind_20260716_1924_60m/ground_truth.sealed.jsonl
+[2026-07-16T13:54:57.535576+00:00] ================================================================
+[2026-07-16T13:55:00.634948+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-16T13:55:02.033073+00:00] Baseline traffic: 43 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-16T13:55:32.064162+00:00]    SSH timeout on station1@192.168.50.10
+[2026-07-16T13:55:32.064266+00:00]    Could not launch iperf3 client on station1
+[2026-07-16T13:55:32.064346+00:00] [chaos] normal ops 2.1 min...
+[2026-07-16T13:57:40.229585+00:00] [chaos] === circumstance 1/6: tunnel_degradation (event_id=blind_20260716_1924_60m_e01_tunnel_degradation, 57 min budget left) ===
+[2026-07-16T13:57:40.229839+00:00]   tunnel_degradation run=blind_20260716_1924_60m_e01_tunnel_degradation: ramping to 11.5% loss / 45ms delay over 7.0min
+[2026-07-16T14:08:29.094412+00:00] [chaos] sealed blind_20260716_1924_60m_e01_tunnel_degradation: 2026-07-16T13:57:40.229826+00:00 -> 2026-07-16T14:03:17.671093+00:00
+[2026-07-16T14:08:31.186639+00:00] [chaos] near-miss blind_20260716_1924_60m_nm01 (bait — should stay healthy)
+[2026-07-16T14:08:31.186741+00:00] NEAR-MISS aborted onset for 48s (not a real fault)...
+[2026-07-16T14:09:21.437994+00:00] [chaos] normal ops 1.9 min...
+[2026-07-16T14:11:15.344150+00:00] [chaos] === circumstance 2/6: vrf_leakage (event_id=blind_20260716_1924_60m_e02_vrf_leakage, 44 min budget left) ===
+[2026-07-16T14:11:15.344378+00:00]   vrf_leakage run=blind_20260716_1924_60m_e02_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.4%/11ms over 6.6min, hold 4.8min
+[2026-07-16T14:22:41.377479+00:00] [chaos] sealed blind_20260716_1924_60m_e02_vrf_leakage: 2026-07-16T14:11:15.344368+00:00 -> 2026-07-16T14:17:54.993036+00:00
+[2026-07-16T14:22:44.065938+00:00] [chaos] near-miss blind_20260716_1924_60m_nm02 (bait — should stay healthy)
+[2026-07-16T14:22:44.066052+00:00] NEAR-MISS aborted onset for 26s (not a real fault)...
+[2026-07-16T14:23:04.071331+00:00]    SSH timeout on station1@192.168.50.10
+[2026-07-16T14:23:49.903087+00:00] [chaos] normal ops 2.9 min...
+[2026-07-16T14:26:46.166721+00:00] [chaos] === circumstance 3/6: vrf_leakage (event_id=blind_20260716_1924_60m_e03_vrf_leakage, 28 min budget left) ===
+[2026-07-16T14:26:46.166918+00:00]   vrf_leakage run=blind_20260716_1924_60m_e03_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.0%/14ms over 4.0min, hold 6.8min
+[2026-07-16T14:37:43.307462+00:00] [chaos] sealed blind_20260716_1924_60m_e03_vrf_leakage: 2026-07-16T14:26:46.166909+00:00 -> 2026-07-16T14:30:53.819265+00:00
+[2026-07-16T14:37:46.953144+00:00] [chaos] normal ops 2.2 min...
+[2026-07-16T14:40:00.188355+00:00] [chaos] === circumstance 4/6: congestion_breach (event_id=blind_20260716_1924_60m_e04_congestion_breach, 15 min budget left) ===
+[2026-07-16T14:40:00.188614+00:00]   congestion_breach run=blind_20260716_1924_60m_e04_congestion_breach: 95->7mbit over 8.0min, 4 steps
+[2026-07-16T14:53:11.106511+00:00] [chaos] sealed blind_20260716_1924_60m_e04_congestion_breach: 2026-07-16T14:40:00.188601+00:00 -> 2026-07-16T14:48:08.678078+00:00
+[2026-07-16T14:53:12.999263+00:00] [chaos] normal ops 1.5 min...
+[2026-07-16T14:54:41.204615+00:00] [chaos] === circumstance 5/6: tunnel_degradation (event_id=blind_20260716_1924_60m_e05_tunnel_degradation, 0 min budget left) ===
+[2026-07-16T14:54:41.204885+00:00]   tunnel_degradation run=blind_20260716_1924_60m_e05_tunnel_degradation: ramping to 7.9% loss / 31ms delay over 6.3min
+[2026-07-16T15:05:18.597377+00:00] [chaos] sealed blind_20260716_1924_60m_e05_tunnel_degradation: 2026-07-16T14:54:41.204872+00:00 -> 2026-07-16T14:59:29.468031+00:00
+[2026-07-16T15:05:20.713881+00:00] ================================================================
+[2026-07-16T15:05:20.714043+00:00] BLIND CHAOS COMPLETE — 5 circumstances, 2 near-misses in 70.4 min
+[2026-07-16T15:05:20.714103+00:00] Run the scorecard AFTER the operator has stopped:
+[2026-07-16T15:05:20.714161+00:00]   python scripts/deca_blind_scorecard.py --run-id blind_20260716_1924_60m
+[2026-07-16T15:05:20.714217+00:00] ================================================================

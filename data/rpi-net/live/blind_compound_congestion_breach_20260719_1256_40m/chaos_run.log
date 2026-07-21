@@ -1,0 +1,25 @@
+[2026-07-19T07:26:16.132189+00:00] ================================================================
+[2026-07-19T07:26:16.132418+00:00] DECA BLIND CHAOS armed — run_id=blind_compound_congestion_breach_20260719_1256_40m seed=104017 (SEALED)
+[2026-07-19T07:26:16.132545+00:00] Budget 40 min | target 2-2 events + 1 near-misses | simulate=False
+[2026-07-19T07:26:16.132659+00:00] Fault pool: ['congestion_breach', 'tunnel_degradation', 'bgp_route_flap', 'vrf_leakage']
+[2026-07-19T07:26:16.132775+00:00] Compound prob=1.0 pe1=congestion_breach
+[2026-07-19T07:26:16.132922+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/blind_compound_congestion_breach_20260719_1256_40m/ground_truth.sealed.jsonl
+[2026-07-19T07:26:16.133017+00:00] ================================================================
+[2026-07-19T07:26:39.158546+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T07:26:40.611517+00:00] Baseline traffic: 85 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T07:26:50.628778+00:00]    SSH failed on station1@192.168.50.10: Connection timed out during banner exchange
+Connection to 192.168.50.10 port 22 timed out
+[2026-07-19T07:26:50.628921+00:00]    Could not launch iperf3 client on station1
+[2026-07-19T07:26:50.629050+00:00] [chaos] near-miss blind_compound_congestion_breach_20260719_1256_40m_nm01 (bait — should stay healthy)
+[2026-07-19T07:26:50.629105+00:00] NEAR-MISS aborted onset for 26s (not a real fault)...
+[2026-07-19T07:27:18.044749+00:00] [chaos] normal ops 2.9 min...
+[2026-07-19T07:30:12.489083+00:00] [chaos] === COMPOUND blind_compound_congestion_breach_20260719_1256_40m_cg01: congestion_breach (station1) + vrf_leakage (station2) OVERLAPPING, 36 min budget left ===
+[2026-07-19T07:30:12.489668+00:00]   congestion_breach run=blind_compound_congestion_breach_20260719_1256_40m_cg01_congestion_breach: 95->9mbit over 12.4min, 3 steps
+[2026-07-19T07:30:12.489942+00:00]   vrf_leakage run=blind_compound_congestion_breach_20260719_1256_40m_cg01_vrf_leakage: wrong RT import + PE2 symptom ramp to 3.6%/15ms over 7.7min, hold 7.5min
+[2026-07-19T07:46:13.517521+00:00] [chaos] sealed blind_compound_congestion_breach_20260719_1256_40m_cg01_e01_congestion_breach (compound blind_compound_congestion_breach_20260719_1256_40m_cg01): 2026-07-19T07:30:12.489647+00:00 -> 2026-07-19T07:43:00.923374+00:00
+[2026-07-19T07:46:13.517813+00:00] [chaos] sealed blind_compound_congestion_breach_20260719_1256_40m_cg01_e02_vrf_leakage (compound blind_compound_congestion_breach_20260719_1256_40m_cg01): 2026-07-19T07:30:12.489937+00:00 -> 2026-07-19T07:37:58.486839+00:00
+[2026-07-19T07:46:20.073851+00:00] ================================================================
+[2026-07-19T07:46:20.073964+00:00] BLIND CHAOS COMPLETE — 2 circumstances, 1 near-misses in 20.1 min
+[2026-07-19T07:46:20.074018+00:00] Run the scorecard AFTER the operator has stopped:
+[2026-07-19T07:46:20.074051+00:00]   python scripts/deca_blind_scorecard.py --run-id blind_compound_congestion_breach_20260719_1256_40m
+[2026-07-19T07:46:20.074077+00:00] ================================================================

@@ -1,0 +1,8 @@
+fault_type,fault_start,breach_time,run_id
+vrf_leakage,2026-07-18T12:28:23.463465+00:00,2026-07-18T12:34:07.571141+00:00,real_recall_vrf_leakage_001
+tunnel_degradation,2026-07-18T12:48:32.700452+00:00,2026-07-18T12:57:08.849640+00:00,real_recall_tunnel_degradation_001
+vrf_leakage,2026-07-18T13:12:28.251301+00:00,2026-07-18T13:16:41.827489+00:00,real_recall_vrf_leakage_002
+tunnel_degradation,2026-07-18T13:31:59.281119+00:00,2026-07-18T13:36:55.779869+00:00,real_recall_tunnel_degradation_002
+vrf_leakage,2026-07-18T13:48:07.253816+00:00,2026-07-18T13:55:41.915047+00:00,real_recall_vrf_leakage_003
+vrf_leakage,2026-07-18T14:14:13.835749+00:00,2026-07-18T14:20:48.434101+00:00,real_recall_vrf_leakage_004
+vrf_leakage,2026-07-18T14:35:01.461282+00:00,2026-07-18T14:44:03.789559+00:00,real_recall_vrf_leakage_005

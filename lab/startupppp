@@ -1,0 +1,74 @@
+# Enable agents on Station 1 and Station 2
+for H in station1 station2; do
+    ssh -t -q $H 'sudo systemctl enable frr strongswan-starter telegraf'
+done
+
+# Enable agents on Station 3
+ssh -t -q station3 'sudo systemctl enable frr pmacctd telegraf'
+
+# Enable Prometheus on the Laptop
+sudo systemctl enable prometheus
+
+
+ssh -t station1 'sudo bash -c "cat > /etc/rc.local << '\''EOF'\''
+#!/bin/bash
+ip netns add ce-a 2>/dev/null || true
+ip link add veth-pe-cea type veth peer name veth-cea-pe 2>/dev/null || true
+ip link set veth-cea-pe netns ce-a 2>/dev/null || true
+ip link set veth-pe-cea master vrf-mission 2>/dev/null || true
+ip addr add 10.10.1.2/30 dev veth-pe-cea 2>/dev/null || true
+ip link set veth-pe-cea up
+ip netns exec ce-a ip addr add 10.10.1.1/30 dev veth-cea-pe 2>/dev/null || true
+ip netns exec ce-a ip link set veth-cea-pe up
+ip netns exec ce-a ip link set lo up
+ip netns exec ce-a ip addr add 10.100.1.1/32 dev lo 2>/dev/null || true
+ip netns exec ce-a ip route add default via 10.10.1.2 2>/dev/null || true
+exit 0
+EOF"
+sudo chmod +x /etc/rc.local'
+
+
+
+ssh -t station2 'sudo bash -c "cat > /etc/rc.local << '\''EOF'\''
+#!/bin/bash
+ip netns add ce-b 2>/dev/null || true
+ip link add veth-pe-ceb type veth peer name veth-ceb-pe 2>/dev/null || true
+ip link set veth-ceb-pe netns ce-b 2>/dev/null || true
+ip link set veth-pe-ceb master vrf-mission 2>/dev/null || true
+ip addr add 10.10.2.2/30 dev veth-pe-ceb 2>/dev/null || true
+ip link set veth-pe-ceb up
+ip netns exec ce-b ip addr add 10.10.2.1/30 dev veth-ceb-pe 2>/dev/null || true
+ip netns exec ce-b ip link set veth-ceb-pe up
+ip netns exec ce-b ip link set lo up
+ip netns exec ce-b ip addr add 10.100.2.1/32 dev lo 2>/dev/null || true
+ip netns exec ce-b ip route add default via 10.10.2.2 2>/dev/null || true
+
+# Start the iPerf3 listening daemon automatically
+ip netns exec ce-b iperf3 -s -D
+exit 0
+EOF"
+sudo chmod +x /etc/rc.local'
+
+
+
+# Create the systemd service file
+sudo bash -c "cat > /etc/systemd/system/deca-traffic.service << EOF
+[Unit]
+Description=DECA Continuous Traffic Generator
+After=network.target
+
+[Service]
+Type=simple
+User=$USER
+ExecStart=$HOME/run_traffic.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF"
+
+# Enable and start the service
+sudo systemctl daemon-reload
+sudo systemctl enable deca-traffic.service
+sudo systemctl start deca-traffic.service

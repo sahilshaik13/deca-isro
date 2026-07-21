@@ -1,0 +1,112 @@
+{
+  "run_id": "specificity_exam_v1_20260717_1022",
+  "passed": false,
+  "pass_bar": {
+    "near_miss_fa": 1,
+    "near_miss_scored": 3,
+    "calm_spurious": 2,
+    "bgp_confirms": 0,
+    "require": {
+      "near_miss_fa": 0,
+      "calm_spurious": 0,
+      "bgp_confirms": 0
+    }
+  },
+  "phases": [
+    {
+      "phase_id": "warm",
+      "kind": "calm",
+      "t0": "2026-07-17T04:52:19.278326+00:00",
+      "t1": "2026-07-17T05:00:19.378055+00:00",
+      "note": "Feature warm-up; not scored for spurious",
+      "pass": true,
+      "detail": "warm-up \u2014 not scored"
+    },
+    {
+      "phase_id": "calm_a",
+      "kind": "calm",
+      "t0": "2026-07-17T05:00:19.378292+00:00",
+      "t1": "2026-07-17T05:06:19.478048+00:00",
+      "note": "Residual tunnel/congestion cry-wolf",
+      "pass": false,
+      "detail": "spurious=1",
+      "spurious": [
+        {
+          "host": "station2",
+          "ts": "2026-07-17T05:00:39.928908+00:00",
+          "class": "vrf_leakage"
+        }
+      ]
+    },
+    {
+      "phase_id": "nm01",
+      "kind": "near_miss",
+      "t0": "2026-07-17T05:06:19.478268+00:00",
+      "t1": "2026-07-17T05:06:53.321477+00:00",
+      "note": "Discrimination bait",
+      "pass": true,
+      "detail": "FA=False class=None",
+      "false_alarm": false,
+      "class": null
+    },
+    {
+      "phase_id": "calm_b",
+      "kind": "calm",
+      "t0": "2026-07-17T05:06:53.321657+00:00",
+      "t1": "2026-07-17T05:11:53.421828+00:00",
+      "note": "Recover / residual spurious",
+      "pass": false,
+      "detail": "spurious=1",
+      "spurious": [
+        {
+          "host": "station2",
+          "ts": "2026-07-17T05:09:08.021963+00:00",
+          "class": "tunnel_degradation"
+        }
+      ]
+    },
+    {
+      "phase_id": "nm02",
+      "kind": "near_miss",
+      "t0": "2026-07-17T05:11:53.422172+00:00",
+      "t1": "2026-07-17T05:12:38.050874+00:00",
+      "note": "Discrimination bait",
+      "pass": true,
+      "detail": "FA=False class=None",
+      "false_alarm": false,
+      "class": null
+    },
+    {
+      "phase_id": "calm_c",
+      "kind": "calm",
+      "t0": "2026-07-17T05:12:38.051126+00:00",
+      "t1": "2026-07-17T05:17:38.151105+00:00",
+      "note": "Residual FPs",
+      "pass": true,
+      "detail": "spurious=0",
+      "spurious": []
+    },
+    {
+      "phase_id": "nm03",
+      "kind": "near_miss",
+      "t0": "2026-07-17T05:17:38.151508+00:00",
+      "t1": "2026-07-17T05:18:15.705958+00:00",
+      "note": "Discrimination bait",
+      "pass": false,
+      "detail": "FA=True class=tunnel_degradation",
+      "false_alarm": true,
+      "class": "tunnel_degradation"
+    },
+    {
+      "phase_id": "calm_d",
+      "kind": "calm",
+      "t0": "2026-07-17T05:18:15.706315+00:00",
+      "t1": "2026-07-17T05:22:15.711202+00:00",
+      "note": "Final calm",
+      "pass": true,
+      "detail": "spurious=0",
+      "spurious": []
+    }
+  ],
+  "bgp_confirms": []
+}

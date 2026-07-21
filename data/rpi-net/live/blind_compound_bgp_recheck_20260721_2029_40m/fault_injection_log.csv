@@ -1,0 +1,3 @@
+fault_type,fault_start,breach_time,run_id
+bgp_route_flap,2026-07-21T15:02:10.852527+00:00,2026-07-21T15:12:13.794052+00:00,real_blind_compound_bgp_recheck_20260721_2029_40m_cg01_e01_bgp_route_flap
+vrf_leakage,2026-07-21T15:02:10.852698+00:00,2026-07-21T15:06:15.130721+00:00,real_blind_compound_bgp_recheck_20260721_2029_40m_cg01_e02_vrf_leakage

@@ -1,0 +1,218 @@
+============================================================
+[series] START blind_compound_bgp_route_flap_20260719_1239_40m  pe1=bgp_route_flap + vrf_leakage
+============================================================
+[series] faults cleared
+==============================================================
+ DECA BLIND TEST  run_id=blind_compound_bgp_route_flap_20260719_1239_40m  start_at=now  budget=40m
+==============================================================
+Pre-flight: run 'bash ~/deca_diagnostic.sh' and confirm all green,
+and that Prometheus is healthy: curl -s localhost:9090/-/ready
+Operator NOC feed will stream to: data/rpi-net/live/blind_compound_bgp_route_flap_20260719_1239_40m/operator_feed.log  (tail -f to watch)
+
+Operator armed (pid 654431). tail -f data/rpi-net/live/blind_compound_bgp_route_flap_20260719_1239_40m/operator_feed.log
+[2026-07-19T07:09:04.022781+00:00] ================================================================
+[2026-07-19T07:09:04.022865+00:00] DECA BLIND CHAOS armed — run_id=blind_compound_bgp_route_flap_20260719_1239_40m seed=164997 (SEALED)
+[2026-07-19T07:09:04.022903+00:00] Budget 40 min | target 2-2 events + 1 near-misses | simulate=False
+[2026-07-19T07:09:04.022933+00:00] Fault pool: ['congestion_breach', 'tunnel_degradation', 'bgp_route_flap', 'vrf_leakage']
+[2026-07-19T07:09:04.022956+00:00] Compound prob=1.0 pe1=bgp_route_flap
+[2026-07-19T07:09:04.023016+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/blind_compound_bgp_route_flap_20260719_1239_40m/ground_truth.sealed.jsonl
+[2026-07-19T07:09:04.023051+00:00] ================================================================
+[2026-07-19T07:09:07.212210+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T07:09:08.681824+00:00] Baseline traffic: 36 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T07:09:13.500729+00:00]    iperf3 client running (~36 Mbps)
+[2026-07-19T07:09:13.500888+00:00] [chaos] near-miss blind_compound_bgp_route_flap_20260719_1239_40m_nm01 (bait — should stay healthy)
+[2026-07-19T07:09:13.500928+00:00] NEAR-MISS aborted onset for 34s (not a real fault)...
+[2026-07-19T07:09:49.481132+00:00] [chaos] normal ops 1.9 min...
+[2026-07-19T07:11:45.482931+00:00] [chaos] === COMPOUND blind_compound_bgp_route_flap_20260719_1239_40m_cg01: bgp_route_flap (station1) + vrf_leakage (station2) OVERLAPPING, 37 min budget left ===
+[2026-07-19T07:11:45.483591+00:00]   bgp_route_flap run=blind_compound_bgp_route_flap_20260719_1239_40m_cg01_bgp_route_flap: 4 slow flaps over 8.7min, then 5 rapid flaps
+[2026-07-19T07:11:45.483921+00:00]   vrf_leakage run=blind_compound_bgp_route_flap_20260719_1239_40m_cg01_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.9%/13ms over 6.5min, hold 6.8min
+[2026-07-19T07:25:10.401366+00:00] [chaos] sealed blind_compound_bgp_route_flap_20260719_1239_40m_cg01_e01_bgp_route_flap (compound blind_compound_bgp_route_flap_20260719_1239_40m_cg01): 2026-07-19T07:11:45.483570+00:00 -> 2026-07-19T07:20:29.688058+00:00
+[2026-07-19T07:25:10.401504+00:00] [chaos] sealed blind_compound_bgp_route_flap_20260719_1239_40m_cg01_e02_vrf_leakage (compound blind_compound_bgp_route_flap_20260719_1239_40m_cg01): 2026-07-19T07:11:45.483906+00:00 -> 2026-07-19T07:18:18.657083+00:00
+[2026-07-19T07:25:12.534319+00:00] ================================================================
+[2026-07-19T07:25:12.534472+00:00] BLIND CHAOS COMPLETE — 2 circumstances, 1 near-misses in 16.1 min
+[2026-07-19T07:25:12.534499+00:00] Run the scorecard AFTER the operator has stopped:
+[2026-07-19T07:25:12.534524+00:00]   python scripts/deca_blind_scorecard.py --run-id blind_compound_bgp_route_flap_20260719_1239_40m
+[2026-07-19T07:25:12.534546+00:00] ================================================================
+Chaos finished; letting the operator settle for 30s before stopping...
+Operator ignored SIGINT — sending TERM...
+
+Grading...
+====================================================================
+  DECA BLIND TEST SCORECARD — blind_compound_bgp_route_flap_20260719_1239_40m
+====================================================================
+  Circumstances the network created : 2
+  Detected by the models            : 2  (rate 1.0)
+  Correct fault class (first decl)  : 1  (accuracy 0.5)
+  Correct class (ever, in-window)   : 1  (accuracy 0.5)
+  Missed                            : 0
+  Mean confirmed lead before breach : 6.2 min
+  Mean advisory lead before breach  : 6.8 min  (class-agnostic; 'something forming')
+  LSTM ETA mean abs error           : 3.0 min
+  Severity bucket agreement         : 0.0  (2 scored)
+  Severity continuous Pearson r     : -1.0  (2 pairs)
+  Near-miss false alarms            : 0 / 1
+  Spurious false alarms             : 0
+====================================================================
+  Per-circumstance:
+   [HIT ] bgp_route_flap     station1  lead(conf/adv)=7.2/7.8min ETA=4.8/7.2 sev=low~medium ->vrf_leakage [cascade cg01]
+   [HIT ] vrf_leakage        station2  lead(conf/adv)=5.1/5.8min ETA=8.6/5.1 sev=medium~low ok [cascade cg01]
+====================================================================
+
+  scorecard.json -> /home/brain/deca-isro/data/rpi-net/live/blind_compound_bgp_route_flap_20260719_1239_40m/scorecard.json
+  canvas         -> /home/brain/.cursor/projects/home-brain-deca-isro/canvases/deca-blind-test.canvas.tsx
+[series] GRADE blind_compound_bgp_route_flap_20260719_1239_40m
+  detect 2/2 class 1/2 missed 0 spur 0 nm_fa 0/1
+  event bgp_route_flap host=station1 detected=True pred=vrf_leakage compound=blind_compound_bgp_route_flap_20260719_1239_40m_cg01
+  event vrf_leakage host=station2 detected=True pred=vrf_leakage compound=blind_compound_bgp_route_flap_20260719_1239_40m_cg01
+[series] DONE blind_compound_bgp_route_flap_20260719_1239_40m
+============================================================
+[series] START blind_compound_congestion_breach_20260719_1256_40m  pe1=congestion_breach + vrf_leakage
+============================================================
+[series] faults cleared
+==============================================================
+ DECA BLIND TEST  run_id=blind_compound_congestion_breach_20260719_1256_40m  start_at=now  budget=40m
+==============================================================
+Pre-flight: run 'bash ~/deca_diagnostic.sh' and confirm all green,
+and that Prometheus is healthy: curl -s localhost:9090/-/ready
+Operator NOC feed will stream to: data/rpi-net/live/blind_compound_congestion_breach_20260719_1256_40m/operator_feed.log  (tail -f to watch)
+
+Operator armed (pid 661939). tail -f data/rpi-net/live/blind_compound_congestion_breach_20260719_1256_40m/operator_feed.log
+[2026-07-19T07:26:16.132189+00:00] ================================================================
+[2026-07-19T07:26:16.132418+00:00] DECA BLIND CHAOS armed — run_id=blind_compound_congestion_breach_20260719_1256_40m seed=104017 (SEALED)
+[2026-07-19T07:26:16.132545+00:00] Budget 40 min | target 2-2 events + 1 near-misses | simulate=False
+[2026-07-19T07:26:16.132659+00:00] Fault pool: ['congestion_breach', 'tunnel_degradation', 'bgp_route_flap', 'vrf_leakage']
+[2026-07-19T07:26:16.132775+00:00] Compound prob=1.0 pe1=congestion_breach
+[2026-07-19T07:26:16.132922+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/blind_compound_congestion_breach_20260719_1256_40m/ground_truth.sealed.jsonl
+[2026-07-19T07:26:16.133017+00:00] ================================================================
+[2026-07-19T07:26:39.158546+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T07:26:40.611517+00:00] Baseline traffic: 85 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T07:26:50.628778+00:00]    SSH failed on station1@192.168.50.10: Connection timed out during banner exchange
+Connection to 192.168.50.10 port 22 timed out
+[2026-07-19T07:26:50.628921+00:00]    Could not launch iperf3 client on station1
+[2026-07-19T07:26:50.629050+00:00] [chaos] near-miss blind_compound_congestion_breach_20260719_1256_40m_nm01 (bait — should stay healthy)
+[2026-07-19T07:26:50.629105+00:00] NEAR-MISS aborted onset for 26s (not a real fault)...
+[2026-07-19T07:27:18.044749+00:00] [chaos] normal ops 2.9 min...
+[2026-07-19T07:30:12.489083+00:00] [chaos] === COMPOUND blind_compound_congestion_breach_20260719_1256_40m_cg01: congestion_breach (station1) + vrf_leakage (station2) OVERLAPPING, 36 min budget left ===
+[2026-07-19T07:30:12.489668+00:00]   congestion_breach run=blind_compound_congestion_breach_20260719_1256_40m_cg01_congestion_breach: 95->9mbit over 12.4min, 3 steps
+[2026-07-19T07:30:12.489942+00:00]   vrf_leakage run=blind_compound_congestion_breach_20260719_1256_40m_cg01_vrf_leakage: wrong RT import + PE2 symptom ramp to 3.6%/15ms over 7.7min, hold 7.5min
+[2026-07-19T07:46:13.517521+00:00] [chaos] sealed blind_compound_congestion_breach_20260719_1256_40m_cg01_e01_congestion_breach (compound blind_compound_congestion_breach_20260719_1256_40m_cg01): 2026-07-19T07:30:12.489647+00:00 -> 2026-07-19T07:43:00.923374+00:00
+[2026-07-19T07:46:13.517813+00:00] [chaos] sealed blind_compound_congestion_breach_20260719_1256_40m_cg01_e02_vrf_leakage (compound blind_compound_congestion_breach_20260719_1256_40m_cg01): 2026-07-19T07:30:12.489937+00:00 -> 2026-07-19T07:37:58.486839+00:00
+[2026-07-19T07:46:20.073851+00:00] ================================================================
+[2026-07-19T07:46:20.073964+00:00] BLIND CHAOS COMPLETE — 2 circumstances, 1 near-misses in 20.1 min
+[2026-07-19T07:46:20.074018+00:00] Run the scorecard AFTER the operator has stopped:
+[2026-07-19T07:46:20.074051+00:00]   python scripts/deca_blind_scorecard.py --run-id blind_compound_congestion_breach_20260719_1256_40m
+[2026-07-19T07:46:20.074077+00:00] ================================================================
+Chaos finished; letting the operator settle for 30s before stopping...
+Operator ignored SIGINT — sending TERM...
+
+Grading...
+====================================================================
+  DECA BLIND TEST SCORECARD — blind_compound_congestion_breach_20260719_1256_40m
+====================================================================
+  Circumstances the network created : 2
+  Detected by the models            : 1  (rate 0.5)
+  Correct fault class (first decl)  : 1  (accuracy 0.5)
+  Correct class (ever, in-window)   : 1  (accuracy 0.5)
+  Missed                            : 1
+  Mean confirmed lead before breach : 10.5 min
+  Mean advisory lead before breach  : 9.1 min  (class-agnostic; 'something forming')
+  LSTM ETA mean abs error           : 4.1 min
+  Severity bucket agreement         : 1.0  (1 scored)
+  Severity continuous Pearson r     : None  (1 pairs)
+  Near-miss false alarms            : 0 / 1
+  Spurious false alarms             : 3
+====================================================================
+  Per-circumstance:
+   [HIT ] congestion_breach  station1  lead(conf/adv)=10.5/11.3min ETA=6.4/10.5 sev=medium~medium ok [cascade cg01]
+   [MISS] vrf_leakage        station2  lead(conf/adv)=None/6.8min ETA=None/None sev=None~high ->None [cascade cg01]
+====================================================================
+
+  scorecard.json -> /home/brain/deca-isro/data/rpi-net/live/blind_compound_congestion_breach_20260719_1256_40m/scorecard.json
+  canvas         -> /home/brain/.cursor/projects/home-brain-deca-isro/canvases/deca-blind-test.canvas.tsx
+[series] GRADE blind_compound_congestion_breach_20260719_1256_40m
+  detect 1/2 class 1/2 missed 1 spur 3 nm_fa 0/1
+  event congestion_breach host=station1 detected=True pred=congestion_breach compound=blind_compound_congestion_breach_20260719_1256_40m_cg01
+  event vrf_leakage host=station2 detected=False pred=None compound=blind_compound_congestion_breach_20260719_1256_40m_cg01
+[series] DONE blind_compound_congestion_breach_20260719_1256_40m
+============================================================
+[series] START blind_compound_tunnel_degradation_20260719_1317_40m  pe1=tunnel_degradation + vrf_leakage
+============================================================
+[series] faults cleared
+==============================================================
+ DECA BLIND TEST  run_id=blind_compound_tunnel_degradation_20260719_1317_40m  start_at=now  budget=40m
+==============================================================
+Pre-flight: run 'bash ~/deca_diagnostic.sh' and confirm all green,
+and that Prometheus is healthy: curl -s localhost:9090/-/ready
+Operator NOC feed will stream to: data/rpi-net/live/blind_compound_tunnel_degradation_20260719_1317_40m/operator_feed.log  (tail -f to watch)
+
+Operator armed (pid 669345). tail -f data/rpi-net/live/blind_compound_tunnel_degradation_20260719_1317_40m/operator_feed.log
+[2026-07-19T07:47:31.878423+00:00] ================================================================
+[2026-07-19T07:47:31.878663+00:00] DECA BLIND CHAOS armed — run_id=blind_compound_tunnel_degradation_20260719_1317_40m seed=541865 (SEALED)
+[2026-07-19T07:47:31.878790+00:00] Budget 40 min | target 2-2 events + 1 near-misses | simulate=False
+[2026-07-19T07:47:31.878903+00:00] Fault pool: ['congestion_breach', 'tunnel_degradation', 'bgp_route_flap', 'vrf_leakage']
+[2026-07-19T07:47:31.879031+00:00] Compound prob=1.0 pe1=tunnel_degradation
+[2026-07-19T07:47:31.879198+00:00] Sealed truth: /home/brain/deca-isro/data/rpi-net/live/blind_compound_tunnel_degradation_20260719_1317_40m/ground_truth.sealed.jsonl
+[2026-07-19T07:47:31.879320+00:00] ================================================================
+[2026-07-19T07:47:34.929919+00:00]    iperf3 server listening on station2 (192.168.50.20)
+[2026-07-19T07:47:36.269236+00:00] Baseline traffic: 74 Mbps (station1 -> 192.168.50.20 via eth0)
+[2026-07-19T07:47:40.989065+00:00]    iperf3 client running (~74 Mbps)
+[2026-07-19T07:47:40.989226+00:00] [chaos] near-miss blind_compound_tunnel_degradation_20260719_1317_40m_nm01 (bait — should stay healthy)
+[2026-07-19T07:47:40.989287+00:00] NEAR-MISS aborted onset for 45s (not a real fault)...
+[2026-07-19T07:48:26.701642+00:00] [chaos] normal ops 2.8 min...
+[2026-07-19T07:51:14.730665+00:00] [chaos] === COMPOUND blind_compound_tunnel_degradation_20260719_1317_40m_cg01: tunnel_degradation (station1) + vrf_leakage (station2) OVERLAPPING, 36 min budget left ===
+[2026-07-19T07:51:14.731365+00:00]   tunnel_degradation run=blind_compound_tunnel_degradation_20260719_1317_40m_cg01_tunnel_degradation: ramping to 11.5% loss / 45ms delay over 8.7min
+[2026-07-19T07:51:14.731740+00:00]   vrf_leakage run=blind_compound_tunnel_degradation_20260719_1317_40m_cg01_vrf_leakage: wrong RT import + PE2 symptom ramp to 2.9%/8ms over 4.1min, hold 6.5min
+[2026-07-19T08:01:59.951114+00:00] [chaos] sealed blind_compound_tunnel_degradation_20260719_1317_40m_cg01_e01_tunnel_degradation (compound blind_compound_tunnel_degradation_20260719_1317_40m_cg01): 2026-07-19T07:51:14.731350+00:00 -> 2026-07-19T07:57:04.718440+00:00
+[2026-07-19T08:01:59.951286+00:00] [chaos] sealed blind_compound_tunnel_degradation_20260719_1317_40m_cg01_e02_vrf_leakage (compound blind_compound_tunnel_degradation_20260719_1317_40m_cg01): 2026-07-19T07:51:14.731735+00:00 -> 2026-07-19T07:55:26.304633+00:00
+[2026-07-19T08:02:02.611112+00:00] ================================================================
+[2026-07-19T08:02:02.611221+00:00] BLIND CHAOS COMPLETE — 2 circumstances, 1 near-misses in 14.5 min
+[2026-07-19T08:02:02.611256+00:00] Run the scorecard AFTER the operator has stopped:
+[2026-07-19T08:02:02.611286+00:00]   python scripts/deca_blind_scorecard.py --run-id blind_compound_tunnel_degradation_20260719_1317_40m
+[2026-07-19T08:02:02.611323+00:00] ================================================================
+Chaos finished; letting the operator settle for 30s before stopping...
+Operator ignored SIGINT — sending TERM...
+
+Grading...
+====================================================================
+  DECA BLIND TEST SCORECARD — blind_compound_tunnel_degradation_20260719_1317_40m
+====================================================================
+  Circumstances the network created : 2
+  Detected by the models            : 1  (rate 0.5)
+  Correct fault class (first decl)  : 1  (accuracy 0.5)
+  Correct class (ever, in-window)   : 1  (accuracy 0.5)
+  Missed                            : 1
+  Mean confirmed lead before breach : 2.3 min
+  Mean advisory lead before breach  : 2.8 min  (class-agnostic; 'something forming')
+  LSTM ETA mean abs error           : 1.0 min
+  Severity bucket agreement         : 0.0  (1 scored)
+  Severity continuous Pearson r     : None  (1 pairs)
+  Near-miss false alarms            : 0 / 1
+  Spurious false alarms             : 0
+====================================================================
+  Per-circumstance:
+   [HIT ] tunnel_degradation station1  lead(conf/adv)=2.3/2.8min ETA=3.3/2.3 sev=high~low ok [cascade cg01]
+   [MISS] vrf_leakage        station2  lead(conf/adv)=None/2.7min ETA=None/None sev=None~high ->None [cascade cg01]
+====================================================================
+
+  scorecard.json -> /home/brain/deca-isro/data/rpi-net/live/blind_compound_tunnel_degradation_20260719_1317_40m/scorecard.json
+  canvas         -> /home/brain/.cursor/projects/home-brain-deca-isro/canvases/deca-blind-test.canvas.tsx
+[series] GRADE blind_compound_tunnel_degradation_20260719_1317_40m
+  detect 1/2 class 1/2 missed 1 spur 0 nm_fa 0/1
+  event tunnel_degradation host=station1 detected=True pred=tunnel_degradation compound=blind_compound_tunnel_degradation_20260719_1317_40m_cg01
+  event vrf_leakage host=station2 detected=False pred=None compound=blind_compound_tunnel_degradation_20260719_1317_40m_cg01
+[series] DONE blind_compound_tunnel_degradation_20260719_1317_40m
+[series] ALL COMPLETE
+
+=== COMPOUND SERIES ROLLUP ===
+bgp_route_flap+vrf  blind_compound_bgp_route_flap_20260719_1239_40m
+  detect=2/2 class_acc=0.5 missed=0 spur=0
+    bgp_route_flap: det=True pred=vrf_leakage
+    vrf_leakage: det=True pred=vrf_leakage
+congestion_breach+vrf  blind_compound_congestion_breach_20260719_1256_40m
+  detect=1/2 class_acc=0.5 missed=1 spur=3
+    congestion_breach: det=True pred=congestion_breach
+    vrf_leakage: det=False pred=None
+tunnel_degradation+vrf  blind_compound_tunnel_degradation_20260719_1317_40m
+  detect=1/2 class_acc=0.5 missed=1 spur=0
+    tunnel_degradation: det=True pred=tunnel_degradation
+    vrf_leakage: det=False pred=None
