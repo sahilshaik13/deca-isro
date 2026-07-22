@@ -1,0 +1,1912 @@
+{
+  "written_at_utc": "2026-07-22T04:23:22.595208+00:00",
+  "isolated": true,
+  "promoted_untouched_check_pending": true,
+  "runs": {
+    "tunnel_vrf": {
+      "run_id": "blind_baseline_feature_tunnel_20260721_2302_40m",
+      "summary": {
+        "run_id": "blind_baseline_feature_tunnel_20260721_2302_40m",
+        "circumstances_created": 2,
+        "detected": 1,
+        "detection_rate": 0.5,
+        "class_correct": 1,
+        "class_accuracy": 0.5,
+        "class_correct_eventually": 1,
+        "class_accuracy_eventually": 0.5,
+        "missed": 1,
+        "compound_events": 2,
+        "near_misses": 0,
+        "near_miss_false_alarms": 0,
+        "spurious_false_alarms": 0,
+        "mean_confirmed_lead_min": 3.3,
+        "mean_advisory_lead_min": 5.8,
+        "eta_mae_min": 4.5,
+        "severity_scored": 1,
+        "severity_agreement": 0.0,
+        "severity_pearson_r": null,
+        "severity_pairs": 1,
+        "graded_at": "2026-07-21T17:50:37.447884+00:00",
+        "severity_from_prometheus": true
+      },
+      "legs": [
+        {
+          "host": "station1",
+          "truth": "tunnel_degradation",
+          "n_frames": 31,
+          "gate_pass_frac": 0.6451612903225806,
+          "mean_p_truth": 0.009767263196408749,
+          "max_p_truth": 0.021146263927221298,
+          "mean_adj_truth": 0.009767263196408749,
+          "max_adj_truth": 0.021146263927221298,
+          "mean_p_healthy": 0.35819780826568604,
+          "pred_counts": {
+            "vrf_leakage": 17,
+            "healthy(gate)": 11,
+            "healthy": 3
+          },
+          "median_rank_when_gate_pass": 2.0,
+          "winning_fault_pred": "vrf_leakage",
+          "orthogonal": {
+            "bgp_flap_count_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 691.0,
+              "max": 691.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_w2m_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_w2m_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_w2m_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 691.0,
+              "max": 691.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_w2m_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_w2m_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_w2m_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_w2m_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_w2m_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            }
+          },
+          "diagnosis": "zeroed_out",
+          "t0": "2026-07-21 17:35:45.170706+00:00",
+          "t1": "2026-07-21 17:43:40.622087+00:00",
+          "detected_in_scorecard": true,
+          "scorecard_pred": "tunnel_degradation"
+        },
+        {
+          "host": "station2",
+          "truth": "vrf_leakage",
+          "n_frames": 46,
+          "gate_pass_frac": 0.782608695652174,
+          "mean_p_truth": 0.7257955074310303,
+          "max_p_truth": 0.9934735894203186,
+          "mean_adj_truth": 0.7257955074310303,
+          "max_adj_truth": 0.9934735894203186,
+          "mean_p_healthy": 0.2658945918083191,
+          "pred_counts": {
+            "vrf_leakage": 35,
+            "healthy(gate)": 10,
+            "healthy": 1
+          },
+          "median_rank_when_gate_pass": 1.0,
+          "winning_fault_pred": "vrf_leakage",
+          "orthogonal": {
+            "bgp_flap_count_slope": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_rolling_std": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_rolling_mean": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_accel": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_z_slope": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_z_rolling_std": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_z_rolling_mean": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_z_accel": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_slope": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_rolling_std": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_rolling_mean": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_accel": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_z_slope": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_z_rolling_std": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_z_rolling_mean": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_z_accel": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "vrf_route_count_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.005797101449275362,
+              "max": 0.26666666666666666,
+              "std": 0.03931785497463922
+            },
+            "vrf_route_count_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 1.3775302357680606,
+              "max": 2.025478734167333,
+              "std": 0.6999081529012493
+            },
+            "vrf_route_count_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 2.3043478260869565,
+              "max": 4.0,
+              "std": 1.2748780371713349
+            },
+            "vrf_route_count_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.017777777777777778,
+              "std": 0.003747884634273635
+            },
+            "vrf_route_count_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.002888223816581123,
+              "max": 0.13285829556273165,
+              "std": 0.019588886989174655
+            },
+            "vrf_route_count_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.6863111970385216,
+              "max": 1.0091311962001168,
+              "std": 0.34870726591844925
+            },
+            "vrf_route_count_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": -0.8448054663499783,
+              "max": 0.0,
+              "std": 0.6351679615085415
+            },
+            "vrf_route_count_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.00885721970418211,
+              "std": 0.0018672658667825512
+            },
+            "vrf_route_count_w2m_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.005797101449275362,
+              "max": 0.26666666666666666,
+              "std": 0.03931785497463922
+            },
+            "vrf_route_count_w2m_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.27848240902586774,
+              "max": 2.138089935299395,
+              "std": 0.6738378835975455
+            },
+            "vrf_route_count_w2m_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 3.6956521739130435,
+              "max": 4.0,
+              "std": 0.8264936705381436
+            },
+            "vrf_route_count_w2m_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.017777777777777778,
+              "std": 0.003747884634273635
+            },
+            "vrf_route_count_w2m_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.002888223816581123,
+              "max": 0.13285829556273165,
+              "std": 0.019588886989174655
+            },
+            "vrf_route_count_w2m_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.13874511827767605,
+              "max": 1.0652361921139084,
+              "std": 0.33571857262638116
+            },
+            "vrf_route_count_w2m_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": -0.15163175037050894,
+              "max": 0.0,
+              "std": 0.41177452635406375
+            },
+            "vrf_route_count_w2m_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.00885721970418211,
+              "std": 0.0018672658667825512
+            }
+          },
+          "diagnosis": "would_win_raw_but_maybe_loom",
+          "t0": "2026-07-21 17:35:45.171249+00:00",
+          "t1": "2026-07-21 17:47:19.819059+00:00",
+          "detected_in_scorecard": false,
+          "scorecard_pred": null
+        }
+      ]
+    },
+    "bgp_vrf": {
+      "run_id": "blind_baseline_feature_bgp_20260721_2321_40m",
+      "summary": {
+        "run_id": "blind_baseline_feature_bgp_20260721_2321_40m",
+        "circumstances_created": 2,
+        "detected": 1,
+        "detection_rate": 0.5,
+        "class_correct": 1,
+        "class_accuracy": 0.5,
+        "class_correct_eventually": 1,
+        "class_accuracy_eventually": 0.5,
+        "missed": 1,
+        "compound_events": 2,
+        "near_misses": 0,
+        "near_miss_false_alarms": 0,
+        "spurious_false_alarms": 0,
+        "mean_confirmed_lead_min": 7.4,
+        "mean_advisory_lead_min": 8.6,
+        "eta_mae_min": 5.9,
+        "severity_scored": 1,
+        "severity_agreement": 0.0,
+        "severity_pearson_r": null,
+        "severity_pairs": 1,
+        "graded_at": "2026-07-21T18:07:45.582278+00:00",
+        "severity_from_prometheus": true
+      },
+      "legs": [
+        {
+          "host": "station1",
+          "truth": "bgp_route_flap",
+          "n_frames": 54,
+          "gate_pass_frac": 0.4444444444444444,
+          "mean_p_truth": 0.03737461566925049,
+          "max_p_truth": 0.15279445052146912,
+          "mean_adj_truth": 0.03737461566925049,
+          "max_adj_truth": 0.15279445052146912,
+          "mean_p_healthy": 0.5633227825164795,
+          "pred_counts": {
+            "healthy(gate)": 30,
+            "vrf_leakage": 23,
+            "healthy": 1
+          },
+          "median_rank_when_gate_pass": 2.0,
+          "winning_fault_pred": "vrf_leakage",
+          "orthogonal": {
+            "bgp_flap_count_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0308641975308642,
+              "max": 0.26666666666666666,
+              "std": 0.0717706140562164
+            },
+            "bgp_flap_count_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 2.6636735193472614,
+              "max": 7.543676244513873,
+              "std": 1.6754148968318305
+            },
+            "bgp_flap_count_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 694.9,
+              "max": 702.375,
+              "std": 3.105070412108389
+            },
+            "bgp_flap_count_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.013333333333333334,
+              "std": 0.004807014053825246
+            },
+            "bgp_flap_count_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.005204404008307062,
+              "max": 0.044966050631773016,
+              "std": 0.01210215399571975
+            },
+            "bgp_flap_count_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.4491557937656005,
+              "max": 1.2720349798520216,
+              "std": 0.2825129665506506
+            },
+            "bgp_flap_count_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": -0.016862268986914897,
+              "max": 1.2435923377849725,
+              "std": 0.5235853251228224
+            },
+            "bgp_flap_count_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.002248302531588651,
+              "std": 0.0008105716399948143
+            },
+            "bgp_flap_count_w2m_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0308641975308642,
+              "max": 0.26666666666666666,
+              "std": 0.0717706140562164
+            },
+            "bgp_flap_count_w2m_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 1.2900759610712842,
+              "max": 6.697547525560585,
+              "std": 1.800921535250402
+            },
+            "bgp_flap_count_w2m_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 698.7708333333334,
+              "max": 715.75,
+              "std": 6.018434240526947
+            },
+            "bgp_flap_count_w2m_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.013333333333333334,
+              "std": 0.004807014053825246
+            },
+            "bgp_flap_count_w2m_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.005204404008307062,
+              "max": 0.044966050631773016,
+              "std": 0.01210215399571975
+            },
+            "bgp_flap_count_w2m_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.2175360786913694,
+              "max": 1.1293584792864886,
+              "std": 0.3036762335171994
+            },
+            "bgp_flap_count_w2m_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.6358480597149152,
+              "max": 3.498920814784838,
+              "std": 1.0148445704382416
+            },
+            "bgp_flap_count_w2m_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.002248302531588651,
+              "std": 0.0008105716399948143
+            },
+            "vrf_route_count_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            }
+          },
+          "diagnosis": "present_but_outvoted",
+          "t0": "2026-07-21 17:53:27.385745+00:00",
+          "t1": "2026-07-21 18:06:56.990071+00:00",
+          "detected_in_scorecard": false,
+          "scorecard_pred": null
+        },
+        {
+          "host": "station2",
+          "truth": "vrf_leakage",
+          "n_frames": 48,
+          "gate_pass_frac": 0.7083333333333334,
+          "mean_p_truth": 0.4736621081829071,
+          "max_p_truth": 0.9527001976966858,
+          "mean_adj_truth": 0.4736621081829071,
+          "max_adj_truth": 0.9527001976966858,
+          "mean_p_healthy": 0.42023372650146484,
+          "pred_counts": {
+            "vrf_leakage": 21,
+            "healthy(gate)": 14,
+            "healthy": 13
+          },
+          "median_rank_when_gate_pass": 1.0,
+          "winning_fault_pred": "vrf_leakage",
+          "orthogonal": {
+            "bgp_flap_count_slope": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_rolling_std": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_rolling_mean": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_accel": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_z_slope": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_z_rolling_std": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_z_rolling_mean": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_z_accel": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_slope": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_rolling_std": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_rolling_mean": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_accel": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_z_slope": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_z_rolling_std": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_z_rolling_mean": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_z_accel": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "vrf_route_count_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.005555555555555556,
+              "max": 0.26666666666666666,
+              "std": 0.03849001794597504
+            },
+            "vrf_route_count_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 1.4523528974649935,
+              "max": 1.96116135138184,
+              "std": 0.7659332196782526
+            },
+            "vrf_route_count_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 3.0,
+              "max": 4.0,
+              "std": 0.6256911072583081
+            },
+            "vrf_route_count_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.017777777777777778,
+              "std": 0.003667275542253488
+            },
+            "vrf_route_count_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0028918401758581853,
+              "max": 0.1388083284411929,
+              "std": 0.02003525644782117
+            },
+            "vrf_route_count_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.7559950425143961,
+              "max": 1.0208457337079409,
+              "std": 0.39869216220419734
+            },
+            "vrf_route_count_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": -0.5205312316544733,
+              "max": 0.0,
+              "std": 0.3256917626964183
+            },
+            "vrf_route_count_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.009253888562746193,
+              "std": 0.0019089314548255347
+            },
+            "vrf_route_count_w2m_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.005555555555555556,
+              "max": 0.26666666666666666,
+              "std": 0.03849001794597504
+            },
+            "vrf_route_count_w2m_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.2668789753164566,
+              "max": 2.138089935299395,
+              "std": 0.6617389953048731
+            },
+            "vrf_route_count_w2m_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 3.7083333333333335,
+              "max": 4.0,
+              "std": 0.8110495782871208
+            },
+            "vrf_route_count_w2m_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.017777777777777778,
+              "std": 0.003667275542253488
+            },
+            "vrf_route_count_w2m_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0028918401758581853,
+              "max": 0.1388083284411929,
+              "std": 0.02003525644782117
+            },
+            "vrf_route_count_w2m_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.1389188417241589,
+              "max": 1.1129425874094272,
+              "std": 0.34445581425983923
+            },
+            "vrf_route_count_w2m_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": -0.15182160923255472,
+              "max": 0.0,
+              "std": 0.4221766359186362
+            },
+            "vrf_route_count_w2m_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.009253888562746193,
+              "std": 0.0019089314548255347
+            }
+          },
+          "diagnosis": "would_win_raw_but_maybe_loom",
+          "t0": "2026-07-21 17:53:27.386076+00:00",
+          "t1": "2026-07-21 18:05:15.133474+00:00",
+          "detected_in_scorecard": true,
+          "scorecard_pred": "vrf_leakage"
+        }
+      ]
+    },
+    "control": {
+      "error": "no prometheus data",
+      "run_id": "control_baseline_feature_20260721_2241_20m"
+    },
+    "tunnel_vrf_earlier": {
+      "run_id": "blind_compound_tunnel_recheck_20260721_2012_40m",
+      "summary": {
+        "run_id": "blind_compound_tunnel_recheck_20260721_2012_40m",
+        "circumstances_created": 2,
+        "detected": 1,
+        "detection_rate": 0.5,
+        "class_correct": 1,
+        "class_accuracy": 0.5,
+        "class_correct_eventually": 1,
+        "class_accuracy_eventually": 0.5,
+        "missed": 1,
+        "compound_events": 2,
+        "near_misses": 0,
+        "near_miss_false_alarms": 0,
+        "spurious_false_alarms": 0,
+        "mean_confirmed_lead_min": 5.1,
+        "mean_advisory_lead_min": 4.7,
+        "eta_mae_min": 2.7,
+        "severity_scored": 1,
+        "severity_agreement": 0.0,
+        "severity_pearson_r": null,
+        "severity_pairs": 1,
+        "graded_at": "2026-07-21T14:59:47.076809+00:00",
+        "severity_from_prometheus": true
+      },
+      "legs": [
+        {
+          "host": "station1",
+          "truth": "tunnel_degradation",
+          "n_frames": 40,
+          "gate_pass_frac": 0.85,
+          "mean_p_truth": 0.04964394122362137,
+          "max_p_truth": 0.2493373304605484,
+          "mean_adj_truth": 0.04964394122362137,
+          "max_adj_truth": 0.2493373304605484,
+          "mean_p_healthy": 0.32253941893577576,
+          "pred_counts": {
+            "vrf_leakage": 31,
+            "healthy(gate)": 6,
+            "healthy": 3
+          },
+          "median_rank_when_gate_pass": 2.0,
+          "winning_fault_pred": "vrf_leakage",
+          "orthogonal": {
+            "bgp_flap_count_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 651.0,
+              "max": 651.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_w2m_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_w2m_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_w2m_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 651.0,
+              "max": 651.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_w2m_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_w2m_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_w2m_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_w2m_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "bgp_flap_count_w2m_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            }
+          },
+          "diagnosis": "present_but_outvoted",
+          "t0": "2026-07-21 14:45:12.063082+00:00",
+          "t1": "2026-07-21 14:55:07.794053+00:00",
+          "detected_in_scorecard": true,
+          "scorecard_pred": "tunnel_degradation"
+        },
+        {
+          "host": "station2",
+          "truth": "vrf_leakage",
+          "n_frames": 35,
+          "gate_pass_frac": 0.9428571428571428,
+          "mean_p_truth": 0.748424232006073,
+          "max_p_truth": 0.9034401178359985,
+          "mean_adj_truth": 0.748424232006073,
+          "max_adj_truth": 0.9034401178359985,
+          "mean_p_healthy": 0.11242803186178207,
+          "pred_counts": {
+            "vrf_leakage": 33,
+            "healthy(gate)": 2
+          },
+          "median_rank_when_gate_pass": 1.0,
+          "winning_fault_pred": "vrf_leakage",
+          "orthogonal": {
+            "bgp_flap_count_slope": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_rolling_std": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_rolling_mean": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_accel": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_z_slope": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_z_rolling_std": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_z_rolling_mean": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_z_accel": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_slope": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_rolling_std": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_rolling_mean": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_accel": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_z_slope": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_z_rolling_std": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_z_rolling_mean": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_z_accel": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "vrf_route_count_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.007619047619047619,
+              "max": 0.26666666666666666,
+              "std": 0.045074893585520866
+            },
+            "vrf_route_count_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 1.6636870564537785,
+              "max": 2.025478734167333,
+              "std": 0.44946628415643575
+            },
+            "vrf_route_count_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 1.7,
+              "max": 3.4,
+              "std": 1.02469507659596
+            },
+            "vrf_route_count_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.017777777777777778,
+              "std": 0.004311744445090364
+            },
+            "vrf_route_count_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.003794625340988516,
+              "max": 0.13281188693459806,
+              "std": 0.022449306264259648
+            },
+            "vrf_route_count_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.8285903146361008,
+              "max": 1.0087786973649926,
+              "std": 0.22385424492111933
+            },
+            "vrf_route_count_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.8466757792080627,
+              "max": 1.6933515584161252,
+              "std": 0.5103438249573822
+            },
+            "vrf_route_count_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.00885412579563987,
+              "std": 0.002147440933995835
+            },
+            "vrf_route_count_w2m_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.007619047619047619,
+              "max": 0.26666666666666666,
+              "std": 0.045074893585520866
+            },
+            "vrf_route_count_w2m_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.36600545186256905,
+              "max": 2.138089935299395,
+              "std": 0.7536460458456898
+            },
+            "vrf_route_count_w2m_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 3.4857142857142858,
+              "max": 4.0,
+              "std": 1.1080302759568326
+            },
+            "vrf_route_count_w2m_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.017777777777777778,
+              "std": 0.004311744445090364
+            },
+            "vrf_route_count_w2m_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.003794625340988516,
+              "max": 0.13281188693459806,
+              "std": 0.022449306264259648
+            },
+            "vrf_route_count_w2m_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.18228703008831748,
+              "max": 1.0648640952861952,
+              "std": 0.37534932536086757
+            },
+            "vrf_route_count_w2m_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 1.7360410935022461,
+              "max": 1.992178304018971,
+              "std": 0.5518484689893388
+            },
+            "vrf_route_count_w2m_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.00885412579563987,
+              "std": 0.002147440933995835
+            }
+          },
+          "diagnosis": "would_win_raw_but_maybe_loom",
+          "t0": "2026-07-21 14:45:12.063351+00:00",
+          "t1": "2026-07-21 14:53:50.229054+00:00",
+          "detected_in_scorecard": false,
+          "scorecard_pred": null
+        }
+      ]
+    },
+    "bgp_vrf_earlier": {
+      "run_id": "blind_compound_bgp_recheck_20260721_2029_40m",
+      "summary": {
+        "run_id": "blind_compound_bgp_recheck_20260721_2029_40m",
+        "circumstances_created": 2,
+        "detected": 0,
+        "detection_rate": 0.0,
+        "class_correct": 0,
+        "class_accuracy": 0.0,
+        "class_correct_eventually": 0,
+        "class_accuracy_eventually": 0.0,
+        "missed": 2,
+        "compound_events": 2,
+        "near_misses": 0,
+        "near_miss_false_alarms": 0,
+        "spurious_false_alarms": 0,
+        "mean_confirmed_lead_min": null,
+        "mean_advisory_lead_min": -4.7,
+        "eta_mae_min": null,
+        "severity_scored": 0,
+        "severity_agreement": null,
+        "severity_pearson_r": null,
+        "severity_pairs": 0,
+        "graded_at": "2026-07-21T15:14:51.741286+00:00",
+        "severity_from_prometheus": true
+      },
+      "legs": [
+        {
+          "host": "station1",
+          "truth": "bgp_route_flap",
+          "n_frames": 52,
+          "gate_pass_frac": 0.3076923076923077,
+          "mean_p_truth": 0.03001057170331478,
+          "max_p_truth": 0.1543416976928711,
+          "mean_adj_truth": 0.03001057170331478,
+          "max_adj_truth": 0.1543416976928711,
+          "mean_p_healthy": 0.8390617370605469,
+          "pred_counts": {
+            "healthy(gate)": 36,
+            "healthy": 15,
+            "vrf_leakage": 1
+          },
+          "median_rank_when_gate_pass": 2.0,
+          "winning_fault_pred": "vrf_leakage",
+          "orthogonal": {
+            "bgp_flap_count_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.051282051282051294,
+              "max": 0.26666666666666666,
+              "std": 0.08718835905527257
+            },
+            "bgp_flap_count_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 4.120677306142291,
+              "max": 10.561177090572391,
+              "std": 2.33359431812941
+            },
+            "bgp_flap_count_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 657.041826923077,
+              "max": 669.0,
+              "std": 5.092600170725047
+            },
+            "bgp_flap_count_accel": {
+              "non_null_pct": 100.0,
+              "mean": -3.336006684570783e-20,
+              "max": 0.017777777777777778,
+              "std": 0.006160918045188196
+            },
+            "bgp_flap_count_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.004323658714593559,
+              "max": 0.022483025315886515,
+              "std": 0.00735096781458861
+            },
+            "bgp_flap_count_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.34741984572229223,
+              "max": 0.8904270445984952,
+              "std": 0.19674847549321273
+            },
+            "bgp_flap_count_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": -0.16509620573005843,
+              "max": 0.8431134493457441,
+              "std": 0.42936396960787193
+            },
+            "bgp_flap_count_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 4.170008355713479e-21,
+              "max": 0.0014988683543924344,
+              "std": 0.0005194352864215059
+            },
+            "bgp_flap_count_w2m_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.051282051282051294,
+              "max": 0.26666666666666666,
+              "std": 0.08718835905527257
+            },
+            "bgp_flap_count_w2m_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 2.054395018685656,
+              "max": 7.995534467974687,
+              "std": 2.0384771070640313
+            },
+            "bgp_flap_count_w2m_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 663.2259615384615,
+              "max": 688.0,
+              "std": 8.878124914557787
+            },
+            "bgp_flap_count_w2m_accel": {
+              "non_null_pct": 100.0,
+              "mean": -3.336006684570783e-20,
+              "max": 0.017777777777777778,
+              "std": 0.006160918045188196
+            },
+            "bgp_flap_count_w2m_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.004323658714593559,
+              "max": 0.022483025315886515,
+              "std": 0.00735096781458861
+            },
+            "bgp_flap_count_w2m_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.1732088070522786,
+              "max": 0.6741142644656929,
+              "std": 0.17186674651490844
+            },
+            "bgp_flap_count_w2m_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.35629650094947546,
+              "max": 2.4450290031026576,
+              "std": 0.7485266520435205
+            },
+            "bgp_flap_count_w2m_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 4.170008355713479e-21,
+              "max": 0.0014988683543924344,
+              "std": 0.0005194352864215059
+            },
+            "vrf_route_count_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            },
+            "vrf_route_count_w2m_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.0,
+              "std": 0.0
+            }
+          },
+          "diagnosis": "present_but_outvoted",
+          "t0": "2026-07-21 15:02:10.852527+00:00",
+          "t1": "2026-07-21 15:15:13.794052+00:00",
+          "detected_in_scorecard": false,
+          "scorecard_pred": null
+        },
+        {
+          "host": "station2",
+          "truth": "vrf_leakage",
+          "n_frames": 29,
+          "gate_pass_frac": 0.5172413793103449,
+          "mean_p_truth": 0.44906172156333923,
+          "max_p_truth": 0.9528726935386658,
+          "mean_adj_truth": 0.44906172156333923,
+          "max_adj_truth": 0.9528726935386658,
+          "mean_p_healthy": 0.5455721616744995,
+          "pred_counts": {
+            "healthy(gate)": 14,
+            "vrf_leakage": 12,
+            "healthy": 3
+          },
+          "median_rank_when_gate_pass": 1.0,
+          "winning_fault_pred": "vrf_leakage",
+          "orthogonal": {
+            "bgp_flap_count_slope": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_rolling_std": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_rolling_mean": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_accel": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_z_slope": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_z_rolling_std": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_z_rolling_mean": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_z_accel": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_slope": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_rolling_std": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_rolling_mean": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_accel": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_z_slope": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_z_rolling_std": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_z_rolling_mean": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "bgp_flap_count_w2m_z_accel": {
+              "non_null_pct": 0.0,
+              "mean": null,
+              "max": null,
+              "std": null
+            },
+            "vrf_route_count_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.009195402298850575,
+              "max": 0.26666666666666666,
+              "std": 0.04951875684721382
+            },
+            "vrf_route_count_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 1.895953331530959,
+              "max": 1.8973665961010273,
+              "std": 0.007610662625905303
+            },
+            "vrf_route_count_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 2.7034482758620695,
+              "max": 2.8,
+              "std": 0.01856953381770512
+            },
+            "vrf_route_count_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.017777777777777778,
+              "std": 0.004751310967331989
+            },
+            "vrf_route_count_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.00471986249208226,
+              "max": 0.13687601227038554,
+              "std": 0.025417237386875548
+            },
+            "vrf_route_count_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.9731644930151618,
+              "max": 0.9738899005850397,
+              "std": 0.0039064393161344175
+            },
+            "vrf_route_count_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": -0.6655006113835985,
+              "max": -0.615942055216735,
+              "std": 0.009531464020078333
+            },
+            "vrf_route_count_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.009125067484692368,
+              "std": 0.002438776868493565
+            },
+            "vrf_route_count_w2m_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.009195402298850575,
+              "max": 0.26666666666666666,
+              "std": 0.04951875684721382
+            },
+            "vrf_route_count_w2m_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.44173071776516953,
+              "max": 2.138089935299395,
+              "std": 0.8093503836079493
+            },
+            "vrf_route_count_w2m_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": 3.3793103448275863,
+              "max": 4.0,
+              "std": 1.1926499038290523
+            },
+            "vrf_route_count_w2m_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.017777777777777778,
+              "std": 0.004751310967331989
+            },
+            "vrf_route_count_w2m_z_slope": {
+              "non_null_pct": 100.0,
+              "mean": 0.00471986249208226,
+              "max": 0.13687601227038554,
+              "std": 0.025417237386875548
+            },
+            "vrf_route_count_w2m_z_rolling_std": {
+              "non_null_pct": 100.0,
+              "mean": 0.22673377179386833,
+              "max": 1.0974495908221042,
+              "std": 0.4154274488916111
+            },
+            "vrf_route_count_w2m_z_rolling_mean": {
+              "non_null_pct": 100.0,
+              "mean": -0.3185907182155525,
+              "max": 0.0,
+              "std": 0.6121693607654233
+            },
+            "vrf_route_count_w2m_z_accel": {
+              "non_null_pct": 100.0,
+              "mean": 0.0,
+              "max": 0.009125067484692368,
+              "std": 0.002438776868493565
+            }
+          },
+          "diagnosis": "would_win_raw_but_maybe_loom",
+          "t0": "2026-07-21 15:02:10.852698+00:00",
+          "t1": "2026-07-21 15:09:15.130721+00:00",
+          "detected_in_scorecard": false,
+          "scorecard_pred": null
+        }
+      ]
+    }
+  },
+  "lake_compound_support": {
+    "tunnel_cong_vrf": {
+      "rows": 4259,
+      "by_label": {
+        "healthy": 2666,
+        "vrf_leakage": 1224,
+        "congestion_breach": 207,
+        "bgp_route_flap": 105,
+        "tunnel_degradation": 57
+      },
+      "by_station": {
+        "station1": 1418,
+        "station2": 1419,
+        "station3": 1422
+      }
+    },
+    "bgp_vrf": {
+      "rows": 3147,
+      "by_label": {
+        "healthy": 1854,
+        "vrf_leakage": 1104,
+        "bgp_route_flap": 189
+      },
+      "by_station": {
+        "station1": 1049,
+        "station2": 1049,
+        "station3": 1049
+      }
+    },
+    "pre_exporter_compound": {
+      "rows": 4950,
+      "by_label": {
+        "healthy": 2940,
+        "vrf_leakage": 1419,
+        "congestion_breach": 327,
+        "bgp_route_flap": 162,
+        "tunnel_degradation": 102
+      },
+      "by_station": {
+        "station1": 1650,
+        "station2": 1650,
+        "station3": 1650
+      }
+    }
+  },
+  "sensor_placement": {
+    "bgp_flap_count_exporter": "station1 only (neighbor 10.1.3.1)",
+    "vrf_route_count_exporter": "station1 + station2",
+    "implication": "When diagnosing BGP+VRF compounds: BGP truth is on station1 \u2014 bgp_flap_count SHOULD be present on station1 frames. station2 never has bgp_flap_count; if a blind ever labeled BGP on station2, that leg is structurally undetectable via bgp_flap_count. Current blinds place bgp_route_flap on station1 \u2014 sensor gap is NOT the explanation for station1 BGP misses; it WOULD be if we expected station2 to see BGP."
+  }
+}

@@ -1,0 +1,208 @@
+{
+  "promoted": {
+    "tunnel_vrf__station2__vrf_leakage": {
+      "run_id": "blind_baseline_feature_tunnel_20260721_2302_40m",
+      "host": "station2",
+      "truth": "vrf_leakage",
+      "n": 24,
+      "pred_counts": {
+        "tunnel_degradation": 12,
+        "healthy(gate)": 11,
+        "healthy": 1
+      },
+      "mean_p_truth": 0.020813774049505202,
+      "max_p_truth": 0.14631664752960205,
+      "frac_pred_truth": 0.0,
+      "frac_p_truth_ge_0.15": 0.0,
+      "diagnosis": "zeroed_out",
+      "winning_pred": "tunnel_degradation",
+      "csv": "/home/brain/deca-isro/models/experiments/compound_fix_round_2/live_faithful__promoted__tunnel_vrf__station2__vrf_leakage_frames.csv"
+    },
+    "tunnel_vrf__station1__tunnel_degradation": {
+      "run_id": "blind_baseline_feature_tunnel_20260721_2302_40m",
+      "host": "station1",
+      "truth": "tunnel_degradation",
+      "n": 16,
+      "pred_counts": {
+        "tunnel_degradation": 13,
+        "healthy(gate)": 2,
+        "healthy": 1
+      },
+      "mean_p_truth": 0.6518739405546512,
+      "max_p_truth": 0.941591203212738,
+      "frac_pred_truth": 0.8125,
+      "frac_p_truth_ge_0.15": 0.8125,
+      "diagnosis": "would_win_raw",
+      "winning_pred": "tunnel_degradation",
+      "csv": "/home/brain/deca-isro/models/experiments/compound_fix_round_2/live_faithful__promoted__tunnel_vrf__station1__tunnel_degradation_frames.csv"
+    },
+    "bgp_vrf__station1__bgp_route_flap": {
+      "run_id": "blind_baseline_feature_bgp_20260721_2321_40m",
+      "host": "station1",
+      "truth": "bgp_route_flap",
+      "n": 28,
+      "pred_counts": {
+        "vrf_leakage": 13,
+        "healthy": 9,
+        "healthy(gate)": 6
+      },
+      "mean_p_truth": 0.0153521795956684,
+      "max_p_truth": 0.061477601528167725,
+      "frac_pred_truth": 0.0,
+      "frac_p_truth_ge_0.15": 0.0,
+      "diagnosis": "zeroed_out",
+      "winning_pred": "vrf_leakage",
+      "csv": "/home/brain/deca-isro/models/experiments/compound_fix_round_2/live_faithful__promoted__bgp_vrf__station1__bgp_route_flap_frames.csv"
+    },
+    "bgp_vrf__station2__vrf_leakage": {
+      "run_id": "blind_baseline_feature_bgp_20260721_2321_40m",
+      "host": "station2",
+      "truth": "vrf_leakage",
+      "n": 24,
+      "pred_counts": {
+        "vrf_leakage": 16,
+        "healthy": 5,
+        "healthy(gate)": 3
+      },
+      "mean_p_truth": 0.5739463516511023,
+      "max_p_truth": 0.9148913621902466,
+      "frac_pred_truth": 0.6666666666666666,
+      "frac_p_truth_ge_0.15": 0.875,
+      "diagnosis": "would_win_raw",
+      "winning_pred": "vrf_leakage",
+      "csv": "/home/brain/deca-isro/models/experiments/compound_fix_round_2/live_faithful__promoted__bgp_vrf__station2__vrf_leakage_frames.csv"
+    }
+  },
+  "candidate": {
+    "tunnel_vrf__station2__vrf_leakage": {
+      "run_id": "blind_baseline_feature_tunnel_20260721_2302_40m",
+      "host": "station2",
+      "truth": "vrf_leakage",
+      "n": 24,
+      "pred_counts": {
+        "tunnel_degradation": 14,
+        "healthy(gate)": 10
+      },
+      "mean_p_truth": 0.032736166436128165,
+      "max_p_truth": 0.15246973931789398,
+      "frac_pred_truth": 0.0,
+      "frac_p_truth_ge_0.15": 0.041666666666666664,
+      "diagnosis": "present_but_outvoted",
+      "winning_pred": "tunnel_degradation",
+      "csv": "/home/brain/deca-isro/models/experiments/compound_fix_round_2/live_faithful__candidate__tunnel_vrf__station2__vrf_leakage_frames.csv",
+      "prior_max_p_truth": 0.146,
+      "prior_mean_p_truth": 0.021,
+      "delta_max_p_truth": 0.006469739317893991,
+      "delta_mean_p_truth": 0.011736166436128164
+    },
+    "tunnel_vrf__station1__tunnel_degradation": {
+      "run_id": "blind_baseline_feature_tunnel_20260721_2302_40m",
+      "host": "station1",
+      "truth": "tunnel_degradation",
+      "n": 16,
+      "pred_counts": {
+        "tunnel_degradation": 13,
+        "healthy": 2,
+        "healthy(gate)": 1
+      },
+      "mean_p_truth": 0.7637113634409616,
+      "max_p_truth": 0.9619216322898865,
+      "frac_pred_truth": 0.8125,
+      "frac_p_truth_ge_0.15": 0.9375,
+      "diagnosis": "would_win_raw",
+      "winning_pred": "tunnel_degradation",
+      "csv": "/home/brain/deca-isro/models/experiments/compound_fix_round_2/live_faithful__candidate__tunnel_vrf__station1__tunnel_degradation_frames.csv",
+      "prior_max_p_truth": 0.942,
+      "prior_mean_p_truth": 0.652,
+      "delta_max_p_truth": 0.019921632289886526,
+      "delta_mean_p_truth": 0.11171136344096155
+    },
+    "bgp_vrf__station1__bgp_route_flap": {
+      "run_id": "blind_baseline_feature_bgp_20260721_2321_40m",
+      "host": "station1",
+      "truth": "bgp_route_flap",
+      "n": 28,
+      "pred_counts": {
+        "healthy(gate)": 14,
+        "vrf_leakage": 14
+      },
+      "mean_p_truth": 0.016283490320867195,
+      "max_p_truth": 0.05377078801393509,
+      "frac_pred_truth": 0.0,
+      "frac_p_truth_ge_0.15": 0.0,
+      "diagnosis": "zeroed_out",
+      "winning_pred": "healthy(gate)",
+      "csv": "/home/brain/deca-isro/models/experiments/compound_fix_round_2/live_faithful__candidate__bgp_vrf__station1__bgp_route_flap_frames.csv",
+      "prior_max_p_truth": 0.061,
+      "prior_mean_p_truth": 0.015,
+      "delta_max_p_truth": -0.0072292119860649096,
+      "delta_mean_p_truth": 0.0012834903208671956
+    },
+    "bgp_vrf__station2__vrf_leakage": {
+      "run_id": "blind_baseline_feature_bgp_20260721_2321_40m",
+      "host": "station2",
+      "truth": "vrf_leakage",
+      "n": 24,
+      "pred_counts": {
+        "vrf_leakage": 17,
+        "healthy(gate)": 6,
+        "healthy": 1
+      },
+      "mean_p_truth": 0.6134217272823056,
+      "max_p_truth": 0.923747181892395,
+      "frac_pred_truth": 0.7083333333333334,
+      "frac_p_truth_ge_0.15": 0.7083333333333334,
+      "diagnosis": "would_win_raw",
+      "winning_pred": "vrf_leakage",
+      "csv": "/home/brain/deca-isro/models/experiments/compound_fix_round_2/live_faithful__candidate__bgp_vrf__station2__vrf_leakage_frames.csv",
+      "prior_max_p_truth": 0.915,
+      "prior_mean_p_truth": 0.574,
+      "delta_max_p_truth": 0.008747181892394984,
+      "delta_mean_p_truth": 0.03942172728230564
+    }
+  },
+  "control_fa": {
+    "promoted": {
+      "station1": {
+        "n": 39,
+        "fa_frac": 0.07692307692307693,
+        "pred_counts": {
+          "healthy(gate)": 35,
+          "tunnel_degradation": 3,
+          "healthy": 1
+        }
+      },
+      "station2": {
+        "n": 39,
+        "fa_frac": 0.15384615384615385,
+        "pred_counts": {
+          "healthy(gate)": 22,
+          "healthy": 11,
+          "bgp_route_flap": 4,
+          "tunnel_degradation": 2
+        }
+      }
+    },
+    "candidate": {
+      "station1": {
+        "n": 39,
+        "fa_frac": 0.15384615384615385,
+        "pred_counts": {
+          "healthy(gate)": 27,
+          "healthy": 6,
+          "tunnel_degradation": 6
+        }
+      },
+      "station2": {
+        "n": 39,
+        "fa_frac": 0.10256410256410256,
+        "pred_counts": {
+          "healthy(gate)": 28,
+          "healthy": 7,
+          "tunnel_degradation": 3,
+          "bgp_route_flap": 1
+        }
+      }
+    }
+  }
+}

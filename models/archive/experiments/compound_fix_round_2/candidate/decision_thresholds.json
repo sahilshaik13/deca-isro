@@ -1,0 +1,106 @@
+{
+  "gate_thr": 0.5,
+  "class_thr": {
+    "healthy": 1.0,
+    "congestion_breach": 1.0,
+    "tunnel_degradation": 1.0,
+    "bgp_route_flap": 1.0,
+    "vrf_leakage": 1.0
+  },
+  "family": "wm",
+  "rare_boost": 1.0,
+  "experiment": "compound_fix_round_2",
+  "note": "isolated \u2014 not promoted",
+  "loom": {
+    "enabled": true,
+    "enter_k": 3,
+    "exit_k": 2,
+    "enter_k_by_class": {
+      "tunnel_degradation": 4,
+      "congestion_breach": 3,
+      "bgp_route_flap": 3,
+      "vrf_leakage": 3
+    },
+    "exit_k_by_class": {
+      "bgp_route_flap": 3,
+      "vrf_leakage": 3
+    },
+    "circumstance_prearm": false,
+    "prearm_enter_k": 2,
+    "advisory_enabled": true,
+    "advisory_enter_k": 2,
+    "advisory_exit_k": 1,
+    "advisory_enter_k_by_class": {},
+    "ttb_gate_enabled": false,
+    "ttb_gate_tolerance": 0,
+    "soft_streak_enabled": false,
+    "branch_agreement_enabled": false,
+    "branch_secondary_family": "wm",
+    "topology_gate_enabled": false,
+    "topology_min_neighbors": 1,
+    "note": "Sticky hysteresis on chronological streams only; duration is not a feature. enter_k/exit_k are per-class fallbacks \u2014 see enter_k_by_class/exit_k_by_class. advisory_* runs the same state machine shallower/faster for an early 'may be forming' signal alongside the confirmed declaration. ttb_gate_* additionally requires a falling LSTM time-to-breach trend to commit entry. soft_streak_enabled replaces the hard entry counter with a running sum of frame confidence (exit stays frame-based). branch_agreement_* binds a secondary classifier head; topology_gate_* requires neighbor-node agreement.",
+    "metrics": {
+      "date": "2026-07-21T17:10:22.963394+00:00",
+      "tail_frac": 0.25,
+      "n_test": 13421,
+      "delta_macro_f1": 0.014180730219729654,
+      "raw": {
+        "macro_f1": 0.8232876885931002,
+        "accuracy": 0.8718426346769987,
+        "mean_rare_recall": 0.9308254006093766,
+        "per_class_f1": {
+          "healthy": 0.8938082779902059,
+          "congestion_breach": 0.8386023294509152,
+          "tunnel_degradation": 0.7467362924281984,
+          "bgp_route_flap": 0.7588349514563106,
+          "vrf_leakage": 0.8784565916398713
+        }
+      },
+      "persistent": {
+        "macro_f1": 0.8374684188128299,
+        "accuracy": 0.8956858654347664,
+        "mean_rare_recall": 0.93088266112603,
+        "per_class_f1": {
+          "healthy": 0.9173737110037854,
+          "congestion_breach": 0.889090909090909,
+          "tunnel_degradation": 0.7104477611940299,
+          "bgp_route_flap": 0.7653260445138618,
+          "vrf_leakage": 0.905103668261563
+        }
+      },
+      "persistence_summary": {
+        "n": 13421,
+        "frames_changed": 1617,
+        "raw_fault_frames": 6532,
+        "sticky_fault_frames": 6117,
+        "fault_frames_suppressed": 415
+      },
+      "advisory": {
+        "name": "advisory",
+        "macro_f1": 0.8923078592111523,
+        "accuracy": 0.9300350197451754,
+        "mean_rare_recall": 0.9045782704519374,
+        "per_class_f1": {
+          "healthy": 0.9459967422628743,
+          "congestion_breach": 0.9114155251141552,
+          "tunnel_degradation": 0.8298507462686567,
+          "bgp_route_flap": 0.8463271744028842,
+          "vrf_leakage": 0.9279491080071912
+        }
+      },
+      "advisory_lead": {
+        "events": 82,
+        "advisory_caught_events": 81,
+        "confirmed_caught_events": 80,
+        "events_with_measurable_lead": 80,
+        "mean_lead_frames": 2.3125,
+        "max_lead_frames": 17,
+        "lead_frames_total": 150,
+        "lead_correct_frames": 59,
+        "lead_wrong_class_frames": 0,
+        "lead_false_frames": 91,
+        "lead_precision": 0.3933333333333333
+      }
+    }
+  }
+}

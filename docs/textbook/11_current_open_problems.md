@@ -13,36 +13,70 @@ one honest, plain-English list.
 
 ---
 
-## Problem A — Two faults overlapping at the exact same time is still genuinely hard
+## Problem A — Two specific compound pairings still drown the quieter signal
 
-### The current state
+### The current state (root-caused, time-boxed, resting)
 
-Chapter 7 (Problem 5) and Chapter 9 described real progress on this: the
-cross-host "echo" confusion was found and fixed, and an *isolated* VRF
-leak test now detects cleanly (2 out of 2, both correctly classified).
-But when a VRF leak happens **at the same time** as a loud `congestion_
-breach` or `tunnel_degradation` fault on a different part of the network,
-the VRF leg is still missed in most of our compound blind tests — this
-specific gap is not yet closed.
+Chapter 7 and Chapter 9 described real progress: cross-host "echo"
+confusion was fixed, and *isolated* VRF now detects cleanly. After Tier
+5c, two compound blind windows still fail on a **narrow slice**:
 
-### Why this is still open
+| Blind | Missed leg | Live-faithful max p(truth) at diagnosis |
+| --- | --- | ---: |
+| tunnel + VRF | `vrf_leakage` @ station2 | ≈ 0.15 (near baseline; tunnel wins ≈ 0.98) |
+| BGP + VRF | `bgp_route_flap` @ station1 | ≈ 0.06 (near baseline; VRF wins ≈ 0.75) |
 
-The working theory (confirmed in Chapter 7, Problem 8) is that this used
-to be a *feature* problem — absolute-scale traffic features simply
-couldn't separate two things happening at once. The baseline-relative
-z-score features (Tier 5c) have measurably helped the aggregate score and
-helped at least one compound blind test go from a full miss to a correct
-detection — but we have not yet run a full new round of compound blind
-tests specifically re-checking every combination *after* this fix, so we
-cannot honestly claim this specific gap is fully closed yet, only that it
-has real reason to be smaller than it was.
+Hit legs on those same blinds (tunnel @ station1; VRF @ station2 under
+BGP) still win. This is **not** a mystery and **not** a threshold bug.
 
-### What would close this properly
+### How we know what kind of problem it is
 
-A dedicated new round of compound blind tests (Chapter 9), specifically
-re-run after the Tier 5c feature change, checking each pairing
-(tunnel+VRF, congestion+VRF, bgp+VRF) again, with results compared
-directly against the pre-fix numbers already on record.
+1. **Ruled out data completeness.** Orthogonal exporters
+   (`vrf_route_count_*`, `bgp_flap_count_*`) are 100% populated in these
+   exact compound windows; the metrics move while the quiet class score
+   stays near baseline.
+2. **Ruled out “present but outvoted.”** Live-faithful sliding 25-min
+   lookback (matching the live operator, not misleading full-window
+   batch replay) showed near-baseline truth-class probability — so
+   `tune_thresholds` / class-weight machinery cannot revive a score that
+   is not in the head.
+3. **Confirmed training-support / feature-interaction.** Post-exporter
+   compound camps were severely imbalanced (e.g. ~57 tunnel vs ~1224 VRF
+   rows; ~189 BGP vs ~1104 VRF). Trees never learned to condition on the
+   orthogonal signal when loud traffic features are also hot.
+4. **Time-boxed fix attempt, then hard stop.** One targeted campaign
+   round (then a user-requested 2× continuation) folded new overlap data
+   and ran a **mixed** retrain (full lake — not new-rows-only). Exam
+   gate on the general stratified holdout **PASS**ed at a new high
+   (**macro-F1 ≈ 0.764**, bar 0.717), but the same live-faithful failing
+   windows did **not** close:
+
+| Leg | Prior max p | After targeted volume | Meaningful rise? |
+| --- | ---: | ---: | --- |
+| VRF under tunnel | 0.146 | 0.092 | No (slightly worse) |
+| BGP under VRF | 0.061 | 0.170 | No (+0.11; still below bar) |
+
+That pattern is **confirmation of the diagnosis**, not a contradiction:
+the exam gate averages over the *whole* lake; these failures live in a
+tiny co-occurrence slice. More volume helped other classes (average up)
+while the specific interaction stayed unlearned — and extra tunnel-leg
+volume can even sharpen the tunnel boundary further (a miniature
+“squeeze the balloon,” same family as earlier BGP/VRF trade-offs).
+
+Receipts: `models/archive/experiments/compound_drowning_fix/`,
+`models/archive/experiments/compound_fix_round_2/`,
+`models/archive/experiments/compound_fix_round_3/`. Promoted
+`models/fault_classifier/` was never overwritten by these dry-runs.
+
+### What would close this properly (scoped next steps — not open questions)
+
+- **Substantially more** compound co-occurrence volume than fits before
+  the present deadline, **or**
+- A **feature-interaction-aware** model change (architecture / training
+  objective), not another threshold or weighting config pass.
+
+Both are legitimate post-deadline work. **This is the resting point for
+the model on this gap.**
 
 ---
 
@@ -190,12 +224,14 @@ DECA today reliably detects the four fault classes it was built for on
 its own lab, is measurably calm on healthy traffic (Chapter 9), and has a
 real, working plan for onboarding a new network (Chapter 10) — but it has
 not yet been proven on a second real network, its severity estimates are
-explicitly not trustworthy enough to use yet, its ability to catch two
-faults happening at exactly the same time still has a real, measured
-gap, and one of its four fault classes remains meaningfully harder than
-the other three. None of these are secrets. Every one of them is written
-down, in this project's own working files, in the same plain language
-used here.
+explicitly not trustworthy enough to use yet, **two specific
+compound-fault pairings still drown the quieter orthogonal signal**
+(root-caused, time-boxed, deliberately left as a documented limitation
+rather than chased past the deadline), and one of its four fault classes
+(`bgp_route_flap`) remains meaningfully harder than the other three on
+average. None of these are secrets. Every one of them is written down,
+in this project's own working files, in the same plain language used
+here.
 
 ---
 

@@ -172,6 +172,20 @@ before/after comparison, not that recalibration never changes anything.)
 
 ---
 
+## A.12 — Compound quieter-leg drowning (time-boxed) — see Chapter 11 Problem A
+
+Live-faithful sliding lookback on Tier-5c compound blinds (not full-window batch):
+
+| Stage | VRF @ s2 under tunnel (max p) | BGP @ s1 under VRF (max p) | Exam macro-F1 (mixed retrain dry-run) |
+| --- | ---: | ---: | ---: |
+| Diagnosis (promoted) | 0.146 | 0.061 | — (promoted era ≈ 0.764) |
+| After round 2 (6+6 compounds) | 0.152 | 0.054 | ≈ 0.761 PASS |
+| After round 3 (12+12 compounds) | 0.092 | 0.170 | ≈ 0.764 PASS |
+
+Meaningful-rise bar for the failing legs: max p ≥ 0.25 **or** Δ ≥ +0.15. Neither leg cleared it. Hard stop honored; promoted `fault_classifier/` untouched. Artifacts under `models/archive/experiments/compound_{drowning_fix,fix_round_2,fix_round_3}/`.
+
+---
+
 ## End of the book
 
 That completes all twelve chapters. If you are new to this project, the

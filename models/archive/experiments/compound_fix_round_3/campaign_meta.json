@@ -1,0 +1,29 @@
+{
+  "run_id": "compound_fix_r3_20260722_0958",
+  "round": 3,
+  "continuation_of": "compound_fix_round_2",
+  "note": "User requested continue past round-2 hard-stop; 2\u00d7 volume on same pairings",
+  "counts": {
+    "tunnel_degradation": 12,
+    "bgp_route_flap": 12,
+    "congestion_breach": 0
+  },
+  "counts_cli": "tunnel_degradation=12,bgp_route_flap=12,congestion_breach=0",
+  "rationale": {
+    "tunnel_degradation": "12 compounds \u2248 +174 tunnel rows on top of r2 (~87) \u2192 ~260 from r2+r3 new camps; ~2\u00d7 the r2 quiet-leg add that failed to move p(VRF)",
+    "bgp_route_flap": "12 compounds \u2248 +138 BGP rows on top of r2 (~69) \u2192 ~207 from new camps; double the r2 BGP block that left p(BGP) flat",
+    "congestion_breach": "0 \u2014 not a diagnosed drowning failure"
+  },
+  "est_wall_clock_h": "8-9",
+  "started_at_utc": "2026-07-22T09:58:19.055438+00:00",
+  "isolated": true,
+  "promoted_untouched_policy": true,
+  "finished_at_utc": "2026-07-22T18:33:21.240385+00:00",
+  "log": "/tmp/deca_compound_fix_r3.log",
+  "logged_fault_types": {
+    "tunnel_degradation": 12,
+    "vrf_leakage": 24,
+    "bgp_route_flap": 12
+  },
+  "log_rows": 48
+}

@@ -35,10 +35,17 @@ The training lake already blends lab telemetry with public network data (MAWI, R
 - **Trained model weights are lab-specific today.** The XGBoost gate and multiclass head are fit to our lab's traffic scale and topology. Expect degraded accuracy on ISRO's raw telemetry until recalibrated — though the baseline-relative features above should narrow this gap materially, since the model's decision boundaries are now expressed in relative terms rather than our lab's specific absolute traffic magnitudes.
 - **No live ISRO data exists or is expected before onboarding.** The calibration campaign (below) is explicitly the mechanism that closes this gap on their network, under their permissions, on their schedule — not something we can fake with public data.
 - **Cross-network transfer is an engineering claim, not yet an empirically proven one.** We have baseline-relative features and externalized config; we have not yet run this procedure against a second real network. Say this distinction explicitly if asked.
+- **Compound quieter-leg drowning on two specific pairings (documented limitation).** See below — this is a lab-proven edge case with receipts, not an unknown.
+
+## Limitations — compound quieter-leg drowning (pitch-ready)
+
+We identified that our model drowns the quieter signal in **~2 of our compound-fault scenarios** when two faults overlap (tunnel+VRF: VRF @ station2; BGP+VRF: BGP @ station1). We root-caused it precisely: it is a **training-support / feature-interaction imbalance in the compound windows**, not a threshold or architecture config bug — we verified this by ruling out reweighting / `tune_thresholds` first (live-faithful max p(VRF)≈0.15 and max p(BGP)≈0.06 near baseline despite 100% populated orthogonal exporters). We ran a targeted, time-boxed compound campaign + mixed retrain to test the fix; it **improved the overall model** on the honest same-paper exam gate (**macro-F1 0.717 bar → ≈0.764 PASS**) but **did not close this specific gap** (VRF under tunnel 0.146→0.092; BGP under VRF 0.061→0.170 — neither a meaningful rise under the pre-agreed bar). That confirms the fix needs either **substantially more compound-fault volume** than fits before the present deadline, or a **feature-interaction-aware model change** — both are clearly scoped next steps, not open questions. Promoted weights were never overwritten by these dry-runs (`models/archive/experiments/compound_{drowning_fix,fix_round_2,fix_round_3}/`).
+
+**Why exam PASS and compound miss are not a contradiction:** the gate averages a stratified holdout of the *whole* lake; these failures live in a tiny co-occurrence slice. Volume can raise the average while the specific interaction stays unlearned.
 
 ## The pitch line
 
-*"Four protocol-standard fault classes, a config-driven decision layer already externalized in JSON, and a tested campaign tool that recalibrates it in hours — that's what's inheritable. The weights are a starting prior, not the deliverable."*
+*"Four protocol-standard fault classes, a config-driven decision layer already externalized in JSON, and a tested campaign tool that recalibrates it in hours — that's what's inheritable. The weights are a starting prior, not the deliverable. Where we still miss, we can name the slice, show the receipts, and state the next lever — that is the deliverable too."*
 
 ---
 *Companion doc: [`CALIBRATION_CAMPAIGN_SPEC.md`](CALIBRATION_CAMPAIGN_SPEC.md) — the concrete onboarding procedure this doc references.*

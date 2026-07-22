@@ -1,0 +1,183 @@
+{
+  "training_date": "2026-07-22T09:08:19.205336+00:00",
+  "mode": "school_exam_A",
+  "exam_seed": 1784711075,
+  "holdout_policy": "random",
+  "baseline_macro_f1": 0.717,
+  "holdout_frac": 0.2,
+  "unit_test_active": {
+    "macro_f1": 0.7874062001489781,
+    "weighted_f1": 0.8767804643344574,
+    "mean_rare_recall": 0.6606833556816921,
+    "per_class_f1": {
+      "healthy": 0.9197049746299105,
+      "congestion_breach": 0.8950863213811421,
+      "tunnel_degradation": 0.8360189573459715,
+      "bgp_route_flap": 0.5213735108619482,
+      "vrf_leakage": 0.7648472365259184
+    }
+  },
+  "best": {
+    "family": "wm",
+    "rare_boost": 1.0,
+    "gate_thr": 0.5,
+    "val_macro_f1": 0.7637972861410092,
+    "exam_macro_f1": 0.7610403726329684,
+    "exam_weighted_f1": 0.8686676923393047,
+    "exam_mean_rare_recall": 0.5967364674806175,
+    "per_class_f1": {
+      "healthy": 0.9182709771158736,
+      "congestion_breach": 0.8732581287325812,
+      "tunnel_degradation": 0.7992599444958371,
+      "bgp_route_flap": 0.45941807044410415,
+      "vrf_leakage": 0.7549947423764458
+    }
+  },
+  "sweep": [
+    {
+      "family": "plain",
+      "rare_boost": 1.0,
+      "gate_thr": 0.5,
+      "val_macro_f1": 0.764773713369133,
+      "exam_macro_f1": 0.7563230659873174,
+      "exam_weighted_f1": 0.8665651269237952,
+      "exam_mean_rare_recall": 0.5932385292427436,
+      "per_class_f1": {
+        "healthy": 0.9169134840218238,
+        "congestion_breach": 0.8722700198544011,
+        "tunnel_degradation": 0.7897153351698806,
+        "bgp_route_flap": 0.4483550114766641,
+        "vrf_leakage": 0.7543614794138171
+      }
+    },
+    {
+      "family": "plain",
+      "rare_boost": 1.5,
+      "gate_thr": 0.5,
+      "val_macro_f1": 0.7612289343931975,
+      "exam_macro_f1": 0.7547212279772928,
+      "exam_weighted_f1": 0.8630065349479344,
+      "exam_mean_rare_recall": 0.600338754070594,
+      "per_class_f1": {
+        "healthy": 0.9133767926988265,
+        "congestion_breach": 0.8764195056780227,
+        "tunnel_degradation": 0.7936802973977695,
+        "bgp_route_flap": 0.44744744744744747,
+        "vrf_leakage": 0.7426820966643976
+      }
+    },
+    {
+      "family": "plain",
+      "rare_boost": 2.0,
+      "gate_thr": 0.5,
+      "val_macro_f1": 0.7615993757737891,
+      "exam_macro_f1": 0.7547884210230936,
+      "exam_weighted_f1": 0.8622011929639681,
+      "exam_mean_rare_recall": 0.6039294463992257,
+      "per_class_f1": {
+        "healthy": 0.9123283379457992,
+        "congestion_breach": 0.8755821689953427,
+        "tunnel_degradation": 0.7992424242424242,
+        "bgp_route_flap": 0.4442782348541511,
+        "vrf_leakage": 0.7425109390777516
+      }
+    },
+    {
+      "family": "plain",
+      "rare_boost": 3.0,
+      "gate_thr": 0.5,
+      "val_macro_f1": 0.7548897271365227,
+      "exam_macro_f1": 0.755293435635697,
+      "exam_weighted_f1": 0.8612645090748288,
+      "exam_mean_rare_recall": 0.6078200772278626,
+      "per_class_f1": {
+        "healthy": 0.9112296110414053,
+        "congestion_breach": 0.8770987239758227,
+        "tunnel_degradation": 0.8018867924528302,
+        "bgp_route_flap": 0.4489187173750932,
+        "vrf_leakage": 0.7373333333333333
+      }
+    },
+    {
+      "family": "wm",
+      "rare_boost": 1.0,
+      "gate_thr": 0.5,
+      "val_macro_f1": 0.7637972861410092,
+      "exam_macro_f1": 0.7610403726329684,
+      "exam_weighted_f1": 0.8686676923393047,
+      "exam_mean_rare_recall": 0.5967364674806175,
+      "per_class_f1": {
+        "healthy": 0.9182709771158736,
+        "congestion_breach": 0.8732581287325812,
+        "tunnel_degradation": 0.7992599444958371,
+        "bgp_route_flap": 0.45941807044410415,
+        "vrf_leakage": 0.7549947423764458
+      }
+    },
+    {
+      "family": "wm",
+      "rare_boost": 1.5,
+      "gate_thr": 0.5,
+      "val_macro_f1": 0.759557014412928,
+      "exam_macro_f1": 0.7556724139386752,
+      "exam_weighted_f1": 0.8628531607267639,
+      "exam_mean_rare_recall": 0.6017472047748194,
+      "per_class_f1": {
+        "healthy": 0.9131410089206531,
+        "congestion_breach": 0.8735019973368842,
+        "tunnel_degradation": 0.8,
+        "bgp_route_flap": 0.45180722891566266,
+        "vrf_leakage": 0.7399118345201763
+      }
+    },
+    {
+      "family": "wm",
+      "rare_boost": 2.0,
+      "gate_thr": 0.5,
+      "val_macro_f1": 0.7598382742897399,
+      "exam_macro_f1": 0.7543317706228623,
+      "exam_weighted_f1": 0.8619449626255065,
+      "exam_mean_rare_recall": 0.6010777622067408,
+      "per_class_f1": {
+        "healthy": 0.9125078304447692,
+        "congestion_breach": 0.8733333333333333,
+        "tunnel_degradation": 0.8034026465028355,
+        "bgp_route_flap": 0.4434456928838951,
+        "vrf_leakage": 0.7389693499494779
+      }
+    },
+    {
+      "family": "wm",
+      "rare_boost": 3.0,
+      "gate_thr": 0.5,
+      "val_macro_f1": 0.7557899577855642,
+      "exam_macro_f1": 0.7537498384411473,
+      "exam_weighted_f1": 0.8608465378843507,
+      "exam_mean_rare_recall": 0.6060537167169084,
+      "per_class_f1": {
+        "healthy": 0.9114003449898072,
+        "congestion_breach": 0.8736559139784946,
+        "tunnel_degradation": 0.8011363636363636,
+        "bgp_route_flap": 0.4476047904191617,
+        "vrf_leakage": 0.7349517791819089
+      }
+    }
+  ],
+  "gate_ok": true,
+  "gate": {
+    "candidate_macro_f1": 0.7610403726329684,
+    "candidate_mean_rare_recall": 0.5967364674806175,
+    "basis": "honest_same_paper_champion_config",
+    "bar_macro_f1": 0.7563230659873174,
+    "champion_same_paper_macro_f1": 0.7563230659873174,
+    "champion_same_paper_rare_recall": 0.5932385292427436,
+    "active_same_paper_macro_f1": 0.7874062001489781,
+    "active_same_paper_rare_recall": 0.6606833556816921,
+    "manifest_baseline_macro_f1": 0.717,
+    "rare_recall_floor": 0.5632385292427435,
+    "passed": true
+  },
+  "anti_memorization": "fresh stratified exam draw each run unless --exam-seed is fixed",
+  "promoted": false,
+  "action": "dry_run"
+}
