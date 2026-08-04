@@ -1,0 +1,406 @@
+{
+  "version": 1,
+  "fabrics": {
+    "pi": {
+      "label": "Pi as-built",
+      "subtitle": "Single CORE on station3 · gre-te-pe1/pe2 · eth0 backup",
+      "viewBox": [0, 0, 1100, 600],
+      "nodes": [
+        {
+          "id": "nrsc",
+          "kind": "ce",
+          "label": "NRSC Hyderabad",
+          "sub": "Branch CE · Gold · 10.101.1.0/29",
+          "x": 40,
+          "y": 80,
+          "w": 240,
+          "h": 58,
+          "fleet_id": "nrsc"
+        },
+        {
+          "id": "mauritius",
+          "kind": "ce",
+          "label": "Mauritius Ground",
+          "sub": "Distant CE · Bronze · ~200ms",
+          "x": 40,
+          "y": 150,
+          "w": 240,
+          "h": 58,
+          "fleet_id": "mauritius"
+        },
+        {
+          "id": "pe1",
+          "kind": "pe",
+          "label": "PE1 vrf-mission",
+          "sub": "lo 10.1.1.1",
+          "x": 40,
+          "y": 250,
+          "w": 200,
+          "h": 56
+        },
+        {
+          "id": "core",
+          "kind": "core",
+          "label": "CORE",
+          "sub": "P / BGP RR · station3",
+          "lo": "lo 10.1.3.1",
+          "x": 440,
+          "y": 220,
+          "w": 220,
+          "h": 90,
+          "fleet_id": "core"
+        },
+        {
+          "id": "pe2",
+          "kind": "pe",
+          "label": "PE2 vrf-mission",
+          "sub": "lo 10.1.2.1",
+          "x": 860,
+          "y": 250,
+          "w": 200,
+          "h": 56
+        },
+        {
+          "id": "sac",
+          "kind": "ce",
+          "label": "SAC Ahmedabad",
+          "sub": "Datacenter CE · Silver",
+          "x": 820,
+          "y": 340,
+          "w": 240,
+          "h": 58,
+          "fleet_id": "sac"
+        },
+        {
+          "id": "mcf",
+          "kind": "ce",
+          "label": "MCF Hassan",
+          "sub": "Regional CE · Bronze",
+          "x": 820,
+          "y": 410,
+          "w": 240,
+          "h": 58,
+          "fleet_id": "mcf"
+        }
+      ],
+      "frames": [
+        {
+          "x": 20,
+          "y": 40,
+          "w": 280,
+          "h": 360,
+          "label": "Station 1 · Edge South · PE1"
+        },
+        {
+          "x": 410,
+          "y": 140,
+          "w": 280,
+          "h": 260,
+          "label": "Station 3 · Provider CORE",
+          "core": true
+        },
+        {
+          "x": 800,
+          "y": 40,
+          "w": 280,
+          "h": 360,
+          "label": "Station 2 · Edge North/West · PE2"
+        }
+      ],
+      "links": [
+        {
+          "id": "gre-pe1-core",
+          "kind": "gre",
+          "from": "pe1",
+          "to": "core",
+          "label": "gre-te-pe1"
+        },
+        {
+          "id": "gre-core-pe2",
+          "kind": "gre",
+          "from": "core",
+          "to": "pe2",
+          "label": "gre-te-pe2"
+        },
+        {
+          "id": "eth0-backup",
+          "kind": "eth0",
+          "from": "pe1",
+          "to": "pe2",
+          "label": "Backup eth0 · OSPF 50",
+          "curve": "bottom"
+        },
+        {
+          "id": "ipsec",
+          "kind": "ipsec",
+          "from": "pe1",
+          "to": "pe2",
+          "label": "IPsec SD-WAN overlay",
+          "curve": "top"
+        },
+        { "id": "ce-nrsc-pe1", "kind": "attach", "from": "nrsc", "to": "pe1" },
+        {
+          "id": "ce-mau-pe1",
+          "kind": "attach",
+          "from": "mauritius",
+          "to": "pe1"
+        },
+        { "id": "ce-sac-pe2", "kind": "attach", "from": "pe2", "to": "sac" },
+        { "id": "ce-mcf-pe2", "kind": "attach", "from": "pe2", "to": "mcf" }
+      ]
+    },
+    "gns3": {
+      "label": "GNS3 sim canvas",
+      "subtitle": "CORE-N/S · PE1–3 · 8 CEs · IPERF — same Flow 1 as Pi",
+      "viewBox": [0, 0, 1400, 820],
+      "nodes": [
+        {
+          "id": "iperf-a",
+          "kind": "chaos",
+          "label": "IPERF-A",
+          "sub": "Chaos / ToS src",
+          "x": 40,
+          "y": 40,
+          "w": 120,
+          "h": 48
+        },
+        {
+          "id": "iperf-b",
+          "kind": "chaos",
+          "label": "IPERF-B",
+          "sub": "Chaos / sink",
+          "x": 1240,
+          "y": 40,
+          "w": 120,
+          "h": 48
+        },
+        {
+          "id": "nrsc",
+          "kind": "ce",
+          "label": "CE-NRSC",
+          "sub": "Gold 99.9%",
+          "x": 40,
+          "y": 140,
+          "w": 160,
+          "h": 56,
+          "fleet_id": "nrsc"
+        },
+        {
+          "id": "mauritius",
+          "kind": "ce",
+          "label": "CE-Mauritius",
+          "sub": "Bronze rogue",
+          "x": 40,
+          "y": 220,
+          "w": 160,
+          "h": 56,
+          "fleet_id": "mauritius"
+        },
+        {
+          "id": "shadnagar",
+          "kind": "ce",
+          "label": "CE-Shadnagar",
+          "sub": "Regional",
+          "x": 40,
+          "y": 300,
+          "w": 160,
+          "h": 56,
+          "fleet_id": "shadnagar"
+        },
+        {
+          "id": "pe1",
+          "kind": "pe",
+          "label": "PE1",
+          "sub": "HTB · VRF · IPsec",
+          "x": 260,
+          "y": 220,
+          "w": 140,
+          "h": 56
+        },
+        {
+          "id": "core-n",
+          "kind": "core",
+          "label": "CORE-N",
+          "sub": "Primary P",
+          "lo": "preserve DSCP",
+          "x": 560,
+          "y": 140,
+          "w": 160,
+          "h": 72,
+          "fleet_id": "core"
+        },
+        {
+          "id": "core-s",
+          "kind": "core",
+          "label": "CORE-S",
+          "sub": "Optional dual-P",
+          "lo": "preserve DSCP",
+          "x": 560,
+          "y": 260,
+          "w": 160,
+          "h": 72,
+          "fleet_id": "core-s"
+        },
+        {
+          "id": "pe2",
+          "kind": "pe",
+          "label": "PE2",
+          "sub": "HTB · VRF · IPsec",
+          "x": 880,
+          "y": 220,
+          "w": 140,
+          "h": 56
+        },
+        {
+          "id": "sac",
+          "kind": "ce",
+          "label": "CE-SAC",
+          "sub": "Silver 99.5%",
+          "x": 1100,
+          "y": 140,
+          "w": 160,
+          "h": 56,
+          "fleet_id": "sac"
+        },
+        {
+          "id": "mcf",
+          "kind": "ce",
+          "label": "CE-MCF",
+          "sub": "Bronze",
+          "x": 1100,
+          "y": 220,
+          "w": 160,
+          "h": 56,
+          "fleet_id": "mcf"
+        },
+        {
+          "id": "istrac",
+          "kind": "ce",
+          "label": "CE-ISTRAC",
+          "sub": "Regional",
+          "x": 1100,
+          "y": 300,
+          "w": 160,
+          "h": 56,
+          "fleet_id": "istrac"
+        },
+        {
+          "id": "pe3",
+          "kind": "pe",
+          "label": "PE3",
+          "sub": "stubs / scale",
+          "x": 560,
+          "y": 420,
+          "w": 140,
+          "h": 56
+        },
+        {
+          "id": "hq",
+          "kind": "ce",
+          "label": "CE-ISRO-HQ",
+          "sub": "HQ",
+          "x": 400,
+          "y": 540,
+          "w": 150,
+          "h": 52,
+          "fleet_id": "hq"
+        },
+        {
+          "id": "bhopal",
+          "kind": "ce",
+          "label": "CE-Bhopal",
+          "sub": "Regional",
+          "x": 720,
+          "y": 540,
+          "w": 150,
+          "h": 52,
+          "fleet_id": "bhopal"
+        }
+      ],
+      "frames": [],
+      "links": [
+        {
+          "id": "gre-pe1-cn",
+          "kind": "gre",
+          "from": "pe1",
+          "to": "core-n",
+          "label": "vrf-mission"
+        },
+        {
+          "id": "gre-cn-pe2",
+          "kind": "gre",
+          "from": "core-n",
+          "to": "pe2",
+          "label": "vrf-mission"
+        },
+        {
+          "id": "gre-pe1-cs",
+          "kind": "gre",
+          "from": "pe1",
+          "to": "core-s",
+          "label": "south"
+        },
+        {
+          "id": "gre-cs-pe2",
+          "kind": "gre",
+          "from": "core-s",
+          "to": "pe2",
+          "label": "south"
+        },
+        {
+          "id": "eth0-backup",
+          "kind": "eth0",
+          "from": "pe1",
+          "to": "pe2",
+          "label": "vrf-admin eth0",
+          "curve": "bottom"
+        },
+        {
+          "id": "ipsec",
+          "kind": "ipsec",
+          "from": "pe1",
+          "to": "pe2",
+          "label": "IPsec overlay",
+          "curve": "top"
+        },
+        {
+          "id": "inter-core",
+          "kind": "attach",
+          "from": "core-n",
+          "to": "core-s"
+        },
+        { "id": "a-nrsc", "kind": "attach", "from": "iperf-a", "to": "nrsc" },
+        { "id": "nrsc-pe1", "kind": "attach", "from": "nrsc", "to": "pe1" },
+        {
+          "id": "mau-pe1",
+          "kind": "attach",
+          "from": "mauritius",
+          "to": "pe1"
+        },
+        {
+          "id": "shad-pe1",
+          "kind": "attach",
+          "from": "shadnagar",
+          "to": "pe1"
+        },
+        { "id": "pe2-sac", "kind": "attach", "from": "pe2", "to": "sac" },
+        { "id": "pe2-mcf", "kind": "attach", "from": "pe2", "to": "mcf" },
+        {
+          "id": "pe2-istrac",
+          "kind": "attach",
+          "from": "pe2",
+          "to": "istrac"
+        },
+        { "id": "sac-b", "kind": "attach", "from": "sac", "to": "iperf-b" },
+        { "id": "pe3-cs", "kind": "gre", "from": "pe3", "to": "core-s", "label": "stub" },
+        { "id": "hq-pe3", "kind": "attach", "from": "hq", "to": "pe3" },
+        {
+          "id": "bhopal-pe3",
+          "kind": "attach",
+          "from": "bhopal",
+          "to": "pe3"
+        }
+      ]
+    }
+  }
+}

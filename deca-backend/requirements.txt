@@ -1,0 +1,8 @@
+# Lean deps for DECA orchestrator + SD-WAN controller (no ML training stack)
+fastapi>=0.110,<1
+uvicorn[standard]>=0.27,<1
+pydantic>=2,<3
+requests>=2.31,<3
+numpy>=1.24,<3
+pandas>=2.0,<3
+# chromadb optional: Q3 uses ~/deca-copilot/.venv subprocess when missing/old

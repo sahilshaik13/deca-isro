@@ -1,3 +1,0 @@
-timestamp,host,metric,value
-2026-07-19T20:30:41.832322+00:00,station2,bgp_update_rate,8.1371
-2026-07-19T20:35:08.613648+00:00,station2,bgp_update_rate,10.2153

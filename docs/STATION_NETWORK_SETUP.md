@@ -7,19 +7,19 @@ check stations
 ```
 ---
 
-Physical CE–PE–CE lab on three Raspberry Pis + laptop orchestrator. This is the **authoritative station networking reference** for plug-and-play restore and ISRO handover.
+Physical multi-site SD-WAN/MPLS lab on **three Raspberry Pis** + laptop orchestrator (five functional sites via CE netns). This is the **authoritative station networking reference** for plug-and-play restore and ISRO handover.
+
+**Alignment:** closes `PS13-O1` at lab scale — see [`PROBLEM_STATEMENT_13_FINDINGS.md`](./PROBLEM_STATEMENT_13_FINDINGS.md). Evidence trail: [`NETWORK_EXPANSION_FINDINGS.md`](./NETWORK_EXPANSION_FINDINGS.md).
 
 **Apply / restore everything:**
 
 ```bash
 # Preferred laptop ops live under lab/ (see lab/README.md)
 bash ~/deca-isro/lab/deca-deploy.sh
-bash ~/deca-isro/lab/deca_diagnostic.sh   # expect [7/8] VPN ping + [8/8] 3/3 Telegraf
+bash ~/deca-isro/lab/deca_diagnostic.sh   # or: check stations
+# bash ~/deca-isro/lab/deca_ops.sh check
 
-# Also available under scripts/ (same job, slightly different packaging):
-# bash ~/deca-isro/scripts/deca_deploy_stations.sh
-
-# Optional: keep old ~/ shortcuts → lab/
+# Optional: keep ~/ shortcuts → current lab/ scripts
 # bash ~/deca-isro/lab/link_home.sh
 ```
 
@@ -27,40 +27,170 @@ Cold boot: power-cycle all three Pis, wait **≥120s** (watchdog sleeps 60s), th
 
 ---
 
-## 1. Topology
+## 1. Topology (role-differentiated)
 
+Five functional roles — not equal CEs. Each CE site has an internal `/29` LAN (ws + srv host netns) so traffic originates *inside* the site and exits via the CE:
+
+| Site | Functional role | Host / attachment | Site LAN / hosts | Traffic / latency behavior |
+| --- | --- | --- | --- | --- |
+| **CORE** | **Hub** (P / backbone) | station3 | — | Path management; minimal self-generated traffic |
+| **SAC, Ahmedabad** | **Datacenter** | station2 / `ce-b` → PE2 | `10.101.2.0/29` (`.2` ws, `.3` srv) | Sustained high-volume bulk (iperf) |
+| **NRSC, Hyderabad** | **Branch** | station1 / `ce-a` → PE1 | `10.101.1.0/29` | Light / latency-sensitive (voice EF / video AF41) |
+| **Mauritius** | **Distant branch** | station1 / `ce-mauritius` → PE1 | `10.101.3.0/29` | `netem` 100 ms/dir → ~200 ms RTT (SAFE Kochi↔Baie Jacotet class) |
+| **MCF, Hassan** | **Regional / secondary branch** | station2 / `ce-mcf` → PE2 | `10.101.4.0/29` | Second CE on station2 (multi-site Pi pattern) |
+
+### Sites and Pis (how roles map onto three boxes)
+
+```mermaid
+flowchart TB
+  laptop["Laptop brain<br/>192.168.50.1<br/>Prom :9090 / SD-WAN ctrl :9280"]
+
+  subgraph pe1box ["station1 PE1 — 192.168.50.10 / lo 10.1.1.1"]
+    PE1["PE1 FRR + IPsec + VRF"]
+    NRSC["NRSC Branch<br/>ce-a + LAN 10.101.1.0/29"]
+    MAU["Mauritius Distant<br/>ce-mauritius + LAN 10.101.3.0/29<br/>netem ~200ms RTT"]
+    NRSC --> PE1
+    MAU --> PE1
+  end
+
+  subgraph corebox ["station3 CORE Hub/P — 192.168.50.30 / lo 10.1.3.1"]
+    CORE["CORE FRR<br/>OSPF + LDP + BGP RR<br/>OSPF-TE / SR SIDs"]
+  end
+
+  subgraph pe2box ["station2 PE2 — 192.168.50.20 / lo 10.1.2.1"]
+    PE2["PE2 FRR + IPsec + VRF"]
+    SAC["SAC Datacenter<br/>ce-b + LAN 10.101.2.0/29"]
+    MCF["MCF Hassan Regional<br/>ce-mcf + LAN 10.101.4.0/29"]
+    SAC --> PE2
+    MCF --> PE2
+  end
+
+  laptop --- PE1
+  laptop --- CORE
+  laptop --- PE2
+  PE1 -->|"gre-te OSPF cost 5<br/>MPLS/LDP preferred"| CORE
+  CORE -->|"gre-te OSPF cost 5<br/>MPLS/LDP preferred"| PE2
+  PE1 -.->|"eth0 OSPF cost 50<br/>backup underlay"| PE2
+  PE1 <-->|"IPsec overlay deca-sdwan<br/>ESP over chosen underlay"| PE2
 ```
-                     ┌─────────────────────────────┐
-                     │  Laptop (orchestrator)      │
-                     │  USB eth  192.168.50.1/24   │
-                     │  Prometheus :9090           │
-                     │  scrapes :9273 on each Pi   │
-                     └─────────────┬───────────────┘
-                                   │ 192.168.50.0/24 lab LAN
-         ┌─────────────────────────┼─────────────────────────┐
-         │                         │                         │
-┌────────▼────────┐      ┌─────────▼────────┐      ┌────────▼────────┐
-│ station1 (PE1)  │      │ station3 (CORE)  │      │ station2 (PE2)  │
-│ 192.168.50.10   │◄────►│ 192.168.50.30    │◄────►│ 192.168.50.20   │
-│ lo 10.1.1.1     │ OSPF │ lo 10.1.3.1      │ OSPF │ lo 10.1.2.1     │
-│ FRR + IPsec     │ LDP  │ FRR (P-core)     │ LDP  │ FRR + IPsec     │
-│ VRF vrf-mission │ BGP  │                  │ BGP  │ VRF vrf-mission │
-└────────┬────────┘      └──────────────────┘      └────────┬────────┘
-         │ veth-pe-cea                                    │ veth-pe-ceb
-         │ 10.10.1.2/30                                   │ 10.10.2.2/30
-┌────────▼────────┐                              ┌────────▼────────┐
-│ netns ce-a      │      VPN dataplane over      │ netns ce-b      │
-│ 10.10.1.1/30    │◄──── MPLS + IPsec SD-WAN ───►│ 10.10.2.1/30    │
-│ lo 10.100.1.1/32│      ping CE-A → 10.100.2.1  │ lo 10.100.2.1/32 │
-└─────────────────┘                              └─────────────────┘
+
+### Planes: underlay, TE, overlay, sites
+
+```mermaid
+flowchart LR
+  subgraph sites ["Customer sites"]
+    nrscSite[NRSC]
+    mauSite[Mauritius]
+    sacSite[SAC]
+    mcfSite[MCF]
+  end
+
+  subgraph underlay ["MPLS underlay on Pis"]
+    pe1u[PE1]
+    coreu[CORE]
+    pe2u[PE2]
+    pe1u -->|"GRE + LDP"| coreu
+    coreu -->|"GRE + LDP"| pe2u
+    pe1u -.->|"eth0 backup"| pe2u
+  end
+
+  subgraph te ["TE constructs FRR"]
+    ted[OSPF-TE TED]
+    srte["pathd SR-TE<br/>BSID 40001/40002"]
+    ted --> srte
+    srte --> underlay
+  end
+
+  subgraph overlay ["SD-WAN overlay"]
+    ipsec[IPsec ESP]
+    ctrl["Controller TT&C+Payload<br/>TT&C preempts on conflict"]
+    ctrl -->|"OSPF cost + peer /32"| underlay
+    ipsec --> underlay
+  end
+
+  nrscSite --> pe1u
+  mauSite --> pe1u
+  sacSite --> pe2u
+  mcfSite --> pe2u
+  ipsec --- pe1u
+  ipsec --- pe2u
 ```
 
 | Role | Host | Lab LAN | Loopback / RID | CE netns |
 | --- | --- | --- | --- | --- |
-| PE1 | `station1` | `192.168.50.10/24` | `10.1.1.1` | `ce-a` → CE-A |
-| PE2 | `station2` | `192.168.50.20/24` | `10.1.2.1` | `ce-b` → CE-B |
-| CORE | `station3` | `192.168.50.30/24` | `10.1.3.1` | — |
-| Laptop | `brain` | `192.168.50.1/24` | — | — |
+| PE1 | `station1` | `192.168.50.10/24` | `10.1.1.1` | `ce-a` (NRSC) + `ce-mauritius` (Distant) |
+| PE2 | `station2` | `192.168.50.20/24` | `10.1.2.1` | `ce-b` (SAC) + `ce-mcf` (MCF Hassan) |
+| CORE / Hub | `station3` | `192.168.50.30/24` | `10.1.3.1` (host) | — |
+| Laptop / desktop | `brain` | `192.168.50.1/24` | — | — |
+
+### Dual-core P fabric (optional — **not applied**)
+
+Design scripts (`lab/deca_dual_core_bootstrap.sh`) can split station3 into CORE-NORTH / CORE-SOUTH netns. **As-built lab uses a single CORE** at `10.1.3.1` with GRE legs `gre-te-pe1` / `gre-te-pe2`. Do not claim dual netns until `ip netns list` shows them **and** LDP inside each netns is real.
+
+| Logical (design only) | netns | Loopback | Role |
+| --- | --- | --- | --- |
+| **CORE-NORTH** | `core-north` | `10.1.3.1` | West/North transit (SAC affinity) |
+| **CORE-SOUTH** | `core-south` | `10.1.3.2` | South transit (NRSC / MCF affinity) |
+
+### VRFs & path policy (summary)
+
+| VRF | Traffic | Underlay |
+| --- | --- | --- |
+| `vrf-mission` | TT&C + Payload (AAR) | Preferred `gre-te-core` (OSPF 5), backup `eth0` (OSPF 50), always IPsec ESP |
+| `vrf-admin` *(PS13: vrf-default)* | Administrative / default | **Pinned to `eth0`** — never on mission MPLS core |
+
+Full aerospace policy catalog (AAR SLAs, QoS, security, hysteresis, HITL, air-gap):
+[`DECA_SDWAN_POLICY_RULES.md`](./DECA_SDWAN_POLICY_RULES.md).
+End-to-end process (management → CE/AAR/IPsec → PE/VRF/P → DC):
+[`DECA_SDWAN_PROCESS_FLOW.md`](./DECA_SDWAN_PROCESS_FLOW.md).
+
+### Inside each Pi (namespaces and tunnels)
+
+```mermaid
+flowchart TB
+  subgraph s1 ["station1 PE1 internals"]
+    eth0_1["eth0 192.168.50.10"]
+    gre1["gre-te-core 10.50.1.1/30"]
+    vrf1["vrf-mission"]
+    cea["netns ce-a → br-lan NRSC<br/>nrsc-ws .2 / nrsc-srv .3"]
+    cem["netns ce-mauritius → br-lan MAU<br/>mau-ws .2 / mau-srv .3 + netem"]
+    cea --> vrf1
+    cem --> vrf1
+    vrf1 --> eth0_1
+    gre1 --- eth0_1
+  end
+
+  subgraph s3 ["station3 CORE internals"]
+    eth0_3["eth0 192.168.50.30"]
+    gre_pe1["gre-te-pe1 10.50.1.2/30"]
+    gre_pe2["gre-te-pe2 10.50.2.2/30"]
+    cn["netns core-north lo 10.1.3.1"]
+    cs["netns core-south lo 10.1.3.2"]
+    frr3["FRR: OSPF LDP BGP-RR<br/>pathd TED + SR prefix-SID"]
+    gre_pe1 --- eth0_3
+    gre_pe2 --- eth0_3
+    cn --- eth0_3
+    cs --- eth0_3
+    frr3 --- eth0_3
+  end
+
+  subgraph s2 ["station2 PE2 internals"]
+    eth0_2["eth0 192.168.50.20"]
+    gre2["gre-te-core 10.50.2.1/30"]
+    vrf2["vrf-mission"]
+    ceb["netns ce-b → br-lan SAC<br/>sac-ws .2 / sac-srv .3"]
+    cemcf["netns ce-mcf → br-lan MCF<br/>mcf-ws .2 / mcf-srv .3"]
+    ceb --> vrf2
+    cemcf --> vrf2
+    vrf2 --> eth0_2
+    gre2 --- eth0_2
+  end
+
+  gre1 <-->|"GRE"| gre_pe1
+  gre_pe2 <-->|"GRE"| gre2
+  eth0_1 <-.->|"lab LAN / backup"| eth0_3
+  eth0_3 <-.->|"lab LAN / backup"| eth0_2
+```
 
 **SSH (`~/.ssh/config`):**
 
@@ -78,12 +208,41 @@ Host station3
     User station3
 ```
 
-**IPsec overlay:** `deca-sdwan` between PE1↔PE2. Traffic selectors include CE subnets / loopbacks:
+**IPsec overlay:** `deca-sdwan` between PE1↔PE2. Traffic selectors include CE attach, loopbacks, and site LANs (incl. Mauritius + MCF):
 
-`10.10.1.0/30 10.100.1.1/32  ===  10.10.2.0/30 10.100.2.1/32`
+`10.10.1/30 10.100.1.1 10.10.3/30 10.100.3.1 10.101.1/29 10.101.3/29  ===  10.10.2/30 10.100.2.1 10.10.4/30 10.100.4.1 10.101.2/29 10.101.4/29`
 
-**Diagnostic gold path:** from `ce-a`, `ping 10.100.2.1` (script: `lab/deca_diagnostic.sh` step 7).
+**Traffic engineering (`PS13-O1.2`):** OSPF-TE TED + pathd SR-TE (not RSVP — unavailable in FRR 10.6). PE1 policy `pe1-to-pe2-te` BSID **40001** (preferred GRE / backup eth0); PE2 BSID **40002**. Apply/verify: `lab/deca_expand_phase_te.sh`, `lab/deca_te_verify.sh`. HTB is **QoS**, not TE.
 
+**SD-WAN path controller (`PS13-O1.3` / `D4`):** laptop `lab/deca_sdwan_controller.py` —
+TT&C (ToS `0x88`, SLA ≤25 ms / ≤5 ms / ≤0.1%) + Payload (ToS `0x80`, ≤80 / ≤15 / ≤2%);
+`enter_k=3` / `exit_k=10`; TT&C preempts on conflict; metrics `:9280`.
+Traffic: **iperf3 only** (`lab/deca_iperf_qos_traffic.sh`) — **no Cisco TRex**.
+QoS: `lab/deca_htb_qos.sh` (LLQ + 70% Payload + RED@85%). IPsec: `copy_dscp=out`.
+Policy catalog: [`DECA_SDWAN_POLICY_RULES.md`](./DECA_SDWAN_POLICY_RULES.md).
+Verify: `lab/deca_sdwan_verify.sh` · VRF check: `lab/deca_vrf_isolation_check.sh`.
+
+**Security:** WAN mission traffic is IPsec-only (`deca-sdwan`); cleartext underlay drop;
+`vrf-mission` ⟂ `vrf-admin`; TT&C fail-closed if backup crypto fails.
+
+**Diagnostic gold path:** from `ce-a`, `ping 10.100.2.1` (script: `lab/deca_diagnostic.sh`). Site-LAN: `ip netns exec nrsc-ws ping 10.101.2.2`. MCF: `ip netns exec mcf-ws ping 10.101.1.2`. Mauritius: from `mau-ws`, expect ~200+ ms.
+
+**Fault injectors:** existing PE1/PE2 injectors stay on NRSC/SAC paths. Mauritius and MCF are **not** fault-injection targets (role/distance baselines ≠ fault).
+
+**Expand / cold boot:**
+
+```bash
+bash lab/deca_expand_phase_g.sh          # site LANs + MCF Hassan
+bash lab/deca_expand_phase_h.sh          # voice/video/data QoS measure
+bash lab/deca_expand_phase_te.sh         # OSPF-TE + pathd SR-TE (PS13-O1.2)
+bash lab/deca_te_verify.sh               # TED + SR-TE preferred/backup proof
+bash lab/deca_install_expansion_boot.sh  # or: bash lab/deca_ops.sh install-boot
+systemctl --user enable --now deca_sdwan_controller.service
+bash lab/deca_sdwan_verify.sh            # multi-class path switch/recover
+# After power-cycle (≥120s): check stations   # or: bash lab/deca_diagnostic.sh
+```
+
+Boot order on each Pi: `deca-ns` → `deca-ns-mauritius` (PE1) / `deca-ns-mcf` (PE2) → `deca-expansion-boot` (VRF/GRE/HTB/MPLS/SR-TE heal/site-LANs) → FRR/IPsec → `deca-watchdog` (+60s heal).
 ---
 
 ## 2. Addressing cheat sheet
@@ -92,10 +251,18 @@ Host station3
 | --- | --- | --- |
 | `192.168.50.0/24` | eth0 all nodes | Management / Telegraf / SSH |
 | `10.1.1.1`, `10.1.2.1`, `10.1.3.1` | PE/CORE loopbacks | OSPF / BGP / LDP router-IDs |
-| `10.10.1.0/30` | PE1 ↔ ce-a | Local CE attachment |
-| `10.10.2.0/30` | PE2 ↔ ce-b | Local CE attachment |
-| `10.100.1.1/32` | ce-a `lo` | CE-A VPN identity |
-| `10.100.2.1/32` | ce-b `lo` | CE-B VPN identity (iperf3 target) |
+| `10.10.1.0/30` | PE1 ↔ ce-a (NRSC) | Local Branch attachment |
+| `10.10.2.0/30` | PE2 ↔ ce-b (SAC) | Local Datacenter attachment |
+| `10.10.3.0/30` | PE1 ↔ ce-mauritius | Distant branch attachment (+ netem 100 ms/dir; SAFE-referenced ~200 ms RTT) |
+| `10.10.4.0/30` | PE2 ↔ ce-mcf (MCF Hassan) | Regional branch attachment |
+| `10.100.1.1/32` | ce-a `lo` | NRSC Branch VPN identity |
+| `10.100.2.1/32` | ce-b `lo` | SAC Datacenter VPN identity |
+| `10.100.3.1/32` | ce-mauritius `lo` | Mauritius Distant VPN identity |
+| `10.100.4.1/32` | ce-mcf `lo` | MCF Hassan VPN identity |
+| `10.101.1.0/29` | NRSC internal LAN | ws `.2` / srv `.3` (host netns) |
+| `10.101.2.0/29` | SAC internal LAN | ws `.2` / srv `.3` |
+| `10.101.3.0/29` | Mauritius internal LAN | ws `.2` / srv `.3` |
+| `10.101.4.0/29` | MCF internal LAN | ws `.2` / srv `.3` |
 | `vrf-mission` | PE1 / PE2 | Mission VRF for CE traffic |
 | Telegraf | each Pi `:9273` | Prometheus scrape |
 | Route-target | `65001:100` | VPN RT (campaign / FRR) |
@@ -106,12 +273,16 @@ Host station3
 
 | Unit | station1 | station2 | station3 |
 | --- | :---: | :---: | :---: |
-| `deca-ns.service` | ✓ CE-A | ✓ CE-B | — |
+| `deca-ns.service` | ✓ CE-A (NRSC) | ✓ CE-B (SAC) | — |
+| `deca-ns-mauritius.service` | ✓ Distant branch | — | — |
+| `deca-mauritius-bgp.service` | ✓ BGP AS 65013 | — | — |
+| `deca-vrf-up.service` | ✓ | ✓ | — |
+| `deca-expansion-boot.service` | ✓ GRE/HTB/Mauritius heal | ✓ GRE/HTB | ✓ GRE |
 | `frr.service` | ✓ | ✓ | ✓ |
 | `strongswan-starter` | ✓ | ✓ | — |
 | `telegraf` | ✓ | ✓ | ✓ |
 | `chrony` | ✓ | ✓ | ✓ |
-| `deca-watchdog.service` | ✓ | ✓ | ✓ |
+| `deca-watchdog.service` | ✓ (+expansion heal) | ✓ | ✓ |
 
 Ordering on PE1/PE2:
 
@@ -230,37 +401,42 @@ esac
 
 ---
 
-## 5. VRF CE static safety-net (VPN dataplane)
+## 5. BGP VPNv4 native L3VPN (FRR 10 `ipv4 vpn`)
 
-When BGP VPNv4 shows **0 prefixes** / unicast **NoNeg**, IPsec can still be ESTABLISHED while CE ping fails. Fix: VRF routes via underlay LAN + IPsec policy (`nexthop-vrf default`).
+Cross-PE mission prefixes are learned via **BGP VPNv4** (CORE RR `10.1.3.1`), not VRF static safety-nets.
 
-**station1 (PE1):**
+| Check | Expect |
+| --- | --- |
+| `show bgp ipv4 vpn summary` | Peer `10.1.3.1` **Established**, PfxRcd **> 0** (typically 6) |
+| RD / RT | `65001:100` both PEs (`rd vpn export` + `rt vpn both`) |
+| VRF RIB | `B>` routes for remote CE/site prefixes via PE lo + MPLS labels |
+| LDP | `mpls ldp` on **eth0 and gre-te-*** (IGP prefers GRE; LDP must follow) |
+
+`show ip bgp summary` may still show **NoNeg** on ipv4 unicast toward CORE — that is intentional (RR activates **ipv4 vpn** only).
+
+Local CE-facing statics (e.g. `10.100.2.1 via 10.10.2.1`) stay; **do not** reinstall `nexthop-vrf default` routes to the remote PE.
+
+Verify:
 
 ```bash
+ssh station1 'sudo vtysh -c "show bgp ipv4 vpn summary"'
+ssh station1 'sudo vtysh -c "show ip route vrf vrf-mission"'
+ssh station1 'sudo ip netns exec ce-a ping -c 3 10.100.2.1'
+```
+
+Boot restore: `deca-expansion-boot.sh` enables MPLS/LDP on GRE and re-asserts OSPF-TE / SR-TE (`ensure_te`). Historical static safety-net docs below are **obsolete** except as emergency rollback.
+
+<details><summary>Emergency rollback (static safety-net)</summary>
+
+```bash
+# PE1 only if BGP/LDP broken:
 sudo vtysh -c "configure terminal" -c "vrf vrf-mission" \
   -c "ip route 10.100.2.1/32 192.168.50.20 nexthop-vrf default" \
   -c "ip route 10.10.2.0/30 192.168.50.20 nexthop-vrf default" \
   -c "exit" -c "exit" -c "write"
 ```
 
-**station2 (PE2):**
-
-```bash
-sudo vtysh -c "configure terminal" -c "vrf vrf-mission" \
-  -c "ip route 10.100.1.1/32 192.168.50.10 nexthop-vrf default" \
-  -c "ip route 10.10.1.0/30 192.168.50.10 nexthop-vrf default" \
-  -c "exit" -c "exit" -c "write"
-```
-
-FRR 10.x: persist with **`write`**, not `write memory`.
-
-Verify:
-
-```bash
-ssh station1 'sudo vtysh -c "show ip route vrf vrf-mission"'
-ssh station1 'sudo ip netns exec ce-a ping -c 3 10.100.2.1'
-ssh station1 'sudo ipsec status'   # exactly one ESTABLISHED preferred
-```
+</details>
 
 ---
 
@@ -332,7 +508,7 @@ bash lab/deca_diagnostic.sh
 | [1/8] L3 | All three UPS |
 | [2/8] NTP | chrony tracking OK |
 | [3/8] OSPF | Full neighbors |
-| [4/8] BGP | Peer uptime (may still show NoNeg on ipv4 unicast; VPN path uses VRF statics) |
+| [4/8] BGP | `show bgp ipv4 vpn summary` — PfxRcd>0 (unicast NoNeg toward CORE is OK) |
 | [5/8] LDP | ACTIVE & POPULATED |
 | [6/8] IPsec | one `deca-sdwan` ESTABLISHED |
 | [7/8] VPN | `VPN Path time=…` to `10.100.2.1` |
@@ -343,13 +519,12 @@ Helpers:
 | Script | Role |
 | --- | --- |
 | `lab/deca-deploy.sh` | Full plug-and-play (laptop ops pack) |
-| `lab/deca-heal-telemetry.sh` | Quick ns / IPsec / Telegraf restart |
-| `lab/deca_diagnostic.sh` | Master health check |
+| `lab/deca_ops.sh` | Unified check / heal / install-boot |
+| `lab/deca_diagnostic.sh` | Master health check (`check stations`) |
 | `lab/run_traffic.sh` | Laptop iperf (not during fault campaigns) |
 | `scripts/deca_deploy_stations.sh` | Alternate deploy packaging |
-| `scripts/deca_heal_telemetry.sh` | Alternate heal packaging |
-| `scripts/deca_fix_prom_vpn.sh` | Prom TSDB wipe + VRF statics |
-| `scripts/deca_debug_vpn_prom.sh` | Deep debug |
+| `scripts/deca_fix_prom_vpn.sh` | Prom TSDB wipe (+ VPN verify) |
+| `lab/archive/pre-expansion/` | Superseded helpers (check_step7, heal, startupppp, …) |
 
 ---
 

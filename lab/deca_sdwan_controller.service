@@ -1,0 +1,18 @@
+[Unit]
+Description=DECA SD-WAN path controller (voice/EF + video/AF41 SAC↔NRSC)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/brain/deca-isro
+Environment=DECA_PROMETHEUS_URL=http://127.0.0.1:9090
+Environment=DECA_SDWAN_METRICS_PORT=9280
+Environment=DECA_SDWAN_LOG=/home/brain/deca-isro/data/rpi-net/sdwan_controller.log
+Environment=DECA_SDWAN_PE1=station1
+ExecStart=/usr/bin/python3 /home/brain/deca-isro/lab/deca_sdwan_controller.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

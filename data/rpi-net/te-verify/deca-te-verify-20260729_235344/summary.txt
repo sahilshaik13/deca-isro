@@ -1,0 +1,12 @@
+FAIL: pathd TED missing vertices
+FAIL: TED missing GRE edge
+FAIL: SR-TE policy not Active
+FAIL: via-gre missing
+FAIL: via-eth missing
+FAIL: BSID not on gre-te-core
+FAIL: backup path did not activate
+FAIL: BSID not on eth0 after failover
+FAIL: preferred restore failed
+PASS: CE ping SAC via VPN
+pass=1 fail=9
+evidence=/home/brain/deca-isro/data/rpi-net/te-verify/deca-te-verify-20260729_235344

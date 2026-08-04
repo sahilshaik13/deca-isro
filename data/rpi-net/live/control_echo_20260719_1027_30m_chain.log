@@ -1,4 +1,0 @@
-[chain] waiting for control control_echo_20260719_1027_30m to finish...
-[chain] scorecard present after 120 polls
-/tmp/deca_echo_chain.sh: line 93: unexpected EOF while looking for matching `"'
-, 'host': 'station1', 'false_alarm': False, 'class': None}, {'event_id': 'control_echo_20260719_1027_30m_nm02', 'host': 'station1', 'false_alarm': False, 'class': None}, {'event_id': 'control_echo_20260719_1027_30m_nm03', 'host': 'station1', 'false_alarm': False, 'class': None}, {'event_id': 'control_echo_20260719_1027_30m_nm04', 'host': 'station1', 'false_alarm': False, 'class': None}] / None spurious []

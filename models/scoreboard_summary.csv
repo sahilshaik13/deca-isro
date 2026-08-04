@@ -1,6 +1,0 @@
-Component,Primary score,Notes
-Isolation Forest + Platt,ROC-AUC 0.571,Live artifact on mixed paper
-Fault classifier (promoted),"Macro-F1 0.802, Acc 0.92",family=wm β=1.0; rareR=0.6130081300813008
-LSTM time-to-breach,MAE 2.467 min,n=1938 sequences on paper
-Prophet ×3,honest-refit holdout,ifInOctets=1.816e+09 / jitter_ms=185.8 / bgp_update_rate=8882
-Topology,"e(v)={'PE1': 1, 'PE2': 1, 'CORE': 1}",PE1–PE2–CORE

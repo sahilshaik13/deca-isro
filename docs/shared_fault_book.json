@@ -1,0 +1,132 @@
+{
+  "version": 2,
+  "title": "DECA shared fault book (Pi ↔ GNS3)",
+  "mentor_sentence": "We removed TRex and run the same iperf3 + NetEM + BGP/CPU/util fault book on Pi and GNS3, with aligned SLAs, so the live Pi lab and the GNS3 tool they use share one SD-WAN policy and one predictive feature space.",
+  "chaos_stack": ["iperf3", "netem", "stress-ng", "bgp_soft_clear", "util_ramp"],
+  "traffic": {
+    "tool": "iperf3",
+    "via": "HTB 1:10 / 1:15 / 1:20",
+    "classes": {
+      "ttc": { "proto": "udp", "rate": "1M", "tos": "0x88", "length": 160, "port": 5004 },
+      "payload": { "proto": "udp", "rate": "50M", "tos": "0x80", "length": 1200, "port": 5006 },
+      "admin": { "proto": "tcp", "rate": "20M", "tos": "untagged", "port": 5201 }
+    },
+    "pi": "lab/deca_iperf_qos_traffic.sh",
+    "gns3": "lab/gns3/traffic_control.sh",
+    "htb_pi": "lab/deca_htb_qos.sh",
+    "htb_gns3": "lab/gns3/apply_sla_htb.sh",
+    "htb_notes": "PE root 40mbit; Payload RED on 1:15; dport 5004→1:10 / 5006→1:15; NetEM on underlay (Pi gre-te-core · GNS3 CORE-N eth0 / GRE) — never wipe PE HTB"
+  },
+  "sla": {
+    "ttc": { "latency_ms": 25, "jitter_ms": 5, "loss_pct": 0.1 },
+    "payload": { "latency_ms": 80, "jitter_ms": 15, "loss_pct": 2.0 }
+  },
+  "notes": [
+    "Canonical shapes = Pi scripts. GNS3 inject defaults match Pi; demo.* may shorten for NOC jury.",
+    "Do not mash unlabeled Pi + GNS3 CSVs until L1–L5 Prom series share protocol shapes.",
+    "GNS3 injects must hit real NetEM + iperf + stress-ng; chaos_state.json is overlay/fallback only.",
+    "Train Q1 primarily on Pi (honest dynamics); add GNS3 after matched texture; Q2 may use a fabric feature."
+  ],
+  "levels": {
+    "L1_rain_fade": {
+      "id": "rain_fade",
+      "label": "Rain fade",
+      "pi": "scripts/inject_rain_fade.sh",
+      "gns3": "lab/gns3/inject/rain_fade.sh",
+      "protocol": {
+        "steps": 24,
+        "step_sec": 5,
+        "start_ms": 5,
+        "end_ms": 100,
+        "jitter_ms": 5,
+        "netem": "delay … distribution normal"
+      },
+      "demo": {
+        "steps": 8,
+        "step_sec": 8,
+        "start_ms": 5,
+        "end_ms": 45,
+        "jitter_ms": 4
+      },
+      "protocol_hint": "NetEM delay ramp on mission underlay (Pi gre-te-core · GNS3 CORE-N eth0 or PE GRE — HTB on PE eth0 preserved)"
+    },
+    "L2_cpu_stress": {
+      "id": "cpu_stress",
+      "label": "CPU / crypto stress",
+      "pi": "scripts/inject_cpu_stress.sh",
+      "gns3": "lab/gns3/inject/cpu_stress.sh",
+      "protocol": { "duration_s": 90, "tool": "stress-ng --cpu $(nproc)", "fallback": "python burn" },
+      "demo": { "duration_s": 75 }
+    },
+    "L3_bgp_flap": {
+      "id": "bgp_flap",
+      "label": "BGP flap",
+      "pi": "scripts/inject_bgp_flap.sh",
+      "gns3": "lab/gns3/inject/bgp_flap.sh",
+      "protocol": {
+        "cycles": 18,
+        "period_sec": 5,
+        "command": "clear bgp <neighbor> soft",
+        "pi_neighbor": "10.1.3.1",
+        "gns3_neighbor": "10.10.3.2"
+      },
+      "demo": { "cycles": 24, "period_sec": 3 }
+    },
+    "L4_loss_progression": {
+      "id": "loss_progression",
+      "label": "Loss progression",
+      "pi": "scripts/inject_loss_progression.sh",
+      "gns3": "lab/gns3/inject/loss_progression.sh",
+      "protocol": {
+        "steps": 24,
+        "step_sec": 5,
+        "start_pct": 0,
+        "end_pct": 3.5
+      },
+      "demo": {
+        "steps": 5,
+        "step_sec": 12,
+        "start_pct": 0,
+        "end_pct": 3.5
+      },
+      "notes": "Crosses Payload ≤2% loss SLA; NetEM on underlay not PE HTB iface"
+    },
+    "L5_util_congestion": {
+      "id": "util_congestion",
+      "label": "Util congestion (HTB 1:15)",
+      "pi": "scripts/inject_util_congestion.sh",
+      "gns3": "lab/gns3/inject/util_congestion.sh",
+      "protocol": {
+        "steps": 6,
+        "step_sec": 20,
+        "start_mbit": 5,
+        "end_mbit": 30,
+        "tos": "0x80",
+        "port": 5201
+      },
+      "demo": {
+        "steps": 6,
+        "step_sec": 20,
+        "start_mbit": 5,
+        "end_mbit": 30,
+        "tos": "0x80"
+      },
+      "notes": "Real iperf3 UDP ToS 0x80 through HTB 1:15 — not gauges-only"
+    },
+    "demo_ce_sla_conflict": {
+      "id": "ce_sla_conflict",
+      "label": "CE SLA conflict (mentor demo)",
+      "pi": "scripts/inject_ce_sla_conflict.sh",
+      "gns3": "lab/gns3/inject/ce_sla_conflict.sh",
+      "demo": {
+        "steps": 4,
+        "step_sec": 15,
+        "start_mbit": 3,
+        "end_mbit": 20,
+        "rogue_tos": "0x80",
+        "victim_tos": "0x88"
+      },
+      "notes": "NOC Simple fault — not protocol L5; Bronze surge vs Gold TT&C"
+    }
+  }
+}

@@ -1,0 +1,4 @@
+.env
+chroma_store/
+models/*.gguf
+models/.cache/

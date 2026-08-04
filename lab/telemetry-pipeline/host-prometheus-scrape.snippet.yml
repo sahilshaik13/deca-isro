@@ -1,0 +1,27 @@
+# Append to /etc/prometheus/prometheus.yml (host lab Prom on :9090) — Pi only.
+# Prefer copying host-prometheus.yml in full (includes controller scrape).
+# Do NOT add GNS3 jobs here; GNS3 is scraped by compose Prom :9091.
+
+  - job_name: deca_kafka_telemetry_bridge
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["127.0.0.1:9274"]
+        labels:
+          role: kafka_telemetry_bridge
+          fabric: pi
+
+  - job_name: deca_kafka_exporter
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["127.0.0.1:9308"]
+        labels:
+          role: kafka_broker
+          fabric: pi
+
+  - job_name: deca_sdwan_controller
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["127.0.0.1:9280"]
+        labels:
+          role: sdwan_controller
+          fabric: pi

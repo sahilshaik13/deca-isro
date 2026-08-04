@@ -1,0 +1,4 @@
+
+Endpoint: 10.1.2.1  Color: 1  Name: pe1-to-pe2-te  BSID: 40001  Status: Active
+    Preference: 50  Name: via-eth  Type: explicit  Segment-List: SL-ETH  Protocol-Origin: Local
+  * Preference: 100  Name: via-gre  Type: explicit  Segment-List: SL-GRE  Protocol-Origin: Local

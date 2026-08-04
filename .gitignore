@@ -1,9 +1,6 @@
-# Apps (not part of ISRO data-gen share)
-deca-frontend/
-deca-backend/
-
 # Local tooling / envs
 .venv/
+.venv-predictive/
 venv/
 .env
 .env.*
@@ -18,18 +15,39 @@ __pycache__/
 *.egg-info/
 .DS_Store
 
-# Heavy / rebuildable BGP MRT archives (~259 MB) — rates CSVs/parquet stay tracked
-data/raw/public/*updates*.gz
-data/raw/public/*updates*.bz2
-data/raw/public/*.mrt
+# Frontend / backend runtime junk
+deca-frontend/node_modules/
+deca-frontend/.next/
+deca-frontend/out/
+deca-backend/__pycache__/
+deca-backend/chroma_store/
+deca-backend/models/*
+!deca-backend/models/.gitkeep
+
+# Orchestrator SQLite / sim runtime (regenerated locally)
+data/deca/*.db
+data/deca/*.db-*
+data/deca/simulation.log
+data/deca/simulation_status.json
+data/deca/*.pid
+data/deca/predictive/
+
+# Legacy lakes / ML artifacts — not part of current SD-WAN lab phase
+data/raw/
+data/processed/
+data/rpi-net/runs/
+data/rpi-net/live/
+data/rpi-net/archive/
+data/rpi-net/blind-tests/
+data/rpi-net/*.log
+models/
+notebook/
+*.gguf
 *.pcap
 *.pcapng
-
-# Backup / scratch
 *.bak
 *.bak_*
 *.bak.*
-/deca_unified_dataset.parquet
 
 # Editor / IDE
 .idea/
@@ -37,21 +55,7 @@ data/raw/public/*.mrt
 *.swp
 *~
 .ipynb_checkpoints/
-
-# Obsidian vault runtime (keep app.json + notes tracked)
-obsidian/.obsidian/workspace*
-obsidian/.obsidian/workspaces.json
-obsidian/.obsidian/cache
-obsidian/.obsidian/plugins/cursor-integration/
-obsidian/.trash/
-
-# In-progress / incomplete lab runs — do not push until finished (has telemetry)
-# Add a run id here while a campaign is actively writing.
-# data/rpi-net/runs/<in_progress_id>/
-
-# Local training / campaign run logs (artifacts stay tracked)
-models/**/*.log
+nohup.out
 *.run.log
 *_nohup.out
-nohup.out
-*.bak_*
+lab/gns3/state/

@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "title": "DECA edge policy contract (CE / PE / P / network)",
+  "mentor": "Aug 2026 — Gold 99.9% vs Bronze 90%; CoS1 on MPLS; name rogue vs victim",
+  "conflict_priority": ["TT&C", "Gold", "Payload", "Silver", "Admin", "Bronze"],
+  "wire": {
+    "ttc_tos": "0x88",
+    "payload_tos": "0x80",
+    "admin_tos": "0x00",
+    "htb": {
+      "1:10": "TT&C LLQ",
+      "1:15": "Payload ~70%",
+      "1:20": "BE scavenger"
+    },
+    "vrf_mission": "vrf-mission",
+    "vrf_admin": "vrf-admin",
+    "primary_path": "gre-te-core",
+    "backup_path": "eth0"
+  },
+  "classes": {
+    "ttc": {
+      "latency_ms": 25,
+      "jitter_ms": 5,
+      "loss_pct": 0.1,
+      "tos": "0x88",
+      "vrf": "vrf-mission",
+      "primary": "gre-te-core",
+      "backup": "eth0",
+      "htb": "1:10"
+    },
+    "payload": {
+      "latency_ms": 80,
+      "jitter_ms": 15,
+      "loss_pct": 2.0,
+      "tos": "0x80",
+      "vrf": "vrf-mission",
+      "primary": "gre-te-core",
+      "backup": "eth0",
+      "htb": "1:15"
+    },
+    "admin": {
+      "tos": "0x00",
+      "vrf": "vrf-admin",
+      "primary": "eth0",
+      "backup": null,
+      "htb": "1:20"
+    }
+  },
+  "ce_tiers": {
+    "ce-a": {
+      "site": "NRSC",
+      "tier": "Gold",
+      "availability": 99.9,
+      "default_cos": "0x88",
+      "role": "critical_victim"
+    },
+    "ce-b": {
+      "site": "SAC",
+      "tier": "Silver",
+      "availability": 99.5,
+      "default_cos": "0x80",
+      "role": "dc_bulk"
+    },
+    "ce-mauritius": {
+      "site": "Mauritius",
+      "tier": "Bronze",
+      "availability": 90.0,
+      "default_cos": "0x80",
+      "role": "typical_rogue"
+    },
+    "ce-mcf": {
+      "site": "MCF",
+      "tier": "Bronze",
+      "availability": 90.0,
+      "default_cos": "0x80",
+      "role": "alternate_rogue"
+    }
+  },
+  "layers": {
+    "network": {
+      "owns": [
+        "class_SLA_table",
+        "hysteresis",
+        "conflict_HITL",
+        "force_path"
+      ],
+      "must_not": ["per_packet_QoS"]
+    },
+    "ce": {
+      "owns": [
+        "site_SLA_tier",
+        "default_CoS_mark",
+        "dont_starve_Gold"
+      ],
+      "must_not": ["choose_CORE_vs_eth0"]
+    },
+    "pe": {
+      "owns": [
+        "HTB_1:10_1:15_1:20",
+        "VRF_mission_admin",
+        "IPsec_copy_dscp",
+        "AAR_steer"
+      ],
+      "must_not": ["invent_new_classes"]
+    },
+    "p": {
+      "owns": [
+        "mission_underlay_forward",
+        "preserve_DSCP",
+        "TE_costs"
+      ],
+      "must_not": ["reclassify_ToS", "run_CE_SLA_engine"],
+      "notes": "May enforce same PHB (GNS3 CORE HTB) but never remaps CoS"
+    }
+  },
+  "fabrics": {
+    "pi": {
+      "label": "Pi live SLAs (production-like / mentor-aligned)",
+      "prom": "http://127.0.0.1:9090",
+      "chaos": ["iperf3", "netem", "stress-ng", "bgp_soft_clear", "util_ramp"],
+      "p_htb": false
+    },
+    "gns3": {
+      "label": "GNS3 sim SLAs (aligned to Pi / mentor)",
+      "prom": "http://127.0.0.1:9091",
+      "chaos": ["iperf3", "netem", "stress-ng", "bgp_soft_clear", "util_ramp"],
+      "p_htb": true
+    }
+  }
+}

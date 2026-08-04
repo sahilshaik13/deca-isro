@@ -1,9 +1,0 @@
-{
-  "exam_macro_f1": 0.7610403726329684,
-  "exam_rare_recall": 0.5967364674806175,
-  "gate_passed": true,
-  "bar_macro": 0.7563230659873174,
-  "champion_same_paper_macro_f1": 0.7563230659873174,
-  "family": "wm",
-  "rare_boost": 1.0
-}

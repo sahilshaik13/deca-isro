@@ -99,26 +99,14 @@ sleep 5
 echo "--- after BGP ---"
 ssh -T station1 'sudo vtysh -c "show bgp ipv4 vpn summary"; echo; sudo vtysh -c "show bgp ipv4 vpn"; echo; sudo vtysh -c "show ip route vrf vrf-mission"' | sed 's/^/  /'
 
-# Safety net: VRF routes to remote CE via underlay LAN (nexthop-vrf default → eth0 / IPsec)
-echo "--- static safety net (vrf-mission via underlay) ---"
-ssh -T station1 'sudo vtysh << "VTY"
-configure terminal
-vrf vrf-mission
- ip route 10.100.2.1/32 192.168.50.20 nexthop-vrf default
- ip route 10.10.2.0/30 192.168.50.20 nexthop-vrf default
-exit
-write memory
-VTY'
-ssh -T station2 'sudo vtysh << "VTY"
-configure terminal
-vrf vrf-mission
- ip route 10.100.1.1/32 192.168.50.10 nexthop-vrf default
- ip route 10.10.1.0/30 192.168.50.10 nexthop-vrf default
-exit
-write memory
-VTY'
+# Prefer native BGP VPNv4 + LDP on GRE (expansion-boot). Static safety-net is emergency-only.
+echo "--- ensure MPLS/LDP on GRE (expansion-boot) ---"
+for H in station1 station2 station3; do
+  ssh -T "$H" 'sudo /usr/local/bin/deca-expansion-boot.sh 2>/dev/null || true'
+done
+sleep 3
 
-# Persist VRF statics (FRR 10.x uses "write", not "write memory")
+# Persist FRR config (FRR 10.x uses "write", not "write memory")
 echo "--- persist FRR config ---"
 for H in station1 station2 station3; do
   ssh -T "$H" 'sudo vtysh -c "write"' 2>/dev/null || true

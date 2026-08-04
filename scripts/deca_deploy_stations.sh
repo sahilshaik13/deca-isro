@@ -4,8 +4,8 @@
 # Proven stack (2026-07-14):
 #   - clean deca-ns.service (one ExecStartPre) + Before=frr,strongswan
 #   - FRR/strongSwan Requires=deca-ns
-#   - deca-watchdog: reset-failed every boot + heal FRR/IPsec/Telegraf + VRF static safety-net
-#   - VRF routes: remote CE via underlay nexthop-vrf default (fixes VPN when VPNv4 PfxRcd=0)
+#   - deca-watchdog: reset-failed every boot + heal FRR/IPsec/Telegraf + expansion-boot (GRE/MPLS)
+#   - VPN dataplane: BGP VPNv4 (ipv4 vpn) + LDP over gre-te-*; local CE statics only
 #   - laptop Prometheus: TSDB dir must be owned by prometheus:prometheus (not nobody)
 #
 # Run from laptop on lab LAN (USB eth 192.168.50.1):
@@ -95,11 +95,11 @@ EOF'
 done
 
 # ---------------------------------------------------------------------------
-# Watchdog — reset-failed + service heal + VRF CE static safety-net every boot
+# Watchdog — reset-failed + service heal + expansion-boot (GRE/MPLS/LDP); no cross-PE VRF statics
 # ---------------------------------------------------------------------------
 echo "=== Writing deca-watchdog.service (all stations) ==="
 
-# PE stations: include VRF static restore (VPN works even when BGP VPNv4 stays NoNeg/0 pfx)
+# PE stations: heal services; remote VPN prefixes come from BGP VPNv4 (not static safety-net)
 for H in station1 station2; do
   ssh -T "$H" "sudo tee /usr/local/sbin/deca-watchdog.sh > /dev/null" <<'EOF'
 #!/bin/bash
@@ -110,21 +110,7 @@ sleep 2
 systemctl is-active --quiet frr || systemctl restart frr
 systemctl is-active --quiet strongswan-starter 2>/dev/null || systemctl restart strongswan-starter 2>/dev/null || true
 systemctl is-active --quiet telegraf || systemctl restart telegraf
-IP=$(ip -4 -br addr show eth0 2>/dev/null | awk '{print $3}' | cut -d/ -f1)
-case "$IP" in
-  192.168.50.10)
-    vtysh -c "configure terminal" -c "vrf vrf-mission" \
-      -c "ip route 10.100.2.1/32 192.168.50.20 nexthop-vrf default" \
-      -c "ip route 10.10.2.0/30 192.168.50.20 nexthop-vrf default" \
-      -c "exit" -c "exit" -c "write" >/dev/null 2>&1 || true
-    ;;
-  192.168.50.20)
-    vtysh -c "configure terminal" -c "vrf vrf-mission" \
-      -c "ip route 10.100.1.1/32 192.168.50.10 nexthop-vrf default" \
-      -c "ip route 10.10.1.0/30 192.168.50.10 nexthop-vrf default" \
-      -c "exit" -c "exit" -c "write" >/dev/null 2>&1 || true
-    ;;
-esac
+/usr/local/bin/deca-expansion-boot.sh 2>/dev/null || true
 EOF
   ssh -T "$H" 'sudo chmod +x /usr/local/sbin/deca-watchdog.sh
 sudo tee /etc/systemd/system/deca-watchdog.service > /dev/null << "EOF"
@@ -215,25 +201,24 @@ sleep 3
 ssh -T station2 'sudo systemctl restart frr strongswan-starter'
 sleep 5
 
-# VRF CE static safety-net (same as watchdog) — do it now so VPN works without waiting 60s
-echo "=== VRF underlay safety-net + FRR write ==="
-ssh -T station1 'sudo vtysh -c "configure terminal" -c "vrf vrf-mission" \
-  -c "ip route 10.100.2.1/32 192.168.50.20 nexthop-vrf default" \
-  -c "ip route 10.10.2.0/30 192.168.50.20 nexthop-vrf default" \
-  -c "exit" -c "exit" -c "write"'
-ssh -T station2 'sudo vtysh -c "configure terminal" -c "vrf vrf-mission" \
-  -c "ip route 10.100.1.1/32 192.168.50.10 nexthop-vrf default" \
-  -c "ip route 10.10.1.0/30 192.168.50.10 nexthop-vrf default" \
-  -c "exit" -c "exit" -c "write"'
+# Ensure MPLS/LDP on GRE so BGP VPNv4 installs (no cross-PE VRF statics)
+echo "=== Expansion boot (GRE/MPLS/LDP) + FRR write ==="
+for H in station1 station2 station3; do
+  ssh -T "$H" 'sudo /usr/local/bin/deca-expansion-boot.sh 2>/dev/null || true; sudo vtysh -c "write" 2>/dev/null || true'
+done
+sleep 3
+ssh -T station1 'sudo vtysh -c "clear bgp * soft" 2>/dev/null || true'
+ssh -T station2 'sudo vtysh -c "clear bgp * soft" 2>/dev/null || true'
+sleep 3
 
 echo "=== IPsec (expect 1 ESTABLISHED) ==="
 ssh -T station1 'sudo ipsec status' | sed 's/^/  /'
 
-echo "=== VPN ping CE-A → 10.100.2.1 ==="
+echo "=== VPN ping CE-A → 10.100.2.1 (BGP L3VPN) ==="
 if ssh -T station1 'sudo ip netns exec ce-a ping -c 3 -W 2 10.100.2.1' | tee /tmp/deca-vpn-ping.txt | grep -q 'bytes from'; then
   echo "PASS: VPN dataplane"
 else
-  echo "FAIL: VPN ping — inspect ipsec / vrf routes"
+  echo "FAIL: VPN ping — inspect ipv4 vpn / LDP on gre-te / vrf routes"
   exit 1
 fi
 

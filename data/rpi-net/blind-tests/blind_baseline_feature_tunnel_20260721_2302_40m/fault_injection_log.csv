@@ -1,3 +1,0 @@
-fault_type,fault_start,breach_time,run_id
-tunnel_degradation,2026-07-21T17:35:45.170706+00:00,2026-07-21T17:40:40.622087+00:00,real_blind_baseline_feature_tunnel_20260721_2302_40m_cg01_e01_tunnel_degradation
-vrf_leakage,2026-07-21T17:35:45.171249+00:00,2026-07-21T17:44:19.819059+00:00,real_blind_baseline_feature_tunnel_20260721_2302_40m_cg01_e02_vrf_leakage

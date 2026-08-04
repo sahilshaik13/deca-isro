@@ -1,0 +1,52 @@
+# Host lab Prometheus (:9090) — Pi fabric ONLY (authoritative for live stations).
+# GNS3 fabric is compose Prometheus :9091 — do not scrape GNS3 targets here.
+# Apply:
+#   sudo cp lab/telemetry-pipeline/host-prometheus.yml /etc/prometheus/prometheus.yml
+#   sudo systemctl reload prometheus || sudo systemctl restart prometheus
+
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+  external_labels:
+    fabric: pi
+
+scrape_configs:
+  # Legacy direct Telegraf HTTP (cutover companion to Kafka bridge)
+  - job_name: deca_edge_nodes
+    static_configs:
+      - targets: ["192.168.50.10:9273", "192.168.50.20:9273"]
+        labels:
+          fabric: pi
+
+  - job_name: deca_core_router
+    static_configs:
+      - targets: ["192.168.50.30:9273"]
+        labels:
+          fabric: pi
+
+  # Pi: Kafka → bridge :9274
+  - job_name: deca_kafka_telemetry_bridge
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["127.0.0.1:9274"]
+        labels:
+          role: kafka_telemetry_bridge
+          fabric: pi
+
+  - job_name: deca_kafka_exporter
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["127.0.0.1:9308"]
+        labels:
+          role: kafka_broker
+          fabric: pi
+
+  # SD-WAN path controller (brain). Scraped on host loopback — Docker bridge
+  # cannot hairpin to host:9280 reliably.
+  - job_name: deca_sdwan_controller
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["127.0.0.1:9280"]
+        labels:
+          role: sdwan_controller
+          fabric: pi

@@ -1,3 +1,0 @@
-{"event_id": "specificity_exam_v1_nm01", "fault_type": "near_miss", "host": "station1", "fault_start": "2026-07-18T03:01:22.038536+00:00", "breach_time": "2026-07-18T03:01:53.382690+00:00", "is_near_miss": true}
-{"event_id": "specificity_exam_v1_nm02", "fault_type": "near_miss", "host": "station1", "fault_start": "2026-07-18T03:06:54.869754+00:00", "breach_time": "2026-07-18T03:07:36.038537+00:00", "is_near_miss": true}
-{"event_id": "specificity_exam_v1_nm03", "fault_type": "near_miss", "host": "station1", "fault_start": "2026-07-18T03:12:37.646847+00:00", "breach_time": "2026-07-18T03:13:14.847994+00:00", "is_near_miss": true}

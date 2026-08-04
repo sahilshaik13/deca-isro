@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Create/update $HOME symlinks → this lab/ folder so existing docs that say
-# ~/deca_diagnostic.sh keep working.
+# Create/update $HOME symlinks → current lab/ scripts (post-expansion).
+# Superseded scripts live under lab/archive/pre-expansion/ — not linked.
 set -euo pipefail
 LAB_DIR="$(cd "$(dirname "$0")" && pwd)"
 HOME_DIR="${HOME:-/home/brain}"
@@ -17,7 +17,6 @@ link_one() {
     ln -sfn "${src}" "${dst}"
     echo "relinked ~/${name}"
   elif [[ -e "${dst}" ]]; then
-    # Preserve a one-time backup of a real home file, then replace with symlink.
     local bak="${dst}.bak_before_lab_link"
     if [[ ! -e "${bak}" ]]; then
       mv "${dst}" "${bak}"
@@ -33,20 +32,41 @@ link_one() {
   fi
 }
 
+unlink_stale() {
+  local name="$1"
+  local dst="${HOME_DIR}/${name}"
+  if [[ -L "${dst}" ]]; then
+    rm -f "${dst}"
+    echo "removed stale ~/${name}"
+  fi
+}
+
 echo "LAB_DIR=${LAB_DIR}"
+# Current day-to-day
 for name in \
   deca_diagnostic.sh \
-  check_stations.sh \
-  check_step7.sh \
-  trace_step7.sh \
+  deca_ops.sh \
   deca-deploy.sh \
-  apply_boot_fix.sh \
-  deca-heal-telemetry.sh \
-  run_traffic.sh \
-  forwardss \
-  startupppp \
-  cisco_scraper.py
+  run_traffic.sh
 do
   link_one "${name}"
 done
-echo "Done. Try: bash ~/deca_diagnostic.sh"
+
+# Compatibility: old name → current diagnostic
+ln -sfn "${LAB_DIR}/deca_diagnostic.sh" "${HOME_DIR}/check_stations.sh"
+echo "relinked ~/check_stations.sh -> lab/deca_diagnostic.sh"
+
+# Drop home links to archived scripts
+for name in \
+  check_step7.sh \
+  trace_step7.sh \
+  apply_boot_fix.sh \
+  deca-heal-telemetry.sh \
+  startupppp \
+  forwardss \
+  cisco_scraper.py
+do
+  unlink_stale "${name}"
+done
+
+echo "Done. Try: check stations   OR   bash ~/deca_diagnostic.sh"

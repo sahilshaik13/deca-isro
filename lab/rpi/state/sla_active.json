@@ -1,0 +1,157 @@
+{
+  "active_fabric": "pi",
+  "set_at": "2026-08-02T13:58:25Z",
+  "sla": {
+    "fabric": "pi",
+    "label": "Pi live SLAs (production-like / mentor-aligned)",
+    "classes": {
+      "ttc": {
+        "latency_ms": 25,
+        "jitter_ms": 5,
+        "loss_pct": 0.1,
+        "tos": "0x88",
+        "vrf": "vrf-mission",
+        "primary": "gre-te-core",
+        "backup": "eth0",
+        "htb": "1:10"
+      },
+      "payload": {
+        "latency_ms": 80,
+        "jitter_ms": 15,
+        "loss_pct": 2.0,
+        "tos": "0x80",
+        "vrf": "vrf-mission",
+        "primary": "gre-te-core",
+        "backup": "eth0",
+        "htb": "1:15"
+      },
+      "admin": {
+        "tos": "0x00",
+        "vrf": "vrf-admin",
+        "primary": "eth0",
+        "backup": null,
+        "htb": "1:20"
+      }
+    },
+    "ce_tiers": {
+      "ce-a": {
+        "site": "NRSC",
+        "tier": "Gold",
+        "availability": 99.9
+      },
+      "ce-b": {
+        "site": "SAC",
+        "tier": "Silver",
+        "availability": 99.5
+      },
+      "ce-mauritius": {
+        "site": "Mauritius",
+        "tier": "Bronze",
+        "availability": 90.0
+      },
+      "ce-mcf": {
+        "site": "MCF",
+        "tier": "Bronze",
+        "availability": 90.0
+      }
+    },
+    "chaos": [
+      "iperf3",
+      "netem",
+      "stress-ng",
+      "bgp_soft_clear"
+    ]
+  },
+  "htb_fabric_wide": {
+    "applied_at": "2026-08-02T10:45:08Z",
+    "class_ids": {
+      "ttc": "1:10",
+      "payload": "1:15",
+      "be": "1:20"
+    },
+    "interfaces": [
+      "station1:eth0",
+      "station2:eth0",
+      "ce-a:veth-cea-pe",
+      "ce-mauritius:veth-cem-pe",
+      "ce-b:veth-ceb-pe",
+      "ce-mcf:veth-cemcf-pe"
+    ],
+    "prom": "http://127.0.0.1:9090",
+    "edge_roles": {
+      "pe": [
+        "station1",
+        "station2"
+      ],
+      "ce": [
+        "ce-a",
+        "ce-b",
+        "ce-mauritius",
+        "ce-mcf"
+      ],
+      "p": [
+        "station3"
+      ]
+    }
+  },
+  "wire": {
+    "ttc_tos": "0x88",
+    "payload_tos": "0x80",
+    "admin_tos": "0x00",
+    "htb": {
+      "1:10": "TT&C LLQ",
+      "1:15": "Payload ~70%",
+      "1:20": "BE scavenger"
+    },
+    "vrf_mission": "vrf-mission",
+    "vrf_admin": "vrf-admin",
+    "primary_path": "gre-te-core",
+    "backup_path": "eth0"
+  },
+  "layers": {
+    "network": {
+      "owns": [
+        "class_SLA_table",
+        "hysteresis",
+        "conflict_HITL",
+        "force_path"
+      ],
+      "must_not": [
+        "per_packet_QoS"
+      ]
+    },
+    "ce": {
+      "owns": [
+        "site_SLA_tier",
+        "default_CoS_mark",
+        "dont_starve_Gold"
+      ],
+      "must_not": [
+        "choose_CORE_vs_eth0"
+      ]
+    },
+    "pe": {
+      "owns": [
+        "HTB_1:10_1:15_1:20",
+        "VRF_mission_admin",
+        "IPsec_copy_dscp",
+        "AAR_steer"
+      ],
+      "must_not": [
+        "invent_new_classes"
+      ]
+    },
+    "p": {
+      "owns": [
+        "mission_underlay_forward",
+        "preserve_DSCP",
+        "TE_costs"
+      ],
+      "must_not": [
+        "reclassify_ToS",
+        "run_CE_SLA_engine"
+      ],
+      "notes": "May enforce same PHB (GNS3 CORE HTB) but never remaps CoS"
+    }
+  }
+}

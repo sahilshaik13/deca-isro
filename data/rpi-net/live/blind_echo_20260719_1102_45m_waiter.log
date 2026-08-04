@@ -1,5 +1,0 @@
-summary {'run_id': 'blind_echo_20260719_1102_45m', 'circumstances_created': 3, 'detected': 3, 'detection_rate': 1.0, 'class_correct': 3, 'class_accuracy': 1.0, 'class_correct_eventually': 3, 'class_accuracy_eventually': 1.0, 'missed': 0, 'compound_events': 0, 'near_misses': 2, 'near_miss_false_alarms': 1, 'spurious_false_alarms': 0, 'mean_confirmed_lead_min': 6.3, 'mean_advisory_lead_min': 6.9, 'eta_mae_min': 2.6, 'severity_scored': 3, 'severity_agreement': 0.667, 'severity_pearson_r': 0.287, 'severity_pairs': 3, 'graded_at': '2026-07-19T06:25:08.410568+00:00', 'severity_from_prometheus': True}
-spur_count 0
-station2_shared_spur 0 []
-nm_fa 1 of 2
-events [('_20260719_1102_45m_e01_congestion_breach', True, 'congestion_breach', None), ('20260719_1102_45m_e02_tunnel_degradation', True, 'tunnel_degradation', None), ('20260719_1102_45m_e03_tunnel_degradation', True, 'tunnel_degradation', None)]

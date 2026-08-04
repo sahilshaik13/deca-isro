@@ -1,0 +1,40 @@
+{
+  "active": [
+    {
+      "fabric": "gns3",
+      "link_id": "pe2-mcf",
+      "ends": [
+        "PE2",
+        "CE-MCF"
+      ],
+      "pcap": "/media/brain/Shaik's/gns3/projects/DECA/project-files/captures/sdwan_CE-MCF_PE2.pcap",
+      "capturing": true,
+      "message": "Wireshark \u2190 PE2 \u2194 CE-MCF",
+      "opened_at": "2026-08-02T15:43:15Z"
+    },
+    {
+      "fabric": "gns3",
+      "link_id": "gre-pe1-cs",
+      "ends": [
+        "PE1",
+        "CORE-S"
+      ],
+      "pcap": "/media/brain/Shaik's/gns3/projects/DECA/project-files/captures/noc_PE1_CORE-S.pcap",
+      "capturing": true,
+      "message": "Wireshark \u2190 PE1 \u2194 CORE-S",
+      "opened_at": "2026-08-02T15:44:38Z"
+    }
+  ],
+  "last": {
+    "fabric": "gns3",
+    "link_id": "gre-pe1-cs",
+    "ends": [
+      "PE1",
+      "CORE-S"
+    ],
+    "pcap": "/media/brain/Shaik's/gns3/projects/DECA/project-files/captures/noc_PE1_CORE-S.pcap",
+    "capturing": true,
+    "message": "Wireshark \u2190 PE1 \u2194 CORE-S"
+  },
+  "message": "Wireshark \u2190 PE1 \u2194 CORE-S"
+}

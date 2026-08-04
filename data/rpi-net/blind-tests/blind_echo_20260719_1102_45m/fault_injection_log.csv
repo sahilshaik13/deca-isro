@@ -1,6 +1,0 @@
-fault_type,fault_start,breach_time,run_id
-precursor_aborted,2026-07-19T05:32:33.372198+00:00,2026-07-19T05:33:05.943050+00:00,real_blind_echo_20260719_1102_45m_nm01
-congestion_breach,2026-07-19T05:35:20.024841+00:00,2026-07-19T05:47:37.161050+00:00,real_blind_echo_20260719_1102_45m_e01_congestion_breach
-precursor_aborted,2026-07-19T05:52:33.761967+00:00,2026-07-19T05:53:06.606491+00:00,real_blind_echo_20260719_1102_45m_nm02
-tunnel_degradation,2026-07-19T05:54:41.098401+00:00,2026-07-19T06:02:28.686529+00:00,real_blind_echo_20260719_1102_45m_e02_tunnel_degradation
-tunnel_degradation,2026-07-19T06:09:55.714382+00:00,2026-07-19T06:18:54.271398+00:00,real_blind_echo_20260719_1102_45m_e03_tunnel_degradation

@@ -1,0 +1,41 @@
+# Compose Prometheus (:9091) — GNS3 fabric ONLY.
+# Pi fabric lives on host Prometheus :9090 (host-prometheus.yml).
+# Air-gapped: scrape only RFC1918 / compose DNS names. No remote_write.
+
+global:
+  scrape_interval: 1s
+  evaluation_interval: 5s
+  external_labels:
+    fabric: gns3
+    pipeline: telegraf-kafka-prom-gns3
+
+scrape_configs:
+  # GNS3 Kafka → bridge (:9276)
+  - job_name: deca_kafka_telemetry_bridge_gns3
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["telemetry-bridge-gns3:9276"]
+        labels:
+          role: kafka_telemetry_bridge
+          fabric: gns3
+
+  # 1Hz PROBE / chaos gauges (guaranteed before FRR L3 agents)
+  - job_name: deca_gns3_fabric
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["gns3-exporter:9275"]
+        labels:
+          role: gns3_fabric
+          fabric: gns3
+
+  # Kafka broker health (shared broker; label keeps series on this TSDB)
+  - job_name: deca_kafka_exporter
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["kafka-exporter:9308"]
+        labels:
+          role: kafka_broker
+          fabric: gns3
+
+  # SD-WAN controller is scraped by host Prometheus :9090 only.
+  # Docker→host hairpin to :9280 times out — do not scrape it here.

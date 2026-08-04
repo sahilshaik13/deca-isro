@@ -1,4 +1,0 @@
-{"event_id": "blind_20260718_2219_60m_e01_bgp_route_flap", "fault_type": "bgp_route_flap", "host": "station1", "fault_start": "2026-07-18T16:51:09.448546+00:00", "breach_time": "2026-07-18T17:00:02.133264+00:00", "is_near_miss": false}
-{"event_id": "blind_20260718_2219_60m_e02_congestion_breach", "fault_type": "congestion_breach", "host": "station1", "fault_start": "2026-07-18T17:02:57.086054+00:00", "breach_time": "2026-07-18T17:10:50.420102+00:00", "is_near_miss": false}
-{"event_id": "blind_20260718_2219_60m_e03_tunnel_degradation", "fault_type": "tunnel_degradation", "host": "station1", "fault_start": "2026-07-18T17:17:54.673363+00:00", "breach_time": "2026-07-18T17:24:59.899056+00:00", "is_near_miss": false}
-{"event_id": "blind_20260718_2219_60m_e04_congestion_breach", "fault_type": "congestion_breach", "host": "station1", "fault_start": "2026-07-18T17:32:39.316666+00:00", "breach_time": "2026-07-18T17:44:37.662296+00:00", "is_near_miss": false}

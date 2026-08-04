@@ -1,0 +1,69 @@
+# DECA CE Matrix Traffic Report — `20260729T073102Z`
+
+**Overall:** 39 PASS / 0 FAIL / 39 total — ALL GREEN
+
+## Situations
+
+| Situation | Pass | Fail |
+| --- | ---: | ---: |
+| `S1_ce_lo_mesh` | 12 | 0 |
+| `S2_lan_ws_mesh` | 12 | 0 |
+| `S3_iperf_clear` | 8 | 0 |
+| `S4_mild_netem` | 2 | 0 |
+| `S4_recover` | 1 | 0 |
+| `preflight` | 4 | 0 |
+
+## Site participation (src/dst across icmp+iperf)
+
+| Site | src PASS | src FAIL | dst PASS | dst FAIL | Verdict |
+| --- | ---: | ---: | ---: | ---: | --- |
+| **mauritius** | 6 | 0 | 6 | 0 | OK |
+| **mcf** | 8 | 0 | 8 | 0 | OK |
+| **nrsc** | 11 | 0 | 8 | 0 | OK |
+| **sac** | 8 | 0 | 11 | 0 | OK |
+
+## Full results
+
+| Sit | Test | From | To | Proto | OK | RTT ms | Loss % | Mbps |
+| --- | --- | --- | --- | --- | --- | ---: | ---: | ---: |
+| `preflight` | netns_present | nrsc | station1/ce-a | check | **PASS** | - | - | - |
+| `preflight` | netns_present | sac | station2/ce-b | check | **PASS** | - | - | - |
+| `preflight` | netns_present | mauritius | station1/ce-mauritius | check | **PASS** | - | - | - |
+| `preflight` | netns_present | mcf | station2/ce-mcf | check | **PASS** | - | - | - |
+| `S1_ce_lo_mesh` | ping_ce_lo | nrsc:10.100.1.1 | sac:10.100.2.1 | icmp | **PASS** | 50.815 | 0 | - |
+| `S1_ce_lo_mesh` | ping_ce_lo | nrsc:10.100.1.1 | mauritius:10.100.3.1 | icmp | **PASS** | 200.228 | 0 | - |
+| `S1_ce_lo_mesh` | ping_ce_lo | nrsc:10.100.1.1 | mcf:10.100.4.1 | icmp | **PASS** | 49.511 | 0 | - |
+| `S1_ce_lo_mesh` | ping_ce_lo | sac:10.100.2.1 | nrsc:10.100.1.1 | icmp | **PASS** | 47.950 | 0 | - |
+| `S1_ce_lo_mesh` | ping_ce_lo | sac:10.100.2.1 | mauritius:10.100.3.1 | icmp | **PASS** | 257.461 | 0 | - |
+| `S1_ce_lo_mesh` | ping_ce_lo | sac:10.100.2.1 | mcf:10.100.4.1 | icmp | **PASS** | 0.160 | 0 | - |
+| `S1_ce_lo_mesh` | ping_ce_lo | mauritius:10.100.3.1 | nrsc:10.100.1.1 | icmp | **PASS** | 200.239 | 0 | - |
+| `S1_ce_lo_mesh` | ping_ce_lo | mauritius:10.100.3.1 | sac:10.100.2.1 | icmp | **PASS** | 233.300 | 0 | - |
+| `S1_ce_lo_mesh` | ping_ce_lo | mauritius:10.100.3.1 | mcf:10.100.4.1 | icmp | **PASS** | 200.884 | 0 | - |
+| `S1_ce_lo_mesh` | ping_ce_lo | mcf:10.100.4.1 | nrsc:10.100.1.1 | icmp | **PASS** | 0.880 | 0 | - |
+| `S1_ce_lo_mesh` | ping_ce_lo | mcf:10.100.4.1 | sac:10.100.2.1 | icmp | **PASS** | 0.197 | 0 | - |
+| `S1_ce_lo_mesh` | ping_ce_lo | mcf:10.100.4.1 | mauritius:10.100.3.1 | icmp | **PASS** | 243.196 | 0 | - |
+| `S2_lan_ws_mesh` | ping_lan_ws | nrsc-ws | sac-ws:10.101.2.2 | icmp | **PASS** | 51.863 | 0 | - |
+| `S2_lan_ws_mesh` | ping_lan_ws | nrsc-ws | mauritius-ws:10.101.3.2 | icmp | **PASS** | 200.360 | 0 | - |
+| `S2_lan_ws_mesh` | ping_lan_ws | nrsc-ws | mcf-ws:10.101.4.2 | icmp | **PASS** | 50.817 | 0 | - |
+| `S2_lan_ws_mesh` | ping_lan_ws | sac-ws | nrsc-ws:10.101.1.2 | icmp | **PASS** | 49.336 | 0 | - |
+| `S2_lan_ws_mesh` | ping_lan_ws | sac-ws | mauritius-ws:10.101.3.2 | icmp | **PASS** | 252.064 | 0 | - |
+| `S2_lan_ws_mesh` | ping_lan_ws | sac-ws | mcf-ws:10.101.4.2 | icmp | **PASS** | 0.244 | 0 | - |
+| `S2_lan_ws_mesh` | ping_lan_ws | mauritius-ws | nrsc-ws:10.101.1.2 | icmp | **PASS** | 200.384 | 0 | - |
+| `S2_lan_ws_mesh` | ping_lan_ws | mauritius-ws | sac-ws:10.101.2.2 | icmp | **PASS** | 252.104 | 0 | - |
+| `S2_lan_ws_mesh` | ping_lan_ws | mauritius-ws | mcf-ws:10.101.4.2 | icmp | **PASS** | 253.584 | 0 | - |
+| `S2_lan_ws_mesh` | ping_lan_ws | mcf-ws | nrsc-ws:10.101.1.2 | icmp | **PASS** | 51.612 | 0 | - |
+| `S2_lan_ws_mesh` | ping_lan_ws | mcf-ws | sac-ws:10.101.2.2 | icmp | **PASS** | 0.199 | 0 | - |
+| `S2_lan_ws_mesh` | ping_lan_ws | mcf-ws | mauritius-ws:10.101.3.2 | icmp | **PASS** | 253.469 | 0 | - |
+| `S3_iperf_clear` | gold_nrsc_to_sac | nrsc-ws | sac-srv:5201 | iperf3 | **PASS** | - | - | 8.78 |
+| `S3_iperf_clear` | distant_mau_to_sac | mau-ws | sac-srv:5201 | iperf3 | **PASS** | - | - | 0.89 |
+| `S3_iperf_clear` | regional_mcf_to_nrsc | mcf-ws | nrsc-srv:5201 | iperf3 | **PASS** | - | - | 22.64 |
+| `S3_iperf_clear` | reverse_sac_to_nrsc | sac-ws | nrsc-srv:5201 | iperf3 | **PASS** | - | - | 22.35 |
+| `S3_iperf_clear` | same_pe1_nrsc_to_mau | nrsc-ws | mau-srv:5201 | iperf3 | **PASS** | - | - | 84.44 |
+| `S3_iperf_clear` | same_pe2_sac_to_mcf | sac-ws | mcf-srv:5201 | iperf3 | **PASS** | - | - | 3305.98 |
+| `S3_iperf_clear` | cross_mau_to_mcf | mau-ws | mcf-srv:5201 | iperf3 | **PASS** | - | - | 2.84 |
+| `S3_iperf_clear` | cross_mcf_to_mau | mcf-ws | mau-srv:5201 | iperf3 | **PASS** | - | - | 11.80 |
+| `S4_mild_netem` | ping_ce_lo_under_netem | nrsc:10.100.1.1 | sac:10.100.2.1 | icmp | **PASS** | 34.770 | 0 | - |
+| `S4_mild_netem` | gold_nrsc_to_sac_under_netem | nrsc-ws | sac-srv:5201 | iperf3 | **PASS** | - | - | 12.21 |
+| `S4_recover` | ping_ce_lo_after_clear | nrsc:10.100.1.1 | sac:10.100.2.1 | icmp | **PASS** | 23.457 | 0 | - |
+
+_Artifacts: `/home/brain/deca-isro/data/deca/ce-matrix-reports/20260729T073102Z` (`REPORT.md`, `report.json`, `results.tsv`, `run.log`)_

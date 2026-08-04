@@ -1,7 +1,0 @@
-fault_type,fault_start,breach_time,run_id
-bgp_route_flap,2026-07-21T04:10:28.731385+00:00,2026-07-21T04:19:43.327423+00:00,real_bgp_flap_recall_001
-bgp_route_flap,2026-07-21T04:28:59.513400+00:00,2026-07-21T04:35:13.114091+00:00,real_bgp_flap_recall_002
-bgp_route_flap,2026-07-21T04:46:20.102231+00:00,2026-07-21T04:54:01.691253+00:00,real_bgp_flap_recall_003
-bgp_route_flap,2026-07-21T05:02:41.512374+00:00,2026-07-21T05:12:41.066339+00:00,real_bgp_flap_recall_004
-bgp_route_flap,2026-07-21T05:21:21.353095+00:00,2026-07-21T05:29:53.026052+00:00,real_bgp_flap_recall_005
-bgp_route_flap,2026-07-21T05:40:04.968135+00:00,2026-07-21T05:48:10.700280+00:00,real_bgp_flap_recall_006

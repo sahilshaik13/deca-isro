@@ -1,0 +1,8 @@
+# Optional laptop-local scrape (recommended — native metric names without Telegraf `_value` suffix).
+# Apply with: bash scripts/deca_enable_sdwan_prom_scrape.sh
+#
+# Primary path: metrics are also mirrored to PE1 and appear on station1:9273 via Telegraf
+# as sdwan_*_value (Telegraf metric_version=2).
+  - job_name: "deca_sdwan_controller"
+    static_configs:
+      - targets: ["127.0.0.1:9280"]

@@ -1,0 +1,12 @@
+PASS: pathd TED has >=3 vertices
+PASS: TED has GRE edge 10.50.1.1
+PASS: SR-TE policy Active
+PASS: preferred candidate via-gre present
+PASS: backup candidate via-eth present
+PASS: BSID 40001 nexthop gre-te-core
+PASS: backup via-eth Active after preferred removed
+PASS: BSID 40001 nexthop eth0 on backup
+PASS: preferred restored to gre-te-core
+PASS: CE ping SAC via VPN
+pass=10 fail=0
+evidence=/home/brain/deca-isro/data/rpi-net/te-verify/deca-te-verify-20260730_000129

@@ -1,0 +1,23 @@
+[Unit]
+Description=DECA Orchestrator API (FastAPI / uvicorn :8000)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=brain
+Group=brain
+WorkingDirectory=/home/brain/deca-isro/deca-backend
+Environment=DECA_HEAVY_INIT=0
+Environment=PATH=/home/brain/deca-isro/.venv/bin:/usr/local/bin:/usr/bin:/bin
+Environment=HOME=/home/brain
+# Q3 RAG may subprocess into ~/deca-copilot/.venv when chromadb is missing/old in repo .venv
+ExecStart=/home/brain/deca-isro/.venv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 8000
+Restart=on-failure
+RestartSec=5
+# Keep demo-stable: restart on crash; don't flood if config is broken
+StartLimitIntervalSec=60
+StartLimitBurst=8
+
+[Install]
+WantedBy=multi-user.target

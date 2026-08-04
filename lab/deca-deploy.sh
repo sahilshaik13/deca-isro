@@ -322,9 +322,23 @@ ssh -T station1 'sudo systemctl is-enabled deca-ns.service frr strongswan-starte
 ssh -T station2 'sudo systemctl is-enabled deca-ns.service frr strongswan-starter chrony telegraf deca-watchdog.service'
 ssh -T station3 'sudo systemctl is-enabled frr chrony telegraf deca-watchdog.service'
 
+# ---------------------------------------------------------------------------
+# Network expansion boot (Mauritius / GRE TE / HTB / Phase-D exporters)
+# Full install so cold power-on restores everything without a laptop step.
+# ---------------------------------------------------------------------------
+echo "=== Installing expansion boot units (Mauritius + GRE + HTB + exporters) ==="
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+if [[ -x "$ROOT/lab/deca_install_expansion_boot.sh" ]]; then
+  bash "$ROOT/lab/deca_install_expansion_boot.sh"
+else
+  echo "WARN: lab/deca_install_expansion_boot.sh missing — Mauritius may not survive reboot"
+fi
+
 echo
 echo "=== Deployment complete ==="
-echo "Next (proof): cold power-cycle all 3 Pis, wait 120s, then:"
-echo "  ./check_stations.sh"
-echo "  # or: bash ~/deca_diagnostic.sh"
-echo "If stage 6/7 fail: ssh station1 'sudo journalctl -u deca-watchdog --no-pager | tail -20'"
+echo "Next (proof): cold power-cycle all 3 Pis, wait ≥120s, then:"
+echo "  check stations"
+echo "  # or: bash lab/deca_diagnostic.sh / bash lab/deca_ops.sh check"
+echo "Boot stack: deca-ns → mauritius → expansion-boot → frr/ipsec → watchdog(+60s)"
+echo "If VPN/telemetry fail: bash lab/deca_ops.sh heal"
+echo "  journal: ssh station1 'sudo journalctl -u deca-watchdog -u deca-expansion-boot --no-pager | tail -40'"

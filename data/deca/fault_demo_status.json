@@ -1,0 +1,9 @@
+{
+  "running": false,
+  "fault_id": null,
+  "fabric": null,
+  "message": "cleared (fabric_switch:pi->gns3)",
+  "started_at": null,
+  "seeded_alert": null,
+  "log_tail": []
+}

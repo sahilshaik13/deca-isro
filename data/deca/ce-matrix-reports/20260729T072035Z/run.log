@@ -1,0 +1,49 @@
+[2026-07-29T12:50:35+05:30] CE matrix start → /home/brain/deca-isro/data/deca/ce-matrix-reports/20260729T072035Z
+[2026-07-29T12:50:35+05:30] ping_count=3 iperf_sec=5 skip_iperf=0 skip_netem=0
+[2026-07-29T12:50:35+05:30] === Preflight: CE netns ===
+[2026-07-29T12:50:35+05:30] PASS  [preflight] netns_present  nrsc → station1/ce-a  rtt=- loss=- thr=-
+[2026-07-29T12:50:36+05:30] PASS  [preflight] netns_present  sac → station2/ce-b  rtt=- loss=- thr=-
+[2026-07-29T12:50:36+05:30] PASS  [preflight] netns_present  mauritius → station1/ce-mauritius  rtt=- loss=- thr=-
+[2026-07-29T12:50:36+05:30] PASS  [preflight] netns_present  mcf → station2/ce-mcf  rtt=- loss=- thr=-
+[2026-07-29T12:50:36+05:30] === S1: CE-loopback ping mesh ===
+[2026-07-29T12:50:41+05:30] FAIL  [S1_ce_lo_mesh] ping_ce_lo  nrsc:10.100.1.1 → sac:10.100.2.1  100% loss or unreachable
+[2026-07-29T12:50:44+05:30] FAIL  [S1_ce_lo_mesh] ping_ce_lo  nrsc:10.100.1.1 → mauritius:10.100.3.1  100% loss or unreachable
+[2026-07-29T12:50:48+05:30] FAIL  [S1_ce_lo_mesh] ping_ce_lo  nrsc:10.100.1.1 → mcf:10.100.4.1  100% loss or unreachable
+[2026-07-29T12:50:51+05:30] FAIL  [S1_ce_lo_mesh] ping_ce_lo  sac:10.100.2.1 → nrsc:10.100.1.1  100% loss or unreachable
+[2026-07-29T12:50:56+05:30] FAIL  [S1_ce_lo_mesh] ping_ce_lo  sac:10.100.2.1 → mauritius:10.100.3.1  100% loss or unreachable
+[2026-07-29T12:50:58+05:30] PASS  [S1_ce_lo_mesh] ping_ce_lo  sac:10.100.2.1 → mcf:10.100.4.1  rtt=0.238 loss=0 thr=-
+[2026-07-29T12:51:01+05:30] FAIL  [S1_ce_lo_mesh] ping_ce_lo  mauritius:10.100.3.1 → nrsc:10.100.1.1  100% loss or unreachable
+[2026-07-29T12:51:05+05:30] FAIL  [S1_ce_lo_mesh] ping_ce_lo  mauritius:10.100.3.1 → sac:10.100.2.1  100% loss or unreachable
+[2026-07-29T12:51:10+05:30] FAIL  [S1_ce_lo_mesh] ping_ce_lo  mauritius:10.100.3.1 → mcf:10.100.4.1  100% loss or unreachable
+[2026-07-29T12:51:12+05:30] FAIL  [S1_ce_lo_mesh] ping_ce_lo  mcf:10.100.4.1 → nrsc:10.100.1.1  100% loss or unreachable
+[2026-07-29T12:51:15+05:30] PASS  [S1_ce_lo_mesh] ping_ce_lo  mcf:10.100.4.1 → sac:10.100.2.1  rtt=0.188 loss=0 thr=-
+[2026-07-29T12:51:19+05:30] FAIL  [S1_ce_lo_mesh] ping_ce_lo  mcf:10.100.4.1 → mauritius:10.100.3.1  100% loss or unreachable
+[2026-07-29T12:51:19+05:30] === S2: Site-LAN ws ping mesh ===
+[2026-07-29T12:51:24+05:30] FAIL  [S2_lan_ws_mesh] ping_lan_ws  nrsc-ws → sac-ws:10.101.2.2  100% loss or unreachable
+[2026-07-29T12:51:28+05:30] FAIL  [S2_lan_ws_mesh] ping_lan_ws  nrsc-ws → mauritius-ws:10.101.3.2  100% loss or unreachable
+[2026-07-29T12:51:31+05:30] FAIL  [S2_lan_ws_mesh] ping_lan_ws  nrsc-ws → mcf-ws:10.101.4.2  100% loss or unreachable
+[2026-07-29T12:51:33+05:30] FAIL  [S2_lan_ws_mesh] ping_lan_ws  sac-ws → nrsc-ws:10.101.1.2  100% loss or unreachable
+[2026-07-29T12:51:38+05:30] FAIL  [S2_lan_ws_mesh] ping_lan_ws  sac-ws → mauritius-ws:10.101.3.2  100% loss or unreachable
+[2026-07-29T12:51:40+05:30] PASS  [S2_lan_ws_mesh] ping_lan_ws  sac-ws → mcf-ws:10.101.4.2  rtt=0.335 loss=0 thr=-
+[2026-07-29T12:51:43+05:30] FAIL  [S2_lan_ws_mesh] ping_lan_ws  mauritius-ws → nrsc-ws:10.101.1.2  100% loss or unreachable
+[2026-07-29T12:51:47+05:30] FAIL  [S2_lan_ws_mesh] ping_lan_ws  mauritius-ws → sac-ws:10.101.2.2  100% loss or unreachable
+[2026-07-29T12:51:52+05:30] FAIL  [S2_lan_ws_mesh] ping_lan_ws  mauritius-ws → mcf-ws:10.101.4.2  100% loss or unreachable
+[2026-07-29T12:51:56+05:30] FAIL  [S2_lan_ws_mesh] ping_lan_ws  mcf-ws → nrsc-ws:10.101.1.2  100% loss or unreachable
+[2026-07-29T12:51:58+05:30] PASS  [S2_lan_ws_mesh] ping_lan_ws  mcf-ws → sac-ws:10.101.2.2  rtt=0.262 loss=0 thr=-
+[2026-07-29T12:52:03+05:30] FAIL  [S2_lan_ws_mesh] ping_lan_ws  mcf-ws → mauritius-ws:10.101.3.2  100% loss or unreachable
+[2026-07-29T12:52:03+05:30] === S3: iperf3 clear-path combinations ===
+[2026-07-29T12:52:07+05:30] FAIL  [S3_iperf_clear] gold_nrsc_to_sac  nrsc-ws → sac-srv:5201  { 	"start":	{ 		"connected":	[], 		"version":	"iperf 3.9", 		"system_info":	"Linux station1 5.15.0-1103-raspi #106-Ubuntu SMP PREEMPT Mon May 25 17:44:25 UTC 2026 aarch64" 	}, 	"in
+[2026-07-29T12:54:19+05:30] FAIL  [S3_iperf_clear] distant_mau_to_sac  mau-ws → sac-srv:5201  { 	"start":	{ 		"connected":	[], 		"version":	"iperf 3.9", 		"system_info":	"Linux station1 5.15.0-1103-raspi #106-Ubuntu SMP PREEMPT Mon May 25 17:44:25 UTC 2026 aarch64" 	}, 	"in
+[2026-07-29T12:54:21+05:30] FAIL  [S3_iperf_clear] regional_mcf_to_nrsc  mcf-ws → nrsc-srv:5201  { 	"start":	{ 		"connected":	[], 		"version":	"iperf 3.9", 		"system_info":	"Linux station2 5.15.0-1105-raspi #108-Ubuntu SMP PREEMPT Wed Jun 24 06:28:49 UTC 2026 aarch64" 	}, 	"in
+[2026-07-29T12:54:24+05:30] FAIL  [S3_iperf_clear] reverse_sac_to_nrsc  sac-ws → nrsc-srv:5201  { 	"start":	{ 		"connected":	[], 		"version":	"iperf 3.9", 		"system_info":	"Linux station2 5.15.0-1105-raspi #108-Ubuntu SMP PREEMPT Wed Jun 24 06:28:49 UTC 2026 aarch64" 	}, 	"in
+[2026-07-29T12:54:28+05:30] FAIL  [S3_iperf_clear] same_pe1_nrsc_to_mau  nrsc-ws → mau-srv:5201  { 	"start":	{ 		"connected":	[], 		"version":	"iperf 3.9", 		"system_info":	"Linux station1 5.15.0-1103-raspi #106-Ubuntu SMP PREEMPT Mon May 25 17:44:25 UTC 2026 aarch64" 	}, 	"in
+[2026-07-29T12:54:33+05:30] PASS  [S3_iperf_clear] same_pe2_sac_to_mcf  sac-ws → mcf-srv:5201  rtt=- loss=- thr=4439.67
+[2026-07-29T12:56:44+05:30] FAIL  [S3_iperf_clear] cross_mau_to_mcf  mau-ws → mcf-srv:5201  { 	"start":	{ 		"connected":	[], 		"version":	"iperf 3.9", 		"system_info":	"Linux station1 5.15.0-1103-raspi #106-Ubuntu SMP PREEMPT Mon May 25 17:44:25 UTC 2026 aarch64" 	}, 	"in
+[2026-07-29T12:56:49+05:30] FAIL  [S3_iperf_clear] cross_mcf_to_mau  mcf-ws → mau-srv:5201  { 	"start":	{ 		"connected":	[], 		"version":	"iperf 3.9", 		"system_info":	"Linux station2 5.15.0-1105-raspi #108-Ubuntu SMP PREEMPT Wed Jun 24 06:28:49 UTC 2026 aarch64" 	}, 	"in
+[2026-07-29T12:56:49+05:30] === S4: mild gre netem on station1, gold iperf + ping ===
+[2026-07-29T12:56:55+05:30] FAIL  [S4_mild_netem] ping_ce_lo_under_netem  nrsc:10.100.1.1 → sac:10.100.2.1  100% loss or unreachable
+[2026-07-29T12:56:58+05:30] FAIL  [S4_mild_netem] gold_nrsc_to_sac_under_netem  nrsc-ws → sac-srv:5201  { 	"start":	{ 		"connected":	[], 		"version":	"iperf 3.9", 		"system_info":	"Linux station1 5.15.0-1103-raspi #106-Ubuntu SMP PREEMPT Mon May 25 17:44:25 UTC 2026 aarch64" 	}, 	"in
+[2026-07-29T12:56:58+05:30] Clearing netem on gre-te-core
+[2026-07-29T12:57:03+05:30] FAIL  [S4_recover] ping_ce_lo_after_clear  nrsc:10.100.1.1 → sac:10.100.2.1  100% loss or unreachable
+[2026-07-29T12:57:03+05:30] Report written: /home/brain/deca-isro/data/deca/ce-matrix-reports/20260729T072035Z/REPORT.md
+[2026-07-29T12:57:03+05:30] JSON: /home/brain/deca-isro/data/deca/ce-matrix-reports/20260729T072035Z/report.json

@@ -1,4 +1,0 @@
-{"event_id": "control_fp_check2_nm01", "fault_type": "near_miss", "host": "station1", "fault_start": "2026-07-17T04:06:27.882423+00:00", "breach_time": "2026-07-17T04:06:55.505779+00:00", "is_near_miss": true}
-{"event_id": "control_fp_check2_nm02", "fault_type": "near_miss", "host": "station1", "fault_start": "2026-07-17T04:14:58.535870+00:00", "breach_time": "2026-07-17T04:15:49.783445+00:00", "is_near_miss": true}
-{"event_id": "control_fp_check2_nm03", "fault_type": "near_miss", "host": "station1", "fault_start": "2026-07-17T04:22:27.492101+00:00", "breach_time": "2026-07-17T04:23:24.403805+00:00", "is_near_miss": true}
-{"event_id": "control_fp_check2_nm04", "fault_type": "near_miss", "host": "station1", "fault_start": "2026-07-17T04:26:14.765231+00:00", "breach_time": "2026-07-17T04:26:57.066217+00:00", "is_near_miss": true}

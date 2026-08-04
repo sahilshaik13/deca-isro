@@ -1,0 +1,8 @@
+{
+  "active": "gns3",
+  "set_by": "deca-ui",
+  "fabrics": [
+    "pi",
+    "gns3"
+  ]
+}

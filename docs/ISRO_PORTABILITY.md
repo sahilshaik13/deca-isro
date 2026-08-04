@@ -2,6 +2,8 @@
 
 **One-line pitch:** *We're not shipping ISRO a black-box model — we're shipping a fault-detection pipeline with externalized, protocol-standard configuration that onboards to a new network via a short calibration campaign, not a multi-week retrain.*
 
+**Live predictive stack (2026-08):** multi-head Q1 LSTM + Q2 XGBoost severity on protocol schema v2 (`docs/DECA_PREDICTIVE_ENGINE_PLAN.md`). The older `models/fault_classifier/` loom remains a calibration artefact; Decide rail cutover is `predictive/launch_infer_q1_q2_cutover.sh`.
+
 ---
 
 ## The honest starting position

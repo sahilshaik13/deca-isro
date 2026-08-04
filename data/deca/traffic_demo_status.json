@@ -1,0 +1,19 @@
+{
+  "running": false,
+  "fabric": "pi",
+  "active_fabric": "gns3",
+  "profile": null,
+  "duration_s": 0,
+  "started_at": null,
+  "started_by": null,
+  "message": "stopped (fabric_switch:pi->gns3)",
+  "log_tail": [
+    "[iperf-qos] stopping clients/servers\u2026"
+  ],
+  "profiles": [
+    "ttc",
+    "payload",
+    "admin",
+    "mixed"
+  ]
+}

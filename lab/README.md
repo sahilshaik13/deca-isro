@@ -1,73 +1,65 @@
-# Lab ops (laptop ↔ CE–PE–CE Pi cluster)
+# Lab ops (desktop ↔ multi-site Pi cluster)
 
-Laptop-side helpers for the physical DECA station network. These used to live
-scattered in `$HOME`; they belong in-repo so the lab is reproducible.
+Desktop/brain helpers for the physical DECA station network (five sites on three Pis + SD-WAN/MPLS/TE).
 
-Run from the **laptop on the lab LAN** (USB eth typically `192.168.50.1`).
+Topology diagrams: [`docs/STATION_NETWORK_SETUP.md`](../docs/STATION_NETWORK_SETUP.md)  
+Policy catalog: [`docs/DECA_SDWAN_POLICY_RULES.md`](../docs/DECA_SDWAN_POLICY_RULES.md)  
+Evidence: [`docs/NETWORK_EXPANSION_FINDINGS.md`](../docs/NETWORK_EXPANSION_FINDINGS.md)
 
-### `deca_ops.sh` — start here
+Run from the **brain host on the lab LAN** (typically `192.168.50.1`).
 
-[`deca_ops.sh`](deca_ops.sh) consolidates five overlapping scripts (`check_stations.sh`,
-`check_step7.sh`, `deca_diagnostic.sh`, `deca-heal-telemetry.sh`, `apply_boot_fix.sh`)
-into one tool with three subcommands, a single password prompt, and a real
-PASS/FAIL/WARN summary at the end instead of five separate scroll-and-squint runs:
+### Day-to-day
 
 ```bash
-bash lab/deca_ops.sh check          # health check (default if no arg given)
-bash lab/deca_ops.sh heal           # restart failed services, then re-check
-bash lab/deca_ops.sh install-boot   # apply the boot-autostart fix, then re-check
-bash lab/deca_ops.sh all            # install-boot, then heal
+check stations                      # → lab/deca_diagnostic.sh (site map + VPN + Prom)
+bash lab/deca_ops.sh check          # PASS/FAIL/WARN summary variant
+bash lab/deca_ops.sh heal           # restart failed services + expansion boot
+bash lab/deca_ops.sh install-boot   # sticky cold-boot units
+bash lab/deca-deploy.sh             # full plug-and-play when needed
 ```
 
-It also fixes one real bug found while merging: `check_stations.sh` SSHed to
-`s1`/`s2`/`s3`, but this lab's `~/.ssh/config` only defines `station1`/`station2`/
-`station3` — those calls never resolved. `deca_ops.sh` uses the real aliases
-throughout.
+**Cold power-on:** `deca-expansion-boot.service` then `deca-watchdog` (+60s) restore VRF, GRE, HTB, site LANs, MPLS-on-GRE, OSPF-TE/SR-TE heal, swanctl IPsec, and write `/run/deca/station-ready`.
 
-The five originals below are **kept, not deleted** — `link_home.sh` symlinks them
-into `$HOME` and some docs still say `~/deca_diagnostic.sh`. Prefer `deca_ops.sh`
-for anything new; treat the individual scripts as legacy/superseded.
+**Desktop power-cut (brain):** user systemd `deca-protocol-campaign.service` + `deca-protocol-watchdog.service` resume the active protocol stamp after boot (see [`predictive/README.md`](../predictive/README.md)).
+
+### Current scripts (keep)
 
 | Script | Role |
 | --- | --- |
-| [`deca_diagnostic.sh`](deca_diagnostic.sh) | *(superseded by `deca_ops.sh check`)* Master health check (VPN ping + Telegraf 3/3) |
-| [`check_stations.sh`](check_stations.sh) | *(superseded — also had the `s1`/`s2`/`s3` bug above)* Topology / convergence smoke check |
-| [`check_step7.sh`](check_step7.sh) | *(superseded by `deca_ops.sh check`, item [6])* Deep CE-A → CE-B data-plane check |
-| [`trace_step7.sh`](trace_step7.sh) | Trace traffic from CE-A (not merged — one-off packet trace, not a recurring check) |
-| [`deca-deploy.sh`](deca-deploy.sh) | Plug-and-play deploy (namespaces + ordering + watchdog) |
-| [`apply_boot_fix.sh`](apply_boot_fix.sh) | *(superseded by `deca_ops.sh install-boot`)* Apply sticky boot fixes on the Pis |
-| [`deca-heal-telemetry.sh`](deca-heal-telemetry.sh) | *(superseded by `deca_ops.sh heal`)* Quick heal when `[7/8]`/`[8/8]` fail after partial boot |
-| [`startupppp`](startupppp) | Enable FRR / strongSwan / Telegraf on PE stations |
-| [`forwardss`](forwardss) | Policy-routing fix for CE namespace return path |
-| [`run_traffic.sh`](run_traffic.sh) | Laptop iperf background traffic (**do not** combine with fault-campaign baseline) |
-| [`cisco_scraper.py`](cisco_scraper.py) | Ad-hoc Cisco DevNet sandbox scrape (see also `scripts/cisco_scraper.py` for the DATA_GEN path) |
+| [`deca_diagnostic.sh`](deca_diagnostic.sh) | Master health check (`check stations`) — full site inventory |
+| [`deca_ops.sh`](deca_ops.sh) | Unified check / heal / install-boot |
+| [`deca-deploy.sh`](deca-deploy.sh) | Plug-and-play deploy |
+| [`deca_install_expansion_boot.sh`](deca_install_expansion_boot.sh) | Install expansion boot unit on Pis |
+| [`deca-expansion-boot.sh`](deca-expansion-boot.sh) | On-Pi boot heal (VRF/GRE/HTB/MPLS/SR-TE/site-LAN/swanctl) |
+| [`deca-swanctl-up.sh`](deca-swanctl-up.sh) | Load/initiate swanctl IPsec (`copy_dscp`) |
+| [`deca_expand_phase_{a,b,c,d,g,h,te}.sh`](.) | Expansion phases (Mauritius → dual-cost → TE → QoS) |
+| [`deca_te_verify.sh`](deca_te_verify.sh) | OSPF-TE TED + SR-TE preferred/backup proof |
+| [`deca_htb_qos.sh`](deca_htb_qos.sh) | PS13 HTB: TT&C `0x88` LLQ · Payload `0x80` 70%+RED · BE scavenger |
+| [`deca_iperf_qos_traffic.sh`](deca_iperf_qos_traffic.sh) | Multi-class iperf3 generators (**no TRex**) |
+| [`telemetry-pipeline/`](telemetry-pipeline/) | Dual Flow 2: Telegraf → Kafka (per-fabric topics) → Prom `:9090` Pi / `:9091` GNS3 |
+| [`gns3/`](gns3/) | GNS3 dual-fabric lab (external drive; Flow 1 + chaos) |
+| [`deca_vrf_isolation_check.sh`](deca_vrf_isolation_check.sh) | VRF + IPsec `copy_dscp` / fail-closed check |
+| [`swanctl/`](swanctl/) | PE1/PE2 swanctl templates with `copy_dscp=out` |
+| [`deca_sdwan_controller.py`](deca_sdwan_controller.py) | TT&C + Payload AAR controller (`enter_k=3`/`exit_k=10`; TT&C preempts) |
+| [`deca_sdwan_verify.sh`](deca_sdwan_verify.sh) | Live multi-class switch/recover/conflict proof |
+| [`deca_rtc_ds3231_sync.sh`](deca_rtc_ds3231_sync.sh) | One-shot DS3231 enable / RTC re-stamp (steady state = kernel driver + chrony only) |
+| [`exporters/`](exporters/) | Phase-D + SD-WAN Telegraf exec scripts |
+| [`run_traffic.sh`](run_traffic.sh) | Laptop CE-lo iperf background (**not** during campaigns) |
+| [`link_home.sh`](link_home.sh) | Symlink current scripts into `$HOME` |
 
-Related repo scripts (already under `scripts/`): `deca_deploy_stations.sh`,
-`deca_heal_telemetry.sh`, `deca_fix_prom_vpn.sh`. Prefer **this folder** for
-day-to-day laptop ops; prefer `scripts/` for campaign / ML pipeline entrypoints.
+### Archive
 
-Full topology runbook: [`docs/STATION_NETWORK_SETUP.md`](../docs/STATION_NETWORK_SETUP.md)
+Superseded pre-expansion / duplicate helpers: [`archive/`](archive/)  
+(`check_stations.sh`, `check_step7.sh`, `apply_boot_fix.sh`, `deca-heal-telemetry.sh`, `startupppp`, `forwardss`, …)
 
-## Quick start
+Related under `scripts/`: `deca_deploy_stations.sh` (alternate deploy), `deca_fix_prom_vpn.sh` (Prom TSDB wipe). Archived duplicates: `scripts/archive/lab-ops/`.
 
-```bash
-cd ~/deca-isro   # or your clone path
-bash lab/deca_ops.sh check            # expect all PASS
-bash lab/deca-deploy.sh               # (re)deploy sticky config when needed
-bash lab/deca_ops.sh heal             # if Telegraf / VPN ping failed
-```
+Topology runbook: [`docs/STATION_NETWORK_SETUP.md`](../docs/STATION_NETWORK_SETUP.md)  
+Perimeter: [`docs/PROBLEM_STATEMENT_13.md`](../docs/PROBLEM_STATEMENT_13.md)
 
-## Optional: keep old `~/…` shortcuts
-
-Docs and muscle memory still mention `~/deca_diagnostic.sh`. After a clone, link
-home names to this folder once:
+## Optional home shortcuts
 
 ```bash
 bash lab/link_home.sh
+# ~/deca_diagnostic.sh , ~/deca_ops.sh , ~/check_stations.sh → diagnostic
 ```
-
-That creates/updates symlinks such as `~/deca_diagnostic.sh` → `lab/deca_diagnostic.sh`.
-
-## Do not commit
-
-- `nohup.out` — runtime log dump; ignored by `.gitignore`

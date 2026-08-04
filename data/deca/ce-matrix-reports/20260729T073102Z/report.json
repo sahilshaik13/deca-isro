@@ -1,0 +1,533 @@
+{
+  "stamp": "20260729T073102Z",
+  "out_dir": "/home/brain/deca-isro/data/deca/ce-matrix-reports/20260729T073102Z",
+  "summary": {
+    "total": 39,
+    "pass": 39,
+    "fail": 0,
+    "ok": true
+  },
+  "by_situation": {
+    "preflight": {
+      "pass": 4,
+      "fail": 0
+    },
+    "S1_ce_lo_mesh": {
+      "pass": 12,
+      "fail": 0
+    },
+    "S2_lan_ws_mesh": {
+      "pass": 12,
+      "fail": 0
+    },
+    "S3_iperf_clear": {
+      "pass": 8,
+      "fail": 0
+    },
+    "S4_mild_netem": {
+      "pass": 2,
+      "fail": 0
+    },
+    "S4_recover": {
+      "pass": 1,
+      "fail": 0
+    }
+  },
+  "site_participation": {
+    "mcf": {
+      "as_src_pass": 8,
+      "as_dst_pass": 8,
+      "as_src_fail": 0,
+      "as_dst_fail": 0
+    },
+    "mauritius": {
+      "as_src_pass": 6,
+      "as_dst_pass": 6,
+      "as_src_fail": 0,
+      "as_dst_fail": 0
+    },
+    "sac": {
+      "as_src_pass": 8,
+      "as_dst_pass": 11,
+      "as_src_fail": 0,
+      "as_dst_fail": 0
+    },
+    "nrsc": {
+      "as_src_pass": 11,
+      "as_dst_pass": 8,
+      "as_src_fail": 0,
+      "as_dst_fail": 0
+    }
+  },
+  "failures": [],
+  "results": [
+    {
+      "situation": "preflight",
+      "test": "netns_present",
+      "from": "nrsc",
+      "to": "station1/ce-a",
+      "proto": "check",
+      "ok": "PASS",
+      "rtt_ms": "",
+      "loss_pct": "",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "preflight",
+      "test": "netns_present",
+      "from": "sac",
+      "to": "station2/ce-b",
+      "proto": "check",
+      "ok": "PASS",
+      "rtt_ms": "",
+      "loss_pct": "",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "preflight",
+      "test": "netns_present",
+      "from": "mauritius",
+      "to": "station1/ce-mauritius",
+      "proto": "check",
+      "ok": "PASS",
+      "rtt_ms": "",
+      "loss_pct": "",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "preflight",
+      "test": "netns_present",
+      "from": "mcf",
+      "to": "station2/ce-mcf",
+      "proto": "check",
+      "ok": "PASS",
+      "rtt_ms": "",
+      "loss_pct": "",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S1_ce_lo_mesh",
+      "test": "ping_ce_lo",
+      "from": "nrsc:10.100.1.1",
+      "to": "sac:10.100.2.1",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "50.815",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S1_ce_lo_mesh",
+      "test": "ping_ce_lo",
+      "from": "nrsc:10.100.1.1",
+      "to": "mauritius:10.100.3.1",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "200.228",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S1_ce_lo_mesh",
+      "test": "ping_ce_lo",
+      "from": "nrsc:10.100.1.1",
+      "to": "mcf:10.100.4.1",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "49.511",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S1_ce_lo_mesh",
+      "test": "ping_ce_lo",
+      "from": "sac:10.100.2.1",
+      "to": "nrsc:10.100.1.1",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "47.950",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S1_ce_lo_mesh",
+      "test": "ping_ce_lo",
+      "from": "sac:10.100.2.1",
+      "to": "mauritius:10.100.3.1",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "257.461",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S1_ce_lo_mesh",
+      "test": "ping_ce_lo",
+      "from": "sac:10.100.2.1",
+      "to": "mcf:10.100.4.1",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "0.160",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S1_ce_lo_mesh",
+      "test": "ping_ce_lo",
+      "from": "mauritius:10.100.3.1",
+      "to": "nrsc:10.100.1.1",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "200.239",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S1_ce_lo_mesh",
+      "test": "ping_ce_lo",
+      "from": "mauritius:10.100.3.1",
+      "to": "sac:10.100.2.1",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "233.300",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S1_ce_lo_mesh",
+      "test": "ping_ce_lo",
+      "from": "mauritius:10.100.3.1",
+      "to": "mcf:10.100.4.1",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "200.884",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S1_ce_lo_mesh",
+      "test": "ping_ce_lo",
+      "from": "mcf:10.100.4.1",
+      "to": "nrsc:10.100.1.1",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "0.880",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S1_ce_lo_mesh",
+      "test": "ping_ce_lo",
+      "from": "mcf:10.100.4.1",
+      "to": "sac:10.100.2.1",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "0.197",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S1_ce_lo_mesh",
+      "test": "ping_ce_lo",
+      "from": "mcf:10.100.4.1",
+      "to": "mauritius:10.100.3.1",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "243.196",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S2_lan_ws_mesh",
+      "test": "ping_lan_ws",
+      "from": "nrsc-ws",
+      "to": "sac-ws:10.101.2.2",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "51.863",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S2_lan_ws_mesh",
+      "test": "ping_lan_ws",
+      "from": "nrsc-ws",
+      "to": "mauritius-ws:10.101.3.2",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "200.360",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S2_lan_ws_mesh",
+      "test": "ping_lan_ws",
+      "from": "nrsc-ws",
+      "to": "mcf-ws:10.101.4.2",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "50.817",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S2_lan_ws_mesh",
+      "test": "ping_lan_ws",
+      "from": "sac-ws",
+      "to": "nrsc-ws:10.101.1.2",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "49.336",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S2_lan_ws_mesh",
+      "test": "ping_lan_ws",
+      "from": "sac-ws",
+      "to": "mauritius-ws:10.101.3.2",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "252.064",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S2_lan_ws_mesh",
+      "test": "ping_lan_ws",
+      "from": "sac-ws",
+      "to": "mcf-ws:10.101.4.2",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "0.244",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S2_lan_ws_mesh",
+      "test": "ping_lan_ws",
+      "from": "mauritius-ws",
+      "to": "nrsc-ws:10.101.1.2",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "200.384",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S2_lan_ws_mesh",
+      "test": "ping_lan_ws",
+      "from": "mauritius-ws",
+      "to": "sac-ws:10.101.2.2",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "252.104",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S2_lan_ws_mesh",
+      "test": "ping_lan_ws",
+      "from": "mauritius-ws",
+      "to": "mcf-ws:10.101.4.2",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "253.584",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S2_lan_ws_mesh",
+      "test": "ping_lan_ws",
+      "from": "mcf-ws",
+      "to": "nrsc-ws:10.101.1.2",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "51.612",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S2_lan_ws_mesh",
+      "test": "ping_lan_ws",
+      "from": "mcf-ws",
+      "to": "sac-ws:10.101.2.2",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "0.199",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S2_lan_ws_mesh",
+      "test": "ping_lan_ws",
+      "from": "mcf-ws",
+      "to": "mauritius-ws:10.101.3.2",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "253.469",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S3_iperf_clear",
+      "test": "gold_nrsc_to_sac",
+      "from": "nrsc-ws",
+      "to": "sac-srv:5201",
+      "proto": "iperf3",
+      "ok": "PASS",
+      "rtt_ms": "",
+      "loss_pct": "",
+      "thr_mbps": "8.78",
+      "detail": ""
+    },
+    {
+      "situation": "S3_iperf_clear",
+      "test": "distant_mau_to_sac",
+      "from": "mau-ws",
+      "to": "sac-srv:5201",
+      "proto": "iperf3",
+      "ok": "PASS",
+      "rtt_ms": "",
+      "loss_pct": "",
+      "thr_mbps": "0.89",
+      "detail": ""
+    },
+    {
+      "situation": "S3_iperf_clear",
+      "test": "regional_mcf_to_nrsc",
+      "from": "mcf-ws",
+      "to": "nrsc-srv:5201",
+      "proto": "iperf3",
+      "ok": "PASS",
+      "rtt_ms": "",
+      "loss_pct": "",
+      "thr_mbps": "22.64",
+      "detail": ""
+    },
+    {
+      "situation": "S3_iperf_clear",
+      "test": "reverse_sac_to_nrsc",
+      "from": "sac-ws",
+      "to": "nrsc-srv:5201",
+      "proto": "iperf3",
+      "ok": "PASS",
+      "rtt_ms": "",
+      "loss_pct": "",
+      "thr_mbps": "22.35",
+      "detail": ""
+    },
+    {
+      "situation": "S3_iperf_clear",
+      "test": "same_pe1_nrsc_to_mau",
+      "from": "nrsc-ws",
+      "to": "mau-srv:5201",
+      "proto": "iperf3",
+      "ok": "PASS",
+      "rtt_ms": "",
+      "loss_pct": "",
+      "thr_mbps": "84.44",
+      "detail": ""
+    },
+    {
+      "situation": "S3_iperf_clear",
+      "test": "same_pe2_sac_to_mcf",
+      "from": "sac-ws",
+      "to": "mcf-srv:5201",
+      "proto": "iperf3",
+      "ok": "PASS",
+      "rtt_ms": "",
+      "loss_pct": "",
+      "thr_mbps": "3305.98",
+      "detail": ""
+    },
+    {
+      "situation": "S3_iperf_clear",
+      "test": "cross_mau_to_mcf",
+      "from": "mau-ws",
+      "to": "mcf-srv:5201",
+      "proto": "iperf3",
+      "ok": "PASS",
+      "rtt_ms": "",
+      "loss_pct": "",
+      "thr_mbps": "2.84",
+      "detail": ""
+    },
+    {
+      "situation": "S3_iperf_clear",
+      "test": "cross_mcf_to_mau",
+      "from": "mcf-ws",
+      "to": "mau-srv:5201",
+      "proto": "iperf3",
+      "ok": "PASS",
+      "rtt_ms": "",
+      "loss_pct": "",
+      "thr_mbps": "11.80",
+      "detail": ""
+    },
+    {
+      "situation": "S4_mild_netem",
+      "test": "ping_ce_lo_under_netem",
+      "from": "nrsc:10.100.1.1",
+      "to": "sac:10.100.2.1",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "34.770",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    },
+    {
+      "situation": "S4_mild_netem",
+      "test": "gold_nrsc_to_sac_under_netem",
+      "from": "nrsc-ws",
+      "to": "sac-srv:5201",
+      "proto": "iperf3",
+      "ok": "PASS",
+      "rtt_ms": "",
+      "loss_pct": "",
+      "thr_mbps": "12.21",
+      "detail": ""
+    },
+    {
+      "situation": "S4_recover",
+      "test": "ping_ce_lo_after_clear",
+      "from": "nrsc:10.100.1.1",
+      "to": "sac:10.100.2.1",
+      "proto": "icmp",
+      "ok": "PASS",
+      "rtt_ms": "23.457",
+      "loss_pct": "0",
+      "thr_mbps": "",
+      "detail": ""
+    }
+  ]
+}
