@@ -45,6 +45,7 @@ echo "LAB_DIR=${LAB_DIR}"
 # Current day-to-day
 for name in \
   deca_diagnostic.sh \
+  deca_station_map.sh \
   deca_ops.sh \
   deca-deploy.sh \
   run_traffic.sh
@@ -55,6 +56,8 @@ done
 # Compatibility: old name → current diagnostic
 ln -sfn "${LAB_DIR}/deca_diagnostic.sh" "${HOME_DIR}/check_stations.sh"
 echo "relinked ~/check_stations.sh -> lab/deca_diagnostic.sh"
+ln -sfn "${LAB_DIR}/deca_station_map.sh" "${HOME_DIR}/stations"
+echo "relinked ~/stations -> lab/deca_station_map.sh"
 
 # Drop home links to archived scripts
 for name in \
@@ -69,4 +72,4 @@ do
   unlink_stale "${name}"
 done
 
-echo "Done. Try: check stations   OR   bash ~/deca_diagnostic.sh"
+echo "Done. Try: stations   OR   check stations   OR   bash ~/deca_station_map.sh"

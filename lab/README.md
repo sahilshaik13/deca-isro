@@ -11,6 +11,8 @@ Run from the **brain host on the lab LAN** (typically `192.168.50.1`).
 ### Day-to-day
 
 ```bash
+stations                            # → lab/deca_station_map.sh (what belongs to station1/2/3)
+stations --live                     # same + live systemd status over SSH
 check stations                      # → lab/deca_diagnostic.sh (site map + VPN + Prom)
 bash lab/deca_ops.sh check          # PASS/FAIL/WARN summary variant
 bash lab/deca_ops.sh heal           # restart failed services + expansion boot
@@ -26,6 +28,7 @@ bash lab/deca-deploy.sh             # full plug-and-play when needed
 
 | Script | Role |
 | --- | --- |
+| [`deca_station_map.sh`](deca_station_map.sh) | Terminal ownership map (`stations`) — units/scripts/sites per Pi |
 | [`deca_diagnostic.sh`](deca_diagnostic.sh) | Master health check (`check stations`) — full site inventory |
 | [`deca_ops.sh`](deca_ops.sh) | Unified check / heal / install-boot |
 | [`deca-deploy.sh`](deca-deploy.sh) | Plug-and-play deploy |
