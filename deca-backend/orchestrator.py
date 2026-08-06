@@ -665,6 +665,22 @@ def reject_action(alert_id: int, body: ActionBody | None = None):
     return {"ok": True, "action_id": action_id, "result": result}
 
 
+class ResolveBody(BaseModel):
+    reason: str = "fault_cleared"
+
+
+@router.post("/alerts/{alert_id}/resolve")
+def resolve_alert(alert_id: int, body: ResolveBody | None = None):
+    """Mark alert as resolved — called automatically when a fault demo is cleared.
+    This makes the Decide rail go back to healthy and shows no active alerts."""
+    body = body or ResolveBody()
+    alert = repos.get_alert(alert_id)
+    if not alert:
+        raise HTTPException(status_code=404, detail="alert not found")
+    repos.set_alert_status(alert_id, "resolved")
+    return {"ok": True, "alert_id": alert_id, "status": "resolved", "reason": body.reason}
+
+
 # ── Lab simulation (Start button → background run_simulation.sh) ─────────────
 
 

@@ -641,8 +641,10 @@ def start(fault_id: str, *, started_by: str = "deca-ui") -> dict[str, Any]:
 
 def clear(*, reason: str = "operator_clear", fabric: str | None = None) -> dict[str, Any]:
     global _proc
+    seeded_alert_id: Optional[int] = None
     with _lock:
         fid = _state.get("fault_id")
+        seeded_alert_id = _state.get("seeded_alert")
         started_fabric = (
             fabric
             or _state.get("fabric")
@@ -655,10 +657,40 @@ def clear(*, reason: str = "operator_clear", fabric: str | None = None) -> dict[
                 pass
         _proc = None
         _state["running"] = False
-        _state["message"] = f"cleared ({reason})"
+        _state["message"] = f"cleared ({reason}) — network returning to healthy"
         _state["fault_id"] = None
         _state["fabric"] = None
+        _state["seeded_alert"] = None
+        _state["model_detection"] = None
         _write_status()
+
+    # Resolve the seeded alert so the Decide rail goes back to healthy.
+    if seeded_alert_id:
+        try:
+            req = urllib.request.Request(
+                f"{API.rstrip('/')}/api/v1/alerts/{seeded_alert_id}/resolve",
+                data=json.dumps({"reason": reason}).encode(),
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                resp.read()
+        except Exception:  # noqa: BLE001
+            pass
+
+    # Tell the controller to restore normal autonomy (GRE preferred path).
+    try:
+        req = urllib.request.Request(
+            f"{API.rstrip('/')}/api/v1/controller/action",
+            data=json.dumps({"op": "reset_autonomy", "reason": f"fault_clear:{reason}"}).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            resp.read()
+    except Exception:  # noqa: BLE001
+        pass
+
     # Never run Pi clear scripts while campaign owns injectors (would fight BGP).
     if started_fabric == "pi" and _campaign_owns_pi_inject():
         return {

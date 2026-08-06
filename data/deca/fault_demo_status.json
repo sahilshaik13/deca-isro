@@ -2,8 +2,24 @@
   "running": false,
   "fault_id": null,
   "fabric": null,
-  "message": "cleared (operator_clear)",
-  "started_at": null,
+  "message": "cleared (operator_clear) \u2014 network returning to healthy",
+  "started_at": "2026-08-06T17:16:37Z",
   "seeded_alert": null,
-  "log_tail": []
+  "log_tail": [
+    "start loss_progression on pi by deca-ui",
+    "q2_detect sev=4B p=0.9058 match=True",
+    "seeded alert_id=208136 class=tunnel_degradation",
+    "Loss progression on station1/gre-te-core: 0\u21923.5% over 60s",
+    "[17:16:38] step 0/5 loss 0.000%",
+    "[17:16:50] step 1/5 loss 0.875%",
+    "[17:17:02] step 2/5 loss 1.750%",
+    "[17:17:14] step 3/5 loss 2.625%",
+    "[17:17:26] step 4/5 loss 3.500%",
+    "[17:17:38] left netem loss=3.5% on gre-te-core (use --clear to remove)",
+    "qdisc netem 800c: root refcnt 2 limit 1000 loss 3.5%"
+  ],
+  "model_detection": null,
+  "label": "Loss ramp",
+  "started_by": "deca-ui",
+  "pid": 1645183
 }
