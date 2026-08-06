@@ -24,9 +24,9 @@ Q1_QUERIES: dict[str, str] = {
     "latency_eth0_ms": 'sdwan_path_latency_ms{job="deca_kafka_telemetry_bridge",host="station1",path="eth0",src="edge"}',
     "jitter_gre_ms": 'sdwan_path_jitter_ms{job="deca_kafka_telemetry_bridge",host="station1",path="gre"}',
     "loss_gre_pct": 'sdwan_path_loss_pct{job="deca_kafka_telemetry_bridge",host="station1",path="gre",src="edge"}',
-    # Through-HTB underlay util (controller/edge) — congestion/ceiling signal for O2.1.
-    # Prefer max(gre, eth0): Pi payload often rides MPLS/eth0 while GRE stays idle probe-scale.
-    "util_gre_mbps": 'max(sdwan_path_util_mbps{job="deca_kafka_telemetry_bridge",host="station1",path=~"gre|eth0"})',
+    # CAPTURE_CONTRACT: ceiling util = PE eth0 TX @1Hz (HTB egress). Never max(gre|eth0).
+    # Column name util_gre_mbps kept for schema; semantics = eth0 post-HTB egress Mbps.
+    "util_gre_mbps": 'sdwan_path_util_mbps{job="deca_kafka_telemetry_bridge",host="station1",path="eth0",src="edge"}',
     "net_bytes_recv_eth0": 'interface_net_bytes_recv{job="deca_kafka_telemetry_bridge",host="station1",ifName="eth0"}',
     "net_bytes_sent_eth0": 'interface_net_bytes_sent{job="deca_kafka_telemetry_bridge",host="station1",ifName="eth0"}',
 }
@@ -42,12 +42,17 @@ Q2_QUERIES: dict[str, str] = {
     # PS13 rekey anomaly (edge exporter via Kafka bridge)
     "ipsec_rekey_events_1h": 'ipsec_rekey_events_1h{job="deca_kafka_telemetry_bridge",host="station1"}',
     "ipsec_rekey_anomaly": 'ipsec_rekey_anomaly{job="deca_kafka_telemetry_bridge",host="station1"}',
-    # Controller dual-path asymmetry gauge (also derived in preprocess from gre−eth0)
-    "path_asymmetry": 'path_asymmetry{job="deca_sdwan_controller"}',
+    # Live HTB 1:15 ceil (deca-htb-payload-ceil.sh) — Q2 util 5A/5B feature.
+    "htb_payload_ceil_mbps": 'htb_payload_ceil_mbps{job="deca_kafka_telemetry_bridge",host="station1"}',
+    # CAPTURE_CONTRACT: edge 1Hz asymmetry only — never controller 5s hold.
+    "path_asymmetry": 'path_asymmetry{job="deca_kafka_telemetry_bridge",host="station1",src="edge"}',
 }
 
 # On GNS3, path_asymmetry is exported from the fabric exporter (derived GRE−eth0).
 _PATH_ASYM_GNS3 = 'path_asymmetry{job="deca_gns3_fabric",host="gns3-pe1",fabric="gns3"}'
+# GNS3 util: twin exporter publishes path="gre" (chaos_state util_gre_mbps).
+# CAPTURE_CONTRACT eth0 preference is Pi-side; GNS3 twin keeps gre gauge name parity.
+_UTIL_GNS3 = 'sdwan_path_util_mbps{job="deca_gns3_fabric",host="gns3-pe1",path="gre",fabric="gns3"}'
 
 
 def _fabric_from_env() -> str:
@@ -94,12 +99,16 @@ def with_fabric_label(promql: str, fabric: str | None = None) -> str:
     fab = (fabric or _fabric_from_env()).strip().lower()
     if fab != "gns3":
         return promql
-    # Dedicated twin gauge (not controller job)
+    # Dedicated twin gauges (CAPTURE_CONTRACT)
     if promql.strip().startswith("path_asymmetry{"):
         return _PATH_ASYM_GNS3
+    if 'sdwan_path_util_mbps{' in promql and 'path="eth0"' in promql:
+        return _UTIL_GNS3
     q = promql
     q = q.replace('job="deca_kafka_telemetry_bridge"', 'job="deca_gns3_fabric"')
     q = q.replace('host="station1"', 'host="gns3-pe1"')
+    # Drop src="edge" on twin if exporter omits it
+    q = q.replace(',src="edge"', "").replace('src="edge",', "")
     if 'fabric="' not in q and "fabric='" not in q:
         m = re.search(r"\{([^}]*)\}", q)
         if m:

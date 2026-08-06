@@ -487,6 +487,42 @@ def _seed(seed: dict[str, Any], fault_id: str) -> dict[str, Any]:
         body["contributing_signals"]["latency_gre_ms"] = lat
     body["summary"] = summary
     body["enrich_q3"] = True
+
+    # Live Q2 oneshot — shows Decide *how* the model saw this inject.
+    try:
+        import model_detect
+
+        with _lock:
+            _state["message"] = (
+                f"{FAULTS[fault_id]['label']} live — running Q2 detect on Prom…"
+            )
+            _write_status()
+        detection = model_detect.detect_live(fault_id=fault_id)
+        body = model_detect.merge_into_seed(body, detection)
+        with _lock:
+            _state["model_detection"] = {
+                "ok": bool(detection.get("ok")),
+                "severity": detection.get("severity"),
+                "q2_confidence": detection.get("q2_confidence"),
+                "matches_demo_fault": detection.get("matches_demo_fault"),
+                "explanation": (detection.get("explanation") or "")[:240],
+            }
+            _state.setdefault("log_tail", []).append(
+                "q2_detect "
+                + (
+                    f"sev={detection.get('severity')} p={detection.get('q2_confidence')} "
+                    f"match={detection.get('matches_demo_fault')}"
+                    if detection.get("ok")
+                    else f"fail={detection.get('error')}"
+                )
+            )
+            _write_status()
+    except Exception as exc:  # noqa: BLE001
+        body.setdefault("model_detection", {"ok": False, "error": str(exc)})
+        with _lock:
+            _state.setdefault("log_tail", []).append(f"q2_detect_error:{exc}")
+            _write_status()
+
     data = json.dumps(body).encode()
     req = urllib.request.Request(
         f"{API.rstrip('/')}/api/v1/simulation/seed-preemption",
@@ -494,7 +530,7 @@ def _seed(seed: dict[str, Any], fault_id: str) -> dict[str, Any]:
         headers={"Content-Type": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=15) as resp:
+    with urllib.request.urlopen(req, timeout=45) as resp:
         return json.loads(resp.read().decode())
 
 

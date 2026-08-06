@@ -91,7 +91,16 @@ export function useOrchestrator() {
   useEffect(() => {
     refresh()
     const id = setInterval(refresh, getPollIntervalMs())
-    return () => clearInterval(id)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void refresh()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', onVisible)
+    return () => {
+      clearInterval(id)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', onVisible)
+    }
   }, [refresh])
 
   const selectRun = useCallback(async (id: string, mode = 'replay') => {

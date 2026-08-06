@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 import re
+import time
 from datetime import datetime, timezone
 from typing import Any
 
@@ -57,7 +58,14 @@ def _prom_base() -> str:
         return (config.PROMETHEUS_URL or "http://127.0.0.1:9090").rstrip("/")
 
 
-def _prom_query(promql: str, base: str | None = None) -> float | None:
+def _prom_query_result(
+    promql: str, base: str | None = None
+) -> tuple[float | None, float | None]:
+    """Return (value, last_sample_unix_ts).
+
+    Instant-query `value[0]` is the *evaluation* time, not the series sample
+    time — use `timestamp(expr)` so cable-pulls age out within STALE_SEC.
+    """
     url = (base or _prom_base()).rstrip("/")
     try:
         resp = requests.get(
@@ -68,14 +76,35 @@ def _prom_query(promql: str, base: str | None = None) -> float | None:
         resp.raise_for_status()
         payload = resp.json()
         if payload.get("status") != "success":
-            return None
+            return None, None
         results = payload.get("data", {}).get("result", [])
         if not results:
-            return None
+            return None, None
         value = float(results[0]["value"][1])
-        return value if math.isfinite(value) else None
+        if not math.isfinite(value):
+            return None, None
+        sample_ts: float | None = None
+        try:
+            ts_resp = requests.get(
+                f"{url}/api/v1/query",
+                params={"query": f"timestamp({promql})"},
+                timeout=2,
+            )
+            ts_resp.raise_for_status()
+            ts_payload = ts_resp.json()
+            ts_rows = ts_payload.get("data", {}).get("result", [])
+            if ts_rows:
+                sample_ts = float(ts_rows[0]["value"][1])
+        except (requests.RequestException, ValueError, TypeError, IndexError, KeyError):
+            sample_ts = None
+        return value, sample_ts
     except (requests.RequestException, ValueError, TypeError, IndexError, KeyError):
-        return None
+        return None, None
+
+
+def _prom_query(promql: str, base: str | None = None) -> float | None:
+    value, _ts = _prom_query_result(promql, base)
+    return value
 
 
 def _station_instance(station: str) -> str | None:
@@ -88,7 +117,7 @@ def _station_instance(station: str) -> str | None:
 
 
 def _station_query_filters(station: str) -> list[str]:
-    """Prometheus label filters — host name first, then instance IP (station2/3 use host=ubuntu)."""
+    """Prometheus label filters — host name first, then instance IP."""
     filters = [f'host="{station}"']
     instance = _station_instance(station)
     if instance:
@@ -102,14 +131,19 @@ def _station_query_filters(station: str) -> list[str]:
     return filters
 
 
-def _station_host_query(station: str, metric_expr: str, iface_pattern: str | None = None) -> float | None:
+def _station_host_query(
+    station: str, metric_expr: str, iface_pattern: str | None = None
+) -> float | None:
     iface = _iface_clause(iface_pattern)
     jobs = list(dict.fromkeys([config.PROMETHEUS_JOB, *config.PROMETHEUS_JOBS]))
+    now = time.time()
     for job in jobs:
         for filt in _station_query_filters(station):
             promql = metric_expr % {"job": job, "iface": iface, "filt": filt}
-            value = _prom_query(promql)
-            if value is not None:
+            value, sample_ts = _prom_query_result(promql)
+            if value is None:
+                continue
+            if sample_ts is None or _is_fresh(sample_ts, now=now):
                 return value
     return None
 
@@ -127,12 +161,13 @@ def _ping_metric_for_station(station: str, metric: str) -> float | None:
     template = templates.get(metric)
     if not template:
         return None
-
     for job in dict.fromkeys([config.PROMETHEUS_JOB, *config.PROMETHEUS_JOBS]):
         for filt in _station_query_filters(station):
             promql = template % {"job": job, "filt": filt}
-            value = _prom_query(promql)
-            if value is not None:
+            value, sample_ts = _prom_query_result(promql)
+            if value is None:
+                continue
+            if sample_ts is None or _is_fresh(sample_ts):
                 return value
     return None
 
@@ -147,7 +182,6 @@ def _interface_loss_for_station(station: str, iface_pattern: str) -> float | Non
 
 
 def _loss_for_station(station: str) -> float | None:
-    """Max of eth0 drop rate, mission NIC drops, and ICMP ping loss."""
     primary = config.THROUGHPUT_INTERFACE_REGEX or config.EDGE_INTERFACE
     candidates: list[float] = []
     for pattern in ("eth0", primary):
@@ -163,7 +197,6 @@ def _loss_for_station(station: str) -> float | None:
 
 
 def _jitter_for_station(station: str) -> float | None:
-    """Best ICMP signal: max of RTT stddev and average RTT (netem delay shows on both)."""
     candidates: list[float] = []
     for metric in ("jitter_ms", "latency_ms"):
         val = _ping_metric_for_station(station, metric)
@@ -204,25 +237,152 @@ def _metric_for_station(station: str, metric: str) -> float | None:
     return _station_host_query(station, template, primary)
 
 
+def _stale_sec() -> float:
+    raw = getattr(config, "PROM_STALE_SEC", None)
+    try:
+        return float(raw if raw is not None else 15.0)
+    except (TypeError, ValueError):
+        return 15.0
+
+
+def _is_fresh(sample_ts: float | None, *, now: float | None = None) -> bool:
+    if sample_ts is None:
+        return False
+    age = (now if now is not None else time.time()) - float(sample_ts)
+    return 0.0 <= age <= _stale_sec()
+
+
+def _station_exporter_up(station: str) -> bool | None:
+    """True/False from Prometheus `up` on the station exporter; None if unknown."""
+    instance = _station_instance(station)
+    if not instance:
+        return None
+    for job in ("deca_edge_nodes", "deca_core_router"):
+        value, sample_ts = _prom_query_result(
+            f'up{{job="{job}",instance="{instance}"}}'
+        )
+        if value is None:
+            continue
+        # up is rewritten every scrape (0 on failure). Prefer the value itself;
+        # only treat missing/ancient timestamp as down.
+        if sample_ts is not None and not _is_fresh(sample_ts):
+            return False
+        return value >= 1.0
+    return None
+
+
+def _sdwan_path_query(station: str, metric: str, path: str) -> float | None:
+    """Path QoS from Kafka bridge (preferred) or controller scrape."""
+    jobs = list(
+        dict.fromkeys(
+            [
+                "deca_kafka_telemetry_bridge",
+                "deca_sdwan_controller",
+                config.PROMETHEUS_JOB,
+                *config.PROMETHEUS_JOBS,
+            ]
+        )
+    )
+    now = time.time()
+    for job in jobs:
+        candidates = [
+            f'{metric}{{job="{job}",host="{station}",path="{path}"}}',
+            f'{metric}{{job="{job}",host="{station}",path="{path}",src="edge"}}',
+        ]
+        if job == "deca_sdwan_controller":
+            candidates.append(f'{metric}{{job="{job}",path="{path}"}}')
+        for promql in candidates:
+            value, sample_ts = _prom_query_result(promql)
+            if value is None:
+                continue
+            # If timestamp() is unavailable, keep the value; only drop when we
+            # positively know the series is older than STALE_SEC.
+            if sample_ts is None or _is_fresh(sample_ts, now=now):
+                return value
+    return None
+
+
 def fetch_station_snapshot(station: str) -> dict[str, Any]:
-    metrics = {
+    now = time.time()
+    exporter_up = _station_exporter_up(station)
+
+    metrics: dict[str, float | None] = {
         "ifInOctets": _metric_for_station(station, "ifInOctets"),
         "ifOutOctets": _metric_for_station(station, "ifOutOctets"),
         "packet_loss_pct": _metric_for_station(station, "packet_loss_pct"),
         "jitter_ms": _metric_for_station(station, "jitter_ms"),
         "bgp_update_rate": _metric_for_station(station, "bgp_update_rate"),
     }
-    online = any(v is not None for v in metrics.values())
+    # Prefer path QoS for dashboard RTT; require fresh samples so cable-pulls clear.
+    lat_gre = _sdwan_path_query(station, "sdwan_path_latency_ms", "gre")
+    lat_eth = _sdwan_path_query(station, "sdwan_path_latency_ms", "eth0")
+    path_jit = _sdwan_path_query(station, "sdwan_path_jitter_ms", "gre")
+    path_loss = _sdwan_path_query(station, "sdwan_path_loss_pct", "gre")
+    path_util = _sdwan_path_query(station, "sdwan_path_util_mbps", "gre")
+    cpu_user = _station_host_query(
+        station, 'avg(cpu_usage_user{job="%(job)s",%(filt)s})'
+    )
+    if lat_gre is not None:
+        metrics["latency_gre_ms"] = lat_gre
+    if lat_eth is not None:
+        metrics["latency_eth0_ms"] = lat_eth
+    if path_jit is not None and (metrics.get("jitter_ms") in (None, 0)):
+        metrics["jitter_ms"] = path_jit
+    if path_loss is not None and metrics.get("packet_loss_pct") in (None, 0):
+        metrics["packet_loss_pct"] = path_loss
+    if path_util is not None:
+        metrics["util_gre_mbps"] = path_util
+    if cpu_user is not None:
+        metrics["cpu_usage"] = cpu_user
+        metrics["cpu_usage_user"] = cpu_user
+
+    # Freshness gate: instant queries keep returning last gauge for ~5m after
+    # scrape death — use exporter `up` + a live path/edge sample to decide.
+    live_signal = any(
+        v is not None
+        for v in (lat_gre, lat_eth, path_jit, path_util, metrics.get("ifInOctets"))
+    )
+    if exporter_up is False:
+        online = False
+    elif exporter_up is True:
+        online = True
+    else:
+        online = live_signal
+
+    # Drop stale gauges from the payload when offline so UI cannot show ghost RTT.
+    if not online:
+        for key in (
+            "latency_gre_ms",
+            "latency_eth0_ms",
+            "jitter_ms",
+            "packet_loss_pct",
+            "util_gre_mbps",
+            "throughput_mbps",
+            "throughput_in_mbps",
+            "throughput_out_mbps",
+        ):
+            metrics[key] = None
+
     bytes_per_sec_to_mbps = 8 / 1e6
-    clean = {k: finite_float(v) for k, v in metrics.items()}
-    clean["throughput_in_mbps"] = clean["ifInOctets"] * bytes_per_sec_to_mbps
-    clean["throughput_out_mbps"] = clean["ifOutOctets"] * bytes_per_sec_to_mbps
-    clean["throughput_mbps"] = max(clean["throughput_in_mbps"], clean["throughput_out_mbps"])
+    clean = {
+        k: finite_float(v)
+        for k, v in metrics.items()
+        if v is not None
+    }
+    if online:
+        clean["throughput_in_mbps"] = finite_float(metrics.get("ifInOctets")) * bytes_per_sec_to_mbps
+        clean["throughput_out_mbps"] = finite_float(metrics.get("ifOutOctets")) * bytes_per_sec_to_mbps
+        clean["throughput_mbps"] = max(clean["throughput_in_mbps"], clean["throughput_out_mbps"])
+        if path_util is not None and clean["throughput_mbps"] < float(path_util):
+            clean["throughput_mbps"] = finite_float(path_util)
     return {
         "id": station,
         "host": station,
         "status": "online" if online else "offline",
+        "reachable": online,
+        "exporter_up": exporter_up,
         "metrics": clean,
+        "observed_at": datetime.fromtimestamp(now, tz=timezone.utc).isoformat(),
     }
 
 
@@ -391,6 +551,9 @@ def fetch_live_network() -> dict[str, Any]:
         "packet_loss_pct": _max_metric("packet_loss_pct"),
         "jitter_ms": _max_metric("jitter_ms"),
         "bgp_update_rate": _sum_metric("bgp_update_rate"),
+        "latency_gre_ms": _max_metric("latency_gre_ms"),
+        "latency_eth0_ms": _max_metric("latency_eth0_ms"),
+        "cpu_usage": _max_metric("cpu_usage"),
     }
 
     return {
@@ -401,6 +564,7 @@ def fetch_live_network() -> dict[str, Any]:
         "prometheus_reachable": True,
         "stations": stations,
         "raw": raw,
+        "metrics": raw_to_display(raw, timestamp),
     }
 
 

@@ -3,7 +3,7 @@
 # Triggered by Next.js "Start Simulation" → FastAPI background subprocess.
 #
 # Timings aligned to live lab/deca_sdwan_controller.py
-# (docs/DECA_SDWAN_POLICY_RULES.md):
+# (docs/EDGE_POLICY_LAYERS.md):
 #   TT&C ≤25ms / ≤5ms / ≤0.1%, Payload ≤80ms / ≤15ms / ≤2%,
 #   enter_k=3, exit_k=10, poll=5s
 #

@@ -2,7 +2,7 @@
 
 One **SD-WAN orchestrator** (`:8000` / NOC `:3000`) and one **controller** (`:9280`)
 serve **both** fabrics. Operator picks `pi` | `gns3`; **SLA budgets are aligned**
-([§1c](../../docs/DECA_SDWAN_POLICY_RULES.md) · [EDGE_POLICY_LAYERS](../../docs/EDGE_POLICY_LAYERS.md)).
+([EDGE_POLICY_LAYERS](../../docs/EDGE_POLICY_LAYERS.md) complete catalog).
 Chaos tools and path semantics follow the as-built Flow 1 below; full dual-fabric
 mermaid (CE/PE/P + NOC) lives in **EDGE_POLICY_LAYERS**.
 

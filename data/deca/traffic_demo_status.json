@@ -1,14 +1,15 @@
 {
   "running": false,
-  "fabric": "pi",
-  "active_fabric": "gns3",
+  "fabric": "gns3",
+  "active_fabric": "pi",
   "profile": null,
   "duration_s": 0,
   "started_at": null,
   "started_by": null,
-  "message": "stopped (fabric_switch:pi->gns3)",
+  "message": "stopped (fabric_switch:gns3->pi)",
   "log_tail": [
-    "[iperf-qos] stopping clients/servers\u2026"
+    "[gns3-traffic] stop (Pi twin)",
+    "traffic stopped"
   ],
   "profiles": [
     "ttc",

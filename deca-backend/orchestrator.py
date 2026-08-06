@@ -132,6 +132,8 @@ class SeedPreemptionBody(BaseModel):
     urgency_clock_kind: Optional[str] = None
     urgency_lead_head: Optional[str] = None
     arbitration: Optional[dict[str, Any]] = None
+    # Live Q2 oneshot evidence (dashboard Simple faults / infer)
+    model_detection: Optional[dict[str, Any]] = None
     # Multi-operator NOC audit (optional)
     operator_id: Optional[str] = None
     # Q3: attach English NLP async by default (math gate does not wait)
@@ -268,94 +270,105 @@ def get_fleet(run_id: Optional[str] = None):
     by_host = {t["host"]: t for t in ticks}
     catalog = config.site_catalog_for(active)
 
-    # GNS3 fleet: always overlay live exporter hosts (gns3-pe*). A bound Pi
-    # blind-run leaves station1/2 ticks in by_host — that must not blank the strip.
+    # Live Prom overlay for both fabrics so the fleet strip is never blank
+    # when replay ticks are empty (sim-live / demo with no blind-run ingest).
     alert_by_host: dict[str, dict[str, Any]] = {}
-    if active == "gns3":
-        try:
-            for a in repos.list_alerts(run_id=rid, status="active", limit=50) if rid else []:
-                h = str(a.get("host") or "")
-                if not h.startswith("gns3"):
-                    continue
-                payload = a.get("payload") if isinstance(a.get("payload"), dict) else {}
-                alert_by_host[h] = {
-                    "class": a.get("class"),
-                    "confidence": payload.get("confidence"),
-                    "eta_minutes": (
-                        payload.get("eta_minutes")
-                        or payload.get("eta_loss_minutes")
-                        or payload.get("eta_util_minutes")
-                        or payload.get("eta_jitter_minutes")
-                    ),
-                }
-        except Exception:
-            alert_by_host = {}
+    try:
+        for a in repos.list_alerts(run_id=rid, status="active", limit=50) if rid else []:
+            h = str(a.get("host") or "")
+            if active == "gns3" and not h.startswith("gns3"):
+                continue
+            if active == "pi" and h.startswith("gns3"):
+                continue
+            payload = a.get("payload") if isinstance(a.get("payload"), dict) else {}
+            alert_by_host[h] = {
+                "class": a.get("class"),
+                "confidence": payload.get("confidence"),
+                "eta_minutes": (
+                    payload.get("eta_minutes")
+                    or payload.get("eta_loss_minutes")
+                    or payload.get("eta_util_minutes")
+                    or payload.get("eta_jitter_minutes")
+                    or a.get("eta")
+                ),
+            }
+    except Exception:
+        alert_by_host = {}
 
-        try:
-            from prometheus_feed import fetch_live_network
+    try:
+        from prometheus_feed import fetch_live_network
 
-            live = fetch_live_network()
-            mission_preview = controller_client.fetch_mission_metrics()
-            conflict = int((mission_preview or {}).get("conflict") or 0)
-            for st in live.get("stations") or []:
-                host = st.get("host")
-                if not host:
-                    continue
-                existing = by_host.get(host) or {}
-                m = dict(st.get("metrics") or existing.get("metrics") or {})
-                online = st.get("status") == "online"
-                lat = float(m.get("latency_gre_ms") or 0.0)
-                loss = float(m.get("packet_loss_pct") or 0.0)
-                # SLA headroom → Conf (TT&C 25ms/0.1%, Payload 80ms/2%)
-                # Sites share PE hosts; use tighter TT&C budget so Gold cards stay honest.
-                budget_lat, budget_loss = 25.0, 0.1
-                lat_ratio = min(1.0, lat / budget_lat) if budget_lat else 0.0
-                loss_ratio = min(1.0, loss / budget_loss) if budget_loss else 0.0
-                headroom = max(0.0, 1.0 - max(lat_ratio, loss_ratio))
-                derived_conf = round(0.55 + 0.44 * headroom, 2)  # ~0.55–0.99
+        live = fetch_live_network()
+        mission_preview = controller_client.fetch_mission_metrics()
+        conflict = int((mission_preview or {}).get("conflict") or 0)
+        for st in live.get("stations") or []:
+            host = st.get("host")
+            if not host:
+                continue
+            existing = by_host.get(host) or {}
+            m = dict(st.get("metrics") or existing.get("metrics") or {})
+            online = st.get("status") == "online"
+            reachable = bool(st.get("reachable", online))
+            if not reachable:
+                online = False
+            lat = float(m.get("latency_gre_ms") or 0.0)
+            loss = float(m.get("packet_loss_pct") or 0.0)
+            budget_lat, budget_loss = 25.0, 0.1
+            lat_ratio = min(1.0, lat / budget_lat) if budget_lat else 0.0
+            loss_ratio = min(1.0, loss / budget_loss) if budget_loss else 0.0
+            headroom = max(0.0, 1.0 - max(lat_ratio, loss_ratio))
+            derived_conf = round(0.55 + 0.44 * headroom, 2)
 
-                seeded = alert_by_host.get(host) or {}
-                conf = existing.get("confidence")
-                if conf is None:
-                    conf = seeded.get("confidence")
-                if conf is None:
-                    conf = derived_conf if online else None
+            seeded = alert_by_host.get(host) or {}
+            conf = existing.get("confidence")
+            if conf is None:
+                conf = seeded.get("confidence")
+            if conf is None:
+                conf = derived_conf if online else None
 
-                eta = existing.get("eta_minutes")
-                if eta is None:
-                    eta = seeded.get("eta_minutes")
-                if eta is None and online:
-                    # Minutes-to-TT&C ceiling if delay keeps climbing (demo-scale).
-                    if lat >= budget_lat or loss >= budget_loss:
-                        eta = 0.0
-                    elif lat >= budget_lat * 0.6 or loss >= budget_loss * 0.6 or conflict:
-                        remain = max(0.05, 1.0 - max(lat_ratio, loss_ratio))
-                        eta = round(remain * 3.0, 1)
-                    elif seeded.get("class") == "congestion_breach":
-                        # Seeded HITL preemption — show short predictive window even if RTT still ok
-                        eta = float(seeded.get("eta_minutes") or 1.5)
-                        if conf is not None and conf < 0.9:
-                            pass
-                        else:
-                            conf = min(float(conf or 0.9), 0.88)
+            eta = existing.get("eta_minutes")
+            if eta is None:
+                eta = seeded.get("eta_minutes")
+            if eta is None and online:
+                if lat >= budget_lat or loss >= budget_loss:
+                    eta = 0.0
+                elif lat >= budget_lat * 0.6 or loss >= budget_loss * 0.6 or conflict:
+                    remain = max(0.05, 1.0 - max(lat_ratio, loss_ratio))
+                    eta = round(remain * 3.0, 1)
+                elif seeded.get("class") in (
+                    "congestion_breach",
+                    "tunnel_degradation",
+                    "bgp_route_flap",
+                    "policy_drift",
+                ):
+                    eta = float(seeded.get("eta_minutes") or 1.5)
+                    conf = min(float(conf or 0.9), 0.88)
 
-                confirmed = "healthy" if online else None
-                # Do NOT stamp tunnel_degradation on shared PE hosts here —
-                # per-site SLA class decides below (TT&C 25ms vs Payload 80ms).
+            confirmed = existing.get("confirmed")
+            if not online:
+                confirmed = "offline"
+                conf = None
+                eta = None
+                m = {}
+            elif not confirmed:
+                confirmed = "healthy"
 
-                by_host[host] = {
-                    **existing,
-                    "host": host,
-                    "confirmed": confirmed,
-                    "advisory": existing.get("advisory"),
-                    "confidence": float(conf) if conf is not None else None,
-                    "eta_minutes": float(eta) if eta is not None else None,
-                    "metrics": m,
-                    "seeded_class": seeded.get("class"),
-                    "source": "gns3_live" if online else existing.get("source"),
-                }
-        except Exception:
-            pass
+            by_host[host] = {
+                **existing,
+                "host": host,
+                "confirmed": confirmed,
+                "advisory": existing.get("advisory"),
+                "confidence": float(conf) if conf is not None else None,
+                "eta_minutes": float(eta) if eta is not None else None,
+                "metrics": m,
+                "reachable": online,
+                "seeded_class": seeded.get("class"),
+                "source": ("gns3_live" if active == "gns3" else "pi_live")
+                if online
+                else existing.get("source"),
+            }
+    except Exception:
+        pass
 
     sites = []
     for site in catalog:
@@ -366,21 +379,25 @@ def get_fleet(run_id: Optional[str] = None):
             m = tick.get("metrics") or {}
             lat = float(m.get("latency_gre_ms") or 0.0)
             loss = float(m.get("packet_loss_pct") or 0.0)
-            if active == "gns3":
+            if tick.get("confirmed") == "offline" or tick.get("reachable") is False:
+                tick["confirmed"] = "offline"
+                tick["reachable"] = False
+                tick["confidence"] = None
+                tick["eta_minutes"] = None
+                tick["metrics"] = {}
+            elif m:
                 if mclass == "ttc":
                     budget_lat, budget_loss = 25.0, 0.1
                 elif mclass == "be":
-                    # CORE/P — no CE SLA paint; only flag hard loss
                     budget_lat, budget_loss = 999.0, 5.0
                 else:
                     budget_lat, budget_loss = 80.0, 2.0
                 lat_ratio = min(1.0, lat / budget_lat) if budget_lat else 0.0
                 loss_ratio = min(1.0, loss / max(budget_loss, 1e-6))
                 headroom = max(0.0, 1.0 - max(lat_ratio, loss_ratio))
-                tick["confidence"] = round(0.55 + 0.44 * headroom, 2)
+                if tick.get("confidence") is None:
+                    tick["confidence"] = round(0.55 + 0.44 * headroom, 2)
 
-                # Class-aware state (mentor: conflict ≠ every CE is degraded)
-                # Strict > so Payload at exactly ≤80ms / ≤2% stays healthy during soft delay.
                 if lat > budget_lat or loss > budget_loss:
                     tick["confirmed"] = "tunnel_degradation"
                     tick["eta_minutes"] = 0.0
@@ -388,28 +405,32 @@ def get_fleet(run_id: Optional[str] = None):
                     tick["confirmed"] = "tunnel_degradation"
                     remain = max(0.05, 1.0 - max(lat_ratio, loss_ratio))
                     tick["eta_minutes"] = round(remain * 3.0, 1)
-                elif mclass == "ttc" and tick.get("seeded_class") == "congestion_breach":
-                    # HITL seed lives on Gold / TT&C victim only
-                    tick["confirmed"] = "congestion_breach"
+                elif mclass == "ttc" and tick.get("seeded_class") in (
+                    "congestion_breach",
+                    "tunnel_degradation",
+                    "bgp_route_flap",
+                    "policy_drift",
+                ):
+                    tick["confirmed"] = tick.get("seeded_class") or "congestion_breach"
                     tick["eta_minutes"] = tick.get("eta_minutes") or 1.5
-                else:
+                elif not tick.get("confirmed"):
                     tick["confirmed"] = "healthy"
-                    # Clear PE-shared breach ETA for sites still inside their SLA
                     if mclass != "ttc":
                         tick["eta_minutes"] = None
             host_states.append(tick)
         status = "unknown"
         if host_states:
-            if any(
-                (s.get("confirmed") or "-") not in ("-", "none", "healthy", "normal", "", None)
+            if any(s.get("confirmed") == "offline" or s.get("reachable") is False for s in host_states):
+                status = "offline"
+            elif any(
+                (s.get("confirmed") or "-")
+                not in ("-", "none", "healthy", "normal", "offline", "", None)
                 for s in host_states
             ):
                 status = "alert"
             elif any(s.get("confirmed") for s in host_states):
                 status = "ok"
-            elif active == "gns3" and any(
-                (s.get("metrics") or {}) for s in host_states
-            ):
+            elif any((s.get("metrics") or {}) for s in host_states):
                 status = "ok"
                 for s in host_states:
                     if not s.get("confirmed") and (s.get("metrics") or {}):
@@ -735,6 +756,32 @@ def faults_clear(body: FaultClearBody | None = None):
     return fault_demo.clear(reason=body.reason)
 
 
+class ModelDetectBody(BaseModel):
+    fault_id: str = ""
+    samples: Optional[int] = None
+    interval: Optional[float] = None
+
+
+@router.post("/model/detect")
+def model_detect_now(body: ModelDetectBody | None = None):
+    """One-shot frozen Q2 detect on live Prom — shows how the model saw a fault."""
+    body = body or ModelDetectBody()
+    import model_detect
+
+    return model_detect.detect_live(
+        fault_id=body.fault_id or "",
+        samples=body.samples,
+        interval=body.interval,
+    )
+
+
+@router.get("/model/detect")
+def model_detect_get(fault_id: str = ""):
+    import model_detect
+
+    return model_detect.detect_live(fault_id=fault_id or "")
+
+
 @router.get("/topology")
 def topology_get(fabric: Optional[str] = None):
     import fabric as fabric_mod
@@ -959,6 +1006,11 @@ def simulation_seed_preemption(body: SeedPreemptionBody | None = None):
         payload["urgency_lead_head"] = body.urgency_lead_head
     if body.arbitration:
         payload["arbitration"] = body.arbitration
+    if body.model_detection:
+        payload["model_detection"] = body.model_detection
+        gp = body.model_detection.get("generation_path")
+        if gp:
+            payload["model_generation_path"] = gp
     payload["concerns"] = _default_concerns(body, alert_class)
     alert_id = repos.upsert_alert(
         {

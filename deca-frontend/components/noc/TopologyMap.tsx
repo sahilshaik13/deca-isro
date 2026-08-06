@@ -17,12 +17,36 @@ function nodeOnline(
   node: LayoutNode,
 ): boolean {
   if (node.muted) return false
+
+  const hostByNode: Record<string, string> = {
+    pe1: 'station1',
+    pe2: 'station2',
+    pe3: 'station3',
+    core: 'station3',
+    'core-n': 'station3',
+    'core-s': 'station3',
+  }
+  const host =
+    hostByNode[node.id] ||
+    sites.find((s) => s.id === (node.fleet_id || node.id))?.hosts?.[0] ||
+    null
+
+  if (host) {
+    for (const site of sites) {
+      for (const tick of site.hosts_state || []) {
+        if (tick.host !== host) continue
+        if (tick.reachable === false || tick.confirmed === 'offline') return false
+        if (site.status === 'offline') return false
+      }
+    }
+  }
+
   const fleetId = node.fleet_id || node.id
   if (isAlert(sites, fleetId)) return false
-  // PE / chaos without fleet rows stay up unless muted
-  if (node.kind === 'pe' || node.kind === 'chaos') return true
   const site = sites.find((s) => s.id === fleetId)
-  if (site && site.status === 'alert') return false
+  if (site && (site.status === 'alert' || site.status === 'offline')) return false
+  // PE / chaos without a reachable host tick stay optimistic
+  if (node.kind === 'pe' || node.kind === 'chaos') return true
   return true
 }
 

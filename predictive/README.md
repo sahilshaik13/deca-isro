@@ -19,6 +19,9 @@ Live Prom (fabric-aware) → feature align → **shared Q1 LSTM** + **fabric-sel
 | **Q2 XGBoost** | Fabric-selected severity head (`q2_pi` / `q2_gns3`) or one head with a `fabric` feature |
 | **Training** | Do **not** mash Pi + GNS3 into one unlabeled CSV until inject shapes match |
 | **Docs** | [`unified_dual_architecture_ml.md`](../deca-backend/runbooks/unified_dual_architecture_ml.md) · [predictive plan §2b](../docs/DECA_PREDICTIVE_ENGINE_PLAN.md) · fault book |
+| **Scores (canonical)** | [`docs/PREDICTIVE_MODEL_SCORES.md`](../docs/PREDICTIVE_MODEL_SCORES.md) · `data/deca/predictive/SCOREBOARD.json` · stamp `full_variants_pi_20260803T175816Z` |
+
+**Cite today:** **0.884 / 0.815 / 0.655 / 0.992 / 7.1s** (Pi campaign only). chaos_final 0.815 = eval/label fix rescore of same model — selection never touched final. BGP ~0.62 disclosed. Do not cite 0.101 / 0.533 / 0.544 / ~1838s.
 
 Today’s cutover still loads the **Pi-trained** Q2 until a GNS3-labeled head is trained; fabric switch already retargets Prom + SLAs.
 

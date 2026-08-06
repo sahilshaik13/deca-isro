@@ -28,17 +28,27 @@ FEATURE_COLS = [
     "jitter_gre_ms",
     "loss_gre_pct",
     "util_gre_mbps",
+    # Live HTB payload class ceil (tc 1:15) — closes 5A/5B info gap vs util_gre alone.
+    "htb_payload_ceil_mbps",
     "cpu_usage_system",
     "cpu_usage_user",
     "mem_used_percent",
     "bgp_flap_count",
+    # BGP multi-scale texture (attach_bgp_multiscale on series before windows).
+    # Frozen d2 bundles omit these cols; new candidates may include them.
+    "bgp_rate_5s",
+    "bgp_rate_30s",
+    "bgp_rate_60s",
+    "bgp_time_since_flap",
+    "bgp_burst_len",
     "net_bytes_recv_eth0",
     "net_bytes_sent_eth0",
     "netflow_bulk_bytes",
     "netflow_voice_bytes",
     "ipsec_rekey_events_1h",
     "ipsec_rekey_anomaly",
-    "path_asymmetry",
+    # CAPTURE_CONTRACT: do NOT include raw path_asymmetry (stale controller alias).
+    # Derived path_asymmetry_ms_* from latency are added in build_windows below.
 ]
 
 # Cumulative counters — never use absolute mean/max/last (session leakage).
@@ -140,7 +150,12 @@ def main() -> None:
         default=-1,
         help="skip first N samples (default: 0 for label0, 20 for faults)",
     )
-    ap.add_argument("--preprocess", action="store_true")
+    ap.add_argument(
+        "--preprocess",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="1 Hz align + EMA (CAPTURE_CONTRACT default: on)",
+    )
     ap.add_argument("--ema-span", type=int, default=5)
     args = ap.parse_args()
 

@@ -120,8 +120,8 @@ UTIL_STEPS=$(( UTIL_DUR / 20 ))
 [[ "$UTIL_STEPS" -lt 6 ]] && UTIL_STEPS=6
 UTIL_STEP_SEC=$(( UTIL_DUR / UTIL_STEPS ))
 [[ "$UTIL_STEP_SEC" -lt 10 ]] && UTIL_STEP_SEC=10
-STEPS="$UTIL_STEPS" STEP_SEC="$UTIL_STEP_SEC" START_MBIT=5 END_MBIT=38 \
-  bash "$INJ/util_congestion.sh" >"$OUT/util.log" 2>&1 &
+STEPS="$UTIL_STEPS" STEP_SEC="$UTIL_STEP_SEC" START_MBIT=5 END_MBIT=24 PLATEAU_SEC=90 \
+  bash "$INJ/util_congestion.sh" --schedule-out "$OUT/util_ceil_schedule.jsonl" >"$OUT/util.log" 2>&1 &
 wait $! || true
 bash "$INJ/util_congestion.sh" --clear >/dev/null 2>&1 || true
 

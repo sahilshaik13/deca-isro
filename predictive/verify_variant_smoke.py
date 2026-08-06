@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -121,6 +122,50 @@ def main() -> None:
                 failures.append(
                     f"{d}: {metric}={primary:.2f} < {need:.2f} (flat/failed inject{extra})"
                 )
+            # CAPTURE_CONTRACT: util must not blow past HTB root AND must show
+            # sustained near-ceil residency (not pulsed on/off).
+            if folder == "L5_util_congestion":
+                from .fabric_baseline import fabric_util_ceiling_mbps
+
+                root_ceil = fabric_util_ceiling_mbps(
+                    os.environ.get("DECA_FABRIC", "pi")
+                )
+                # Payload class 1:15 ceil ≈ 0.85 × root (see tc class on PE eth0)
+                pay_ceil = 0.85 * root_ceil
+                end_mbit = float(recipe.get("end_mbit") or 0)
+                util_s = pd.to_numeric(
+                    pd.read_csv(s)["util_gre_mbps"], errors="coerce"
+                ).fillna(0.0)
+                util_max = float(util_s.max())
+                if end_mbit > 0 and end_mbit <= root_ceil * 1.05 and util_max > 1.25 * root_ceil:
+                    failures.append(
+                        f"{d}: CAPTURE_CONTRACT util_max={util_max:.1f} ≫ "
+                        f"root_ceil={root_ceil:.0f} while recipe end_mbit={end_mbit:.0f}"
+                    )
+                thr = 0.55 * pay_ceil
+                run = best = 0
+                for v in util_s:
+                    if float(v) >= thr:
+                        run += 1
+                        best = max(best, run)
+                    else:
+                        run = 0
+                if best < 15:
+                    failures.append(
+                        f"{d}: CAPTURE_CONTRACT util near-ceil residency "
+                        f"longest_run(≥{thr:.1f}Mbps)={best}s < 15s "
+                        f"(pulsed inject or no plateau — not a learnable ramp)"
+                    )
+                drops = 0
+                vals = util_s.to_numpy(dtype=float)
+                for i in range(1, len(vals)):
+                    if vals[i - 1] >= thr and vals[i] < 1.0:
+                        drops += 1
+                if drops >= 5:
+                    failures.append(
+                        f"{d}: CAPTURE_CONTRACT util high→idle drops={drops} ≥5 "
+                        f"(still pulsing between steps)"
+                    )
             if recipe_key in recipe:
                 recipe_ends.append(
                     float(recipe[recipe_key]) if recipe[recipe_key] is not None else -1

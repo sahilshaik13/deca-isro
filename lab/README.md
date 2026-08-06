@@ -3,7 +3,7 @@
 Desktop/brain helpers for the physical DECA station network (five sites on three Pis + SD-WAN/MPLS/TE).
 
 Topology diagrams: [`docs/STATION_NETWORK_SETUP.md`](../docs/STATION_NETWORK_SETUP.md)  
-Policy catalog: [`docs/DECA_SDWAN_POLICY_RULES.md`](../docs/DECA_SDWAN_POLICY_RULES.md)  
+Policy catalog: [`docs/EDGE_POLICY_LAYERS.md`](../docs/EDGE_POLICY_LAYERS.md)  
 Evidence: [`docs/NETWORK_EXPANSION_FINDINGS.md`](../docs/NETWORK_EXPANSION_FINDINGS.md)
 
 Run from the **brain host on the lab LAN** (typically `192.168.50.1`).

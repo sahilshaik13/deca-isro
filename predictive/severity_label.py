@@ -6,19 +6,23 @@ Root labels 0–5 stay for Decide mapping; severity strings refine urgency:
   1A  rain early (10–18 ms GRE)
   1B  rain critical (19–24 ms)
   1C  rain breach (≥25 ms)
-  2A  CPU moderate (40–70% user)
-  2B  CPU severe (≥70% user)
+  2A  CPU moderate (Pi default 40–70% user; GNS3 may use fabric-native bands)
+  2B  CPU severe (Pi ≥70% user; GNS3 fabric-native)
   3A  BGP mild flap rate
   3B  BGP severe flap rate
   4A  loss moderate (0.5–2% GRE)
   4B  loss breach (≥2% Payload SLA)
-  5A  util elevated (20–35 Mbps GRE through HTB)
-  5B  util near-ceil (≥35 Mbps → root 40 Mbit)
-  6A  CE SLA conflict mild (rogue util 10–18 Mbps)
-  6B  CE SLA conflict severe (rogue util ≥18 Mbps)
+  5A  util elevated — CAPTURE_CONTRACT: scheduled ceil ∈ [0.5·end_mbit, end_mbit);
+      Mbps fallback (no schedule): Pi 20–35 Mbps; GNS3 fabric-native
+  5B  util near-ceil — CAPTURE_CONTRACT: scheduled ceil ≥ end_mbit (plateau/target);
+      Mbps fallback (no schedule): Pi ≥35 Mbps; GNS3 fabric-native
+      Absolute 35 Mbps is unreachable under honest payload-ceil residency (~34.5);
+      schedule-sourced 5B is the contract-correct definition.
+  6A  CE SLA conflict mild (Pi rogue util 10–18 Mbps; GNS3 fabric-native)
+  6B  CE SLA conflict severe (Pi ≥18 Mbps; GNS3 fabric-native)
 
 Windows take the *max* severity seen in the window (worst-case wins).
-New 4*/5*/6* codes are appended so existing 0–3B id encoding stays stable.
+GNS3-native cuts: `severity_bands.fit_gns3_bands` — LABEL-TIME only, not inference remaps.
 """
 from __future__ import annotations
 
@@ -90,12 +94,35 @@ ID_TO_SEVERITY = {i: s for s, i in SEVERITY_TO_ID.items()}
 
 
 def _bgp_rate(series: pd.Series) -> pd.Series:
+    """Instantaneous flaps/sec at 1 Hz (positive diff of cumulative flap count)."""
     v = series.astype(float).ffill().fillna(0.0)
     return v.diff().fillna(0.0).clip(lower=0.0)
 
 
-def label_rows(df: pd.DataFrame, root_label: int) -> pd.Series:
-    """Per-row severity string given the campaign root label."""
+# BGP flaps are bursty: many 1 Hz samples are 0 even during an active flap
+# campaign. Instantaneous rate under-labels the phase as severity "0". A short
+# rolling mean matches how operators (and Q2 windows) see the texture.
+BGP_RATE_ROLL_SEC = 10
+
+
+def _bgp_rate_smooth(series: pd.Series, roll_sec: int = BGP_RATE_ROLL_SEC) -> pd.Series:
+    return _bgp_rate(series).rolling(int(roll_sec), min_periods=1).mean()
+
+
+def label_rows(
+    df: pd.DataFrame,
+    root_label: int,
+    *,
+    bands: dict | None = None,
+) -> pd.Series:
+    """Per-row severity string given the campaign root label.
+
+    Optional ``bands`` overrides CPU/util/CE cutpoints (GNS3-native fit).
+    Latency/loss/BGP stay SLA-tied unless explicitly overridden in ``bands``.
+    """
+    from .severity_bands import PI_BANDS
+
+    b = {**PI_BANDS, **(bands or {})}
     n = len(df)
     out = pd.Series(["0"] * n, index=df.index, dtype=object)
     if root_label == 0:
@@ -108,7 +135,7 @@ def label_rows(df: pd.DataFrame, root_label: int) -> pd.Series:
         else pd.Series(0.0, index=df.index)
     )
     bgp_r = (
-        _bgp_rate(df["bgp_flap_count"])
+        _bgp_rate_smooth(df["bgp_flap_count"])
         if "bgp_flap_count" in df.columns
         else pd.Series(0.0, index=df.index)
     )
@@ -125,32 +152,46 @@ def label_rows(df: pd.DataFrame, root_label: int) -> pd.Series:
 
     if root_label == 1:
         out[:] = "1A"
-        out[lat < 10] = "0"  # still quiet within rain campaign baseline
-        out[(lat >= 10) & (lat < 19)] = "1A"
-        out[(lat >= 19) & (lat < 25)] = "1B"
-        out[lat >= 25] = "1C"
+        out[lat < float(b["lat_1a"])] = "0"
+        out[(lat >= float(b["lat_1a"])) & (lat < float(b["lat_1b"]))] = "1A"
+        out[(lat >= float(b["lat_1b"])) & (lat < float(b["lat_1c"]))] = "1B"
+        out[lat >= float(b["lat_1c"])] = "1C"
     elif root_label == 2:
         out[:] = "0"
-        out[(cpu >= 40) & (cpu < 70)] = "2A"
-        out[cpu >= 70] = "2B"
+        out[(cpu >= float(b["cpu_2a"])) & (cpu < float(b["cpu_2b"]))] = "2A"
+        out[cpu >= float(b["cpu_2b"])] = "2B"
     elif root_label == 3:
-        # rate in flaps/sec over 1 Hz samples; mild vs severe
         out[:] = "0"
-        out[(bgp_r >= 0.2) & (bgp_r < 1.0)] = "3A"
-        out[bgp_r >= 1.0] = "3B"
+        out[(bgp_r >= float(b["bgp_3a"])) & (bgp_r < float(b["bgp_3b"]))] = "3A"
+        out[bgp_r >= float(b["bgp_3b"])] = "3B"
     elif root_label == 4:
         out[:] = "0"
-        out[(loss >= 0.5) & (loss < 2.0)] = "4A"
-        out[loss >= 2.0] = "4B"
+        out[(loss >= float(b["loss_4a"])) & (loss < float(b["loss_4b"]))] = "4A"
+        out[loss >= float(b["loss_4b"])] = "4B"
     elif root_label == 5:
-        out[:] = "0"
-        out[(util >= 20.0) & (util < 35.0)] = "5A"
-        out[util >= 35.0] = "5B"
+        from .util_schedule import (
+            DEFAULT_5A_FRAC_OF_END,
+            DEFAULT_5B_FRAC_OF_END,
+            label_util_severity_from_schedule,
+            series_has_util_schedule,
+        )
+
+        # Prefer schedule ceil vs end_mbit (CAPTURE_CONTRACT). Mbps bands are
+        # legacy fallback only — do not retune util_5b from chaos confusion.
+        if series_has_util_schedule(df):
+            out = label_util_severity_from_schedule(
+                df,
+                frac_5a=float(b.get("util_5a_frac_of_end", DEFAULT_5A_FRAC_OF_END)),
+                frac_5b=float(b.get("util_5b_frac_of_end", DEFAULT_5B_FRAC_OF_END)),
+            )
+        else:
+            out[:] = "0"
+            out[(util >= float(b["util_5a"])) & (util < float(b["util_5b"]))] = "5A"
+            out[util >= float(b["util_5b"])] = "5B"
     elif root_label == 6:
-        # CE SLA conflict: bronze rogue surge visible as util_gre_mbps / ce gauges
         out[:] = "0"
-        out[(util >= 10.0) & (util < 18.0)] = "6A"
-        out[util >= 18.0] = "6B"
+        out[(util >= float(b["ce_6a"])) & (util < float(b["ce_6b"]))] = "6A"
+        out[util >= float(b["ce_6b"])] = "6B"
     return out
 
 
@@ -164,9 +205,14 @@ def window_severity(row_severities: list[str]) -> str:
     return max(row_severities, key=lambda s: SEVERITY_ORDER.index(s) if s in SEVERITY_ORDER else 0)
 
 
-def stamp_series(df: pd.DataFrame, root_label: int) -> pd.DataFrame:
+def stamp_series(
+    df: pd.DataFrame,
+    root_label: int,
+    *,
+    bands: dict | None = None,
+) -> pd.DataFrame:
     d = df.copy()
-    d["severity"] = label_rows(d, root_label)
+    d["severity"] = label_rows(d, root_label, bands=bands)
     d["severity_name"] = d["severity"].map(SEVERITY_NAMES)
     d["root_label"] = root_label
     return d

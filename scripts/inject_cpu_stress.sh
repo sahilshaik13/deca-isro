@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # inject_cpu_stress.sh — Crypto/CPU exhaustion profile (Q2 label 2).
 #
-# Spikes cpu_usage_user on the PE to mimic heavy IPsec crypto load
-# (stress-ng --cpu burns user time; cpu_usage_system alone is a bad L2 signal).
-# Prefers stress-ng when installed; otherwise falls back to a Python burn.
+# CAPTURE_CONTRACT (L2 shape): flat **plateau** burn for --seconds.
+# Primary signal = cpu_usage_user (stress-ng --cpu / python burn = user time).
+# cpu_usage_system alone is a bad L2 signal — smoke fails if user stays flat
+# while only system moves.
 #
 # Usage:
 #   bash scripts/inject_cpu_stress.sh                 # 90s burn on station1

@@ -51,11 +51,13 @@ def align_1hz(df: pd.DataFrame, ts_col: str = "ts_unix") -> pd.DataFrame:
 
 def ema_smooth(df: pd.DataFrame, span: int = 5) -> pd.DataFrame:
     d = df.copy()
-    # PS13-O2.2: derive path asymmetry before EMA so it is smoothed with peers
+    # CAPTURE_CONTRACT: always derive asymmetry from latency; overwrite any stale gauge.
     if "latency_gre_ms" in d.columns and "latency_eth0_ms" in d.columns:
         gre = d["latency_gre_ms"].astype(float)
         eth = d["latency_eth0_ms"].astype(float)
-        d["path_asymmetry_ms"] = (gre - eth).abs()
+        derived = (gre - eth).abs()
+        d["path_asymmetry_ms"] = derived
+        d["path_asymmetry"] = derived
     for c in SMOOTH_COLS:
         if c in d.columns and c not in CUMULATIVE_COLS:
             d[c] = d[c].astype(float).ewm(span=span, adjust=False).mean()

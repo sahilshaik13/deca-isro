@@ -126,16 +126,25 @@ bash "$ROOT/scripts/inject_loss_progression.sh" \
 wait $! || true
 bash "$ROOT/scripts/inject_loss_progression.sh" --clear --host "$HOST" >/dev/null 2>&1 || true
 
-# Phase util congestion
+# Phase util congestion — schedule must reach end_mbit *inside* this phase so
+# CAPTURE_CONTRACT 5B (ceil ≥ end_mbit) is observable on util-root GT windows.
+# end_mbit=34 matches inject payload soft-ceil (~0.85×40); leave plateau margin.
 UTIL_DUR=$(( T5 - T4 ))
 echo "=== chaos util congestion ${UTIL_DUR}s ==="
-UTIL_STEPS=$(( UTIL_DUR / 20 ))
+PLATEAU_SEC=90
+UTIL_RAMP_BUDGET=$(( UTIL_DUR - PLATEAU_SEC - 20 ))
+[[ "$UTIL_RAMP_BUDGET" -lt 60 ]] && UTIL_RAMP_BUDGET=60
+UTIL_STEPS=$(( UTIL_RAMP_BUDGET / 15 ))
 [[ "$UTIL_STEPS" -lt 6 ]] && UTIL_STEPS=6
-UTIL_STEP_SEC=$(( UTIL_DUR / UTIL_STEPS ))
-[[ "$UTIL_STEP_SEC" -lt 10 ]] && UTIL_STEP_SEC=10
+[[ "$UTIL_STEPS" -gt 24 ]] && UTIL_STEPS=24
+UTIL_STEP_SEC=$(( UTIL_RAMP_BUDGET / UTIL_STEPS ))
+[[ "$UTIL_STEP_SEC" -lt 8 ]] && UTIL_STEP_SEC=8
+# Off-nominal vs idle payload ceil (34): end=24 so htb_payload_ceil feature
+# separates 5B plateau from healthy/nominal 34. Offer auto = 2× end (inject).
 bash "$ROOT/scripts/inject_util_congestion.sh" \
   --host "$HOST" --steps "$UTIL_STEPS" --step-sec "$UTIL_STEP_SEC" \
-  --start-mbit 5 --end-mbit 38 \
+  --start-mbit 5 --end-mbit 24 --plateau-sec "$PLATEAU_SEC" \
+  --schedule-out "$OUT/util_ceil_schedule.jsonl" \
   >"$OUT/util.log" 2>&1 &
 wait $! || true
 bash "$ROOT/scripts/inject_util_congestion.sh" --clear --host "$HOST" >/dev/null 2>&1 || true

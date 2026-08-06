@@ -9,7 +9,7 @@ const CLASS_LABEL: Record<string, string> = {
 }
 
 function siteTone(status: string) {
-  if (status === 'alert') return 'warn'
+  if (status === 'alert' || status === 'offline') return 'warn'
   if (status === 'ok') return 'ok'
   return 'mute'
 }

@@ -34,7 +34,16 @@ export function useDecaState() {
   useEffect(() => {
     poll()
     const interval = setInterval(poll, getPollIntervalMs())
-    return () => clearInterval(interval)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void poll()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', onVisible)
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', onVisible)
+    }
   }, [poll])
 
   return { decaState, loading, error, refetch: poll }

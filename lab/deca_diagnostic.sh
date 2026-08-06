@@ -151,12 +151,24 @@ else
 fi
 echo -n "  PE2 underlay (192.168.50.20): "
 ssh -q station1 'ip route get 192.168.50.20 2>/dev/null' | head -1 | sed 's/^/ /'
-if curl -sf --max-time 2 http://192.168.50.10:9273/metrics 2>/dev/null \
-  | grep -q 'sdwan_active_path_value{class="voice",host="station1",path="gre"} 1'; then
+# Labels may include fabric=/pipeline= — match voice+path without requiring exact key order.
+_sdwan_metrics=$(curl -sf --max-time 2 http://192.168.50.10:9273/metrics 2>/dev/null || true)
+if echo "$_sdwan_metrics" | grep -E 'sdwan_active_path_value\{[^}]*class="voice"[^}]*path="gre"[^}]*\} 1' \
+  >/dev/null \
+  || echo "$_sdwan_metrics" | grep -E 'sdwan_active_path_value\{[^}]*path="gre"[^}]*class="voice"[^}]*\} 1' \
+  >/dev/null; then
   echo "  SD-WAN controller voice path: gre-te-core"
-elif curl -sf --max-time 2 http://192.168.50.10:9273/metrics 2>/dev/null \
-  | grep -q 'sdwan_active_path_value{class="voice",host="station1",path="eth0"} 1'; then
+elif echo "$_sdwan_metrics" | grep -E 'sdwan_active_path_value\{[^}]*class="voice"[^}]*path="eth0"[^}]*\} 1' \
+  >/dev/null \
+  || echo "$_sdwan_metrics" | grep -E 'sdwan_active_path_value\{[^}]*path="eth0"[^}]*class="voice"[^}]*\} 1' \
+  >/dev/null; then
   echo "  SD-WAN controller voice path: eth0"
+elif curl -sf --max-time 2 http://127.0.0.1:9280/metrics 2>/dev/null \
+  | grep -q 'sdwan_active_path_code{class="voice"} 1'; then
+  echo "  SD-WAN controller voice path: gre-te-core (controller :9280)"
+elif curl -sf --max-time 2 http://127.0.0.1:9280/metrics 2>/dev/null \
+  | grep -q 'sdwan_active_path{class="voice",path='; then
+  echo "  SD-WAN controller: up on :9280 (check Telegraf scrape)"
 else
   echo "  SD-WAN controller metrics: not present (daemon down or not scraped)"
 fi

@@ -19,7 +19,7 @@ import urllib.parse
 import urllib.request
 from typing import Any, Optional
 
-# CE SLA catalog (must match docs/DECA_SDWAN_POLICY_RULES.md §1b)
+# CE SLA catalog (must match docs/EDGE_POLICY_LAYERS.md §2)
 CE_SLA: dict[str, dict[str, Any]] = {
     "ce-a": {"site": "NRSC", "tier": "Gold", "availability": 99.9, "host": "station1"},
     "ce-b": {"site": "SAC", "tier": "Silver", "availability": 99.5, "host": "station2"},

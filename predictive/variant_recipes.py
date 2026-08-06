@@ -20,18 +20,28 @@ TRAFFIC_PROFILES = ("idle", "ttc_light", "payload_medium", "mixed")
 FAULT_TRAFFIC = ("ttc_light", "payload_medium", "mixed", "idle")  # rotate; includes idle cell
 
 # Primary knob grids — indexed (never random-collision) for uniqueness.
-L1_ENDS = [22, 30, 40, 55, 70, 90, 110, 45]
-L1_INJECT = [600, 900, 1200, 1800, 600, 900, 1200, 1500]
-L2_WORKERS = [1, 2, 3, 0, 1, 2, 3, 0]  # paired with distinct inject below
-L2_INJECT = [300, 300, 300, 300, 600, 600, 900, 900]
+#
+# CAPTURE_CONTRACT campaign trim (2026-08-05) — locked:
+#   Trim: L2/L3 inject wall-clock (fast-onset); L1/L4 variant *count* (already strong).
+#   Keep: L5/L6 plateau length, COMPOUND×8, chaos_holdout 7200s, per-class window floor.
+L1_ENDS = [30, 55, 90, 110]  # 4 variants (was 8) — still covers FAULT_TRAFFIC
+L1_INJECT = [600, 900, 1200, 1500]  # keep inject length for latency/jitter TTI density
+L2_WORKERS = [1, 2, 3, 0, 1, 2, 3, 0]
+L2_INJECT = [120, 150, 180, 240, 135, 165, 210, 270]  # unique × traffic; was 300–900
 L3_PERIOD = [3, 5, 8, 12, 4, 6, 10, 7]
-L3_INJECT = [300, 360, 420, 480, 540, 600, 720, 900]
+L3_INJECT = [120, 150, 180, 240, 135, 165, 210, 270]  # unique; was 300–900
 # Keep ≥5%: edge ping is -c 15; still need headroom above SLA (2%) for texture.
-L4_ENDS = [5.0, 8.0, 10.0, 12.0, 15.0, 7.0, 9.0, 18.0]
-L4_INJECT = [300, 300, 480, 480, 600, 600, 480, 300]
-L5_ENDS = [20, 28, 35, 42, 50, 24, 32, 45]
+L4_ENDS = [5.0, 8.0, 12.0, 18.0]  # 4 variants (was 8)
+L4_INJECT = [300, 480, 600, 480]  # keep length — loss TTI window floor lesson (n=41 was too thin)
+# Keep ends ≤ fabric payload soft ceil (~34 on 40 Mbit WAN parent). Ends above
+# parent cannot appear in eth0 util even with offer≫ceil — measured Mbps then
+# tracks offer/WAN, not the programmed class ceil (util 5A/5B info gap).
+L5_ENDS = [12, 16, 20, 24, 28, 30, 32, 34]
 L5_INJECT = [300, 300, 480, 480, 600, 600, 480, 300]
+L5_PLATEAU = [40, 45, 40, 45, 50, 40, 45, 40]  # do not trim — residency shape fix
 CE_ROGUE = [12, 16, 20, 24]
+# Full-plan variant counts per label (L0 separate)
+FULL_N_VARIANTS = {1: 4, 2: 8, 3: 8, 4: 4, 5: 8}
 
 
 def _pick(rng: random.Random, choices: list):
@@ -186,7 +196,7 @@ def recipe_for(label: int, variant_idx: int, *, mode: str, seed: int) -> dict:
             }
         if label == 5:
             # Util inject owns traffic — keep profile idle
-            end_mbit = 22 if variant_idx % 2 == 0 else 42
+            end_mbit = 18 if variant_idx % 2 == 0 else 30
             inject = 90 if variant_idx % 2 == 0 else 120
             return {
                 **base,
@@ -266,6 +276,7 @@ def recipe_for(label: int, variant_idx: int, *, mode: str, seed: int) -> dict:
             "end_mbit": L5_ENDS[i % len(L5_ENDS)],
             "parallel": [1, 2, 3, 2][i % 4],
             "step_sec": [12, 15, 20, 15][i % 4],
+            "plateau_sec": L5_PLATEAU[i % len(L5_PLATEAU)],
             "traffic_profile": "idle",  # util inject owns the path
         }
     raise ValueError(label)
@@ -335,7 +346,7 @@ def compound_recipe(variant_idx: int, *, mode: str, seed: int) -> dict:
         "faults": faults,
         "rain_end_ms": 40 if mode == "quick" else _pick(rng, [35, 50, 70]),
         "loss_end_pct": 10.0 if mode == "quick" else _pick(rng, [2.0, 3.5, 5.0]),
-        "util_end_mbit": 35 if mode == "quick" else _pick(rng, [25, 35, 45]),
+        "util_end_mbit": 28 if mode == "quick" else _pick(rng, [16, 24, 32]),
         "cpu_workers": 1 if mode == "quick" else _pick(rng, [1, 2, 0]),
         "bgp_period_sec": _pick(rng, [4, 5, 8]),
         "traffic_profile": "ttc_light" if mode == "quick" else FAULT_TRAFFIC[variant_idx % len(FAULT_TRAFFIC)],
@@ -387,6 +398,52 @@ def assert_plan_coverage(jobs: list[dict], *, mode: str) -> dict:
             )
         return report
 
+    if mode == "util_clean":
+        # Redo-only: L0 util NaN fix + L5 schedule/plateau + util-bearing compounds.
+        if len(by_lab.get(0, [])) < 1:
+            failures.append("util_clean needs ≥1 L0 baseline")
+        if len(by_lab.get(5, [])) != FULL_N_VARIANTS[5]:
+            failures.append(
+                f"util_clean needs L5×{FULL_N_VARIANTS[5]}, got {len(by_lab.get(5, []))}"
+            )
+        if by_lab.get(5):
+            bad = [r["variant_idx"] for r in by_lab[5] if r.get("traffic_profile") != "idle"]
+            if bad:
+                failures.append(f"L5 must use traffic_profile=idle; bad v={bad}")
+            short_plat = [
+                r["variant_idx"]
+                for r in by_lab[5]
+                if int(r.get("plateau_sec") or 0) < 40
+            ]
+            if short_plat:
+                failures.append(f"L5 plateau_sec must be ≥40; bad v={short_plat}")
+        compounds = [j for j in jobs if j["job"] == "compound"]
+        util_compounds = [
+            j for j in compounds if "util_congestion" in (j["recipe"].get("faults") or [])
+        ]
+        if len(util_compounds) < 3:
+            failures.append(
+                f"util_clean needs ≥3 util-bearing compounds, got {len(util_compounds)}"
+            )
+        report = {
+            "ok": not failures,
+            "failures": failures,
+            "n_jobs": len(jobs),
+            "n_labeled": len(labeled),
+            "n_compound": len(compounds),
+            "n_util_compound": len(util_compounds),
+            "focus": ["L0", "L5", "COMPOUND_util"],
+            "note": (
+                "supersedes backfilled util_ceil_schedule / L0 util NaN fill on the "
+                "contract stamp for util Q1 / util features"
+            ),
+        }
+        if failures:
+            raise SystemExit(
+                "PLAN COVERAGE FAILED (accuracy contract):\n  - " + "\n  - ".join(failures)
+            )
+        return report
+
     # traffic × fault matrix (labels 1–4); L5 idle-only by design (util owns path)
     for lab in (1, 2, 3, 4):
         profiles = {r.get("traffic_profile") for r in by_lab.get(lab, [])}
@@ -401,6 +458,21 @@ def assert_plan_coverage(jobs: list[dict], *, mode: str) -> dict:
         bad = [r["variant_idx"] for r in by_lab[5] if r.get("traffic_profile") != "idle"]
         if bad:
             failures.append(f"L5 must use traffic_profile=idle (util owns path); bad v={bad}")
+        short_plat = [
+            r["variant_idx"]
+            for r in by_lab[5]
+            if int(r.get("plateau_sec") or 0) < 40
+        ]
+        if mode == "full" and short_plat:
+            failures.append(
+                f"L5 plateau_sec must be ≥40 (CAPTURE_CONTRACT residency); bad v={short_plat}"
+            )
+
+    if mode == "full":
+        for lab, need in FULL_N_VARIANTS.items():
+            got = len(by_lab.get(lab, []))
+            if got != need:
+                failures.append(f"L{lab} full needs {need} variants, got {got}")
 
     ce = [j for j in jobs if j["job"] == "ce_sla"]
     if mode == "smoke" and len(ce) < 1:
@@ -478,12 +550,12 @@ def smoke_plan(seed: int = 42) -> list[dict]:
 
 
 def full_plan(seed: int = 42) -> list[dict]:
-    """Day-scale: 8 unique variants/fault (covers 4 traffic × 2 knobs) + CE + compound + chaos."""
+    """Contract-trimmed full hunt: short L2/L3, fewer L1/L4, keep L5/L6/COMPOUND/chaos."""
     jobs: list[dict] = []
     jobs.append({"job": "labeled", "recipe": recipe_for(0, 0, mode="full", seed=seed)})
-    # 8 = len(FAULT_TRAFFIC) * 2 unique knob levels
     for lab in (1, 2, 3, 4, 5):
-        for v in range(8):
+        n = FULL_N_VARIANTS[lab]
+        for v in range(n):
             jobs.append({"job": "labeled", "recipe": recipe_for(lab, v, mode="full", seed=seed)})
     for v in range(4):
         jobs.append({"job": "ce_sla", "recipe": ce_sla_recipe(v, mode="full", seed=seed)})
@@ -496,11 +568,31 @@ def full_plan(seed: int = 42) -> list[dict]:
                 "kind": "chaos_holdout",
                 "mode": "full",
                 "seconds": 7200,
-                "note": "never train on this capture",
+                "note": "never train on this capture — do not trim sealed exam",
                 "traffic_profiles_cycled": list(FAULT_TRAFFIC),
             },
         }
     )
+    return jobs
+
+
+# Full-plan compound variant_idx values that include util_congestion (seed=42 patterns).
+UTIL_CLEAN_COMPOUND_VARIANTS = (2, 3, 6)
+
+
+def util_clean_plan(seed: int = 42) -> list[dict]:
+    """Clean redo for corrupt util path: L0 + L5×8 (plateau+schedule) + util compounds.
+
+    Use after a contract stamp that had GNS3 L0 util NaNs and/or missing
+    ``util_ceil_schedule.jsonl`` / no plateau. Same inject knobs as full (seed-locked).
+    """
+    jobs: list[dict] = []
+    jobs.append({"job": "labeled", "recipe": recipe_for(0, 0, mode="util_clean", seed=seed)})
+    for v in range(FULL_N_VARIANTS[5]):
+        jobs.append({"job": "labeled", "recipe": recipe_for(5, v, mode="util_clean", seed=seed)})
+    for v in UTIL_CLEAN_COMPOUND_VARIANTS:
+        # compound_recipe totals follow full (non-smoke/quick) branch
+        jobs.append({"job": "compound", "recipe": compound_recipe(v, mode="util_clean", seed=seed)})
     return jobs
 
 
@@ -513,6 +605,9 @@ def estimate_seconds(plan: list[dict]) -> int:
                 est += int(r.get("seconds", 60))
             else:
                 est += int(r.get("baseline_sec", 0)) + int(r.get("inject_sec", 0)) + int(r.get("post_sec", 0))
+                # L5 tc-ramp adds plateau after step ramp (CAPTURE_CONTRACT)
+                if r.get("name") == "util_congestion":
+                    est += int(r.get("plateau_sec") or 40)
         elif j["job"] == "compound":
             est += int(r["total_sec"])
         elif j["job"] == "chaos_holdout":
@@ -522,7 +617,11 @@ def estimate_seconds(plan: list[dict]) -> int:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--mode", choices=("smoke", "full", "quick"), required=True)
+    ap.add_argument(
+        "--mode",
+        choices=("smoke", "full", "quick", "util_clean"),
+        required=True,
+    )
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--out", required=True, help="write plan JSON")
     args = ap.parse_args()
@@ -530,6 +629,8 @@ def main() -> None:
         plan = smoke_plan(args.seed)
     elif args.mode == "quick":
         plan = quick_plan(args.seed)
+    elif args.mode == "util_clean":
+        plan = util_clean_plan(args.seed)
     else:
         plan = full_plan(args.seed)
     coverage = assert_plan_coverage(plan, mode=args.mode)
@@ -544,12 +645,32 @@ def main() -> None:
         "est_hours": round(est / 3600, 2),
         "accuracy_contract": {
             "unique_recipes": True,
-            "traffic_x_fault_matrix": True,
-            "ce_sla_track": True,
+            "traffic_x_fault_matrix": args.mode != "util_clean",
+            "ce_sla_track": args.mode in ("smoke", "full"),
             "compound_train": True,
             "chaos_holdout_never_train": args.mode == "full",
             "group_holdout_retrain": True,
             "best_honest_q1_q2_path": True,
+            "util_clean_redo": args.mode == "util_clean",
+            "campaign_trim": {
+                "l2_l3_short_inject": True,
+                "l1_l4_fewer_variants": True,
+                "keep_l5_l6_plateau": True,
+                "keep_compound_x8": True,
+                "keep_chaos_7200": True,
+                "full_n_variants": FULL_N_VARIANTS,
+                "post_run_window_floor_check": (
+                    "python -m predictive.check_q1_window_floors --protocol-dir <stamp> "
+                    "(loss/jitter stride=1 densify; soft≥100 hard≥50 — n=41 thin-class lesson)"
+                ),
+                "l4_x4_requires_loss_stride1": True,
+                "util_clean_scope": (
+                    "L0 + L5×8 + util compounds (v2/v3/v6) — prefer over backfilled "
+                    "schedules/NaN fills from the contract stamp"
+                )
+                if args.mode == "util_clean"
+                else None,
+            },
             "coverage": coverage,
         },
         "jobs": plan,

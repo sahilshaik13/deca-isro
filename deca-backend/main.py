@@ -334,20 +334,22 @@ def health():
 def get_dashboard():
     if telemetry_service is None:
         # Orchestrator-light: live Prom network snapshot (no ML/GGUF required)
-        from prometheus_feed import fetch_live_network
+        from prometheus_feed import fetch_live_network, raw_to_display
 
         fleet = orchestrator.get_fleet()
         live = fetch_live_network()
         stations = live.get("stations") or []
         raw = live.get("raw") or {}
+        ts = str(live.get("timestamp") or "")
+        display = live.get("metrics") or raw_to_display(raw, ts)
         return sanitize_for_json(
             {
                 "source": "prometheus" if live.get("prometheus_reachable") else "orchestrator_light",
                 "fabric": live.get("fabric") or fleet.get("fabric"),
                 "prometheus": live.get("prometheus") or fleet.get("prometheus"),
                 "prometheus_reachable": bool(live.get("prometheus_reachable")),
-                "metrics": raw,
-                "history": [],
+                "metrics": display,
+                "history": [display] if display else [],
                 "stations": stations,
                 "prediction": {"predicted_issue": "normal", "confidence_score": 0.0},
                 "copilot": _format_copilot(None, {"predicted_issue": "normal"}),
@@ -358,9 +360,10 @@ def get_dashboard():
                     "confidence_score": 0.0,
                     "time_to_impact_minutes": None,
                     "contributing_signals": {},
-                    "metrics_summary": raw,
+                    "metrics_summary": display,
                 },
                 "timestamp": live.get("timestamp"),
+                "last_updated": live.get("timestamp"),
                 "note": "Light mode: live Prometheus telemetry (ML path needs DECA_HEAVY_INIT=1).",
             }
         )

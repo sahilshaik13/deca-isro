@@ -3,7 +3,7 @@
 ## Description
 A **lower-SLA (Bronze/Silver) CE** surges bandwidth (quiet **2–3 Mbps** → **~15–20 Mbps**) and endangers a **higher-SLA (Gold) CE** on the same PE/WAN. Mentor framing: NOC uptime / rogue consumer — **not** a security appliance.
 
-Canonical tiers: [`docs/DECA_SDWAN_POLICY_RULES.md`](../../docs/DECA_SDWAN_POLICY_RULES.md) §1b.
+Canonical tiers: [`docs/EDGE_POLICY_LAYERS.md`](../../docs/EDGE_POLICY_LAYERS.md) §2.
 
 | Role | Default lab binding |
 | --- | --- |

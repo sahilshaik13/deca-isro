@@ -50,7 +50,10 @@ def build_windows(
 ) -> tuple[pd.DataFrame, dict]:
     if target_col not in df.columns:
         raise SystemExit(f"missing {target_col} in series")
+    if "ts_unix" not in df.columns:
+        raise SystemExit("missing ts_unix — CAPTURE_CONTRACT requires timestamps for ETA")
     series = df[target_col].astype(float).to_numpy()
+    ts = df["ts_unix"].astype(int).to_numpy()
     breach = find_breach_idx(series, sla)
     meta = {
         "n_rows": int(len(df)),
@@ -59,11 +62,12 @@ def build_windows(
         "sla_pct": sla if target_col == LOSS_COL else None,
         "target_col": target_col,
         "breach_idx": breach,
-        "breach_ts": int(df.loc[breach, "ts_unix"]) if breach is not None else None,
+        "breach_ts": int(ts[breach]) if breach is not None else None,
         "breach_value": float(series[breach]) if breach is not None else None,
         "win": win,
         "stride": stride,
         "latency_col": target_col,
+        "eta_basis": "ts_unix",  # CAPTURE_CONTRACT B
     }
 
     feature_cols = [
@@ -86,12 +90,13 @@ def build_windows(
         end = start + win
         sl = df.iloc[start:end]
         tgt_w = sl[target_col].astype(float).to_numpy()
-        # ETA label: seconds until first breach (only defined before breach)
+        end_ts = int(ts[end - 1])
+        # ETA label: wall seconds until first breach (CAPTURE_CONTRACT: ts-based)
         if breach is None:
-            eta = float(len(df) - end)
+            eta = float(max(0, int(ts[-1]) - end_ts))
             usable = False
         elif end <= breach:
-            eta = float(breach - end + 1)  # seconds remaining after window end
+            eta = float(max(0, int(ts[breach]) - end_ts))
             usable = True
         else:
             continue
@@ -101,7 +106,7 @@ def build_windows(
             "start_idx": start,
             "end_idx": end,
             "start_ts": int(sl["ts_unix"].iloc[0]),
-            "end_ts": int(sl["ts_unix"].iloc[-1]),
+            "end_ts": end_ts,
             "target_mean": float(np.nanmean(tgt_w)),
             "target_max": float(np.nanmax(tgt_w)),
             "target_slope": slope(np.nan_to_num(tgt_w, nan=0.0)),
@@ -142,8 +147,18 @@ def main() -> None:
         default="",
         help="override target column (default latency_gre_ms or loss_gre_pct)",
     )
-    ap.add_argument("--preprocess", action="store_true", help="1 Hz align + EMA before windows")
+    ap.add_argument(
+        "--preprocess",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="1 Hz align + EMA before windows (CAPTURE_CONTRACT default: on)",
+    )
     ap.add_argument("--ema-span", type=int, default=5)
+    ap.add_argument(
+        "--schedule",
+        default="",
+        help="util ceil schedule JSONL (CAPTURE_CONTRACT) — gates util TTI labels",
+    )
     ap.add_argument("--prefix", default="q1", help="output file prefix (q1 or q1_loss)")
     args = ap.parse_args()
 
@@ -161,9 +176,32 @@ def main() -> None:
         from .preprocess import align_1hz, ema_smooth
 
         df = ema_smooth(align_1hz(df), span=args.ema_span)
-    windows, meta = build_windows(
-        df, win=args.win, stride=args.stride, sla=sla, target_col=target_col
-    )
+
+    schedule_path = Path(args.schedule).resolve() if args.schedule else None
+    if not schedule_path and target_col == "util_gre_mbps":
+        # Convention: alongside series.csv from run_q2_campaign L5
+        cand = capture.parent / "util_ceil_schedule.jsonl"
+        if cand.exists():
+            schedule_path = cand
+
+    if schedule_path is not None:
+        if target_col != "util_gre_mbps":
+            raise SystemExit("--schedule only valid with --target-col util_gre_mbps")
+        from .util_schedule import build_util_windows_contract
+
+        windows, meta = build_util_windows_contract(
+            df, schedule_path, win=args.win, stride=args.stride
+        )
+    else:
+        if target_col == "util_gre_mbps":
+            print(
+                "WARN: util windows without ceil schedule — eth0 confound risk "
+                "(CAPTURE_CONTRACT). Pass --schedule or write util_ceil_schedule.jsonl.",
+                flush=True,
+            )
+        windows, meta = build_windows(
+            df, win=args.win, stride=args.stride, sla=sla, target_col=target_col
+        )
     usable = windows[windows["label_usable"] == True] if not windows.empty else windows  # noqa: E712
 
     prefix = args.prefix
@@ -180,7 +218,13 @@ def main() -> None:
     meta_out.write_text(json.dumps(meta, indent=2) + "\n")
 
     print(json.dumps({"meta": meta, "wrote": str(usable_out)}, indent=2))
-    if meta["breach_idx"] is None:
+    if meta.get("util_label_mode") == "schedule_gated":
+        if meta.get("util_breach_ts") is None:
+            print(
+                "WARN: schedule never reached end_mbit — check util_ceil_schedule.jsonl",
+                flush=True,
+            )
+    elif meta.get("breach_idx") is None:
         print(
             f"WARN: {target_col} never reached SLA={sla} — lower SLA or use synth_loss_progression",
             flush=True,

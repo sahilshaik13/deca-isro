@@ -13,8 +13,8 @@ exec "$PY" -m predictive.infer_q1_q2_live \
   --q2-model "${PM}/xgb_q2_sev/q2_severity.joblib" \
   --q1-loss-model "${PM}/lstm_q1_loss/q1_loss_tti_lstm.keras" \
   --q1-loss-scaler "${PM}/lstm_q1_loss/q1_loss_scaler.npz" \
-  --q1-jitter-model "${PM}/lstm_q1_jitter/q1_jitter_tti_lstm.keras" \
-  --q1-jitter-scaler "${PM}/lstm_q1_jitter/q1_jitter_scaler.npz" \
+  --q1-jitter-model "${PM}/lstm_q1_jitter_stride1/q1_jitter_tti_lstm.keras" \
+  --q1-jitter-scaler "${PM}/lstm_q1_jitter_stride1/q1_jitter_scaler.npz" \
   --q1-util-model "${PM}/lstm_q1_util/q1_util_tti_lstm.keras" \
   --q1-util-scaler "${PM}/lstm_q1_util/q1_util_scaler.npz" \
   "$@"

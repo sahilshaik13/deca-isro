@@ -22,6 +22,21 @@ fi
 [[ -n "$STAMP" ]] || { echo "No STAMP / ACTIVE_STAMP.json"; exit 2; }
 
 OUT_ROOT="$ROOT/data/deca/predictive/protocol/$STAMP"
+
+# Competition / post-complete guard: do not reopen a finished stamp or idle ACTIVE.
+if [[ -f "$ACTIVE_JSON" ]]; then
+  _resume="$(python3 -c 'import json;d=json.load(open("'"$ACTIVE_JSON"'"));print(str(d.get("resume",True)).lower());print(d.get("mode",""))' 2>/dev/null || true)"
+  _mode="$(echo "$_resume" | sed -n '2p')"
+  _resume="$(echo "$_resume" | sed -n '1p')"
+  if [[ "$_resume" == "false" || "$_mode" == "idle" ]]; then
+    echo "ACTIVE_STAMP resume=false/mode=idle — refuse auto-resume (stamp=$STAMP)"
+    exit 0
+  fi
+fi
+if [[ -f "$OUT_ROOT/ACTIVE_DONE" ]]; then
+  echo "ACTIVE_DONE present for $STAMP — refuse auto-resume of completed campaign"
+  exit 0
+fi
 L0="$OUT_ROOT/L0_normal/iter_01"
 SERIES="$L0/series.csv"
 LOG="$ROOT/data/deca/predictive/protocol/full_${STAMP}.resume.log"

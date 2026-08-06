@@ -37,7 +37,7 @@ Embeddings model: **`nomic-embed-text`** (~274 MB). Chat model: **`phi3`** (load
 | Doc | Path | Role in RAG |
 | --- | --- | --- |
 | Process flow | [`docs/DECA_SDWAN_PROCESS_FLOW.md`](./DECA_SDWAN_PROCESS_FLOW.md) | End-to-end planes + AI NOC path + dual Flow 2 |
-| Policy catalog | [`docs/DECA_SDWAN_POLICY_RULES.md`](./DECA_SDWAN_POLICY_RULES.md) | SLAs, ToS, HTB, hysteresis, dual-fabric §1c |
+| Policy catalog | [`docs/EDGE_POLICY_LAYERS.md`](./EDGE_POLICY_LAYERS.md) | Complete AAR / CE / QoS / security / failover catalog |
 | Station network | [`docs/STATION_NETWORK_SETUP.md`](./STATION_NETWORK_SETUP.md) | Addressing, interfaces, restore |
 | Predictive plan | [`docs/DECA_PREDICTIVE_ENGINE_PLAN.md`](./DECA_PREDICTIVE_ENGINE_PLAN.md) | Q1/Q2/Q3 meanings, red gate, severity |
 | Predictive README | [`predictive/README.md`](../predictive/README.md) | How captures / protocol / live gate work |

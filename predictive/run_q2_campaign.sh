@@ -36,6 +36,7 @@ END_MBIT=38
 PARALLEL=2
 TRAFFIC_PROFILE=idle
 ROGUE_MBIT=20
+PLATEAU_SEC=40
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -74,6 +75,7 @@ mapping={
   "link_bounce":"LINK_BOUNCE","start_pct":"START_PCT","end_pct":"END_PCT",
   "start_mbit":"START_MBIT","end_mbit":"END_MBIT","parallel":"PARALLEL",
   "traffic_profile":"TRAFFIC_PROFILE","rogue_mbit":"ROGUE_MBIT",
+  "plateau_sec":"PLATEAU_SEC",
 }
 for rk, sk in mapping.items():
     if rk in r:
@@ -135,7 +137,10 @@ if [[ "$LABEL" -eq 0 || "$LABEL" -eq 5 || "$LABEL" -eq 6 ]]; then
 fi
 
 export PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}"
+# Pin fabric=pi so ambient DECA_FABRIC=gns3 cannot retarget PromQL off :9090.
+export DECA_FABRIC=pi
 "$PY" -m predictive.capture_live \
+  --fabric pi \
   --prom "$PROM" \
   --out "$OUT/series.csv" \
   --seconds "$TOTAL_SEC" \
@@ -193,6 +198,7 @@ elif [[ "$LABEL" -eq 3 ]]; then
   BGP_ARGS=(--host "$HOST" --cycles "$CYCLES" --period-sec "$PERIOD_SEC")
   [[ "$LINK_BOUNCE" == "1" ]] && BGP_ARGS+=(--link-bounce)
   bash "$ROOT/scripts/inject_bgp_flap.sh" "${BGP_ARGS[@]}" \
+    --schedule-out "$OUT/bgp_flap_schedule.jsonl" \
     >"$OUT/inject.log" 2>&1 &
   wait $! || true
 elif [[ "$LABEL" -eq 4 ]]; then
@@ -205,21 +211,22 @@ elif [[ "$LABEL" -eq 4 ]]; then
     >"$OUT/inject.log" 2>&1 &
   wait $! || true
 elif [[ "$LABEL" -eq 5 ]]; then
-  echo "=== inject util ${INJECT_SEC}s end_mbit=$END_MBIT ==="
+  echo "=== inject util ${INJECT_SEC}s end_mbit=$END_MBIT plateau=${PLATEAU_SEC}s ==="
   STEPS=$(( INJECT_SEC / STEP_SEC ))
   [[ "$STEPS" -lt 6 ]] && STEPS=6
+  [[ "$PLATEAU_SEC" -lt 40 ]] && PLATEAU_SEC=40
+  # CAPTURE_CONTRACT: ceil schedule sidecar — util TTI labels must not use raw eth0
   bash "$ROOT/scripts/inject_util_congestion.sh" \
     --host "$HOST" --steps "$STEPS" --step-sec "$STEP_SEC" \
     --start-mbit "$START_MBIT" --end-mbit "$END_MBIT" --parallel "$PARALLEL" \
+    --plateau-sec "$PLATEAU_SEC" \
+    --schedule-out "$OUT/util_ceil_schedule.jsonl" \
     >"$OUT/inject.log" 2>&1 &
   wait $! || true
 elif [[ "$LABEL" -eq 6 ]]; then
-  echo "=== inject CE SLA conflict ${INJECT_SEC}s rogue_mbit=$ROGUE_MBIT ==="
-  STEPS=$(( INJECT_SEC / 18 ))
-  [[ "$STEPS" -lt 4 ]] && STEPS=4
+  echo "=== inject CE SLA conflict ${INJECT_SEC}s rogue_mbit=$ROGUE_MBIT (continuous plateau) ==="
   bash "$ROOT/scripts/inject_ce_sla_conflict.sh" --host "$HOST" --force-clear \
-    --start-mbit "${START_MBIT:-2}" --rogue-mbit "$ROGUE_MBIT" \
-    --steps "$STEPS" --step-sec 18 \
+    --rogue-mbit "$ROGUE_MBIT" --hold-sec "$INJECT_SEC" \
     >"$OUT/inject.log" 2>&1 &
   wait $! || true
 fi

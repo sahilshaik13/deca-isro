@@ -22,7 +22,7 @@ RECIPE_JSON=""
 START_MS=2; END_MS=45; STEP_SEC=5; JITTER_MS=5
 WORKERS=0; PERIOD_SEC=5; CYCLES=0
 START_PCT=0; END_PCT=3.5
-START_MBIT=5; END_MBIT=38
+START_MBIT=5; END_MBIT=38; PLATEAU_SEC=40; PARALLEL=1
 TRAFFIC_PROFILE=idle; ROGUE_MBIT=20
 
 while [[ $# -gt 0 ]]; do
@@ -52,6 +52,7 @@ mapping={
   "seconds":"SECONDS_ONLY","start_ms":"START_MS","end_ms":"END_MS","step_sec":"STEP_SEC",
   "jitter_ms":"JITTER_MS","workers":"WORKERS","period_sec":"PERIOD_SEC","cycles":"CYCLES",
   "start_pct":"START_PCT","end_pct":"END_PCT","start_mbit":"START_MBIT","end_mbit":"END_MBIT",
+  "plateau_sec":"PLATEAU_SEC","parallel":"PARALLEL",
   "traffic_profile":"TRAFFIC_PROFILE","rogue_mbit":"ROGUE_MBIT",
 }
 for rk, sk in mapping.items():
@@ -137,8 +138,13 @@ elif [[ "$LABEL" -eq 4 ]]; then
   wait $! || true
 elif [[ "$LABEL" -eq 5 ]]; then
   STEPS=$(( INJECT_SEC / STEP_SEC )); [[ "$STEPS" -lt 6 ]] && STEPS=6
+  [[ "$PLATEAU_SEC" -lt 40 ]] && PLATEAU_SEC=40
+  echo "=== gns3 util ${INJECT_SEC}s end_mbit=$END_MBIT plateau=${PLATEAU_SEC}s ==="
   STEPS=$STEPS STEP_SEC=$STEP_SEC START_MBIT=$START_MBIT END_MBIT=$END_MBIT \
-    bash "$INJ/util_congestion.sh" >"$OUT/inject.log" 2>&1 &
+    PLATEAU_SEC=$PLATEAU_SEC \
+    bash "$INJ/util_congestion.sh" \
+      --schedule-out "$OUT/util_ceil_schedule.jsonl" \
+      >"$OUT/inject.log" 2>&1 &
   wait $! || true
 elif [[ "$LABEL" -eq 6 ]]; then
   STEPS=$(( INJECT_SEC / 15 )); [[ "$STEPS" -lt 4 ]] && STEPS=4

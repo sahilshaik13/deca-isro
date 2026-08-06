@@ -332,7 +332,7 @@ Differentiation holds **through the encrypted underlay** now that outer DSCP is 
 
 **Gap closed:** Application-aware dynamic path selection over the Phase B dual-cost underlay. IPsec + BGP/OSPF + QoS were already present; the controller polls path health, applies per-class thresholds with hysteresis, resolves conflicts, actuates underlay, and emits controller telemetry (`PS13-D4`).
 
-**Authoritative live policy:** [`DECA_SDWAN_POLICY_RULES.md`](./DECA_SDWAN_POLICY_RULES.md) (TT&C + Payload AAR, security, QoS, `enter_k=3` / `exit_k=10`, HITL). Historical verify evidence below used the earlier voice/video naming and looser SLAs — mechanics unchanged.
+**Authoritative live policy:** [`EDGE_POLICY_LAYERS.md`](./EDGE_POLICY_LAYERS.md) (TT&C + Payload AAR, security, QoS, `enter_k=3` / `exit_k=10`, HITL). Historical verify evidence below used the earlier voice/video naming and looser SLAs — mechanics unchanged.
 
 **This is not a commercial SD-WAN product.** Lab demonstration: **TT&C/EF + Payload/AF41**, two paths, site pair **SAC↔NRSC**. Admin/BE is scavenger / eth0-pinned (never steers alone).
 

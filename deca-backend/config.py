@@ -34,6 +34,13 @@ def _env_int(key: str, default: int) -> int:
     return int(raw.strip())
 
 
+def _env_float(key: str, default: float) -> float:
+    raw = os.environ.get(key)
+    if raw is None or not raw.strip():
+        return default
+    return float(raw.strip())
+
+
 def _env_bool(key: str, default: bool) -> bool:
     raw = os.environ.get(key)
     if raw is None:
@@ -118,6 +125,8 @@ RPI_AUTO_DISCOVER = _env_bool("DECA_RPI_AUTO_DISCOVER", True)
 TELEMETRY_HISTORY_LEN = _env_int("DECA_TELEMETRY_HISTORY_LEN", 60)
 # PromQL rate() lookback — 1m reacts quickly on the dashboard; 5m is smoother but slow to ramp
 PROMETHEUS_RATE_WINDOW = _env_str("DECA_PROMETHEUS_RATE_WINDOW", "1m")
+# Instant-query gauges linger ~5m after scrape death; treat samples older than this as down.
+PROM_STALE_SEC = _env_float("DECA_PROM_STALE_SEC", 15.0)
 FEATURE_STEP_SECONDS = _env_int("DECA_FEATURE_STEP_SECONDS", 3)
 FEATURE_WINDOW_MINUTES = _env_int("DECA_FEATURE_WINDOW_MINUTES", 10)
 

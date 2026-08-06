@@ -2,7 +2,7 @@
 ## Description
 Identified when localized router configurations diverge from the central controller intent, leading to unexpected path selection or SLA failures.
 
-Authoritative intent: [`docs/DECA_SDWAN_POLICY_RULES.md`](../../docs/DECA_SDWAN_POLICY_RULES.md).
+Authoritative intent: [`docs/EDGE_POLICY_LAYERS.md`](../../docs/EDGE_POLICY_LAYERS.md).
 Lab drift inject flag: `data/rpi-net/sdwan_policy_drift.flag` (controller forces misconfigured underlay).
 
 ## Diagnostic Steps

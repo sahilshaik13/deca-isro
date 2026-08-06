@@ -140,7 +140,7 @@ Design scripts (`lab/deca_dual_core_bootstrap.sh`) can split station3 into CORE-
 | `vrf-admin` *(PS13: vrf-default)* | Administrative / default | **Pinned to `eth0`** — never on mission MPLS core |
 
 Full aerospace policy catalog (AAR SLAs, QoS, security, hysteresis, HITL, air-gap):
-[`DECA_SDWAN_POLICY_RULES.md`](./DECA_SDWAN_POLICY_RULES.md).
+[`EDGE_POLICY_LAYERS.md`](./EDGE_POLICY_LAYERS.md).
 End-to-end process (management → CE/AAR/IPsec → PE/VRF/P → DC):
 [`DECA_SDWAN_PROCESS_FLOW.md`](./DECA_SDWAN_PROCESS_FLOW.md).
 
@@ -219,7 +219,7 @@ TT&C (ToS `0x88`, SLA ≤25 ms / ≤5 ms / ≤0.1%) + Payload (ToS `0x80`, ≤80
 `enter_k=3` / `exit_k=10`; TT&C preempts on conflict; metrics `:9280`.
 Traffic: **iperf3 only** (`lab/deca_iperf_qos_traffic.sh`) — **no Cisco TRex**.
 QoS: `lab/deca_htb_qos.sh` (LLQ + 70% Payload + RED@85%). IPsec: `copy_dscp=out`.
-Policy catalog: [`DECA_SDWAN_POLICY_RULES.md`](./DECA_SDWAN_POLICY_RULES.md).
+Policy catalog: [`EDGE_POLICY_LAYERS.md`](./EDGE_POLICY_LAYERS.md).
 Verify: `lab/deca_sdwan_verify.sh` · VRF check: `lab/deca_vrf_isolation_check.sh`.
 
 **Security:** WAN mission traffic is IPsec-only (`deca-sdwan`); cleartext underlay drop;

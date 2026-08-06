@@ -5,7 +5,7 @@ Same Decide rail / ToS / HTB / **SLA budgets as Pi** (mentor-aligned).
 Edge roles: [`docs/EDGE_POLICY_LAYERS.md`](../../docs/EDGE_POLICY_LAYERS.md).
 
 Runtime snapshot: [`state/sla_active.json`](./state/sla_active.json)  
-Canonical policy: [`docs/DECA_SDWAN_POLICY_RULES.md`](../../docs/DECA_SDWAN_POLICY_RULES.md) §1 + §1c  
+Canonical policy: [`docs/EDGE_POLICY_LAYERS.md`](../../docs/EDGE_POLICY_LAYERS.md)  
 Contract: [`docs/edge_policy_contract.json`](../../docs/edge_policy_contract.json)
 
 ## Application-Aware Routing (AAR) — GNS3

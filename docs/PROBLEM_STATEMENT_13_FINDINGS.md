@@ -1,7 +1,8 @@
 # PROBLEM STATEMENT 13 — Findings (done vs remaining)
 
 **Written:** 2026-07-22 (audit, read-only); status rows updated as work lands  
-**Last refresh:** **2026-08-03** — perimeter honesty (D1 · O2.2/O2.3 · P6.4 · **O4.1/O4.3 partial** · **multi-head arbitration**) · variant smoke in flight  
+**Last refresh:** **2026-08-06** — util CAPTURE_CONTRACT root-cause chain (offer · PE class miss · BE 1:20 lift) · jitter cite scrub · planning list refresh  
+**Prior:** **2026-08-05** board lock · **2026-08-04** scoreboard honesty · GNS3 L3 selection honesty · perimeter honesty  
 **Perimeter (requirements only):** [`PROBLEM_STATEMENT_13.md`](./PROBLEM_STATEMENT_13.md) — use stable IDs `PS13-*` when claiming alignment  
 **Promoted classifier (untouched by casual edits):** `models/fault_classifier/` sha16 `5165d46d87ee135b`  
 **Style:** same honesty bar as experiment `FINDINGS.md` files — what exists, what does not, no soft-sell.
@@ -36,6 +37,8 @@ When congestion + flap (etc.) light **several Q1 TTI heads + Q2** at once, the c
 | **Transparency** | Seed payload includes `arbitration.firing_tti_heads` + `compound_suspected` | Decide card / audit |
 | **Playbook** | Still keyed off **primary** Q2 class; compound → treat as hypothesis (`chaos_compound` runbook) | `playbooks.py` |
 
+**Architecture note (2026-08-04):** quieter-leg drowning is **not** fixed by more compound capture into single-label Q2 — already proved (exam F1 rose, collision slices did not). Closing it requires a **separate multi-label presence layer** (+ SLA-normalized features + collision-pair reweight), scored with the same chaos_dev/chaos_final discipline. Until then: disclose and demo Q1 heads + Q2 dominant. Details: [`MULTI_FAULT.md`](../data/deca/predictive/MULTI_FAULT.md).
+
 **L6 (CE SLA):** outside **Q1** (no dedicated head; shares util LSTM ceiling clock with L5) — **inside Q2** as `6A`/`6B` side-track + Decide rogue/victim. Util Q1 cannot distinguish organic congestion vs rogue CE; that distinction is Q2/Decide, not a forgotten model home.
 
 **Not claimed:** multi-label Q2, learned fusion, or “highest severity wins” overriding argmax. Worst-of-family severity is a **train/label** helper (`window_severity`); live primary remains Q2 argmax. Code: [`predictive/alert_fusion.py`](../predictive/alert_fusion.py).
@@ -55,18 +58,188 @@ The tables below still document the **promoted `models/fault_classifier/`** live
 | IPsec rekey anomaly | **Rules only — not live-demo injectable** | `ipsec_rekey_*` Prom + `rekey_anomaly.py`; **no campaign inject** — out of forced demo path |
 | Topology blast-radius / correlated alerts | **Live (partial O4.1)** | Static adjacency blast-radius + clique ids — **not** full graph-correlation engine |
 | Ranked playbooks + budgeted soft-clear→force_path | **Live (partial O4.3)** | Single ranked path + Approve sequence — **not** multi-candidate playbook engine |
-| Multi-head arbitration (compound) | **Live (explicit)** | OR-red · Q2 primary · min-ETA urgency · `firing_tti_heads` |
+| Multi-head arbitration (compound) | **Live (explicit)** | OR-red · Q2 primary · min-ETA · `firing_tti_heads` · Decide compound panel · blast radius · [`MULTI_FAULT.md`](../data/deca/predictive/MULTI_FAULT.md) — **more COMPOUND volume ≠ drowning fix** (architectural: single-label argmax); Phase-2 = multi-label **presence** layer beside Q2 |
 | Q3 Phi-3 + Chroma on Decide | **Live (async)** | Orchestrator `:8000` · does not block Approve |
 | Protocol `--full` schema v2 | **Baseline captured** | Stamp `20260729T202832Z` — clone-recipe iters; **retrain on variants** |
 | Variant + compound train path | **Hardened** | Unique recipes · traffic×fault matrix · CE SLA L6 · chaos holdout · `accuracy_contract` in plan |
+| **Model scores (canonical)** | **LOCKED** | [`PREDICTIVE_MODEL_SCORES.md`](./PREDICTIVE_MODEL_SCORES.md) · cite **0.884 / 0.815 / 0.655 / 0.992 / 7.1s** · frozen `d2` won **six** honest NO_PROMOTEs · current-data ceiling ~0.72/0.62/0.55 · BGP ~0.62 disclosed · do not cite 0.101 / 0.533 / 0.544 / ~1838s |
 | L2 CPU metric | **Fixed** | Gate on `cpu_usage_user` (not system) |
 | Prophet / dual-P netns | **Not claimed** | Suggested Tools / scripts only |
 
-Canonical narrative: [`DECA_SDWAN_PROCESS_FLOW.md`](./DECA_SDWAN_PROCESS_FLOW.md) · [`DECA_PREDICTIVE_ENGINE_PLAN.md`](./DECA_PREDICTIVE_ENGINE_PLAN.md).
+Canonical narrative: [`DECA_SDWAN_PROCESS_FLOW.md`](./DECA_SDWAN_PROCESS_FLOW.md) · [`DECA_PREDICTIVE_ENGINE_PLAN.md`](./DECA_PREDICTIVE_ENGINE_PLAN.md) · scores index [`PREDICTIVE_MODEL_SCORES.md`](./PREDICTIVE_MODEL_SCORES.md).
+
+---
+
+## 2026-08-04 — Predictive scoreboard honesty (eval fixes ≠ retuning)
+
+**Cite:** holdout **0.884** · chaos_final **0.815** · GNS3 **0.655** · Q2 root **0.992** · Q1 loss val MAE **7.1s** (n=185).
+
+### GNS3 L3 selection honesty (caught before execution)
+
+**Risk class:** not “pipeline lying to us” (eval/label bugs) — **“we were about to make the pipeline lie”** by deleting honest data and fabricating labels.
+
+| Temptation (rejected) | Why it is worse than a tuning mistake |
+| --- | --- |
+| `rm -rf` soft `l3_storm_*` (rate≈0.43 → **3A**) | Erases the real quieter-twin transfer signal |
+| Replace with `period=1` + auto `bgp_flap_count` EXTRA → forced **3B** | Fabricates the severity band you are trying to measure |
+
+**Locked policy:**
+
+1. **Keep** original GNS3 soft storms — storm→often **3A** is **disclosed twin behavior**, not a bug.
+2. **Remove** auto counter EXTRA entirely (no dormant nudge).
+3. **Additive only** `l3_storm_hard_*` at **period=3** — if they still land 3A, disclose; never delete soft runs.
+4. Pi `storm_3` redo is separate (corrupt counter jump) — archive under `_pre_best_storm/`.
+
+**Reporting rule:** even if hard storms later hit 3B reliably, do **not** let slides/scores become “GNS3 L3 = hard 3B only.” Soft twin remains visible.
+
+Artifact: [`L3_SELECTION_HONESTY.md`](../data/deca/predictive/protocol_gns3/eff_pack_gns3_20260804T094436Z/L3_SELECTION_HONESTY.md).
+
+---
+
+### Chaos_final — same model, cleaner score
+
+**One line that pre-empts the judge question:** chaos_final was scored twice — the first run surfaced **evaluation/labeling bugs** (not model quality); both were fixed; the **same** promoted model `d2_e100_l6_mcw3` was rescored once clean. **Model selection never touched chaos_final.**
+
+### Sequence (do not collapse into “we retuned until 0.815”)
+
+| Step | What happened | Number |
+| --- | --- | ---: |
+| Select | Rank configs on **chaos_dev** only (`t_rel < 3600`) | winner `d2_e100_l6_mcw3` |
+| Contaminated full-chaos peek | Multi-config rank on full chaos — **do not cite** | 0.533 |
+| First chaos_final | Contig XGB class id compared to raw `SEVERITY_TO_ID` — **eval bug** | 0.101 |
+| After contig map | Instant/row-by-row BGP stamp under-labeled final half — **labeling bug** | 0.544 |
+| Clean one-shot | Full-series severity stamp + 10s rolling BGP flap rate; **same weights** | **0.815** |
+
+Both bugs were **evaluation/labeling**, not model changes. Auditing an implausibly bad score found the pipeline was lying; fixing the lie is meaningfully different from retuning until the number improved.
+
+### BGP phase ~0.62 — disclosed limitation (not another silent eval bug)
+
+Audited before assuming a capability ceiling:
+
+- Family (root=3) recall on BGP windows ≈ **0.86** — model knows it is flap texture.
+- Exact severity ≈ **0.62** — mainly **3A→3B over-call** + quiet gaps labeled `0` while the model still fires `3B`/`5B`.
+- Switching window GT from worst-of (`window_severity`) to mode does **not** reveal a contig-style bug; it makes exact match worse because the model persistently predicts `3B`.
+- Retrain with rolling BGP labels (same knobs) **regressed** (holdout 0.767 / final 0.583) — correctly **not** promoted.
+
+**Decision:** disclose BGP severity carefully — **fresh specialist @0.85 → exact 0.886** on sealed one-shot ([`ONESHOT_VERDICT.json`](../data/deca/predictive/protocol_models/bgp_3a3b_specialist/honest_threshold/ONESHOT_VERDICT.json)); do **not** cite the old ~0.62 exact / FV-final path as the live claim. Family recall remains strong. Same honesty posture as O2.3 rekey / O2.2 precursor for *precursor* language. No further Q2 retrain pass unless new labeled flap data or multi-scale features land.
+
+Hard-stop audit (`train_logs/bgp_roll_retrain/BGP_HARD_STOP_AUDIT.json`): mild-boundary rows ≈ 0; 251/340 BGP windows mix 3A+3B (intermittency, not contig-style bug). Multi-roll GT with default bands does not honestly clear +0.05 without lowering the 3B threshold to flatter the model’s over-call — **rejected**. Prior rolling-label retrain already regressed. **Stop.**
+
+### Q1 chaos TTI MAE ~1838 — found a real bug, fixed it, honest number
+
+**One line (same shape as chaos_final / BGP):** old ~1838s was a **full-series ETA eval bug**, not a weak model — rain/CPU windows were scored against a loss breach ~3700s later; scoped to loss phase (`gt_root==4`) → **~39s** MAE (n=15). Do not cite 1838.
+
+Detail: first loss breach at ~t=3704 became the ETA target for every earlier window, so true labels ≈ 1800s while the loss head predicted ~2s. Fix is in `eval_chaos` (phase-scoped Q1), not a retrain. In-distribution val MAE **7.1s** (n=185) remains the train claim; scoped chaos TTI is honest but thin-n / not demo-primary.
+
+### Do not cite (scrubbed from claim surfaces)
+
+| Number | Why |
+| --- | --- |
+| 0.533 | Selection-contaminated full chaos |
+| 0.101 | Contig vs raw class-id bug |
+| 0.544 | Row-stamp BGP under-label before full-series fix |
+| ~1838s | Q1 loss MAE on full-series chaos windows |
+
+Canonical machine dump: [`data/deca/predictive/SCOREBOARD.json`](../data/deca/predictive/SCOREBOARD.json).
+
+---
+
+## 2026-08-05 — Board locked: frozen `d2` won six honest attempts
+
+**Cite (unchanged):** holdout **0.884** · chaos_final **0.815** · GNS3 **0.655** · Q2 root **0.992** · Q1 loss val MAE **7.1s**.
+
+**Judge one-liner:** We ship frozen `d2_e100_l6_mcw3` because it is the best model that exists — confirmed by six honest attempts that failed to beat it, under a pre-committed promote bar, plus a diagnosed reason current data cannot reproduce its holdout (BGP-roll rebuild 3838→4632 rows). Not “we ran out of time.”
+
+**Rejected / NO_PROMOTE (promote-bar discipline held):** threshold inflation · GNS3 soft-storm fabrication · BGP rolling-label retrain (regressed) · efficiency-pack merge retrain · idle-delta on mismatched recipe · **current-abs form-sweep ceiling** (best new-train ≈ **0.72 / 0.62 / 0.55** — none clear bar). Soft twin kept; no EXTRA fabrication.
+
+**Dataset-drift finding:** cite 0.884 is a frozen-artifact score on the pre-rebuild matrix; same knobs on today’s balanced CSV land ~0.70. Using 0.884 as the *train* bar for new candidates was apples-to-oranges — corrected by the ceiling run. Rescored today, the frozen joblib still reads chaos_final **0.815** / GNS3 **0.655**.
+
+**Walkback (same day):** twin util/CPU/CE “fixes” that hardcoded `severity_label` bands at inference, and a BGP specialist whose `P(3A)` gate was swept on **chaos_final**, produced inflated numbers (e.g. GNS3 ~0.907). **Discarded from demo path** — same honesty class as storm fabrication / threshold inflation. See [`WALKBACK_CIRCULAR_REMAP.md`](../data/deca/predictive/protocol_models/xgb_q2_sev_unified/fix_receipts/WALKBACK_CIRCULAR_REMAP.md).
+
+**Open bottlenecks (precise — volume is *not* the lever for most):**
+
+| Open item | Real bottleneck | Wrong lever (already tested) |
+| --- | --- | --- |
+| GNS3 util root ~**0.13** / transfer util ~**0.46** | **Shared-host virtualization** (below) + capture physics — HTB 40 on both does not make eth0 TX isomorphic | More util windows / %-of-ceiling (**NO_PROMOTE**) |
+| GNS3 CPU ~**0.57** / CE-SLA ~**0.30** | **Shared-host confound** — Pi L6 is fine (below); GNS3 L6 under-calls healthy | More modeling / idle-norm alone · Pi L6 densify |
+| Multi-label presence / quiet-leg drowning | **Architecture** — second model/output head (`MULTI_FAULT.md`) · **skeleton validated** on static FV (presence quiet-leg ~0.98 vs Q2 ~0.04) — not live-wired / not chaos_final | More COMPOUND into single-label Q2 (F1↑, drowning slices unchanged) |
+| ~0.70–0.72 current-data holdout ceiling | **Structural / pre-existing** — three-arm ablation cleared this week’s levers: FULL_x8 **0.719** · TRIM_x4 **0.705** (−1.3pp) · CONTRACT_x4_plus **0.701** (≈ trim). Not the ×4 cut, not contract fixes. Leading suspect still **BGP-roll rebuild / label matrix** on the current CSV ([`X4_TRIM_ABLATION.md`](../data/deca/predictive/protocol/full_variants_pi_20260803T175816Z/train_logs/x4_trim_ablation/X4_TRIM_ABLATION.md)). **Densify read:** do **not** treat a stuck ~0.70–0.72 *aggregate holdout* as “util/PE-class fix failed” — score **util phase + chaos_final** specifically; holdout ceiling is a separate open mystery | Treat 0.884 as a reachable *train* bar on today’s CSV |
+| O2.3 rekey demo | **Design ready, not launched** — [`REKEY_STORM_INJECTOR_DESIGN.md`](./REKEY_STORM_INJECTOR_DESIGN.md); gauges/rules live; storm inject **after** densify+chaos only | Pretend ambient rekey = injectable demo · launch inject during densify |
+| BGP multi-scale features | **Engineering** — 5s/30s/60s · time-since · burst · **skel `MULTISCALE_HELPS`** (+12pp exact; 3A F1 0.43→0.75 on L3 group-holdout) — not in FEATURE_COLS / not promote ([`BGP_MULTISCALE_EVAL.json`](../data/deca/predictive/protocol/full_variants_pi_20260803T175816Z/train_logs/bgp_multiscale/BGP_MULTISCALE_EVAL.json)) | Another single 10s-rate retrain on same flaps |
+
+**Closed (do not re-open as “open MAE”):** jitter densify — group-holdout MAE **27.2** (n=1026); do **not** cite 131.7.
+
+### GNS3 CPU / CE-SLA / util — root cause (shared hardware, not vague shift)
+
+**Judge one-liner:** Pi metrics come from dedicated per-node hardware; GNS3 PE/CE nodes are virtual instances sharing one physical CPU/NIC — same Prom names, different physics. That is why CPU (~0.57) and CE-SLA (~0.30) transfer stay weak, and why more modeling is the wrong lever.
+
+| Fault | Why the twin signal differs |
+| --- | --- |
+| **L2 CPU** | Pi `cpu_usage_user` = dedicated core under real stress. GNS3 = cgroup/share competing with PE1–3, COREs, 8+ CEs on one host. Severity bands 2A/2B (40/70%) were set on Pi dedicated behavior — same number ≠ same meaning. |
+| **L6 CE-SLA** | Story needs genuinely separate CEs contending on the wire. On GNS3, rogue vs victim often meets at a **virtual switch**, so the “stolen bandwidth” signature is weaker/different than Pi physical contention. **Measured 2026-08-06:** Pi L6 window exact **0.997** (frozen `d2`); GNS3 L6 exact **0.303** with **~78% predicted healthy** (not util-5* confound). Receipt: [`CE_SLA_PI_ANALYSIS.json`](../data/deca/predictive/protocol/full_variants_pi_20260803T175816Z/train_logs/ce_sla_pi_check/CE_SLA_PI_ANALYSIS.json). |
+| **L5 util** | Identical HTB 40 Mbit config does not imply identical shaping on virtual NICs vs real eth0 — contributes to util transfer staying ~0.46 even after fabric routing. |
+
+**Practical:** these gaps are **less likely to close with more data/features alone**. Cheap first lever (safe): **GNS3-native severity bands at LABEL time** from that fabric’s idle/stress distribution (`severity_bands.py`) — same “don’t mash fabrics” discipline, extended to band cutpoints. **Not** inference remaps (quarantined — [`WALKBACK_CIRCULAR_REMAP.md`](../data/deca/predictive/protocol_models/xgb_q2_sev_unified/fix_receipts/WALKBACK_CIRCULAR_REMAP.md)). Optional later: Docker/cgroup isolation (attacks the cause; riskier near demo).
+
+**Option 1 result (2026-08-05) — thresholds were not the main issue:**
+
+| Check | Result |
+| --- | --- |
+| Chaos_dev select (BGP discipline) | All cands tied **0.695** (= baseline); pick `cand_d3_e120_l4` |
+| Chaos_final oneshot | **0.445 → 0.613** (+17pp) — real sealed lift; keep bands for twin GT consistency |
+| Pure L2 LOO (L2_* iters) | Pi bands **0.995** → GNS3 bands **0.994** — flat |
+| Pure L6 LOO (L6_* iters) | **0.659 → 0.580** — slightly worse |
+| In-sample window exact 0.83 / 0.99 | **Do not cite** — trained on same `q2_windows` |
+
+**Read:** `THRESHOLDS_NOT_MAIN` for CPU/CE. Removing the wrong-thresholds explanation did not move those classes; shared-host contention remains the blocker. Receipt: [`OPTION1_VERDICT.json`](../data/deca/predictive/protocol_gns3/full_variants_gns3_20260803T175816Z/train_logs/option1_sev_bands/OPTION1_VERDICT.json).
+
+**Closed same pass:** jitter densify **PROMOTE** — honest group-holdout MAE **27.2** (n=1026) vs cite 131.7; cleaning alone stayed ~150 ([`PROMOTE.md`](../data/deca/predictive/protocol_models/lstm_q1_jitter_stride1/PROMOTE.md)). **O3/O4 GNS3:** RAG corpus + `topology.blast_radius(..., fabric=)` already include GNS3 ([`O3_O4_GNS3_WIRING.json`](../data/deca/predictive/protocol_models/O3_O4_GNS3_WIRING.json)).
+
+**Sample row-audit (packaging):** asymmetry / 1s gaps / util>HTB — all three real; none block the locked board. Receipt [`METRIC_SAMPLE_ROW_AUDIT.md`](../data/deca/predictive/protocol_models/METRIC_SAMPLE_ROW_AUDIT.md).
+
+**Lane A started (CAPTURE_CONTRACT):** locked choices + code — asymmetry derive/drop stale · util=eth0 TX @1Hz · gaps align+ts-ETA+capture log · **L5 default = tc-ramp** (continuous offer + class ceil steps + plateau; not pulsed iperf) · L6 continuous CE plateau · L2/L3/COMPOUND primary-signal smoke PASS (`contract_smoke_full_20260805T025000Z`). See [`CAPTURE_CONTRACT.md`](./CAPTURE_CONTRACT.md) · validation [`CAPTURE_CONTRACT_SMOKE.md`](./CAPTURE_CONTRACT_SMOKE.md).
+
+**Full campaign trim (locked):** L2/L3 short injects · L1/L4 ×4 (not ×8) · keep L5×8+plateau≥40 · L6×4 · COMPOUND×8 · chaos **7200s** · Pi∥GNS3. Plan est **~9.25 h**/fabric (was 12.54). Does **not** change locked cite numbers.
+
+If collecting data further: only if jitter group-holdout stalls. Eff-pack / full-campaign volume already raised holdout while hurting chaos_final + GNS3 transfer — do not repeat that pattern for util / presence.
+
+**Done (same day, legitimate):** per-fabric GNS3 `d3` (**0.722**) · BGP specialist @**0.85** fresh one-shot (**0.886**) · util-%-of-ceiling form-sweep **NO_PROMOTE** (no lift vs current-abs ceiling).
+
+Receipts: [`CURRENT_ABS_CEILING.md`](../data/deca/predictive/protocol/full_variants_pi_20260803T175816Z/train_logs/q2_form_sweep_current_abs/CURRENT_ABS_CEILING.md) · [`UTIL_PCT_SWEEP.md`](../data/deca/predictive/protocol/full_variants_pi_20260803T175816Z/train_logs/q2_form_sweep_util_pct/UTIL_PCT_SWEEP.md) · [`ONESHOT_VERDICT.json`](../data/deca/predictive/protocol_models/bgp_3a3b_specialist/honest_threshold/ONESHOT_VERDICT.json) · [`ACTIVE_Q2_ROUTING.json`](../data/deca/predictive/protocol_models/ACTIVE_Q2_ROUTING.json) · [`PREDICTIVE_MODEL_SCORES.md`](./PREDICTIVE_MODEL_SCORES.md).
+
+---
+
+## 2026-08-06 — Util CAPTURE_CONTRACT: diagnosis chain (model untouched)
+
+**Cite board unchanged:** holdout **0.884** · chaos_final **0.815** · GNS3 **0.655** · Q2 root **0.992** · Q1 loss **7.1s** · jitter **27.2**. Frozen `d2_e100_l6_mcw3`. **No retrain / NO_PROMOTE** until capture proves separable util across L5 ends + off-nominal chaos.
+
+### Why earlier util “fixes” looked correct but did not move scores
+
+Every mid-week util attempt (schedule-gating, `htb_payload_ceil_mbps` feature, offer≥2×) was partly right as *logic*, but the physical quantity being labeled often **could not** track the configured payload ceil. Correct diagnosis + small/no lift = expected when the shaper class being measured never saw the traffic.
+
+### Sequence (keep this order in slides)
+
+| Finding | Evidence | Fix |
+| --- | --- | --- |
+| Offer fixed while ends rose → util = offered load | Smoke / contract logs | Auto offer ≥ **2× end_mbit** |
+| Ends above parent 40 impossible on eth0 | HTB parent | Cap L5 ends ≤ soft payload ceil (~34) |
+| **PE `1:15` never saw CE util traffic** | Post-IPsec/MPLS on eth0 → default **BE `1:20`**; `tc -s` showed ~0 bytes on 1:15 | Shape on **ce-a `veth-cea-pe`** *before* encrypt; mirror PE 1:15 **audit-only** |
+| Softness at high ceils was **progressive**, not constant ratio | Pre-BE-lift sweep: util flat ~**24** for ceil≥24 | BE `1:20` nominal ceil **24** was the hard cap |
+| After BE lift (ceil→40 during inject, restore on EXIT) | Full L5 ends `[12…34]`: util/ceil ≈ **1.07** constant (encap overhead); mono separable | Densify L5 under new injector; chaos util phase **end=24** (off-nominal vs idle 34) |
+
+**Smoke (pre-BE-lift, CE-shape only):** ceil=16 → ~17; ceil=28 → ~24 — separated but soft at 28 (= BE cap).  
+**Ratio sweep (post-BE-lift):** ratios ~1.07 across 12…34 — prerequisite for `util/ceil` as a feature if needed later.
+
+**In flight (do not parallel-interfere):** Pi `util_clean_pi_20260805T233437Z` densify (resume JOB 3/12) → auto **7200 s** chaos holdout `end_mbit=24`. Retrain only after util phase separates on that capture.
+
+**Still open (not answered by this chain):** ×4 trim vs contract ablation for ~0.70 holdout ceiling; GNS3 util shared-host physics; multi-label presence layer.
+
+Mermaid: [`DECA_COMPLETE_MERMAID_MAPS.md`](./DECA_COMPLETE_MERMAID_MAPS.md) §4.1 · injector [`scripts/inject_util_congestion.sh`](../scripts/inject_util_congestion.sh) · contract [`CAPTURE_CONTRACT.md`](./CAPTURE_CONTRACT.md).
 
 ---
 
 ## 2026-08-03 — Pi 10m coverage (inject textures)
+
 
 Stamp `pi_coverage_10m_20260803T130315Z` · `coverage_report.json` **ok=true**.
 
@@ -241,11 +414,28 @@ See also: [`DATA_SAMPLE.md`](./DATA_SAMPLE.md), [`NETWORK_EXPANSION_FINDINGS.md`
 
 ## What we have to do next (planning list only — not a build plan)
 
-1. **Variant smoke gates (Pi + GNS3)** → review scores with user → **full only on explicit go** (no auto-start).
-2. **Keep O2.2 / O2.3 claims as downgraded** unless closing work lands: flap precursor signal, or minimal rekey-storm injector for demo.
-3. **P6.4** stays on L6 CE SLA / Decide rogue-victim (and promoted `policy_drift` if shown) — not Q1/Q2 L1–L5.
-4. **Optional air-gap demo harness** — WAN-block netns while Prom stays lab-local.
-5. **Dual-P / Prophet** — stay optional / not claimed.
+**Running now (do not parallel-interfere):** Pi util_clean densify → 7200 s chaos `end=24` — gate for any util retrain.
+
+**Safe in parallel (analysis / code only):**
+
+1. **FINDINGS / cite scrub** — done 2026-08-06.
+2. **CE-SLA (L6) check on Pi** — done (`PI_L6_OK_GNS3_TWIN_GAP`).
+3. **BGP multi-scale features** — done skel (`MULTISCALE_HELPS`); wire into FEATURE_COLS only after explicit go + chaos discipline.
+4. **Multi-label presence layer** — skeleton validated; Decide wiring later.
+5. **Rekey-storm injector** — **design done** ([`REKEY_STORM_INJECTOR_DESIGN.md`](./REKEY_STORM_INJECTOR_DESIGN.md)); implement/smoke only **after** densify+chaos; **do not launch** now.
+6. **×4 trim ablation** — done (`TRIM_NOT_THE_CEILING`); ceiling = structural, not this week’s trim/contract.
+
+**When densify+chaos lands — score correctly:** util-phase separation + chaos_final (and family slices) first. Aggregate holdout may still sit ~0.70–0.72 because that ceiling predates util/PE-class work — do not misread it as inject failure.
+
+**2026-08-06 util_clean retrain (oneshot):** physics→model payoff **confirmed** — winner util phase **0.43→0.94**, **5B recall 0→0.85** on sealed off-nom chaos. Overall chaos_final **0.56** (BGP exact collapsed) → **NO_PROMOTE**; cite board untouched. Receipt: [`ONESHOT_VERDICT.md`](../data/deca/predictive/protocol_models/_candidates/util_clean_retrain_20260806T093000Z/ONESHOT_VERDICT.md).
+
+**2026-08-06 util_clean + BGP multi-scale:** wired MS into train/eval; chaos_dev→oneshot **`d2_e80_l8_mcw4_ms`**. Util held (**0.944** / 5B~0.89); BGP exact **0.05→0.33** (partial); overall **0.56→0.66**. Still **NO_PROMOTE** vs frozen BGP 0.54 / bar 0.70. Receipt: [`util_clean_bgp_ms/.../ONESHOT_VERDICT.md`](../data/deca/predictive/protocol_models/_candidates/util_clean_bgp_ms_20260806T094500Z/ONESHOT_VERDICT.md).
+
+**Blocked on campaign result:** latency Q1 densify · any util/BGP Q2 retrain/promote · rekey inject smoke.
+
+**Keep claims downgraded until closed:** O2.2 flap precursor · O2.3 injectable rekey · O4.1 full graph · O4.3 multi-candidate playbooks · P6.4 not inside Q1/Q2 L1–L5.
+
+**Optional / not claimed:** air-gap WAN-block harness · Dual-P · Prophet.
 
 ---
 

@@ -26,7 +26,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ "$FABRIC" == pi || "$FABRIC" == gns3 ]] || { echo "fabric pi|gns3"; exit 2; }
-[[ "$MODE" == smoke || "$MODE" == full || "$MODE" == quick ]] || { echo "mode smoke|full|quick"; exit 2; }
+[[ "$MODE" == smoke || "$MODE" == full || "$MODE" == quick || "$MODE" == util_clean ]] \
+  || { echo "mode smoke|full|quick|util_clean"; exit 2; }
 
 if [[ -z "$STAMP" ]]; then
   STAMP="${MODE}_variants_${FABRIC}_$(date -u +%Y%m%dT%H%M%SZ)"

@@ -80,6 +80,39 @@ def main() -> None:
     )
     ap.add_argument("--max-depth", type=int, default=4)
     ap.add_argument("--n-estimators", type=int, default=120)
+    ap.add_argument("--reg-lambda", type=float, default=2.0)
+    ap.add_argument("--min-child-weight", type=float, default=2.0)
+    ap.add_argument("--subsample", type=float, default=0.9)
+    ap.add_argument("--colsample-bytree", type=float, default=0.9)
+    ap.add_argument("--learning-rate", type=float, default=0.08)
+    ap.add_argument(
+        "--weight-power",
+        type=float,
+        default=1.0,
+        help="sample_weight = (max_count/count)^power; >1 boosts rare classes without dropping rows",
+    )
+    ap.add_argument(
+        "--holdout-must-contain",
+        action="append",
+        default=[],
+        help="substring that must appear in ≥1 holdout group (repeatable), e.g. L4_",
+    )
+    ap.add_argument(
+        "--idle-baseline-json",
+        default="",
+        help="optional idle_baseline.json to embed in model bundle (eval/live parity)",
+    )
+    ap.add_argument(
+        "--util-ceiling-json",
+        default="",
+        help="optional util_ceiling.json to embed (pct-of-ceil feature parity)",
+    )
+    ap.add_argument(
+        "--max-split-tries",
+        type=int,
+        default=40,
+        help="when --holdout-must-contain set, try seeds until constraints met",
+    )
     args = ap.parse_args()
 
     frames = [pd.read_csv(p) for p in args.data]
@@ -109,17 +142,24 @@ def main() -> None:
             id_to_severity[i]: SEVERITY_TO_ROOT[id_to_severity[i]] for i in class_ids
         }
     else:
-        raw_to_contig = contig_to_raw = None
         id_to_severity = None
         severity_to_root = None
         if "label" not in df.columns and "root_label" in df.columns:
             df["label"] = df["root_label"]
         if "label" not in df.columns:
             raise SystemExit("missing label column")
-        y = df["label"].astype(int).to_numpy()
-        label_names = LABEL_NAMES
-        class_ids = [0, 1, 2, 3]
-        target_names = [LABEL_NAMES[i] for i in class_ids]
+        y_raw = df["label"].astype(int).to_numpy()
+        # XGBoost requires contiguous 0..K-1 (balanced sets may omit idle / include L6)
+        present_raw = sorted(set(y_raw.tolist()))
+        raw_to_contig = {r: i for i, r in enumerate(present_raw)}
+        contig_to_raw = {i: r for r, i in raw_to_contig.items()}
+        y = np.asarray([raw_to_contig[int(v)] for v in y_raw], dtype=int)
+        label_names = {
+            i: LABEL_NAMES.get(contig_to_raw[i], f"class_{contig_to_raw[i]}")
+            for i in range(len(present_raw))
+        }
+        class_ids = list(range(len(present_raw)))
+        target_names = [label_names[i] for i in class_ids]
         mode = "root"
 
     X, feat_cols = feature_matrix(df)
@@ -136,6 +176,8 @@ def main() -> None:
 
     split_mode = "random_window"
     holdout_groups: list[str] = []
+    must: list[str] = [s for s in (args.holdout_must_contain or []) if s]
+    split_seed = args.seed
     if args.group_split:
         if args.group_col not in df.columns:
             raise SystemExit(
@@ -146,13 +188,32 @@ def main() -> None:
         n_groups = len(set(groups.tolist()))
         if n_groups < 2:
             raise SystemExit(f"need ≥2 groups in {args.group_col}, got {n_groups}")
-        gss = GroupShuffleSplit(
-            n_splits=1, test_size=args.test_size, random_state=args.seed
-        )
-        train_idx, test_idx = next(gss.split(X, y, groups))
+        must = [s for s in (args.holdout_must_contain or []) if s]
+        train_idx = test_idx = None
+        split_seed = args.seed
+        holdout_groups = []
+        for attempt in range(max(1, args.max_split_tries if must else 1)):
+            split_seed = args.seed + attempt
+            gss = GroupShuffleSplit(
+                n_splits=1, test_size=args.test_size, random_state=split_seed
+            )
+            tr, te = next(gss.split(X, y, groups))
+            held = sorted(set(groups[te].tolist()))
+            if must and not all(any(m in g for g in held) for m in must):
+                continue
+            # XGB multi:softprob needs every class id present in y_train
+            if set(np.unique(y[tr]).tolist()) != set(np.unique(y).tolist()):
+                continue
+            train_idx, test_idx = tr, te
+            holdout_groups = held
+            break
+        if train_idx is None or test_idx is None:
+            raise SystemExit(
+                f"could not satisfy holdout-must-contain={must} "
+                f"(and all-classes-in-train) in {args.max_split_tries} tries"
+            )
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
-        holdout_groups = sorted(set(groups[test_idx].tolist()))
         split_mode = "group_holdout"
     else:
         strat = y if len(np.unique(y)) > 1 else None
@@ -162,7 +223,10 @@ def main() -> None:
 
     counts = {int(k): int(v) for k, v in zip(*np.unique(y_train, return_counts=True))}
     max_c = max(counts.values()) if counts else 1
-    sw = np.asarray([max_c / counts[int(yi)] for yi in y_train], dtype=np.float32)
+    power = float(args.weight_power)
+    sw = np.asarray(
+        [(max_c / counts[int(yi)]) ** power for yi in y_train], dtype=np.float32
+    )
 
     n_classes = int(len(np.unique(y)))
     backend = "xgboost"
@@ -172,11 +236,11 @@ def main() -> None:
         model = XGBClassifier(
             n_estimators=args.n_estimators,
             max_depth=args.max_depth,
-            learning_rate=0.08,
-            subsample=0.9,
-            colsample_bytree=0.9,
-            reg_lambda=2.0,
-            min_child_weight=2.0,
+            learning_rate=args.learning_rate,
+            subsample=args.subsample,
+            colsample_bytree=args.colsample_bytree,
+            reg_lambda=args.reg_lambda,
+            min_child_weight=args.min_child_weight,
             objective="multi:softprob",
             num_class=n_classes,
             eval_metric="mlogloss",
@@ -214,6 +278,12 @@ def main() -> None:
     out_dir = Path(args.out_dir).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     model_path = out_dir / ("q2_severity.joblib" if args.severity else "q2_root_cause.joblib")
+    idle_bl = None
+    if args.idle_baseline_json:
+        idle_bl = json.loads(Path(args.idle_baseline_json).read_text())
+    util_ceil_bl = None
+    if args.util_ceiling_json:
+        util_ceil_bl = json.loads(Path(args.util_ceiling_json).read_text())
     bundle = {
         "model": model,
         "feature_cols": feat_cols,
@@ -226,6 +296,8 @@ def main() -> None:
         "raw_to_contig": raw_to_contig,
         "contig_to_raw": contig_to_raw,
         "split_mode": split_mode,
+        "idle_baseline": idle_bl,
+        "util_ceiling": util_ceil_bl,
     }
     joblib.dump(bundle, model_path)
     metrics = {
@@ -249,6 +321,15 @@ def main() -> None:
         "feature_cols": feat_cols,
         "max_depth": args.max_depth,
         "n_estimators": args.n_estimators,
+        "reg_lambda": args.reg_lambda,
+        "min_child_weight": args.min_child_weight,
+        "subsample": args.subsample,
+        "colsample_bytree": args.colsample_bytree,
+        "learning_rate": args.learning_rate,
+        "weight_power": args.weight_power,
+        "holdout_must_contain": must if args.group_split else [],
+        "split_seed_used": int(split_seed) if args.group_split else args.seed,
+        "data_sources": [str(Path(p).resolve()) for p in args.data],
         "smote_note": "prefer undersample-only datasets; SMOTE inflates random-window scores",
     }
     (out_dir / "train_metrics.json").write_text(json.dumps(metrics, indent=2) + "\n")

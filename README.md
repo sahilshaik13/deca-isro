@@ -23,8 +23,7 @@ Aligned to [PS13](docs/PROBLEM_STATEMENT_13.md). Canonical as-built narrative: [
 
 | Doc | Purpose |
 | --- | --- |
-| [`docs/EDGE_POLICY_LAYERS.md`](docs/EDGE_POLICY_LAYERS.md) | CE / PE / P / network policy layers (mentor SLA/QoS) |
-| [`docs/DECA_SDWAN_POLICY_RULES.md`](docs/DECA_SDWAN_POLICY_RULES.md) | Master AAR / QoS / CE tier catalog |
+| [`docs/EDGE_POLICY_LAYERS.md`](docs/EDGE_POLICY_LAYERS.md) | **Complete policy catalog** — AAR / CE / QoS / security / failover / layers |
 | [`docs/DECA_SDWAN_PROCESS_FLOW.md`](docs/DECA_SDWAN_PROCESS_FLOW.md) | End-to-end architecture + PS13 scoreboard |
 | [`docs/DECA_PREDICTIVE_ENGINE_PLAN.md`](docs/DECA_PREDICTIVE_ENGINE_PLAN.md) | Q1/Q2/Q3 predictive status |
 | [`docs/JURY_DUAL_FABRIC_DEMO.md`](docs/JURY_DUAL_FABRIC_DEMO.md) | Jury dual-fabric demo script |

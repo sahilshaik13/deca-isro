@@ -5,16 +5,21 @@
 # Probes gre-te-core and eth0 toward the peer PE; emits:
 #   sdwan_path_latency_ms{path=gre|eth0}
 #   sdwan_path_loss_pct{path=gre|eth0}
+#   path_asymmetry / path_asymmetry_ms  (abs GRE−eth0, same probe — CAPTURE_CONTRACT)
+#   sdwan_path_util_mbps{path=eth0}     (PE eth0 TX Mbps @1Hz — HTB egress util)
 #
 # Tuned for 1s Telegraf interval. Default -c 25 @ 30ms ≈ 0.75s burst so
 # 8% vs 15%+ netem produce distinct Prom peaks (fractional % packet loss).
 # Air-gapped: local ICMP only (no cloud).
+# Contract: docs/CAPTURE_CONTRACT.md
 set -euo pipefail
 
 HOST_TAG="$(hostname -s 2>/dev/null || hostname | cut -d. -f1)"
 COUNT="${DECA_PROBE_COUNT:-25}"
 INTERVAL="${DECA_PROBE_INTERVAL:-0.03}"
 WAIT="${DECA_PROBE_WAIT:-1}"
+UTIL_STATE_DIR="${DECA_UTIL_STATE_DIR:-/tmp/deca_edge_util}"
+mkdir -p "$UTIL_STATE_DIR"
 
 # Peer / via defaults (override via env on the Pi if needed)
 case "$HOST_TAG" in
@@ -88,11 +93,37 @@ probe_one() {
   printf 'sdwan_path_loss_pct,host=%s,path=%s,src=edge value=%s\n' "$HOST_TAG" "$path" "${loss:-100}"
 }
 
+emit_eth0_tx_util_mbps() {
+  # CAPTURE_CONTRACT: canonical ceiling util = PE eth0 TX byte-rate (HTB egress).
+  local now tx prev_t prev_b mbps sf dt db
+  now="$(date +%s)"
+  if [[ ! -d "/sys/class/net/$ETH_DEV" ]]; then
+    printf 'sdwan_path_util_mbps,host=%s,path=eth0,src=edge value=0\n' "$HOST_TAG"
+    return
+  fi
+  tx="$(cat "/sys/class/net/$ETH_DEV/statistics/tx_bytes" 2>/dev/null || echo 0)"
+  sf="$UTIL_STATE_DIR/${HOST_TAG}_${ETH_DEV}_tx.state"
+  mbps=0
+  if [[ -f "$sf" ]]; then
+    read -r prev_t prev_b <"$sf" || true
+    if [[ -n "${prev_t:-}" && -n "${prev_b:-}" && "$now" -gt "$prev_t" ]]; then
+      dt=$((now - prev_t))
+      db=$((tx - prev_b))
+      if [[ "$dt" -gt 0 && "$db" -ge 0 ]]; then
+        mbps="$(python3 -c "print(round(($db)*8.0/($dt)/1e6, 4))")"
+      fi
+    fi
+  fi
+  echo "$now $tx" >"$sf"
+  printf 'sdwan_path_util_mbps,host=%s,path=eth0,src=edge value=%s\n' "$HOST_TAG" "$mbps"
+}
+
 probe_one gre "$GRE_DEV" "$GRE_TARGET"
 gre_lat="${LAST_LAT:-0}"
 probe_one eth0 "$ETH_DEV" "$ETH_TARGET"
 eth_lat="${LAST_LAT:-0}"
-# PS13-O2.2: named path asymmetry for Prom (abs GRE−eth0 RTT)
+# PS13-O2.2 + CAPTURE_CONTRACT: asymmetry from the same 1Hz probe as latency
 asym=$(awk -v g="$gre_lat" -v e="$eth_lat" 'BEGIN{d=g-e; if(d<0)d=-d; printf "%.3f", d}')
 printf 'path_asymmetry_ms,host=%s,src=edge value=%s\n' "$HOST_TAG" "$asym"
 printf 'path_asymmetry,host=%s,src=edge value=%s\n' "$HOST_TAG" "$asym"
+emit_eth0_tx_util_mbps

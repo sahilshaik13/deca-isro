@@ -16,7 +16,7 @@ How the **management**, **control**, **data**, and **AI NOC** planes work togeth
 
 Math gate does **not** wait on the LLM; Q3 is parallel English NLP on the Decide rail.
 
-**Related:** [PS13 perimeter](./PROBLEM_STATEMENT_13.md) · [PS13 findings](./PROBLEM_STATEMENT_13_FINDINGS.md) · [Policy](./DECA_SDWAN_POLICY_RULES.md) · [Station network / MPLS](./STATION_NETWORK_SETUP.md) · [Orchestrator](../DECA_ORCHESTRATOR_README.md) · [Telemetry](../lab/telemetry-pipeline/README.md) · [Predictive plan](./DECA_PREDICTIVE_ENGINE_PLAN.md) · [Q3 KB](./DECA_Q3_KNOWLEDGE_BASE.md)
+**Related:** [PS13 perimeter](./PROBLEM_STATEMENT_13.md) · [PS13 findings](./PROBLEM_STATEMENT_13_FINDINGS.md) · [**Model scores**](./PREDICTIVE_MODEL_SCORES.md) · [Policy](./EDGE_POLICY_LAYERS.md) · [Station network / MPLS](./STATION_NETWORK_SETUP.md) · [Orchestrator](../DECA_ORCHESTRATOR_README.md) · [Telemetry](../lab/telemetry-pipeline/README.md) · [Predictive plan](./DECA_PREDICTIVE_ENGINE_PLAN.md) · [Q3 KB](./DECA_Q3_KNOWLEDGE_BASE.md)
 
 ---
 
@@ -518,7 +518,8 @@ flowchart TB
 
 **Outage pause:** if stations lose power while brain stays up, watchdog **SIGSTOP**s capture/campaign until ping + Telegraf `:9273` + Prom Q1 recover; Pi boot writes `/run/deca/station-ready`. If the **desktop** loses power, user systemd units `deca-protocol-campaign.service` + `deca-protocol-watchdog.service` (Linger=yes) call [`resume_active_protocol.sh`](../predictive/resume_active_protocol.sh) after boot.
 
-After variant corpus completes: `build_protocol_dataset` → group-holdout retrain → replace `protocol_models/`. Until then, live gate uses **cutover** weights.
+After variant corpus completes: `build_protocol_dataset` → group-holdout retrain → replace `protocol_models/`.  
+**Current measured scores** (Pi stamp only): [`PREDICTIVE_MODEL_SCORES.md`](./PREDICTIVE_MODEL_SCORES.md) — cite **0.884 / 0.815 / 0.655 / 0.992 / 7.1s** · jitter **27.2**. chaos_final 0.815 = same model after eval/label fixes (not a retune). BGP specialist @0.85 fresh one-shot **0.886** (do not cite stale exact ~0.62 as the live claim). Do not cite 0.101 / 0.533 / 0.544 / ~1838s / jitter 131.7.
 
 #### Severity tiers (Q2)
 
@@ -529,7 +530,7 @@ After variant corpus completes: `build_protocol_dataset` → group-holdout retra
 | 2A / 2B | **cpu_usage_user** 40–70% / ≥70% | 2B **yes** |
 | 3A / 3B | BGP flap rate mild / severe | 3B **yes** |
 | 4A / 4B | loss 0.5–2% / ≥2% Payload SLA | 4B **yes** |
-| 5A / 5B | util 20–35 / ≥35 Mbps (near HTB ceil) | 5B **yes** |
+| 5A / 5B | CAPTURE_CONTRACT: schedule ceil ∈ `[0.5·end, end)` / ceil ≥ end (not raw Mbps alone) | 5B **yes** |
 
 #### Q3 LNC (sufficient for demo)
 
@@ -567,10 +568,10 @@ Loss / jitter / util have **dedicated TTI heads** in addition to SLA thresholds 
 
 | Tool | Role |
 | --- | --- |
-| iperf3 | ToS-tagged traffic (`0x88` TT&C / `0x80` Payload via HTB 1:15 / BE) |
+| iperf3 | ToS-tagged where filters apply (`0x88`→1:10 / `0x80`→1:15). **Util bulk** is CE→IPsec→eth0 and often lands in BE `1:20` — see util inject |
 | `inject_rain_fade.sh` | Latency ramp (L1) |
 | `inject_loss_progression.sh` | Real netem loss 0→3.5% (L4 / loss-TTI GT) |
-| `inject_util_congestion.sh` | iperf UDP ToS 0x80 **through HTB** (L5 / util-TTI GT) |
+| `inject_util_congestion.sh` | CE `veth` HTB shape + offer≥2×end + BE `1:20` lift during window (L5 / util-TTI GT) |
 | `inject_cpu_stress.sh` | CPU (L2) — signature = **`cpu_usage_user`** |
 | `inject_bgp_flap.sh` | Multi-cycle flap **inducer** (L3 train) — distinct from remediation soft-clear |
 | Controller `bgp_soft_clear` | Approve remediation one-shot |

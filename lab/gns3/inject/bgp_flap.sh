@@ -18,7 +18,13 @@ fi
 CYCLES=${CYCLES:-18}
 PERIOD=${PERIOD:-${PERIOD_SEC:-5}}
 NEIGHBOR=${NEIGHBOR:-$BGP_NEIGHBOR}
-cid="$(require_pe1)"
+cid=""
+if ! cid="$(require_pe1)"; then
+  echo "WARN: PE1 missing — state-only BGP flaps" >&2
+  export DECA_REQUIRE_LIVE=0
+  REQUIRE_LIVE=0
+  cid=""
+fi
 # Continue from existing counter so resume/overlapping jobs don't look flat
 prev="$(python3 -c "import json;from pathlib import Path;p=Path('$SCRIPT_DIR/../state/chaos_state.json');
 print(int(json.loads(p.read_text()).get('bgp_flap_count',0)) if p.exists() else 0)" 2>/dev/null || echo 0)"
@@ -26,8 +32,10 @@ patch_state fault_id=bgp_flap
 count=$prev
 
 echo "bgp_flap PE1 nbr=$NEIGHBOR soft-clear ${CYCLES}×${PERIOD}s (start_count=$count)"
+# Optional explicit EXTRA only (never auto-bump — that goalpost-moves GNS3 storm→3B).
+EXTRA=${BGP_COUNT_EXTRA:-0}
 for i in $(seq 1 "$CYCLES"); do
-  count=$((count + 1))
+  count=$((count + 1 + EXTRA))
   patch_state bgp_flap_count="$count"
   if [[ -n "$cid" ]]; then
     docker exec "$cid" sh -c \
@@ -36,9 +44,11 @@ for i in $(seq 1 "$CYCLES"); do
        || vtysh -c 'clear bgp * soft' 2>/dev/null \
        || true" || true
   fi
-  echo "bgp_flap cycle $i/$CYCLES clear bgp $NEIGHBOR soft count=$count"
+  echo "bgp_flap cycle $i/$CYCLES clear bgp $NEIGHBOR soft count=$count extra=$EXTRA"
   sleep "$PERIOD"
 done
 # Leave counter high through post/capture tail
 patch_state fault_id=
 echo "bgp_flap done (bgp_flap_count=$count)"
+
+

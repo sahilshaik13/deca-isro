@@ -110,7 +110,7 @@ UI **Lab simulation → Start** calls `POST /api/v1/simulation/start`, which spa
 
 Use **Dry run** (`{"dry":true}`) to advance the timeline without SSH when stations are offline.
 
-Policy catalog: [`docs/DECA_SDWAN_POLICY_RULES.md`](docs/DECA_SDWAN_POLICY_RULES.md).
+Policy catalog: [`docs/EDGE_POLICY_LAYERS.md`](docs/EDGE_POLICY_LAYERS.md).
 Orchestrator Preemption: predictive alert ($T_{breach}$ &lt; 180s) + Approve →
 `POST /action` `force_path` before SLA breach.
 

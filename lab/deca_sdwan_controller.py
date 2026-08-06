@@ -2,7 +2,7 @@
 """
 deca_sdwan_controller.py — SD-WAN dynamic path-selection policy loop (ISRO DECA).
 
-Authoritative catalog: docs/DECA_SDWAN_POLICY_RULES.md
+Authoritative catalog: docs/EDGE_POLICY_LAYERS.md
 
 Lab AAR loop (implemented here):
   1. Classification — TT&C ToS 0x88 (PS13 CS4-class); Payload ToS 0x80;

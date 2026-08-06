@@ -14,7 +14,11 @@ if [[ "${1:-}" == "--clear" ]]; then
   exit 0
 fi
 
-require_pe1 >/dev/null
+if ! require_pe1 >/dev/null; then
+  echo "WARN: PE1 not running — state-only rain inject (exporter :9275)" >&2
+  export DECA_REQUIRE_LIVE=0
+  REQUIRE_LIVE=0
+fi
 
 # Pi: 24×5s, 5→100ms, jitter 5ms
 STEPS=${STEPS:-24}
@@ -26,9 +30,9 @@ JITTER_MS=${JITTER_MS:-5}
 patch_state fault_id=rain_fade
 for i in $(seq 0 $((STEPS - 1))); do
   ms=$(python3 -c "print(round($START_MS + ($END_MS-$START_MS)*$i/max($STEPS-1,1), 1))")
-  apply_netem_pe1 "delay ${ms}ms ${JITTER_MS}ms distribution normal"
+  apply_netem_pe1 "delay ${ms}ms ${JITTER_MS}ms distribution normal" || true
   patch_state latency_gre_ms="$ms" jitter_gre_ms="$JITTER_MS"
-  echo "rain_fade step $((i+1))/$STEPS delay=${ms}ms±${JITTER_MS}ms"
+  echo "rain_fade step $((i+1))/$STEPS delay=${ms}ms±${JITTER_MS}ms (state patched)"
   sleep "$STEP_SEC"
 done
-echo "rain_fade done — netem left at ${END_MS}ms (clear with --clear)"
+echo "rain_fade done — state at ${END_MS}ms (clear with --clear)"

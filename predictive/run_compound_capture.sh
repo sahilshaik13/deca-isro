@@ -18,10 +18,13 @@ while [[ $# -gt 0 ]]; do
     --out) OUT="$2"; shift 2 ;;
     --host) HOST="$2"; shift 2 ;;
     --prom) PROM="$2"; shift 2 ;;
+    --fabric) FABRIC="$2"; shift 2 ;;
     *) echo "unknown $1"; exit 2 ;;
   esac
 done
 [[ -n "$RECIPE_JSON" && -n "$OUT" ]] || { echo "need --recipe-json and --out"; exit 2; }
+[[ "$FABRIC" == pi || "$FABRIC" == gns3 ]] || { echo "bad --fabric $FABRIC"; exit 2; }
+export DECA_FABRIC="$FABRIC"
 mkdir -p "$OUT"
 
 clear_all() {
@@ -50,8 +53,9 @@ PY
 
 clear_all
 export PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}"
+export DECA_FABRIC="$FABRIC"
 "$PY" -m predictive.capture_live \
-  ${FABRIC:+--fabric $FABRIC} \
+  --fabric "$FABRIC" \
   --prom "$PROM" --out "$OUT/series.csv" --seconds "$TOTAL_SEC" --interval 1 \
   >"$OUT/capture.log" 2>&1 &
 CAP=$!
@@ -98,8 +102,9 @@ for f in "${FAULTS[@]}"; do
         PIDS+=($!) ;;
       util_congestion)
         STEPS=$((INJECT_SEC/15)); [[ $STEPS -lt 6 ]] && STEPS=6
-        STEPS=$STEPS STEP_SEC=15 START_MBIT=5 END_MBIT=$UTIL_END \
-          bash "$ROOT/lab/gns3/inject/util_congestion.sh" >>"$OUT/inject.log" 2>&1 &
+        STEPS=$STEPS STEP_SEC=15 START_MBIT=5 END_MBIT=$UTIL_END PLATEAU_SEC=40 \
+          bash "$ROOT/lab/gns3/inject/util_congestion.sh" \
+            --schedule-out "$OUT/util_ceil_schedule.jsonl" >>"$OUT/inject.log" 2>&1 &
         PIDS+=($!) ;;
     esac
   else
@@ -127,7 +132,8 @@ for f in "${FAULTS[@]}"; do
       util_congestion)
         STEPS=$((INJECT_SEC/15)); [[ $STEPS -lt 6 ]] && STEPS=6
         bash "$ROOT/scripts/inject_util_congestion.sh" --host "$HOST" --steps "$STEPS" --step-sec 15 \
-          --start-mbit 5 --end-mbit "$UTIL_END" --parallel 2 >>"$OUT/inject.log" 2>&1 &
+          --start-mbit 5 --end-mbit "$UTIL_END" --parallel 2 \
+          --schedule-out "$OUT/util_ceil_schedule.jsonl" >>"$OUT/inject.log" 2>&1 &
         PIDS+=($!) ;;
     esac
   fi

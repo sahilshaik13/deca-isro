@@ -221,6 +221,77 @@ export default function AlertRail({
                     {a.payload.severity ? ` · sev ${String(a.payload.severity)}` : ''}
                   </p>
                 ) : null}
+
+                {(() => {
+                  const md = (a.payload?.model_detection || null) as Record<
+                    string,
+                    unknown
+                  > | null
+                  if (!md) return null
+                  const signals = Array.isArray(md.top_signals)
+                    ? (md.top_signals as Array<{ name?: string; value?: number }>)
+                    : []
+                  const classes = Array.isArray(md.top_classes)
+                    ? (md.top_classes as Array<{
+                        severity?: string
+                        name?: string
+                        proba?: number
+                      }>)
+                    : []
+                  return (
+                    <div className="deca-alert-hint mb-2 rounded border border-[var(--deca-border)] bg-[var(--deca-panel-2,#0f172a)]/50 p-2">
+                      <p className="text-[10px] uppercase tracking-wide text-[var(--deca-mute)] mb-1">
+                        How Q2 detected this
+                        {md.ok === false ? ' · unavailable' : ''}
+                      </p>
+                      {md.explanation ? (
+                        <p className="text-xs leading-relaxed mb-1.5">
+                          {String(md.explanation)}
+                        </p>
+                      ) : null}
+                      {md.ok !== false ? (
+                        <p className="text-[11px] font-mono text-[var(--deca-mute)] mb-1">
+                          sev {String(md.severity || a.payload?.severity || '—')}
+                          {md.q2_confidence != null
+                            ? ` · p=${Number(md.q2_confidence).toFixed(2)}`
+                            : ''}
+                          {md.matches_demo_fault != null
+                            ? ` · demo-match ${md.matches_demo_fault ? 'yes' : 'no'}`
+                            : ''}
+                          {md.samples != null ? ` · n=${String(md.samples)}` : ''}
+                        </p>
+                      ) : (
+                        <p className="text-[11px] text-[var(--deca-mute)]">
+                          {String(md.error || 'detect failed')} — seed still actionable
+                        </p>
+                      )}
+                      {signals.length > 0 ? (
+                        <ul className="mt-1 text-[11px] font-mono space-y-0.5">
+                          {signals.slice(0, 5).map((s) => (
+                            <li key={String(s.name)}>
+                              {String(s.name)} ={' '}
+                              {s.value != null && Number.isFinite(Number(s.value))
+                                ? Number(s.value).toFixed(3)
+                                : '—'}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      {classes.length > 0 ? (
+                        <p className="mt-1 text-[10px] text-[var(--deca-mute)] font-mono">
+                          top:{' '}
+                          {classes
+                            .slice(0, 3)
+                            .map(
+                              (c) =>
+                                `${c.severity || '?'} ${(Number(c.proba) * 100).toFixed(0)}%`,
+                            )
+                            .join(' · ')}
+                        </p>
+                      ) : null}
+                    </div>
+                  )
+                })()}
                 {a.payload?.rogue_ce || a.payload?.victim_ce ? (
                   <p className="deca-alert-hint mb-2 text-xs">
                     <span className="text-[var(--deca-mute)]">CE SLA conflict · </span>
@@ -308,11 +379,57 @@ export default function AlertRail({
                     </span>
                   </p>
                 ) : null}
+                {(() => {
+                  const arb = (a.payload?.arbitration || {}) as Record<string, unknown>
+                  const firing = Array.isArray(arb.firing_tti_heads)
+                    ? (arb.firing_tti_heads as { head?: string; eta_seconds?: number }[])
+                    : []
+                  const compound =
+                    arb.compound_suspected === true ||
+                    a.payload?.compound_suspected === true ||
+                    firing.length > 1
+                  if (!compound && firing.length === 0) return null
+                  return (
+                    <div className="deca-alert-hint mb-2">
+                      <p className="text-[10px] uppercase tracking-wide text-[var(--deca-mute)] mb-1">
+                        {compound ? 'Compound / multi-fault (arbitration)' : 'TTI heads firing'}
+                      </p>
+                      <p className="text-xs mb-1">
+                        Primary why:{' '}
+                        <span className="font-mono">
+                          {String(arb.primary_severity || arb.primary_issue || a.class || '—')}
+                        </span>
+                        {arb.primary_confidence != null
+                          ? ` · conf ${Number(arb.primary_confidence).toFixed(2)}`
+                          : ''}
+                        {' · '}
+                        urgency = min ETA among heads
+                      </p>
+                      {firing.length > 0 ? (
+                        <ul className="list-disc pl-4 text-xs space-y-0.5 font-mono">
+                          {firing.map((h, i) => (
+                            <li key={i}>
+                              {String(h.head || '?')}: ETA{' '}
+                              {h.eta_seconds != null
+                                ? `${(Number(h.eta_seconds) / 60).toFixed(1)} min`
+                                : '—'}
+                              {i === 0 ? ' (leading clock)' : ''}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      <p className="mt-1 text-[10px] text-[var(--deca-mute)]">
+                        Playbook keys off primary Q2 class; quieter concurrent faults may be
+                        under-ranked (honest compound limit). Cross-site: see blast radius below.
+                      </p>
+                    </div>
+                  )
+                })()}
                 {Array.isArray(a.payload?.affected_scope) &&
                 (a.payload.affected_scope as string[]).length > 0 ? (
                   <div className="deca-alert-hint mb-2">
                     <p className="text-[10px] uppercase tracking-wide text-[var(--deca-mute)] mb-1">
-                      Affected scope (topology blast radius)
+                      Affected scope (topology blast radius · other paths/sites)
                     </p>
                     <ul className="list-disc pl-4 text-xs space-y-0.5">
                       {(a.payload.affected_scope as string[]).map((s, i) => (

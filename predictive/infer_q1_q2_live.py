@@ -24,6 +24,9 @@ import joblib
 import numpy as np
 import requests
 
+from .bgp_specialist import refine_3a_3b
+from .util_specialist import refine_util
+from .q2_fabric_route import resolve_q2_model
 from .prom_export import (
     Q1_QUERIES,
     Q2_QUERIES,
@@ -31,6 +34,11 @@ from .prom_export import (
     active_queries,
     prom_url_for_fabric,
     sample_bundle,
+)
+from .fabric_baseline import (
+    apply_idle_to_sample,
+    apply_util_ceiling_sample,
+    load_idle_baseline,
 )
 from .q2_windows import FEATURE_COLS, CUMULATIVE_COLS, slope
 from .alert_fusion import fuse_alert_fields
@@ -158,7 +166,12 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--q1-model", required=True)
     ap.add_argument("--q1-scaler", required=True)
-    ap.add_argument("--q2-model", required=True)
+    ap.add_argument("--q2-model", required=True, help="Pi-primary Q2 severity (frozen d2)")
+    ap.add_argument(
+        "--q2-model-gns3",
+        default="",
+        help="optional GNS3 twin Q2 (default: xgb_q2_sev_gns3_d3 when --fabric gns3)",
+    )
     ap.add_argument("--q1-loss-model", default="", help="optional loss-TTI LSTM")
     ap.add_argument("--q1-loss-scaler", default="")
     ap.add_argument("--q1-jitter-model", default="", help="optional jitter-TTI LSTM")
@@ -174,7 +187,7 @@ def main() -> None:
         "--fabric",
         default="",
         choices=("", "pi", "gns3"),
-        help="retarget PromQL (sets DECA_FABRIC); required for GNS3 twin live infer",
+        help="retarget PromQL (sets DECA_FABRIC); GNS3 also routes Q2 to d3 when present",
     )
     ap.add_argument("--orch", default="http://127.0.0.1:8000")
     ap.add_argument("--seconds", type=int, default=0)
@@ -193,6 +206,27 @@ def main() -> None:
     ap.add_argument("--steer-path", default="eth0", choices=("gre", "eth0"))
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--log", default="")
+    ap.add_argument(
+        "--idle-baseline-json",
+        default="",
+        help="fabric L0 idle baseline for Q2 features (default: embed from q2 bundle)",
+    )
+    ap.add_argument(
+        "--bgp-specialist",
+        default="data/deca/predictive/protocol_models/bgp_3a3b_specialist/bgp_3a3b.joblib",
+        help="3A/3B refine (honest lock min_3a=0.85); empty string disables",
+    )
+    ap.add_argument(
+        "--util-specialist",
+        default="",
+        help="optional util_5a5b.joblib to promote 0→5A/5B (dashboard gap fill)",
+    )
+    ap.add_argument(
+        "--promote-0-to-3a-min-proba",
+        type=float,
+        default=None,
+        help="dashboard: if argmax is 0 and P(3A)≥this, emit 3A before specialists",
+    )
     args = ap.parse_args()
     if args.fabric:
         import os
@@ -200,6 +234,12 @@ def main() -> None:
         os.environ["DECA_FABRIC"] = args.fabric
     if not args.prom:
         args.prom = prom_url_for_fabric()
+
+    q2_path = resolve_q2_model(
+        fabric=args.fabric or None,
+        q2_model=args.q2_model,
+        q2_model_gns3=args.q2_model_gns3 or None,
+    )
 
     try:
         from tensorflow import keras
@@ -238,13 +278,28 @@ def main() -> None:
         if not q1_util_cols:
             q1_util_cols = q1_cols
 
-    bundle = joblib.load(args.q2_model)
+    bundle = joblib.load(q2_path)
     q2 = bundle["model"]
     q2_feat_cols: list[str] = list(bundle["feature_cols"])
     label_names = bundle.get("label_names") or Q2_LABEL_NAMES
     q2_mode = bundle.get("mode", "root")
     id_to_sev = bundle.get("id_to_severity") or ID_TO_SEVERITY
     sev_to_root = bundle.get("severity_to_root") or SEVERITY_TO_ROOT
+    contig_to_raw = bundle.get("contig_to_raw") or {}
+    idle_bl = bundle.get("idle_baseline")
+    if args.idle_baseline_json:
+        idle_bl = load_idle_baseline(args.idle_baseline_json)
+    util_ceil_bl = bundle.get("util_ceiling")
+    bgp_bundle = None
+    if args.bgp_specialist:
+        bgp_path = Path(args.bgp_specialist)
+        if bgp_path.is_file():
+            bgp_bundle = joblib.load(bgp_path)
+    util_bundle = None
+    if args.util_specialist:
+        util_path = Path(args.util_specialist)
+        if util_path.is_file():
+            util_bundle = joblib.load(util_path)
 
     # Always fabric-retarget (GNS3: job/host rewrite). Raw Q1_QUERIES miss twin → lat=None forever.
     queries = active_queries()
@@ -256,8 +311,14 @@ def main() -> None:
     if log_path:
         log_path.parent.mkdir(parents=True, exist_ok=True)
 
+    bgp_thr = (
+        float(bgp_bundle["min_3a_proba"])
+        if bgp_bundle is not None and "min_3a_proba" in bgp_bundle
+        else None
+    )
     print(
-        f"Q1+Q2 live: mode={q2_mode} win={args.win} red≤{args.red_sec}s "
+        f"Q1+Q2 live: mode={q2_mode} fabric={args.fabric or 'pi'} "
+        f"q2={q2_path} bgp_specialist={bgp_thr} win={args.win} red≤{args.red_sec}s "
         f"lat_floor≥{args.latency_floor_ms}ms dry_run={args.dry_run}",
         flush=True,
     )
@@ -321,7 +382,13 @@ def main() -> None:
                 Xu = ((Xu - util_mean) / util_std)[None, ...]
                 eta_util = max(0.0, float(q1_util.predict(Xu, verbose=0)[0][0]))
 
-            feats = window_features(list(buf), q2_feat_cols)
+            q2_buf = list(buf)
+            if util_ceil_bl is not None and float(util_ceil_bl.get("ceil_mbps") or 0) > 0:
+                ceil = float(util_ceil_bl["ceil_mbps"])
+                q2_buf = [apply_util_ceiling_sample(dict(r), ceil) for r in q2_buf]
+            if idle_bl is not None:
+                q2_buf = [apply_idle_to_sample(dict(r), idle_bl) for r in q2_buf]
+            feats = window_features(q2_buf, q2_feat_cols)
             X2 = np.asarray([[feats.get(c, 0.0) for c in q2_feat_cols]], dtype=np.float32)
             if hasattr(q2, "predict_proba"):
                 proba = q2.predict_proba(X2)[0]
@@ -332,6 +399,30 @@ def main() -> None:
                 q2_conf = 0.8
             if q2_mode == "severity":
                 severity = id_to_sev.get(q2_label, "0")
+                if contig_to_raw:
+                    raw_id = int(contig_to_raw.get(q2_label, q2_label))
+                    severity = ID_TO_SEVERITY.get(raw_id, severity)
+                if (
+                    args.promote_0_to_3a_min_proba is not None
+                    and severity == "0"
+                    and hasattr(q2, "predict_proba")
+                ):
+                    p_3a = 0.0
+                    for ci, cid in enumerate(getattr(q2, "classes_", [])):
+                        sev_c = id_to_sev.get(int(cid), "0")
+                        if contig_to_raw:
+                            sev_c = ID_TO_SEVERITY.get(
+                                int(contig_to_raw.get(int(cid), cid)), sev_c
+                            )
+                        if sev_c == "3A":
+                            p_3a = float(proba[ci])
+                            break
+                    if p_3a >= float(args.promote_0_to_3a_min_proba):
+                        severity = "3A"
+                if util_bundle is not None:
+                    severity = refine_util(severity, feats, bundle=util_bundle)
+                if bgp_bundle is not None:
+                    severity = refine_3a_3b(severity, feats, bundle=bgp_bundle)
                 q2_name = SEVERITY_NAMES.get(severity, label_names.get(q2_label, str(q2_label)))
                 root_label = int(sev_to_root.get(severity, 0))
             else:

@@ -32,6 +32,7 @@ export interface FleetSite {
     advisory?: string | null
     confidence?: number | null
     eta_minutes?: number | null
+    reachable?: boolean
     metrics?: {
       latency_gre_ms?: number
       latency_eth0_ms?: number

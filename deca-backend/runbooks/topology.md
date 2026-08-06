@@ -2,7 +2,7 @@
 
 Physical multi-site Pi lab (not EVE-NG). Authoritative addressing & restore:
 [`docs/STATION_NETWORK_SETUP.md`](../../docs/STATION_NETWORK_SETUP.md).
-Master SD-WAN policies: [`docs/DECA_SDWAN_POLICY_RULES.md`](../../docs/DECA_SDWAN_POLICY_RULES.md).
+Master SD-WAN policies: [`docs/EDGE_POLICY_LAYERS.md`](../../docs/EDGE_POLICY_LAYERS.md).
 
 ## Hosts
 

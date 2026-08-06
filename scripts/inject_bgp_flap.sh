@@ -22,6 +22,7 @@ PERIOD_SEC=5
 DOWN_SEC=2
 LINK_BOUNCE=0
 CLEAR_ONLY=0
+SCHEDULE_OUT="${DECA_BGP_SCHEDULE_OUT:-}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -32,6 +33,7 @@ while [[ $# -gt 0 ]]; do
     --period-sec) PERIOD_SEC="$2"; shift 2 ;;
     --down-sec) DOWN_SEC="$2"; shift 2 ;;
     --link-bounce) LINK_BOUNCE=1; shift ;;
+    --schedule-out) SCHEDULE_OUT="$2"; shift 2 ;;
     --clear) CLEAR_ONLY=1; shift ;;
     -h|--help) sed -n '2,16p' "$0"; exit 0 ;;
     *) echo "unknown: $1"; exit 2 ;;
@@ -74,9 +76,13 @@ restore() {
 }
 trap restore EXIT INT TERM
 
+: > /tmp/deca_bgp_flap_schedule.jsonl
 for i in \$(seq 1 "\$CYCLES"); do
+  now=\$(date +%s)
   echo "[\$(date -u +%H:%M:%S)] flap \$i/\$CYCLES clear bgp \$NEIGHBOR soft"
   vtysh -c "clear bgp \$NEIGHBOR soft" >/dev/null
+  printf '{"ts_unix":%s,"event":"soft_clear","cycle":%s,"period_sec":%s,"link_bounce":%s}\n' \
+    "\$now" "\$i" "\$PERIOD_SEC" "\$LINK_BOUNCE" >> /tmp/deca_bgp_flap_schedule.jsonl
   if [[ "\$LINK_BOUNCE" -eq 1 ]]; then
     echo "[\$(date -u +%H:%M:%S)] link bounce \$DEV down \${DOWN_SEC}s"
     ip link set "\$DEV" down
@@ -93,5 +99,12 @@ done
 echo "[\$(date -u +%H:%M:%S)] flap campaign complete"
 ip -br link show "\$DEV" || true
 EOF
+
+if [[ -n "$SCHEDULE_OUT" ]]; then
+  mkdir -p "$(dirname "$SCHEDULE_OUT")"
+  scp -q "${HOST}:/tmp/deca_bgp_flap_schedule.jsonl" "$SCHEDULE_OUT" \
+    && echo "wrote schedule $SCHEDULE_OUT" \
+    || echo "WARN: could not scp BGP flap schedule from $HOST"
+fi
 
 echo "Done. Ensure UP with: $0 --clear --host $HOST"

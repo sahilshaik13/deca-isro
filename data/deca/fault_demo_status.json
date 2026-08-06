@@ -2,7 +2,7 @@
   "running": false,
   "fault_id": null,
   "fabric": null,
-  "message": "cleared (fabric_switch:pi->gns3)",
+  "message": "cleared (operator_clear)",
   "started_at": null,
   "seeded_alert": null,
   "log_tail": []
