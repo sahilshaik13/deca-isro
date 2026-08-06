@@ -1,0 +1,13 @@
+{
+  "train": true,
+  "name": "normal",
+  "root_label": 0,
+  "fabric": "pi",
+  "synthetic": true,
+  "schema_version": 2,
+  "recipe": {
+    "kind": "L0",
+    "seconds": 600,
+    "seed": 43
+  }
+}

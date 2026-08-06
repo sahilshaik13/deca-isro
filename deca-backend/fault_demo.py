@@ -74,7 +74,7 @@ FAULTS: dict[str, dict[str, Any]] = {
             "45",
         ],
         "clear": ["bash", "scripts/inject_rain_fade.sh", "--clear", "--host", HOST],
-        "seed_delay_s": 20,
+        "seed_delay_s": 35,
         "seed": {
             "title": "Rain fade — GRE latency rising (predict before TT&C breach)",
             "alert_class": "tunnel_degradation",
@@ -222,7 +222,7 @@ FAULTS: dict[str, dict[str, Any]] = {
             "--host",
             HOST,
         ],
-        "seed_delay_s": 18,
+        "seed_delay_s": 38,
         "seed": {
             "title": "Loss progression — GRE loss climbing toward Payload SLA",
             "alert_class": "tunnel_degradation",
@@ -447,7 +447,7 @@ def _start_gns3(fault_id: str, *, started_by: str) -> dict[str, Any]:
         _write_status()
 
     t = threading.Thread(
-        target=_watcher,
+        target=_watcher_thread_func,
         args=(fault_id, float(meta["seed_delay_s"]), dict(meta["seed"])),
         daemon=True,
         name=f"fault-seed-gns3-{fault_id}",
@@ -534,7 +534,7 @@ def _seed(seed: dict[str, Any], fault_id: str) -> dict[str, Any]:
         return json.loads(resp.read().decode())
 
 
-def _watcher(fault_id: str, delay: float, seed: dict[str, Any]) -> None:
+def _watcher_thread_func(fault_id: str, delay: float, seed: dict[str, Any]) -> None:
     time.sleep(max(1.0, delay))
     with _lock:
         if _state.get("fault_id") != fault_id:
@@ -612,7 +612,7 @@ def start(fault_id: str, *, started_by: str = "deca-ui") -> dict[str, Any]:
         _write_status()
 
     t = threading.Thread(
-        target=_watcher,
+        target=_watcher_thread_func,
         args=(fault_id, float(meta["seed_delay_s"]), dict(meta["seed"])),
         daemon=True,
         name=f"fault-seed-{fault_id}",

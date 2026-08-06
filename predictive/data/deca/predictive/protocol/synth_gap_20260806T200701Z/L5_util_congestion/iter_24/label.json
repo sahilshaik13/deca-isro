@@ -1,0 +1,13 @@
+{
+  "train": true,
+  "name": "util_congestion",
+  "root_label": 5,
+  "fabric": "pi",
+  "synthetic": true,
+  "schema_version": 2,
+  "recipe": {
+    "kind": "L5",
+    "end_mbit": 34.0,
+    "seed": 365
+  }
+}

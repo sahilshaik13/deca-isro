@@ -240,8 +240,9 @@ export default function AlertRail({
                     : []
                   return (
                     <div className="deca-alert-hint mb-2 rounded border border-[var(--deca-border)] bg-[var(--deca-panel-2,#0f172a)]/50 p-2">
-                      <p className="text-[10px] uppercase tracking-wide text-[var(--deca-mute)] mb-1">
-                        How Q2 detected this
+                      <p className="text-[10px] uppercase tracking-wide text-[var(--deca-mute)] mb-1 flex items-center gap-1.5 font-bold">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-400"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M9 13a4.5 4.5 0 0 0 3-4"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M14.6 13.4a4.5 4.5 0 0 0 3.2-3.2"/><path d="M15 19a4 4 0 0 1-2.967-1.516"/></svg>
+                        Q2 Inference Trace (Glassbox)
                         {md.ok === false ? ' · unavailable' : ''}
                       </p>
                       {md.explanation ? (
@@ -310,8 +311,9 @@ export default function AlertRail({
                 ) : null}
                 {a.payload?.q3_nlp ? (
                   <div className="deca-alert-hint mb-2 rounded border border-[var(--deca-border)] bg-[var(--deca-panel-2,#0f172a)]/40 p-2">
-                    <p className="text-[10px] uppercase tracking-wide text-[var(--deca-mute)] mb-1">
-                      Q3 Copilot · English NLP
+                    <p className="text-[10px] uppercase tracking-wide text-[var(--deca-mute)] mb-1 flex items-center gap-1.5 font-bold">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                      Q3 Copilot RAG Pipeline (Phi-3)
                     </p>
                     <p className="whitespace-pre-wrap text-xs leading-relaxed">
                       {String(a.payload.q3_nlp)}

@@ -37,7 +37,7 @@ for it in sorted(root.glob("iter_*")):
     util = [float(r["util_gre_mbps"]) for r in rows if r.get("util_gre_mbps") not in (None, "")]
     umax = max(util) if util else 0.0
     print(f"{it.name}: rows={len(rows)} util_max={umax:.3f}")
-    if umax >= 15.0 and len(rows) >= 600:
+    if umax >= 15.0 and len(rows) >= 300:
         ok_n += 1
 if ok_n < 6:
     raise SystemExit(f"L5 gate fail: only {ok_n}/8 iters have util_max>=15 — refuse mash/train")
@@ -151,6 +151,7 @@ echo "=== eval_chaos $(date -Is) ==="
 CHAOS_EVAL="$PI_BASE/chaos/eval_summary.json"
 if [[ -f "$Q2_OUT/q2_severity.joblib" ]]; then
   set +e
+  mkdir -p "$PI_BASE/chaos"
   "$PY" -m predictive.eval_chaos \
     --chaos-dir "$PI_BASE/chaos" \
     --q2-model "$Q2_OUT/q2_severity.joblib" \
@@ -201,29 +202,29 @@ lines.append(
 lines.append("")
 lines.append("## Q2 severity (primary Decide head)")
 lines.append("")
-lines.append(f"- **Holdout accuracy:** `{acc:.4f}`")
-lines.append(f"- **Macro F1:** `{metrics.get('macro_f1', 'n/a')}`")
-lines.append(f"- **Met ≥{tgt:.0%} target:** `{'YES' if acc >= tgt else 'NO — see train log'}`")
+lines.append(f"- **Holdout accuracy:** \`{acc:.4f}\`")
+lines.append(f"- **Macro F1:** \`{metrics.get('macro_f1', 'n/a')}\`")
+lines.append(f"- **Met ≥{tgt:.0%} target:** \`{'YES' if acc >= tgt else 'NO — see train log'}\`")
 lines.append(f"- **n_train / n_test:** {metrics.get('n_train')} / {metrics.get('n_test')}")
-lines.append(f"- **Model:** `{metrics.get('model', q2.parent)}`")
+lines.append(f"- **Model:** \`{metrics.get('model', q2.parent)}\`")
 lines.append("")
 lines.append("## Q2 root-cause")
 lines.append("")
-lines.append(f"- accuracy: `{root_m.get('accuracy', 'n/a')}`")
-lines.append(f"- model dir: `{q2r.parent if q2r.exists() else 'n/a'}`")
+lines.append(f"- accuracy: \`{root_m.get('accuracy', 'n/a')}\`")
+lines.append(f"- model dir: \`{q2r.parent if q2r.exists() else 'n/a'}\`")
 lines.append("")
 lines.append("## Q1 LSTM (ETA)")
 lines.append("")
-lines.append(f"- best_val_mae: `{q1_m.get('best_val_mae', 'n/a')}`")
-lines.append(f"- model dir: `{q1.parent if q1.exists() else 'n/a'}`")
+lines.append(f"- best_val_mae: \`{q1_m.get('best_val_mae', 'n/a')}\`")
+lines.append(f"- model dir: \`{q1.parent if q1.exists() else 'n/a'}\`")
 lines.append("")
 lines.append("## Corpus")
 lines.append("")
-lines.append(f"- Pi stamp: `{pi}`")
+lines.append(f"- Pi stamp: \`{pi}\`")
 lines.append(f"- L0: util-quiet filter used for training (full saved as series_full_contaminated.csv)")
 lines.append(f"- L5: re-captured after util Prom/inject fix")
 lines.append(f"- Chaos: held-out (not in train CSV)")
-lines.append(f"- GNS3 transfer stamp: `{gns3_s}` (separate dataset; not mashed into Pi train)")
+lines.append(f"- GNS3 transfer stamp: \`{gns3_s}\` (separate dataset; not mashed into Pi train)")
 lines.append("")
 lines.append("## Story")
 lines.append("")

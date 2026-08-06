@@ -370,11 +370,7 @@ def get_dashboard():
     try:
         payload = telemetry_service.poll()
         prediction = payload["prediction"]
-        try:
-            copilot_raw = _run_copilot(prediction)
-        except Exception as exc:
-            print(f"Warning: copilot failed: {exc}")
-            copilot_raw = None
+        copilot_raw = None
         payload["copilot"] = _format_copilot(copilot_raw, prediction)
         payload["data"] = {
             "prediction": prediction.get("predicted_issue", "normal"),

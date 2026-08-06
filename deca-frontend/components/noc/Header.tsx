@@ -1,9 +1,10 @@
 'use client'
 
-import { AlertCircle, CheckCircle2 } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Beaker } from 'lucide-react'
 import type { StationSnapshot } from '@/lib/telemetry-context'
 
 interface HeaderProps {
+  onOpenMethodology: () => void
   isAnomalyMode: boolean
   anomalyScore: number
   timeToImpactMinutes: number | null
@@ -20,6 +21,7 @@ interface HeaderProps {
 }
 
 export default function Header({
+  onOpenMethodology,
   isAnomalyMode,
   anomalyScore,
   timeToImpactMinutes,
@@ -43,10 +45,17 @@ export default function Header({
         <div>
           <p className="deca-eyebrow">ISRO SD-WAN · Network + control</p>
           <h1 className="deca-brand">DECA</h1>
-          <p className="deca-tagline">
+          <p className="deca-tagline mb-4">
             Live fleet and telemetry on the left — Approve / Reject path steers in the Decide
             control center on the right.
           </p>
+          <button
+            onClick={onOpenMethodology}
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-[var(--deca-primary)] bg-[var(--deca-primary)]/10 hover:bg-[var(--deca-primary)]/20 border border-[var(--deca-primary)]/30 rounded-md transition-colors"
+          >
+            <Beaker className="w-3.5 h-3.5" />
+            View ML Methodology & Benchmarks
+          </button>
         </div>
 
         <div className="deca-hero-controls">

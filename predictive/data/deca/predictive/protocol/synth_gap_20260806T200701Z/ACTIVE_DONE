@@ -1,0 +1,14 @@
+{
+  "status": "SYNTH_DONE",
+  "meta": {
+    "stamp": "synth_gap_20260806T200701Z",
+    "synthetic": true,
+    "physics": "SYNTHETIC_DATASET_NETWORK_SPEC.md",
+    "counts": {
+      "L0": 2,
+      "L3_mild": 24,
+      "L3_severe": 12,
+      "L5": 24
+    }
+  }
+}

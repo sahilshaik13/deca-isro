@@ -132,22 +132,19 @@ def merge_into_seed(seed: dict[str, Any], detection: dict[str, Any]) -> dict[str
     out = dict(seed)
     out["model_detection"] = detection
     if detection.get("ok"):
-        # Prefer live model class when it agrees or when seed severity empty
-        if detection.get("severity"):
-            if not out.get("severity") or detection.get("matches_demo_fault"):
-                out["severity"] = detection["severity"]
-        if detection.get("q2_name") and not out.get("root_cause"):
+        # STRICT MODEL-DRIVEN MODE: Always override seed with the authentic live model prediction.
+        if detection.get("severity") is not None:
+            out["severity"] = detection["severity"]
+        if detection.get("q2_name") is not None:
             out["root_cause"] = detection["q2_name"]
-        if detection.get("root_label") is not None and out.get("root_cause_label") is None:
+            # If the model didn't classify it as a fault (severity 0), clear the root cause label too
+            if str(detection["severity"]) == "0" or not detection["severity"]:
+                out["root_cause"] = "normal"
+        if detection.get("root_label") is not None:
             out["root_cause_label"] = detection["root_label"]
         if detection.get("q2_confidence") is not None:
-            # blend lightly toward model confidence for Decide display
-            try:
-                seed_c = float(out.get("confidence") or 0.85)
-                model_c = float(detection["q2_confidence"])
-                out["confidence"] = round(0.4 * seed_c + 0.6 * model_c, 4)
-            except (TypeError, ValueError):
-                pass
+            # Strictly use the model's authentic confidence score
+            out["confidence"] = round(float(detection["q2_confidence"]), 4)
         snaps = detection.get("prom_snapshot") or {}
         sigs = dict(out.get("contributing_signals") or {})
         for k in (

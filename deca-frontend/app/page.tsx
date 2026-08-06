@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Header from '@/components/noc/Header'
 import TopologyMap from '@/components/noc/TopologyMap'
 import MissionClasses from '@/components/noc/MissionClasses'
@@ -11,10 +12,13 @@ import FabricSelect from '@/components/noc/FabricSelect'
 import FaultButtons from '@/components/noc/FaultButtons'
 import TrafficButtons from '@/components/noc/TrafficButtons'
 import TerminalDrawer from '@/components/noc/TerminalDrawer'
+import MethodologyModal from '@/components/noc/MethodologyModal'
+import BackendTraceVisualizer from '@/components/noc/BackendTraceVisualizer'
 import { useTelemetry } from '@/hooks/useTelemetry'
 import { useOrchestrator } from '@/hooks/useOrchestrator'
 
 export default function Page() {
+  const [isMethodologyOpen, setIsMethodologyOpen] = useState(false)
   const telemetry = useTelemetry()
   const orch = useOrchestrator()
   const activeFabric = orch.fabricStatus?.active || orch.fleet?.fabric || 'pi'
@@ -30,7 +34,9 @@ export default function Page() {
 
   return (
     <main className="deca-shell">
+      <MethodologyModal isOpen={isMethodologyOpen} onClose={() => setIsMethodologyOpen(false)} />
       <Header
+        onOpenMethodology={() => setIsMethodologyOpen(true)}
         isAnomalyMode={telemetry.isAnomaly || hasRaise}
         anomalyScore={telemetry.anomalyScore}
         timeToImpactMinutes={telemetry.timeToImpactMinutes}
@@ -101,6 +107,7 @@ export default function Page() {
             loading={telemetry.loading}
             error={telemetry.error}
           />
+          <BackendTraceVisualizer alerts={orch.alerts} faultStatus={orch.faultStatus} />
         </section>
 
         <aside className="deca-main-right space-y-6">

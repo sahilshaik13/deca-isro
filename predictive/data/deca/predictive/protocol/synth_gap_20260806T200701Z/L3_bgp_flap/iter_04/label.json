@@ -1,0 +1,14 @@
+{
+  "train": true,
+  "name": "bgp_flap",
+  "root_label": 3,
+  "fabric": "pi",
+  "synthetic": true,
+  "schema_version": 2,
+  "recipe": {
+    "kind": "L3",
+    "mild": true,
+    "period_sec": 7,
+    "seed": 145
+  }
+}

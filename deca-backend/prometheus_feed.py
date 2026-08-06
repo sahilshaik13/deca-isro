@@ -59,13 +59,9 @@ def _prom_base() -> str:
 
 
 def _prom_query_result(
-    promql: str, base: str | None = None
+    promql: str, base: str | None = None, fetch_ts: bool = True
 ) -> tuple[float | None, float | None]:
-    """Return (value, last_sample_unix_ts).
-
-    Instant-query `value[0]` is the *evaluation* time, not the series sample
-    time — use `timestamp(expr)` so cable-pulls age out within STALE_SEC.
-    """
+    """Return (value, last_sample_unix_ts)."""
     url = (base or _prom_base()).rstrip("/")
     try:
         resp = requests.get(
@@ -84,26 +80,27 @@ def _prom_query_result(
         if not math.isfinite(value):
             return None, None
         sample_ts: float | None = None
-        try:
-            ts_resp = requests.get(
-                f"{url}/api/v1/query",
-                params={"query": f"timestamp({promql})"},
-                timeout=2,
-            )
-            ts_resp.raise_for_status()
-            ts_payload = ts_resp.json()
-            ts_rows = ts_payload.get("data", {}).get("result", [])
-            if ts_rows:
-                sample_ts = float(ts_rows[0]["value"][1])
-        except (requests.RequestException, ValueError, TypeError, IndexError, KeyError):
-            sample_ts = None
+        if fetch_ts:
+            try:
+                ts_resp = requests.get(
+                    f"{url}/api/v1/query",
+                    params={"query": f"timestamp({promql})"},
+                    timeout=2,
+                )
+                ts_resp.raise_for_status()
+                ts_payload = ts_resp.json()
+                ts_rows = ts_payload.get("data", {}).get("result", [])
+                if ts_rows:
+                    sample_ts = float(ts_rows[0]["value"][1])
+            except (requests.RequestException, ValueError, TypeError, IndexError, KeyError):
+                sample_ts = None
         return value, sample_ts
     except (requests.RequestException, ValueError, TypeError, IndexError, KeyError):
         return None, None
 
 
 def _prom_query(promql: str, base: str | None = None) -> float | None:
-    value, _ts = _prom_query_result(promql, base)
+    value, _ts = _prom_query_result(promql, base, fetch_ts=False)
     return value
 
 

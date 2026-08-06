@@ -163,17 +163,17 @@
   }
 }
 
-/* DECA orchestrator surface — deep night ops, copper accent (not purple/cream) */
+/* DECA orchestrator surface — premium glassmorphic dark mode */
 :root {
-  --deca-bg: #070b10;
-  --deca-panel: rgba(12, 18, 26, 0.88);
-  --deca-panel-2: #101820;
-  --deca-line: #2a3848;
-  --deca-ink: #e8eef4;
-  --deca-mute: #8a9aab;
-  --deca-accent: #c4a35a;
-  --deca-ok: #3dba8a;
-  --deca-warn: #e85d4c;
+  --deca-bg: #030712;
+  --deca-panel: rgba(15, 23, 42, 0.45);
+  --deca-panel-2: rgba(30, 41, 59, 0.6);
+  --deca-line: rgba(51, 65, 85, 0.6);
+  --deca-ink: #f8fafc;
+  --deca-mute: #94a3b8;
+  --deca-accent: #38bdf8;
+  --deca-ok: #10b981;
+  --deca-warn: #f43f5e;
 }
 
 .deca-shell {
@@ -182,9 +182,9 @@
   margin: 0 auto;
   padding: 1.25rem 1.25rem 3.5rem;
   background:
-    radial-gradient(ellipse 70% 45% at 8% -5%, #163028 0%, transparent 55%),
-    radial-gradient(ellipse 50% 35% at 95% 0%, #2a2012 0%, transparent 48%),
-    linear-gradient(180deg, #0b1218 0%, #070b10 45%, #05080c 100%);
+    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(56, 189, 248, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 100% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+    #030712;
 }
 
 .deca-term-spacer {
@@ -210,8 +210,8 @@
   inset: -30% -10% auto;
   height: 160%;
   background:
-    linear-gradient(115deg, transparent 28%, rgba(196, 163, 90, 0.08) 48%, transparent 68%),
-    radial-gradient(circle at 72% 36%, rgba(61, 186, 138, 0.09), transparent 42%);
+    linear-gradient(115deg, transparent 28%, rgba(56, 189, 248, 0.08) 48%, transparent 68%),
+    radial-gradient(circle at 72% 36%, rgba(139, 92, 246, 0.09), transparent 42%);
   animation: deca-sweep 14s ease-in-out infinite alternate;
   pointer-events: none;
 }
