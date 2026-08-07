@@ -46,6 +46,8 @@ OFFER_MULT=2
 CLEAR_ONLY=0
 MODE=tc   # tc | iperf | coarse
 SCHEDULE_OUT="${DECA_UTIL_SCHEDULE_OUT:-}"
+PIDFILE=/tmp/deca_util_congestion.pid
+SSH_PID=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -82,6 +84,16 @@ fi
 
 run() { ssh -T "$HOST" "sudo bash -s"; }
 
+kill_ssh() {
+  if [[ -n "${SSH_PID}" ]] && kill -0 "$SSH_PID" 2>/dev/null; then
+    kill -TERM "$SSH_PID" 2>/dev/null || true
+    sleep 0.4
+    kill -KILL "$SSH_PID" 2>/dev/null || true
+    wait "$SSH_PID" 2>/dev/null || true
+    SSH_PID=""
+  fi
+}
+
 ensure_peer_servers() {
   ssh -T -o BatchMode=yes -o ConnectTimeout=8 "$PEER" "sudo bash -s" <<EOF || true
 set -euo pipefail
@@ -95,13 +107,22 @@ EOF
 }
 
 stop_clients() {
-  run <<'EOF' || true
+  echo "Stopping util injectors on $HOST (healthy)"
+  ssh -T "$HOST" "sudo bash -s" <<EOF || true
+if [[ -f $PIDFILE ]]; then
+  pid=\$(cat $PIDFILE 2>/dev/null || true)
+  if [[ -n "\$pid" ]]; then
+    kill -TERM "\$pid" 2>/dev/null || true
+    pkill -P "\$pid" 2>/dev/null || true
+    sleep 0.2
+    kill -KILL "\$pid" 2>/dev/null || true
+  fi
+  rm -f $PIDFILE
+fi
 ip netns exec ce-a pkill -f 'iperf3 -c' 2>/dev/null || true
-# Drop ephemeral CE shape left by a killed inject
 ip netns exec ce-a tc qdisc del dev veth-cea-pe root 2>/dev/null || true
-# Restore PE BE 1:20 if a killed inject left ceil elevated (nominal 5/24)
-BE=$(tc class show dev eth0 classid 1:20 | head -1 || true)
-if echo "$BE" | grep -qE 'ceil 40[Mm]bit'; then
+BE=\$(tc class show dev eth0 classid 1:20 | head -1 || true)
+if echo "\$BE" | grep -qE 'ceil 40[Mm]bit'; then
   tc class change dev eth0 classid 1:20 htb rate 5mbit ceil 24mbit prio 5 2>/dev/null || true
 fi
 echo cleared
@@ -109,26 +130,46 @@ EOF
 }
 
 if [[ "$CLEAR_ONLY" -eq 1 ]]; then
-  echo "Stopping util injectors on $HOST"
   stop_clients
   exit 0
 fi
 
+on_interrupt() {
+  echo
+  echo "Interrupted — killing remote inject, restoring healthy util/HTB on $HOST"
+  kill_ssh
+  stop_clients
+  exit 130
+}
+trap on_interrupt INT TERM
+
 TOTAL=$((STEPS * STEP_SEC + PLATEAU_SEC))
 echo "Util inject mode=$MODE :$PORT ×$PARALLEL  ${START_MBIT}→${END_MBIT} Mbit  offer=${OFFER_MBIT}Mbit (≥${OFFER_MULT}×end)  steps=${STEPS}×${STEP_SEC}s plateau=${PLATEAU_SEC}s (~${TOTAL}s) [CAPTURE_CONTRACT]"
+echo "(Ctrl+C kills remote loop + restores CE+PE HTB → healthy)"
 
 ensure_peer_servers
 stop_clients >/dev/null
 
+TMP="$(mktemp /tmp/deca_util_remote.XXXXXX)"
+
 if [[ "$MODE" == "coarse" || "$MODE" == "iperf" ]]; then
-  run <<EOF
+  cat >"$TMP" <<EOF
 set -euo pipefail
 NS='$NS'; DST='$DST'; PORT=$PORT; PARALLEL=$PARALLEL
 STEPS=$STEPS; STEP_SEC=$STEP_SEC; START_MBIT=$START_MBIT; END_MBIT=$END_MBIT
 PLATEAU_SEC=$PLATEAU_SEC; MODE='$MODE'; OFFER_MBIT=$OFFER_MBIT
+PIDFILE=$PIDFILE
+
+cleanup() {
+  rm -f "\$PIDFILE"
+  ip netns exec "\$NS" pkill -f 'iperf3 -c' 2>/dev/null || true
+  echo "[\$(date -u +%H:%M:%S)] util \$MODE cleared (healthy)"
+}
+trap cleanup EXIT INT TERM HUP
+echo \$\$ > "\$PIDFILE"
+
 for i in \$(seq 0 \$((STEPS - 1))); do
   mbit=\$(( START_MBIT + (END_MBIT - START_MBIT) * i / (STEPS - 1) ))
-  # Offer above step ceil so -b is not the bottleneck (legacy modes).
   offer=\$OFFER_MBIT
   [[ "\$offer" -lt \$((mbit * 2)) ]] && offer=\$((mbit * 2))
   per=\$(( offer / PARALLEL )); [[ "\$per" -lt 1 ]] && per=1
@@ -147,19 +188,20 @@ if [[ "\$PLATEAU_SEC" -gt 0 ]]; then
     >/tmp/deca_util_cong.log 2>&1 &
   sleep "\$PLATEAU_SEC"
 fi
-ip netns exec "\$NS" pkill -f 'iperf3 -c' 2>/dev/null || true
+echo "[\$(date -u +%H:%M:%S)] util \$MODE complete — cleanup will restore healthy"
 EOF
+  ssh -T "$HOST" "sudo bash -s" <"$TMP" &
+  SSH_PID=$!
+  wait "$SSH_PID" || true
+  SSH_PID=""
+  rm -f "$TMP"
+  trap - INT TERM
+  echo "Util inject finished — cleared (healthy)."
   exit 0
 fi
 
 # --- Default: tc-ramp (continuous offer, rising shaper) ---
-# WHY CE uplink + BE lift, not PE eth0 1:15 alone:
-#   ce-a → PE is IPsec/MPLS-encapsulated on eth0, so dport/ToS filters miss and
-#   traffic lands in default BE 1:20 (nominal ceil 24). Changing PE 1:15 is a
-#   no-op for measured util; leaving 1:20 at 24 hard-caps eth0 ~24 even when CE
-#   ceil is higher. Shape on ce-a veth *before* encrypt, and temporarily lift
-#   PE 1:20 to parent 40 so CE is the sole rate limit visible on eth0.
-run <<EOF
+cat >"$TMP" <<EOF
 set -euo pipefail
 NS='$NS'; DST='$DST'; PORT=$PORT; PARALLEL=$PARALLEL
 IFACE='$IFACE'; CLASSID='$CLASSID'
@@ -167,10 +209,10 @@ CE_IFACE='veth-cea-pe'
 BE_CLASSID='1:20'
 STEPS=$STEPS; STEP_SEC=$STEP_SEC; START_MBIT=$START_MBIT; END_MBIT=$END_MBIT
 PLATEAU_SEC=$PLATEAU_SEC; OFFER_MBIT=$OFFER_MBIT
+PIDFILE=$PIDFILE
 TOTAL=$((STEPS * STEP_SEC + PLATEAU_SEC + 10))
 per_offer=\$(( OFFER_MBIT / PARALLEL )); [[ "\$per_offer" -lt 1 ]] && per_offer=1
 
-# Snapshot PE 1:15 + BE 1:20 for restore
 ORIG=\$(tc class show dev "\$IFACE" classid "\$CLASSID" | head -1 || true)
 ORIG_BE=\$(tc class show dev "\$IFACE" classid "\$BE_CLASSID" | head -1 || true)
 echo "orig_pe_class: \$ORIG"
@@ -184,36 +226,34 @@ BE_CEIL0=\$(echo "\$ORIG_BE" | sed -n 's/.*ceil \([0-9.]*[Mm]bit\).*/\1/p' | hea
 [[ -z "\$BE_RATE0" ]] && BE_RATE0=5mbit
 [[ -z "\$BE_CEIL0" ]] && BE_CEIL0=24mbit
 
-# Lift BE once for the whole window (encapped util traffic lands here)
 tc class change dev "\$IFACE" classid "\$BE_CLASSID" htb rate "\$BE_RATE0" ceil 40mbit prio 5 2>/dev/null || true
 echo "[\$(date -u +%H:%M:%S)] lifted PE \$BE_CLASSID ceil→40mbit (was \$BE_CEIL0) so CE shape can show on eth0"
 
 set_ceil() {
   local mbit="\$1"
   local rate=\$(( mbit * 8 / 10 )); [[ "\$rate" -lt 1 ]] && rate=1
-  # Recreate CE HTB each step — mid-flight class replace fails on this kernel.
   ip netns exec "\$NS" tc qdisc del dev "\$CE_IFACE" root 2>/dev/null || true
   ip netns exec "\$NS" tc qdisc add dev "\$CE_IFACE" root handle 1: htb default 15
   ip netns exec "\$NS" tc class add dev "\$CE_IFACE" parent 1: classid 1:1 htb rate 40mbit ceil 40mbit
   ip netns exec "\$NS" tc class add dev "\$CE_IFACE" parent 1:1 classid 1:15 htb rate "\${rate}mbit" ceil "\${mbit}mbit" prio 2
-  # Mirror on PE payload class (audit / twin; encapped flows still miss PE 1:15)
   tc class change dev "\$IFACE" classid "\$CLASSID" htb rate "\${rate}mbit" ceil "\${mbit}mbit" prio 2 2>/dev/null || true
 }
 
 restore() {
+  rm -f "\$PIDFILE"
   ip netns exec "\$NS" tc qdisc del dev "\$CE_IFACE" root 2>/dev/null || true
   tc class change dev "\$IFACE" classid "\$CLASSID" htb rate "\$RATE0" ceil "\$CEIL0" prio 2 2>/dev/null || true
   tc class change dev "\$IFACE" classid "\$BE_CLASSID" htb rate "\$BE_RATE0" ceil "\$BE_CEIL0" prio 5 2>/dev/null || true
   ip netns exec "\$NS" pkill -f 'iperf3 -c' 2>/dev/null || true
-  echo "[\$(date -u +%H:%M:%S)] restored CE \$CE_IFACE + PE \$CLASSID=\$RATE0/\$CEIL0 + PE \$BE_CLASSID=\$BE_RATE0/\$BE_CEIL0"
+  echo "[\$(date -u +%H:%M:%S)] restored CE \$CE_IFACE + PE \$CLASSID=\$RATE0/\$CEIL0 + PE \$BE_CLASSID=\$BE_RATE0/\$BE_CEIL0 (healthy)"
 }
-trap restore EXIT
+trap restore EXIT INT TERM HUP
+echo \$\$ > "\$PIDFILE"
 
 : > /tmp/deca_util_ceil_schedule.jsonl
 echo "[\$(date -u +%H:%M:%S)] start continuous offer \${OFFER_MBIT}Mbit (≥2× end=\${END_MBIT}) for \${TOTAL}s (shape on CE \$CE_IFACE)"
 ip netns exec "\$NS" iperf3 -c "\$DST" -P "\$PARALLEL" -b \${per_offer}M -t "\$TOTAL" -p "\$PORT" \
   >/tmp/deca_util_cong.log 2>&1 &
-# Note: no --tos needed — CE HTB default 15 catches all CE egress during inject.
 sleep 2
 
 for i in \$(seq 0 \$((STEPS - 1))); do
@@ -235,11 +275,17 @@ if [[ "\$PLATEAU_SEC" -gt 0 ]]; then
   sleep "\$PLATEAU_SEC"
 fi
 
-echo "[\$(date -u +%H:%M:%S)] tc-ramp complete"
+echo "[\$(date -u +%H:%M:%S)] tc-ramp complete — cleanup will restore healthy"
 tail -8 /tmp/deca_util_cong.log 2>/dev/null || true
 EOF
 
-# Pull schedule sidecar to brain (CAPTURE_CONTRACT util labeling)
+ssh -T "$HOST" "sudo bash -s" <"$TMP" &
+SSH_PID=$!
+wait "$SSH_PID" || true
+SSH_PID=""
+rm -f "$TMP"
+trap - INT TERM
+
 if [[ -n "$SCHEDULE_OUT" ]]; then
   mkdir -p "$(dirname "$SCHEDULE_OUT")"
   scp -q "${HOST}:/tmp/deca_util_ceil_schedule.jsonl" "$SCHEDULE_OUT" \
@@ -247,4 +293,4 @@ if [[ -n "$SCHEDULE_OUT" ]]; then
     || echo "WARN: could not scp util ceil schedule from $HOST"
 fi
 
-echo "[$(date -u +%H:%M:%S)] inject finished"
+echo "[$(date -u +%H:%M:%S)] util inject finished — path/HTB restored (healthy)."

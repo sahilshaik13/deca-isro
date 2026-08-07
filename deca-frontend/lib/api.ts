@@ -349,8 +349,19 @@ export interface FaultDemoStatus {
   label?: string
   message?: string
   seeded_alert?: number | null
+  phase?: string
   log_tail?: string[]
   catalog?: FaultInfo[]
+  model_detection?: {
+    ok?: boolean
+    severity?: string | null
+    q2_confidence?: number | null
+    eta_minutes?: number | null
+    eta_source?: string | null
+    raise?: boolean
+    explanation?: string | null
+    matches_demo_fault?: boolean | null
+  } | null
 }
 
 export async function fetchFaultStatus() {
@@ -517,6 +528,19 @@ async function apiDelete<T>(path: string): Promise<T | null> {
 
 export async function listTerminals() {
   return apiGet<{ terminals: TerminalSessionMeta[] }>('terminals')
+}
+
+export async function ensurePipeline() {
+  return apiPost<{
+    ok: boolean
+    tabs: Array<{
+      id: string
+      label: string
+      tab: string
+      ok: boolean
+      session?: TerminalSessionMeta
+    }>
+  }>('pipeline/ensure', {})
 }
 
 export async function createTerminal(target: TerminalTarget) {

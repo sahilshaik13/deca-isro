@@ -6,18 +6,20 @@ import type { AlertRow, FleetSite, MissionState } from '@/lib/api'
 function plainClass(cls: string | null, urgencyClockKind?: string | null) {
   if (!cls) return 'Unknown issue'
   if (cls === 'congestion_breach' && urgencyClockKind === 'soft_ceiling') {
-    return 'Approaching HTB ceiling'
+    return 'Link filling up — about to hit capacity'
   }
   const map: Record<string, string> = {
-    congestion_breach: 'Congestion / hard-SLA risk',
-    tunnel_degradation: 'Tunnel degradation',
-    bgp_route_flap: 'BGP route flap',
-    vrf_leakage: 'VRF leakage',
-    policy_drift: 'Policy drift',
-    advisory_raise: 'Advisory raise',
-    advisory_clear: 'Advisory clear',
-    confirmed_raise: 'Confirmed raise',
-    confirmed_clear: 'Confirmed clear',
+    congestion_breach: 'Congestion — mission traffic at risk',
+    tunnel_degradation: 'Primary path degrading (latency / loss)',
+    bgp_route_flap: 'Routing unstable — paths flapping',
+    vrf_leakage: 'Network isolation broken',
+    policy_drift: 'Traffic policy drifted from the plan',
+    advisory_raise: 'Early warning',
+    advisory_clear: 'Warning cleared',
+    confirmed_raise: 'Confirmed problem',
+    confirmed_clear: 'Problem cleared',
+    bgp_mild: 'Mild routing instability',
+    physical_path_degradation: 'Physical / weather path degradation',
   }
   return map[cls] || cls.replace(/_/g, ' ')
 }
@@ -46,7 +48,7 @@ function uniq(items: string[]) {
   return out
 }
 
-/** Per-alert concerns for Decide — SLA / CoS / rogue-victim / layer. */
+/** Plain-language concerns for Decide — jury-readable first. */
 function alertConcerns(a: AlertRow): string[] {
   const p = a.payload || {}
   const fromPayload = Array.isArray(p.concerns)
@@ -67,66 +69,61 @@ function alertConcerns(a: AlertRow): string[] {
 
   if (p.rogue_ce || p.victim_ce || rc === 'ce_sla_conflict') {
     out.push(
-      `Rogue ${String(p.rogue_ce || 'lower-SLA CE')}` +
-        (p.rogue_sla ? ` (${String(p.rogue_sla)})` : '') +
-        ` endangering victim ${String(p.victim_ce || 'higher-SLA CE')}` +
-        (p.victim_sla ? ` (${String(p.victim_sla)})` : ''),
+      `A lower-priority site (${String(p.rogue_ce || 'rogue')}) is crowding out critical site ${String(p.victim_ce || 'mission')}`,
     )
-    out.push('Gold / TT&C CoS must not be starved by Bronze surge on shared PE HTB')
-    out.push('Q2 owns rogue vs organic; util Q1 only clocks approaching HTB ceiling')
+    out.push('Critical (Gold) traffic must not be starved — Approve backup now')
   } else if (cls === 'tunnel_degradation' || rc.includes('loss') || rc.includes('physical')) {
-    out.push('TT&C SLA at risk — ≤25 ms latency · ≤5 ms jitter · ≤0.1% loss')
+    out.push('Mission link is getting worse (latency / loss climbing)')
     if (p.eta_loss_minutes != null) {
-      out.push(`Payload / loss head ETA ≈ ${String(p.eta_loss_minutes)} min to breach`)
+      out.push(`About ${String(p.eta_loss_minutes)} min until service breaks the SLA`)
     }
-    out.push('Mission gre-te underlay degrading — Gold CE availability threatened')
+    out.push('Approve switches to the backup path before the outage')
   } else if (utilLed) {
-    out.push('Approaching configured HTB ceiling (soft util gate) — not hard TT&C SLA breach wording')
+    out.push('The link is filling up — capacity limit approaching')
     if (p.eta_util_minutes != null) {
-      out.push(`Util head ETA ≈ ${String(p.eta_util_minutes)} min to ceiling`)
+      out.push(`About ${String(p.eta_util_minutes)} min until the ceiling`)
     }
-    out.push('TT&C (1:10) and Payload (1:15) share PE headroom — Approve before ceiling collapses')
+    out.push('Approve before shared headroom collapses')
   } else if (cls === 'congestion_breach' || rc.includes('cpu') || rc.includes('crypto')) {
-    out.push('PE crypto / HTB headroom — IPsec + LLQ may stall')
-    out.push('TT&C (1:10) and Payload (1:15) share the stressed PE')
+    out.push('Router CPU / crypto overloaded — encrypted mission traffic may stall')
+    out.push('Critical and payload traffic share this stressed router')
   } else if (cls === 'bgp_route_flap' || rc.includes('flap') || rc.includes('route')) {
-    out.push('Control-plane instability — vrf-mission routes oscillating')
-    out.push('CE reachability and path preference may flip mid-flow')
+    out.push('Routes keep changing — sites may briefly lose the preferred path')
+    out.push('Approve a stable backup while routing settles')
   } else if (cls === 'policy_drift') {
-    out.push('Policy / CoS drift vs edge contract (CE tier · PE HTB/VRF)')
+    out.push('Configured traffic priority no longer matches what the edge is doing')
   } else if (cls === 'vrf_leakage') {
-    out.push('VRF leakage — mission vs admin separation at risk')
+    out.push('Mission and admin networks may be leaking into each other')
   } else {
-    out.push('Predictive hard-SLA risk on preferred underlay — Approve before SLA window closes')
+    out.push('Predicted SLA risk on the primary path — Approve backup before the window closes')
   }
 
-  if (p.severity) out.push(`Q2 severity ${String(p.severity)} — HITL gate required`)
+  if (p.severity) out.push(`Severity ${String(p.severity)} — human Approve required`)
   return uniq(out)
 }
 
 function fabricConcerns(mission: MissionState | null, sites: FleetSite[]): string[] {
   const out: string[] = []
-  if (mission?.conflict) {
+  if (mission?.conflict && mission.ttc_wanted !== mission.payload_wanted) {
     out.push(
-      `Mission policy conflict — TT&C wants ${mission.ttc_wanted || '?'} · Payload wants ${mission.payload_wanted || '?'} → TT&C wins`,
+      `Priority conflict: TT&C wants ${mission.ttc_wanted || '?'} but Payload wants ${mission.payload_wanted || '?'} — TT&C wins`,
     )
   }
   if (mission?.human_override) {
-    out.push(`Human gate holding underlay → ${mission.human_override} (autonomy suspended)`)
+    out.push(`Operator holding path on ${mission.human_override} (auto-steer paused)`)
   }
   for (const s of sites) {
     const conf = s.hosts_state?.[0]?.confirmed
     if (!conf || conf === 'healthy' || conf === '—' || conf === 'none') continue
-    // Mission conflict is already one line — don't spam every Payload CE as degraded
-    // when only TT&C has breached its tighter SLA.
     if (
       mission?.conflict &&
+      mission.ttc_wanted !== mission.payload_wanted &&
       conf === 'tunnel_degradation' &&
       s.mission_class !== 'ttc'
     ) {
       continue
     }
-    out.push(`${s.name} (${s.mission_class}): ${conf}`)
+    out.push(`${s.name}: ${plainClass(conf)}`)
   }
   return uniq(out).slice(0, 6)
 }
@@ -159,10 +156,12 @@ export default function AlertRail({
     <section className="deca-panel deca-decision">
       <div className="deca-panel-head">
         <div>
-          <h2 className="deca-section-title">Decide</h2>
+          <h2 className="deca-section-title">
+            <span className="deca-ps13-tag deca-ps13-tag-q2">Decide</span> What to do
+          </h2>
           <p className="deca-section-sub">
-            Analyzer proposals with <strong>SLA / CoS concerns</strong>.{' '}
-            <strong>Approve</strong> steers underlay; <strong>Reject</strong> records only.
+            When the model predicts a problem, Approve moves traffic to the backup path.
+            Reject only records that you declined.
           </p>
         </div>
         <span className="deca-count">{actionable.length}</span>
@@ -170,7 +169,7 @@ export default function AlertRail({
 
       {liveConcerns.length > 0 ? (
         <div className="deca-concerns is-live" aria-label="Live fabric concerns">
-          <p className="deca-concerns-title">Live fabric concerns</p>
+          <p className="deca-concerns-title">What the network is saying now</p>
           <ul>
             {liveConcerns.map((c) => (
               <li key={c}>{c}</li>
@@ -181,9 +180,12 @@ export default function AlertRail({
 
       {actionable.length === 0 ? (
         <div className="deca-empty">
-          <p>No open proposals for this run.</p>
+          <p>No decision needed yet.</p>
           <p className="text-[var(--deca-mute)] text-xs mt-1">
-            Click a Simple fault — Decide will name the respective SLA / CE concerns for Approve.
+            Click a fault under Demo controls. A card will appear here with the prediction.
+            Approve steers to backup and stops the fault; Reject declines the steer
+            and also stops the inject. Either way the path settles back to healthy
+            naturally (graphs cool down) — it does not snap idle instantly.
           </p>
         </div>
       ) : (
@@ -192,282 +194,51 @@ export default function AlertRail({
             const concerns = alertConcerns(a)
             return (
               <li key={a.id} className="deca-alert">
-                <div className="deca-alert-head">
-                  <p className="deca-alert-class">
-                    {(a.payload?.title as string) ||
-                      plainClass(a.class, a.payload?.urgency_clock_kind as string | undefined)}
-                  </p>
-                  <span className="deca-alert-event">{a.event || 'event'}</span>
+                <div className="deca-alert-head flex flex-col gap-1 mb-2">
+                  {(() => {
+                    const md = (a.payload?.model_detection || null) as Record<string, unknown> | null
+                    const classes = Array.isArray(md?.top_classes) ? (md!.top_classes as Array<{severity?: string, name?: string, proba?: number}>) : []
+                    const topClass = classes.length > 0 ? classes[0] : null
+                    
+                    const rawCls = topClass?.name || a.class || ''
+                    const title = topClass?.name ? plainClass(rawCls) : ((a.payload?.title as string) || plainClass(rawCls, a.payload?.urgency_clock_kind as string | undefined))
+                    
+                    // Format confidence
+                    let confStr = '?'
+                    if (topClass?.proba != null) {
+                      confStr = (topClass.proba * 100).toFixed(0)
+                    } else if (a.confidence != null) {
+                      confStr = (a.confidence * 100).toFixed(0)
+                    }
+
+                    // Format severity
+                    const severity = topClass?.severity || md?.severity || a.payload?.severity
+                    const sevSuffix = severity ? ` (${severity})` : ''
+
+                    return (
+                      <>
+                        <p className="font-bold text-[14px]">
+                          Predicted: {title}
+                          {sevSuffix}
+                        </p>
+                        <p className="text-[13px] text-[var(--deca-warn)] font-medium">
+                          {a.eta != null
+                            ? `About ${a.eta} min until service impact · model ${confStr}% sure`
+                            : `Model ${confStr}% sure · timing unknown`}
+                        </p>
+                      </>
+                    )
+                  })()}
                 </div>
-                {a.payload?.summary ? (
-                  <p className="deca-alert-hint mb-2">{String(a.payload.summary)}</p>
-                ) : null}
 
-                {concerns.length > 0 ? (
-                  <div className="deca-concerns" aria-label="Alert concerns">
-                    <p className="deca-concerns-title">Concerns</p>
-                    <ul>
-                      {concerns.map((c) => (
-                        <li key={c}>{c}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-
-                {a.payload?.root_cause ? (
-                  <p className="deca-alert-hint mb-2">
-                    <span className="text-[var(--deca-mute)]">Q2 · </span>
-                    {String(a.payload.root_cause)}
-                    {a.payload.severity ? ` · sev ${String(a.payload.severity)}` : ''}
-                  </p>
-                ) : null}
-
-                {(() => {
-                  const md = (a.payload?.model_detection || null) as Record<
-                    string,
-                    unknown
-                  > | null
-                  if (!md) return null
-                  const signals = Array.isArray(md.top_signals)
-                    ? (md.top_signals as Array<{ name?: string; value?: number }>)
-                    : []
-                  const classes = Array.isArray(md.top_classes)
-                    ? (md.top_classes as Array<{
-                        severity?: string
-                        name?: string
-                        proba?: number
-                      }>)
-                    : []
-                  return (
-                    <div className="deca-alert-hint mb-2 rounded border border-[var(--deca-border)] bg-[var(--deca-panel-2,#0f172a)]/50 p-2">
-                      <p className="text-[10px] uppercase tracking-wide text-[var(--deca-mute)] mb-1 flex items-center gap-1.5 font-bold">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-400"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M9 13a4.5 4.5 0 0 0 3-4"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M14.6 13.4a4.5 4.5 0 0 0 3.2-3.2"/><path d="M15 19a4 4 0 0 1-2.967-1.516"/></svg>
-                        Q2 Inference Trace (Glassbox)
-                        {md.ok === false ? ' · unavailable' : ''}
-                      </p>
-                      {md.explanation ? (
-                        <p className="text-xs leading-relaxed mb-1.5">
-                          {String(md.explanation)}
-                        </p>
-                      ) : null}
-                      {md.ok !== false ? (
-                        <p className="text-[11px] font-mono text-[var(--deca-mute)] mb-1">
-                          sev {String(md.severity || a.payload?.severity || '—')}
-                          {md.q2_confidence != null
-                            ? ` · p=${Number(md.q2_confidence).toFixed(2)}`
-                            : ''}
-                          {md.matches_demo_fault != null
-                            ? ` · demo-match ${md.matches_demo_fault ? 'yes' : 'no'}`
-                            : ''}
-                          {md.samples != null ? ` · n=${String(md.samples)}` : ''}
-                        </p>
-                      ) : (
-                        <p className="text-[11px] text-[var(--deca-mute)]">
-                          {String(md.error || 'detect failed')} — seed still actionable
-                        </p>
-                      )}
-                      {signals.length > 0 ? (
-                        <ul className="mt-1 text-[11px] font-mono space-y-0.5">
-                          {signals.slice(0, 5).map((s) => (
-                            <li key={String(s.name)}>
-                              {String(s.name)} ={' '}
-                              {s.value != null && Number.isFinite(Number(s.value))
-                                ? Number(s.value).toFixed(3)
-                                : '—'}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : null}
-                      {classes.length > 0 ? (
-                        <p className="mt-1 text-[10px] text-[var(--deca-mute)] font-mono">
-                          top:{' '}
-                          {classes
-                            .slice(0, 3)
-                            .map(
-                              (c) =>
-                                `${c.severity || '?'} ${(Number(c.proba) * 100).toFixed(0)}%`,
-                            )
-                            .join(' · ')}
-                        </p>
-                      ) : null}
-                    </div>
-                  )
-                })()}
-                {a.payload?.rogue_ce || a.payload?.victim_ce ? (
-                  <p className="deca-alert-hint mb-2 text-xs">
-                    <span className="text-[var(--deca-mute)]">CE SLA conflict · </span>
-                    rogue{' '}
-                    <span className="font-mono">
-                      {String(a.payload.rogue_ce || '—')}
-                      {a.payload.rogue_sla ? ` (${String(a.payload.rogue_sla)})` : ''}
-                    </span>
-                    {' → '}
-                    victim{' '}
-                    <span className="font-mono">
-                      {String(a.payload.victim_ce || '—')}
-                      {a.payload.victim_sla ? ` (${String(a.payload.victim_sla)})` : ''}
-                    </span>
-                  </p>
-                ) : null}
-                {a.payload?.q3_nlp ? (
-                  <div className="deca-alert-hint mb-2 rounded border border-[var(--deca-border)] bg-[var(--deca-panel-2,#0f172a)]/40 p-2">
-                    <p className="text-[10px] uppercase tracking-wide text-[var(--deca-mute)] mb-1 flex items-center gap-1.5 font-bold">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
-                      Q3 Copilot RAG Pipeline (Phi-3)
-                    </p>
-                    <p className="whitespace-pre-wrap text-xs leading-relaxed">
-                      {String(a.payload.q3_nlp)}
-                    </p>
-                    {Array.isArray(a.payload.q3_sources) && a.payload.q3_sources.length > 0 ? (
-                      <p className="mt-1 text-[10px] text-[var(--deca-mute)] font-mono">
-                        LNC: {(a.payload.q3_sources as string[]).slice(0, 4).join(' · ')}
-                      </p>
-                    ) : null}
-                  </div>
-                ) : a.payload?.q3_pending ? (
-                  <p className="deca-alert-hint mb-2 text-[var(--deca-mute)] text-xs italic">
-                    Q3 explanation loading (math gate already live — Approve does not wait)…
-                  </p>
-                ) : null}
-                <dl className="deca-alert-meta">
-                  <div>
-                    <dt>Site / scope</dt>
-                    <dd>{a.host || '—'}</dd>
-                  </div>
-                  <div>
-                    <dt>Confidence</dt>
-                    <dd title="Q2 class probability blended with ETA urgency (PS13-O3.3)">
-                      {a.confidence != null ? a.confidence.toFixed(3) : '—'}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>
-                      {a.payload?.urgency_clock_kind === 'soft_ceiling'
-                        ? 'ETA (ceiling)'
-                        : 'ETA (Q1 SLA)'}
-                    </dt>
-                    <dd
-                      title={
-                        a.payload?.urgency_clock_kind === 'soft_ceiling'
-                          ? 'Minutes to configured HTB ceiling (soft util gate)'
-                          : 'Minutes to hard SLA breach (lat/loss/jitter)'
-                      }
-                    >
-                      {a.eta != null ? `${a.eta} min` : '—'}
-                    </dd>
-                  </div>
-                </dl>
-                {Array.isArray(a.payload?.recommended_actions) &&
-                (a.payload.recommended_actions as string[]).length > 0 ? (
-                  <div className="deca-alert-hint mb-2">
-                    <p className="text-[10px] uppercase tracking-wide text-[var(--deca-mute)] mb-1">
-                      Playbook (ranked SOP candidates)
-                    </p>
-                    <ol className="list-decimal pl-4 text-xs space-y-0.5">
-                      {(a.payload.recommended_actions as string[]).map((step, i) => (
-                        <li key={i}>{step}</li>
-                      ))}
-                    </ol>
-                  </div>
-                ) : null}
-                {a.payload?.path_asymmetry_detected ? (
-                  <p className="deca-alert-hint mb-2 text-xs">
-                    Path asymmetry:{' '}
-                    <span className="font-mono">
-                      GRE−eth0=
-                      {a.payload.path_asymmetry_ms != null
-                        ? `${Number(a.payload.path_asymmetry_ms) >= 0 ? '+' : ''}${a.payload.path_asymmetry_ms} ms`
-                        : 'flagged'}
-                    </span>
-                  </p>
-                ) : null}
-                {(() => {
-                  const arb = (a.payload?.arbitration || {}) as Record<string, unknown>
-                  const firing = Array.isArray(arb.firing_tti_heads)
-                    ? (arb.firing_tti_heads as { head?: string; eta_seconds?: number }[])
-                    : []
-                  const compound =
-                    arb.compound_suspected === true ||
-                    a.payload?.compound_suspected === true ||
-                    firing.length > 1
-                  if (!compound && firing.length === 0) return null
-                  return (
-                    <div className="deca-alert-hint mb-2">
-                      <p className="text-[10px] uppercase tracking-wide text-[var(--deca-mute)] mb-1">
-                        {compound ? 'Compound / multi-fault (arbitration)' : 'TTI heads firing'}
-                      </p>
-                      <p className="text-xs mb-1">
-                        Primary why:{' '}
-                        <span className="font-mono">
-                          {String(arb.primary_severity || arb.primary_issue || a.class || '—')}
-                        </span>
-                        {arb.primary_confidence != null
-                          ? ` · conf ${Number(arb.primary_confidence).toFixed(2)}`
-                          : ''}
-                        {' · '}
-                        urgency = min ETA among heads
-                      </p>
-                      {firing.length > 0 ? (
-                        <ul className="list-disc pl-4 text-xs space-y-0.5 font-mono">
-                          {firing.map((h, i) => (
-                            <li key={i}>
-                              {String(h.head || '?')}: ETA{' '}
-                              {h.eta_seconds != null
-                                ? `${(Number(h.eta_seconds) / 60).toFixed(1)} min`
-                                : '—'}
-                              {i === 0 ? ' (leading clock)' : ''}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : null}
-                      <p className="mt-1 text-[10px] text-[var(--deca-mute)]">
-                        Playbook keys off primary Q2 class; quieter concurrent faults may be
-                        under-ranked (honest compound limit). Cross-site: see blast radius below.
-                      </p>
-                    </div>
-                  )
-                })()}
-                {Array.isArray(a.payload?.affected_scope) &&
-                (a.payload.affected_scope as string[]).length > 0 ? (
-                  <div className="deca-alert-hint mb-2">
-                    <p className="text-[10px] uppercase tracking-wide text-[var(--deca-mute)] mb-1">
-                      Affected scope (topology blast radius · other paths/sites)
-                    </p>
-                    <ul className="list-disc pl-4 text-xs space-y-0.5">
-                      {(a.payload.affected_scope as string[]).map((s, i) => (
-                        <li key={i}>{s}</li>
-                      ))}
-                    </ul>
-                    {Array.isArray(a.payload?.correlated_alert_ids) &&
-                    (a.payload.correlated_alert_ids as number[]).length > 0 ? (
-                      <p className="mt-1 text-[10px] text-[var(--deca-mute)] font-mono">
-                        correlated: {(a.payload.correlated_alert_ids as number[]).join(', ')}
-                        {a.payload.correlation_reason
-                          ? ` — ${String(a.payload.correlation_reason)}`
-                          : ''}
-                      </p>
-                    ) : null}
-                  </div>
-                ) : null}
-                {a.payload?.eta_loss_minutes != null ? (
-                  <p className="deca-alert-hint mb-2 text-xs">
-                    ETA loss SLA (Q1-loss):{' '}
-                    <span className="font-mono">{String(a.payload.eta_loss_minutes)} min</span>
-                  </p>
-                ) : null}
-                <p className="deca-alert-hint">
-                  Approving will ask the controller to force underlay to{' '}
-                  <strong className="font-mono">{backup}</strong> (backup of current{' '}
-                  <span className="font-mono">{activePath || 'gre'}</span>), then audit the action.
-                </p>
-                <div className="deca-alert-actions">
+                <div className="deca-alert-actions mt-3 mb-3 flex items-center gap-3">
                   <button
                     type="button"
                     disabled={actionBusy === a.id}
                     onClick={() => onApprove(a.id, backup)}
                     className="deca-btn deca-btn-primary"
                   >
-                    {actionBusy === a.id ? 'Steering…' : `Approve → ${backup}`}
+                    {actionBusy === a.id ? 'Switching…' : 'Approve backup'}
                   </button>
                   <button
                     type="button"
@@ -477,7 +248,203 @@ export default function AlertRail({
                   >
                     Reject
                   </button>
+                  <span className="text-[11px] text-[var(--deca-mute)] leading-tight flex-1">
+                    Moves traffic to {backup === 'eth0' ? 'backup (eth0)' : 'primary (GRE)'} and stops the fault
+                  </span>
                 </div>
+
+                <details className="group">
+                  <summary className="text-xs cursor-pointer text-[var(--deca-link)] hover:underline select-none font-medium mb-2">
+                    Inspect trace & metrics
+                  </summary>
+                  <div className="pt-3 border-t border-[var(--deca-border)] space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="deca-alert-event">Event: {a.event || 'event'}</span>
+                    </div>
+
+                    {a.payload?.summary ? (
+                      <p className="deca-alert-hint">{String(a.payload.summary)}</p>
+                    ) : null}
+
+                    {concerns.length > 0 ? (
+                      <div className="deca-concerns" aria-label="Alert concerns">
+                        <p className="deca-concerns-title">Why this matters</p>
+                        <ul>
+                          {concerns.map((c) => (
+                            <li key={c}>{c}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+
+                    {a.payload?.root_cause ? (
+                      <p className="deca-alert-hint">
+                        <span className="text-[var(--deca-mute)]">Q2 · </span>
+                        {String(a.payload.root_cause)}
+                        {a.payload.severity ? ` · sev ${String(a.payload.severity)}` : ''}
+                      </p>
+                    ) : null}
+
+                    {(() => {
+                      const arb =
+                        (a.payload?.arbitration as Record<string, unknown> | undefined) ||
+                        (a.payload as Record<string, unknown> | undefined)
+                      const heads = (arb?.firing_tti_heads ||
+                        a.payload?.firing_tti_heads) as unknown
+                      const compound = Boolean(
+                        arb?.compound_suspected ?? a.payload?.compound_suspected,
+                      )
+                      const list = Array.isArray(heads)
+                        ? heads.map((h) => String(h))
+                        : []
+                      if (!compound && list.length === 0) return null
+                      return (
+                        <div className="deca-alert-hint rounded border border-[var(--deca-warn)]/40 bg-[var(--deca-warn)]/5 p-2">
+                          <p className="text-[10px] uppercase tracking-wide text-[var(--deca-warn)] mb-1 font-bold">
+                            Multi-head arbitration
+                            {compound ? ' · compound suspected' : ''}
+                          </p>
+                          {list.length > 0 ? (
+                            <p className="text-[11px] font-mono">
+                              firing_tti_heads: {list.join(' · ')}
+                            </p>
+                          ) : (
+                            <p className="text-[11px] text-[var(--deca-mute)]">
+                              compound_suspected (heads not listed)
+                            </p>
+                          )}
+                        </div>
+                      )
+                    })()}
+
+                    {(() => {
+                      const md = (a.payload?.model_detection || null) as Record<string, unknown> | null
+                      if (!md) return null
+                      const signals = Array.isArray(md.top_signals)
+                        ? (md.top_signals as Array<{ name?: string; value?: number }>)
+                        : []
+                      const classes = Array.isArray(md.top_classes)
+                        ? (md.top_classes as Array<{
+                            severity?: string
+                            name?: string
+                            proba?: number
+                          }>)
+                        : []
+                      return (
+                        <div className="deca-alert-hint rounded border border-[var(--deca-border)] bg-[var(--deca-panel-2,#0f172a)]/50 p-2">
+                          <p className="text-[10px] uppercase tracking-wide text-[var(--deca-mute)] mb-1 flex items-center gap-1.5 font-bold">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-400"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M9 13a4.5 4.5 0 0 0 3-4"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M14.6 13.4a4.5 4.5 0 0 0 3.2-3.2"/><path d="M15 19a4 4 0 0 1-2.967-1.516"/></svg>
+                            Q2 Inference Trace (Glassbox)
+                            {md.ok === false ? ' · unavailable' : ''}
+                          </p>
+                          {md.explanation ? (
+                            <p className="text-xs leading-relaxed mb-1.5">
+                              {String(md.explanation)}
+                            </p>
+                          ) : null}
+                          {md.ok !== false ? (
+                            <p className="text-[11px] font-mono text-[var(--deca-mute)] mb-1">
+                              sev {String(md.severity || a.payload?.severity || '—')}
+                              {md.q2_confidence != null
+                                ? ` · p=${Number(md.q2_confidence).toFixed(2)}`
+                                : ''}
+                              {md.matches_demo_fault != null
+                                ? ` · demo-match ${md.matches_demo_fault ? 'yes' : 'no'}`
+                                : ''}
+                              {md.samples != null ? ` · n=${String(md.samples)}` : ''}
+                            </p>
+                          ) : (
+                            <p className="text-[11px] text-[var(--deca-mute)]">
+                              {String(md.error || 'detect failed')} — seed still actionable
+                            </p>
+                          )}
+                          {signals.length > 0 ? (
+                            <ul className="mt-1 text-[11px] font-mono space-y-0.5">
+                              {signals.slice(0, 5).map((s) => (
+                                <li key={String(s.name)}>
+                                  {String(s.name)} ={' '}
+                                  {s.value != null && Number.isFinite(Number(s.value))
+                                    ? Number(s.value).toFixed(3)
+                                    : '—'}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : null}
+                          {classes.length > 0 ? (
+                            <p className="mt-1 text-[10px] text-[var(--deca-mute)] font-mono">
+                              top:{' '}
+                              {classes
+                                .slice(0, 3)
+                                .map(
+                                  (c) =>
+                                    `${c.severity || '?'} ${(Number(c.proba) * 100).toFixed(0)}%`,
+                                )
+                                .join(' · ')}
+                            </p>
+                          ) : null}
+                        </div>
+                      )
+                    })()}
+
+                    {a.payload?.rogue_ce || a.payload?.victim_ce ? (
+                      <p className="deca-alert-hint text-xs">
+                        <span className="text-[var(--deca-mute)]">CE SLA conflict · </span>
+                        rogue{' '}
+                        <span className="font-mono">
+                          {String(a.payload.rogue_ce || '—')}
+                          {a.payload.rogue_sla ? ` (${String(a.payload.rogue_sla)})` : ''}
+                        </span>
+                        {' → '}
+                        victim{' '}
+                        <span className="font-mono">
+                          {String(a.payload.victim_ce || '—')}
+                          {a.payload.victim_sla ? ` (${String(a.payload.victim_sla)})` : ''}
+                        </span>
+                      </p>
+                    ) : null}
+
+                    <dl className="deca-alert-meta">
+                      <div>
+                        <dt>Site / scope</dt>
+                        <dd>{a.host || '—'}</dd>
+                      </div>
+                      <div>
+                        <dt>Confidence</dt>
+                        <dd title="Q2 class probability blended with ETA urgency (PS13-O3.3)">
+                          {a.confidence != null ? a.confidence.toFixed(3) : '—'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>
+                          {a.payload?.urgency_clock_kind === 'soft_ceiling'
+                            ? 'ETA (ceiling)'
+                            : 'ETA (Q1 SLA)'}
+                        </dt>
+                        <dd
+                          title={
+                            a.payload?.urgency_clock_kind === 'soft_ceiling'
+                              ? 'Minutes to configured HTB ceiling (soft util gate)'
+                              : 'Minutes to hard SLA breach (lat/loss/jitter)'
+                          }
+                        >
+                          {a.eta != null ? `${a.eta} min` : '—'}
+                        </dd>
+                      </div>
+                    </dl>
+
+                    {a.payload?.eta_loss_minutes != null ? (
+                      <p className="deca-alert-hint text-xs">
+                        ETA loss SLA (Q1-loss):{' '}
+                        <span className="font-mono">{String(a.payload.eta_loss_minutes)} min</span>
+                      </p>
+                    ) : null}
+                    <p className="deca-alert-hint">
+                      Approving will ask the controller to force underlay to{' '}
+                      <strong className="font-mono">{backup}</strong> (backup of current{' '}
+                      <span className="font-mono">{activePath || 'gre'}</span>), then audit the action.
+                    </p>
+                  </div>
+                </details>
               </li>
             )
           })}

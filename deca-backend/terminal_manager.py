@@ -169,10 +169,48 @@ class TerminalManager:
         for host in MONITOR_STATIONS:
             self._spawn_station_monitor(host)
         self._spawn_prometheus_monitor()
+        self._spawn_pipeline_monitors()
         self._sim_tail_thread = threading.Thread(
             target=self._tail_sim_log, name="term-sim-tail", daemon=True
         )
         self._sim_tail_thread.start()
+
+    def _spawn_pipeline_monitors(self) -> None:
+        watch = str(config.REPO_ROOT / "scripts" / "deca_watch.sh")
+        tabs = [
+            ("m-pipe-inject", "1. Inject", "tail -F data/deca/pipeline_inject.log"),
+            ("m-pipe-telem", "2. Telemetry", "tail -F data/deca/pipeline_telemetry.log"),
+            ("m-pipe-infer", "3. Inference", "tail -F data/deca/pipeline_inference.log"),
+            ("m-pipe-copilot", "4. Copilot", "tail -F data/deca/pipeline_copilot.log"),
+            ("m-pipe-decide", "5. Decide", "tail -F data/deca/pipeline_decide.log"),
+            # Backend-owned live API watcher (not a frontend page).
+            (
+                "m-pipe-watch",
+                "6. Live Watch",
+                f"bash {watch}",
+            ),
+        ]
+        for sid, label, cmd_str in tabs:
+            session = TerminalSession(
+                id=sid,
+                label=label,
+                target="pipeline",
+                mode="monitor",
+                readonly=True,
+                status="starting",
+                cmd_summary=cmd_str,
+            )
+            self._register(session)
+            if sid == "m-pipe-watch":
+                cmd = ["bash", watch]
+            else:
+                log_file = cmd_str.split()[-1]
+                cmd = [
+                    "bash",
+                    "-c",
+                    f"mkdir -p $(dirname {log_file}) && touch {log_file} && {cmd_str}",
+                ]
+            self._attach_pty(session, cmd, cwd=str(config.REPO_ROOT))
 
     def stop(self) -> None:
         self._stop.set()

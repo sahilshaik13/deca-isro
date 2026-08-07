@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 import re
 import time
+from collections import deque
 from datetime import datetime, timezone
 from typing import Any
 
@@ -14,6 +15,9 @@ import requests
 import config
 
 _STATION_HOST_RE = re.compile(r"^station(\d+)$", re.IGNORECASE)
+_DASHBOARD_HISTORY: deque[dict[str, Any]] = deque(
+    maxlen=max(8, int(getattr(config, "TELEMETRY_HISTORY_LEN", 60) or 60))
+)
 
 
 def finite_float(value: float | None, default: float = 0.0) -> float:
@@ -61,7 +65,11 @@ def _prom_base() -> str:
 def _prom_query_result(
     promql: str, base: str | None = None, fetch_ts: bool = True
 ) -> tuple[float | None, float | None]:
-    """Return (value, last_sample_unix_ts)."""
+    """Return (value, last_sample_unix_ts).
+
+    Instant-query vectors already carry ``[unix_ts, value]`` — use that instead of
+    a second ``timestamp(...)`` round-trip (halves Prom HTTP fan-out).
+    """
     url = (base or _prom_base()).rstrip("/")
     try:
         resp = requests.get(
@@ -76,23 +84,15 @@ def _prom_query_result(
         results = payload.get("data", {}).get("result", [])
         if not results:
             return None, None
-        value = float(results[0]["value"][1])
+        sample = results[0]["value"]
+        value = float(sample[1])
         if not math.isfinite(value):
             return None, None
         sample_ts: float | None = None
         if fetch_ts:
             try:
-                ts_resp = requests.get(
-                    f"{url}/api/v1/query",
-                    params={"query": f"timestamp({promql})"},
-                    timeout=2,
-                )
-                ts_resp.raise_for_status()
-                ts_payload = ts_resp.json()
-                ts_rows = ts_payload.get("data", {}).get("result", [])
-                if ts_rows:
-                    sample_ts = float(ts_rows[0]["value"][1])
-            except (requests.RequestException, ValueError, TypeError, IndexError, KeyError):
+                sample_ts = float(sample[0])
+            except (TypeError, ValueError, IndexError):
                 sample_ts = None
         return value, sample_ts
     except (requests.RequestException, ValueError, TypeError, IndexError, KeyError):
@@ -231,7 +231,19 @@ def _metric_for_station(station: str, metric: str) -> float | None:
                 candidates.append(eth0_val)
         return max(candidates) if candidates else None
 
-    return _station_host_query(station, template, primary)
+    val = _station_host_query(station, template, primary)
+    if val is not None:
+        return val
+    # Lab exporters often publish flap counters, not bgp_updates.
+    if metric == "bgp_update_rate":
+        flap = _station_host_query(
+            station,
+            f'sum(rate(bgp_flap_count{{job="%(job)s",%(filt)s}}[{win}]))',
+            primary,
+        )
+        if flap is not None:
+            return flap
+    return None
 
 
 def _stale_sec() -> float:
@@ -246,7 +258,10 @@ def _is_fresh(sample_ts: float | None, *, now: float | None = None) -> bool:
     if sample_ts is None:
         return False
     age = (now if now is not None else time.time()) - float(sample_ts)
-    return 0.0 <= age <= _stale_sec()
+    # Prometheus sample timestamps can land a few ms ahead of local time();
+    # rejecting those as "stale" zeroed the whole telemetry matrix.
+    skew_slop_s = 2.0
+    return -skew_slop_s <= age <= _stale_sec()
 
 
 def _station_exporter_up(station: str) -> bool | None:
@@ -316,6 +331,7 @@ def fetch_station_snapshot(station: str) -> dict[str, Any]:
     path_jit = _sdwan_path_query(station, "sdwan_path_jitter_ms", "gre")
     path_loss = _sdwan_path_query(station, "sdwan_path_loss_pct", "gre")
     path_util = _sdwan_path_query(station, "sdwan_path_util_mbps", "gre")
+    path_util_eth = _sdwan_path_query(station, "sdwan_path_util_mbps", "eth0")
     cpu_user = _station_host_query(
         station, 'avg(cpu_usage_user{job="%(job)s",%(filt)s})'
     )
@@ -329,6 +345,8 @@ def fetch_station_snapshot(station: str) -> dict[str, Any]:
         metrics["packet_loss_pct"] = path_loss
     if path_util is not None:
         metrics["util_gre_mbps"] = path_util
+    if path_util_eth is not None:
+        metrics["util_eth0_mbps"] = path_util_eth
     if cpu_user is not None:
         metrics["cpu_usage"] = cpu_user
         metrics["cpu_usage_user"] = cpu_user
@@ -337,7 +355,14 @@ def fetch_station_snapshot(station: str) -> dict[str, Any]:
     # scrape death — use exporter `up` + a live path/edge sample to decide.
     live_signal = any(
         v is not None
-        for v in (lat_gre, lat_eth, path_jit, path_util, metrics.get("ifInOctets"))
+        for v in (
+            lat_gre,
+            lat_eth,
+            path_jit,
+            path_util,
+            path_util_eth,
+            metrics.get("ifInOctets"),
+        )
     )
     if exporter_up is False:
         online = False
@@ -370,6 +395,17 @@ def fetch_station_snapshot(station: str) -> dict[str, Any]:
         clean["throughput_in_mbps"] = finite_float(metrics.get("ifInOctets")) * bytes_per_sec_to_mbps
         clean["throughput_out_mbps"] = finite_float(metrics.get("ifOutOctets")) * bytes_per_sec_to_mbps
         clean["throughput_mbps"] = max(clean["throughput_in_mbps"], clean["throughput_out_mbps"])
+        path_mbps = max(
+            finite_float(metrics.get("util_gre_mbps"), 0.0),
+            finite_float(metrics.get("util_eth0_mbps"), 0.0),
+        )
+        if path_mbps > clean["throughput_mbps"]:
+            clean["throughput_mbps"] = path_mbps
+            # Prefer path util for display when edge octet scrape is empty.
+            if clean["throughput_in_mbps"] <= 0:
+                clean["throughput_in_mbps"] = path_mbps
+            if clean["throughput_out_mbps"] <= 0:
+                clean["throughput_out_mbps"] = path_mbps
         if path_util is not None and clean["throughput_mbps"] < float(path_util):
             clean["throughput_mbps"] = finite_float(path_util)
     return {
@@ -503,7 +539,39 @@ def _fetch_gns3_live() -> dict[str, Any]:
     }
 
 
-def fetch_live_network() -> dict[str, Any]:
+_LIVE_CACHE: dict[str, Any] | None = None
+_LIVE_CACHE_AT = 0.0
+_LIVE_CACHE_TTL_SEC = 2.5
+
+
+def fetch_live_network(*, force: bool = False) -> dict[str, Any]:
+    """Live Prom snapshot. Short TTL cache — dashboard + fleet share one scrape."""
+    global _LIVE_CACHE, _LIVE_CACHE_AT
+    now = time.time()
+    if (
+        not force
+        and _LIVE_CACHE is not None
+        and (now - _LIVE_CACHE_AT) < _LIVE_CACHE_TTL_SEC
+    ):
+        return _LIVE_CACHE
+
+    result = _fetch_live_network_uncached()
+    display = result.get("metrics")
+    if not display and result.get("raw"):
+        display = raw_to_display(result["raw"], str(result.get("timestamp") or ""))
+        result["metrics"] = display
+    if display:
+        # Only append a new sample when the scrape actually ran (not cache hit).
+        _DASHBOARD_HISTORY.append(dict(display))
+    result["history"] = list(_DASHBOARD_HISTORY)
+    _LIVE_CACHE = result
+    _LIVE_CACHE_AT = now
+    return result
+
+
+def _fetch_live_network_uncached() -> dict[str, Any]:
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
     try:
         import fabric as fabric_mod
 
@@ -516,12 +584,23 @@ def fetch_live_network() -> dict[str, Any]:
 
     timestamp = datetime.now(timezone.utc).isoformat()
     configured = list(config.RPI_STATIONS)
-    stations = [fetch_station_snapshot(s) for s in configured]
+    stations: list[dict[str, Any]] = []
+    with ThreadPoolExecutor(max_workers=min(8, max(1, len(configured) or 1))) as pool:
+        futs = {pool.submit(fetch_station_snapshot, s): s for s in configured}
+        by_host: dict[str, dict[str, Any]] = {}
+        for fut in as_completed(futs):
+            by_host[futs[fut]] = fut.result()
+        stations = [by_host[s] for s in configured]
 
     if not any(s["status"] == "online" for s in stations) and config.RPI_AUTO_DISCOVER:
         discovered = discover_hosts()
         if discovered:
-            stations = [fetch_station_snapshot(s) for s in discovered]
+            with ThreadPoolExecutor(max_workers=min(8, max(1, len(discovered)))) as pool:
+                futs = {pool.submit(fetch_station_snapshot, s): s for s in discovered}
+                by_host = {}
+                for fut in as_completed(futs):
+                    by_host[futs[fut]] = fut.result()
+                stations = [by_host[s] for s in discovered]
 
     online_stations = [s for s in stations if s["status"] == "online"]
     if not online_stations:
@@ -552,7 +631,21 @@ def fetch_live_network() -> dict[str, Any]:
         "latency_eth0_ms": _max_metric("latency_eth0_ms"),
         "cpu_usage": _max_metric("cpu_usage"),
     }
+    # Prefer station display Mbps (includes path-util fill) when octet rates are empty.
+    in_mbps = sum(
+        float(s.get("metrics", {}).get("throughput_in_mbps") or 0.0)
+        for s in online_stations
+    )
+    out_mbps = sum(
+        float(s.get("metrics", {}).get("throughput_out_mbps") or 0.0)
+        for s in online_stations
+    )
+    if raw["ifInOctets"] <= 0 and in_mbps > 0:
+        raw["ifInOctets"] = in_mbps * 1e6 / 8
+    if raw["ifOutOctets"] <= 0 and out_mbps > 0:
+        raw["ifOutOctets"] = out_mbps * 1e6 / 8
 
+    display = raw_to_display(raw, timestamp)
     return {
         "timestamp": timestamp,
         "source": "prometheus",
@@ -561,7 +654,7 @@ def fetch_live_network() -> dict[str, Any]:
         "prometheus_reachable": True,
         "stations": stations,
         "raw": raw,
-        "metrics": raw_to_display(raw, timestamp),
+        "metrics": display,
     }
 
 
@@ -582,7 +675,9 @@ def raw_to_display(raw: dict[str, float], timestamp: str) -> dict[str, Any]:
         "link_jitter": finite_float(raw.get("jitter_ms", 0.0)),
         "packet_loss": finite_float(raw.get("packet_loss_pct", 0.0)),
         "routing_updates": finite_float(raw.get("bgp_update_rate", 0.0)),
-        "cpu_usage": 0.0,
+        "latency_gre_ms": finite_float(raw.get("latency_gre_ms", 0.0)),
+        "latency_eth0_ms": finite_float(raw.get("latency_eth0_ms", 0.0)),
+        "cpu_usage": finite_float(raw.get("cpu_usage", 0.0)),
         "memory_usage": 0.0,
         "timestamp": timestamp,
     }

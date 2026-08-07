@@ -42,6 +42,26 @@ def list_terminals(request: Request):
     return {"terminals": manager.list_sessions()}
 
 
+@router.post("/pipeline/ensure")
+def ensure_pipeline(request: Request):
+    """Idempotent: pipeline monitor sessions already start with the manager."""
+    _require_localhost(request)
+    try:
+        import pipeline_feed
+
+        pipeline_feed.start()
+        tabs = pipeline_feed.ensure_sessions_meta()
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    sessions = manager.list_sessions()
+    by_id = {s["id"]: s for s in sessions}
+    out = []
+    for tab in tabs:
+        meta = by_id.get(tab["id"])
+        out.append({**tab, "session": meta, "ok": meta is not None})
+    return {"ok": all(t["ok"] for t in out), "tabs": out}
+
+
 @router.post("/terminals")
 def create_terminal(body: TerminalCreateBody, request: Request):
     _require_localhost(request)

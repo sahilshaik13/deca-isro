@@ -32,25 +32,32 @@ export default function SimulationControl({
   busy,
   onStart,
   onStop,
+  embedded = false,
 }: {
   status: SimulationStatus | null
   busy: boolean
   onStart: (dry: boolean) => void
   onStop: () => void
+  embedded?: boolean
 }) {
   const running = Boolean(status?.running)
   const phase = status?.phase ?? null
   const waiting = Boolean(status?.waiting_for_approve)
 
+  const Wrap = embedded ? 'div' : 'section'
   return (
-    <section className="deca-panel deca-sim">
+    <Wrap className={embedded ? 'deca-lab-embed' : 'deca-panel deca-sim'}>
       <div className="deca-panel-head">
         <div>
-          <h2 className="deca-section-title">Full lab timeline</h2>
-          <p className="deca-section-sub">
-            Phases 0–6 on the <strong>active fabric</strong> (Pi SSH or GNS3 iperf3+NetEM). Prefer{' '}
-            <strong>Simple faults</strong> above for short jury demos.
-          </p>
+          <h2 className={embedded ? 'deca-lab-slot-title' : 'deca-section-title'}>
+            Full lab timeline
+          </h2>
+          {!embedded ? (
+            <p className="deca-section-sub">
+              Phases 0–6 on the <strong>active fabric</strong> (Pi SSH or GNS3 iperf3+NetEM). Prefer{' '}
+              <strong>Simple faults</strong> above for short jury demos.
+            </p>
+          ) : null}
         </div>
         <div className="deca-sim-actions">
           <button
@@ -128,6 +135,6 @@ export default function SimulationControl({
           </p>
         ) : null}
       </div>
-    </section>
+    </Wrap>
   )
 }

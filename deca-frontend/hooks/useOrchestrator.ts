@@ -132,6 +132,12 @@ export function useOrchestrator() {
       setActionBusy(alertId)
       try {
         const res = await approveAlert(alertId, { path })
+        // Backend also clears inject on steer; belt-and-suspenders for UI state.
+        try {
+          await clearFault('steered')
+        } catch {
+          /* ignore */
+        }
         await refresh()
         return res
       } finally {

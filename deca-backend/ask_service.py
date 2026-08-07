@@ -155,6 +155,17 @@ def run_ask(
         generation_path = "raw_payload"
 
     answer = format_final_answer(intent, fetched, alert, status=status)
+    try:
+        import pipeline_feed
+
+        pipeline_feed.log_copilot(
+            f"retrieved: intent={intent.get('kind') if isinstance(intent, dict) else intent} "
+            f"path={generation_path}"
+        )
+        if alert and alert.get("root_cause"):
+            pipeline_feed.log_copilot(f"generated: {str(alert.get('root_cause'))[:160]}")
+    except Exception:  # noqa: BLE001
+        pass
     return {
         "answer": answer,
         "intent": intent,

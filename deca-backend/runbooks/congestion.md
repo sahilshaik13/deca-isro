@@ -1,13 +1,16 @@
-# SOP: Hub-and-Spoke Congestion Breach
-## Description
-Triggered when ifInOctets/ifOutOctets exhibit sustained acceleration above rolling baseline, typically indicating QoS queue saturation or microbursts.
+# Congestion / overload
 
-## Diagnostic Steps
-1. Verify interface utilization on the affected PE router.
-2. Check QoS drops: `show policy-map interface`.
-3. Identify top talkers using NetFlow/IPFIX data.
+**What it is:** The path or router cannot keep up — queues fill, delay rises, mission traffic is at risk.
 
-## Mitigation
-1. **Immediate:** Apply temporary rate-limiting (policing) to the offending VRF or source IP.
-2. **Short-term:** Re-route non-critical traffic over alternate SD-WAN underlays (e.g., Broadband/LTE).
-3. **Rollback:** Remove rate-limit once the microburst subsides.
+**Keywords:** congestion_breach, cpu_stress, util, HTB, Approve backup
+
+## Plain English
+- Can come from CPU overload or too much traffic toward a rate limit.
+- Decide class is often `congestion_breach`.
+- Fix urgency from the **time-to-impact**, not only the class name.
+
+## What to do
+1. Check CPU vs util vs latency graphs.
+2. If CPU inject: clear stress script.
+3. If Decide is hot: **Approve backup**.
+4. After recovery, clear the human override.

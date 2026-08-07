@@ -6,12 +6,16 @@ const display = Space_Grotesk({
   subsets: ['latin'],
   variable: '--font-display',
   weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  preload: false,
 })
 
 const mono = IBM_Plex_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
   weight: ['400', '500'],
+  display: 'swap',
+  preload: false,
 })
 
 export const metadata: Metadata = {

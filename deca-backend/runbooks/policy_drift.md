@@ -1,17 +1,10 @@
-# SOP: SD-WAN Policy Drift
-## Description
-Identified when localized router configurations diverge from the central controller intent, leading to unexpected path selection or SLA failures.
+# Policy drift / priority wrong
 
-Authoritative intent: [`docs/EDGE_POLICY_LAYERS.md`](../../docs/EDGE_POLICY_LAYERS.md).
-Lab drift inject flag: `data/rpi-net/sdwan_policy_drift.flag` (controller forces misconfigured underlay).
+**What it is:** Traffic is not following the intended priority plan (e.g. lower-priority surge hurting Gold / TT&C).
 
-## Diagnostic Steps
-1. Compare local running-config against controller template / policy catalog.
-2. Verify OSPF/BGP metric manipulations that override controller logic.
-3. Check AAR SLA thresholds (TT&C ≤25/5/0.1%; Payload ≤80/15/2%; `enter_k=3` / `exit_k=10`).
-4. Confirm `sdwan_human_override` / `reset_autonomy` state if a prior sim left a pin.
+**Keywords:** policy_drift, ce_sla_conflict, Bronze, Gold, HTB, ToS
 
-## Mitigation
-1. **Immediate:** `POST /action` `{"op":"reset_autonomy"}` and clear leftover netem on `gre-te-core`.
-2. **Short-term:** If sync fails, manually remove conflicting static routes or local route-map entries; remove drift flag.
-3. Re-verify with `lab/deca_sdwan_verify.sh` / dashboard Mission policy panel.
+## Plain English
+- In this demo, usually the **CE SLA conflict** story (Mauritius vs NRSC).
+- See `ce_sla_conflict.md` for the full simple playbook.
+- Approve to protect the critical site; clear the rogue inject when done.

@@ -245,7 +245,25 @@ def _thresholds() -> dict[str, Any]:
     }
 
 
+_MISSION_CACHE: dict[str, Any] | None = None
+_MISSION_CACHE_AT = 0.0
+_MISSION_CACHE_TTL_SEC = 2.0
+
+
 def fetch_mission_metrics(timeout_sec: float = 5.0) -> dict[str, Any]:
+    """Mission strip for NOC — Pi controller :9280 or GNS3 mission_state + Prom."""
+    global _MISSION_CACHE, _MISSION_CACHE_AT
+    now = time.time()
+    if _MISSION_CACHE is not None and (now - _MISSION_CACHE_AT) < _MISSION_CACHE_TTL_SEC:
+        return _MISSION_CACHE
+
+    result = _fetch_mission_metrics_uncached(timeout_sec=timeout_sec)
+    _MISSION_CACHE = result
+    _MISSION_CACHE_AT = now
+    return result
+
+
+def _fetch_mission_metrics_uncached(timeout_sec: float = 5.0) -> dict[str, Any]:
     """Mission strip for NOC — Pi controller :9280 or GNS3 mission_state + Prom."""
     if _active_fabric() == "gns3":
         cur = _overlay_gns3_latencies(_read_gns3_mission())

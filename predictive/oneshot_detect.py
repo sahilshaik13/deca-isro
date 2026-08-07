@@ -1,11 +1,11 @@
-"""One-shot Q2 detection snapshot for NOC demo faults.
+"""One-shot Q1+Q2 detection snapshot for NOC demo faults.
 
-Samples live Prom briefly, builds a Q2 window, runs frozen severity (+ BGP
-specialist), and prints JSON for the orchestrator to attach on Decide cards.
+Samples live Prom, runs frozen Q2 severity (+ BGP specialist) and Q1 LSTM
+TTI for ETA, and prints JSON for the orchestrator to attach on Decide cards.
 
 Usage:
   .venv-predictive/bin/python -m predictive.oneshot_detect \\
-    --fault-id rain_fade --samples 12 --interval 0.5
+    --fault-id rain_fade --samples 32 --interval 0.5
 """
 from __future__ import annotations
 
@@ -21,11 +21,15 @@ import numpy as np
 
 REPO = Path(__file__).resolve().parents[1]
 
-DEFAULT_Q2 = REPO / "data/deca/predictive/protocol_models/xgb_q2_sev_unified/q2_severity.joblib"
+DEFAULT_Q2 = REPO / "data/deca/predictive/protocol_models/_candidates/util_clean_retrain_20260806T093000Z/d2_e100_l6_mcw3/q2_severity.joblib"
 DEFAULT_BGP = (
     REPO
     / "data/deca/predictive/protocol_models/bgp_3a3b_specialist/honest_threshold/bgp_3a3b_locked.joblib"
 )
+DEFAULT_Q1 = REPO / "data/deca/predictive/protocol_models/lstm_q1_unified/q1_tti_lstm.keras"
+DEFAULT_Q1_SCALER = REPO / "data/deca/predictive/protocol_models/lstm_q1_unified/q1_scaler.npz"
+Q1_WIN = 30
+
 
 # What each dashboard Simple fault should light up (human + model fingerprint).
 FAULT_FINGERPRINTS: dict[str, dict[str, Any]] = {
@@ -73,6 +77,50 @@ def _sample_loop(n: int, interval: float, fabric: str) -> list[dict[str, float]]
     return buf
 
 
+def _predict_q1_eta(
+    buf: list[dict[str, float]],
+    *,
+    q1_path: Path,
+    scaler_path: Path,
+) -> dict[str, Any]:
+    """Run frozen latency-TTI LSTM on the Prom sample buffer (needs ≥ Q1_WIN rows)."""
+    if not q1_path.is_file() or not scaler_path.is_file():
+        return {"ok": False, "error": "q1_model_or_scaler_missing"}
+    if len(buf) < Q1_WIN:
+        return {
+            "ok": False,
+            "error": "q1_warmup",
+            "have": len(buf),
+            "need": Q1_WIN,
+        }
+    try:
+        from tensorflow import keras
+
+        from .infer_q1_live import load_scaler
+    except Exception as exc:  # noqa: BLE001
+        return {"ok": False, "error": f"q1_import:{exc}"}
+
+    try:
+        mean, std, feat_cols = load_scaler(scaler_path)
+        model = keras.models.load_model(q1_path)
+        window = buf[-Q1_WIN:]
+        X = np.asarray(
+            [[float(r.get(c) or 0.0) for c in feat_cols] for r in window],
+            dtype=np.float32,
+        )
+        X = ((X - mean) / std)[None, ...]
+        eta = max(0.0, float(model.predict(X, verbose=0)[0][0]))
+        return {
+            "ok": True,
+            "eta_seconds": round(eta, 2),
+            "eta_minutes": round(max(0.05, eta / 60.0), 3),
+            "q1_model": str(q1_path),
+            "q1_win": Q1_WIN,
+        }
+    except Exception as exc:  # noqa: BLE001
+        return {"ok": False, "error": f"q1_predict:{exc}"}
+
+
 def detect(
     *,
     fault_id: str = "",
@@ -81,6 +129,9 @@ def detect(
     fabric: str = "pi",
     q2_path: Path = DEFAULT_Q2,
     bgp_path: Path | None = DEFAULT_BGP,
+    q1_path: Path | None = DEFAULT_Q1,
+    q1_scaler: Path | None = DEFAULT_Q1_SCALER,
+    with_q1: bool = True,
 ) -> dict[str, Any]:
     import joblib
 
@@ -91,8 +142,13 @@ def detect(
     if not q2_path.is_file():
         return {"ok": False, "error": f"q2_missing:{q2_path}", "fault_id": fault_id}
 
+    # Q1 LSTM needs a 30-step window — collect enough Prom samples when enabled.
+    need = samples
+    if with_q1:
+        need = max(samples, Q1_WIN)
+
     t0 = time.time()
-    buf = _sample_loop(samples, interval, fabric)
+    buf = _sample_loop(need, interval, fabric)
     last = buf[-1] if buf else {}
 
     bundle = joblib.load(q2_path)
@@ -186,10 +242,21 @@ def detect(
                 }
             )
 
+    q1 = {"ok": False, "skipped": True}
+    if with_q1 and q1_path and q1_scaler:
+        q1 = _predict_q1_eta(buf, q1_path=Path(q1_path), scaler_path=Path(q1_scaler))
+
     explanation = (
         f"Q2 ({Path(q2_path).parent.name}) classed live Prom as "
         f"{severity} {q2_name} (p={q2_conf:.2f})"
     )
+    if q1.get("ok") and q1.get("eta_seconds") is not None:
+        explanation += (
+            f"; Q1 LSTM TTI ≈ {float(q1['eta_seconds']):.0f}s "
+            f"({float(q1['eta_minutes']):.2f} min) from Prom window"
+        )
+    elif with_q1 and not q1.get("ok"):
+        explanation += f"; Q1 TTI unavailable ({q1.get('error')})"
     if fault_id:
         explanation += f" while demo fault `{fault_id}` was injecting"
         if fp.get("blurb"):
@@ -200,10 +267,10 @@ def detect(
     if bgp_note:
         explanation += f" ({bgp_note})"
 
-    return {
+    out: dict[str, Any] = {
         "ok": True,
         "fault_id": fault_id or None,
-        "generation_path": "q2_oneshot_frozen_d2",
+        "generation_path": "q1_q2_oneshot_frozen",
         "model": str(q2_path),
         "bgp_specialist": str(bgp_path) if bgp_path else None,
         "fabric": fabric,
@@ -222,7 +289,13 @@ def detect(
         "top_classes": top_classes,
         "bgp_note": bgp_note,
         "explanation": explanation,
+        "q1": q1,
     }
+    if q1.get("ok"):
+        out["eta_seconds"] = q1.get("eta_seconds")
+        out["eta_minutes"] = q1.get("eta_minutes")
+        out["eta_source"] = "q1_lstm_prom"
+    return out
 
 
 def main() -> None:
@@ -233,6 +306,9 @@ def main() -> None:
     ap.add_argument("--fabric", default=os.environ.get("DECA_FABRIC", "pi"))
     ap.add_argument("--q2-model", default=str(DEFAULT_Q2))
     ap.add_argument("--bgp-specialist", default=str(DEFAULT_BGP))
+    ap.add_argument("--q1-model", default=str(DEFAULT_Q1))
+    ap.add_argument("--q1-scaler", default=str(DEFAULT_Q1_SCALER))
+    ap.add_argument("--no-q1", action="store_true", help="skip LSTM TTI")
     args = ap.parse_args()
     bgp = Path(args.bgp_specialist) if args.bgp_specialist else None
     out = detect(
@@ -242,6 +318,9 @@ def main() -> None:
         fabric=args.fabric,
         q2_path=Path(args.q2_model),
         bgp_path=bgp if bgp and bgp.is_file() else None,
+        q1_path=Path(args.q1_model),
+        q1_scaler=Path(args.q1_scaler),
+        with_q1=not args.no_q1,
     )
     json.dump(out, sys.stdout, indent=2)
     sys.stdout.write("\n")

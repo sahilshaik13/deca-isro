@@ -134,6 +134,10 @@ class SeedPreemptionBody(BaseModel):
     arbitration: Optional[dict[str, Any]] = None
     # Live Q2 oneshot evidence (dashboard Simple faults / infer)
     model_detection: Optional[dict[str, Any]] = None
+    # Simple-fault inject id (for clear / resolve)
+    noc_demo_fault: Optional[str] = None
+    # q1_lstm_prom | q2_only_advisory_clock | …
+    eta_source: Optional[str] = None
     # Multi-operator NOC audit (optional)
     operator_id: Optional[str] = None
     # Q3: attach English NLP async by default (math gate does not wait)
@@ -295,12 +299,13 @@ def get_fleet(run_id: Optional[str] = None):
     except Exception:
         alert_by_host = {}
 
+    mission: dict[str, Any] | None = None
     try:
         from prometheus_feed import fetch_live_network
 
         live = fetch_live_network()
-        mission_preview = controller_client.fetch_mission_metrics()
-        conflict = int((mission_preview or {}).get("conflict") or 0)
+        mission = controller_client.fetch_mission_metrics()
+        conflict = int((mission or {}).get("conflict") or 0)
         for st in live.get("stations") or []:
             host = st.get("host")
             if not host:
@@ -331,17 +336,17 @@ def get_fleet(run_id: Optional[str] = None):
                 eta = seeded.get("eta_minutes")
             if eta is None and online:
                 if lat >= budget_lat or loss >= budget_loss:
-                    eta = 0.0
+                    eta = round(max(0.8, float(seeded.get("eta_minutes") or 5.0) * 0.4), 1)
                 elif lat >= budget_lat * 0.6 or loss >= budget_loss * 0.6 or conflict:
                     remain = max(0.05, 1.0 - max(lat_ratio, loss_ratio))
-                    eta = round(remain * 3.0, 1)
+                    eta = round(max(1.5, remain * 5.0), 1)
                 elif seeded.get("class") in (
                     "congestion_breach",
                     "tunnel_degradation",
                     "bgp_route_flap",
                     "policy_drift",
                 ):
-                    eta = float(seeded.get("eta_minutes") or 1.5)
+                    eta = float(seeded.get("eta_minutes") or 4.0)
                     conf = min(float(conf or 0.9), 0.88)
 
             confirmed = existing.get("confirmed")
@@ -386,6 +391,7 @@ def get_fleet(run_id: Optional[str] = None):
                 tick["eta_minutes"] = None
                 tick["metrics"] = {}
             elif m:
+                seeded_eta = tick.get("eta_minutes")
                 if mclass == "ttc":
                     budget_lat, budget_loss = 25.0, 0.1
                 elif mclass == "be":
@@ -400,11 +406,15 @@ def get_fleet(run_id: Optional[str] = None):
 
                 if lat > budget_lat or loss > budget_loss:
                     tick["confirmed"] = "tunnel_degradation"
-                    tick["eta_minutes"] = 0.0
+                    # Still actionable for HITL — do not flash ETA=0 the instant SLA trips.
+                    tick["eta_minutes"] = round(
+                        max(0.8, float(seeded_eta or 5.0) * 0.4),
+                        1,
+                    )
                 elif mclass == "ttc" and (lat >= budget_lat * 0.6 or loss >= budget_loss * 0.6):
                     tick["confirmed"] = "tunnel_degradation"
                     remain = max(0.05, 1.0 - max(lat_ratio, loss_ratio))
-                    tick["eta_minutes"] = round(remain * 3.0, 1)
+                    tick["eta_minutes"] = round(max(1.5, remain * 5.0), 1)
                 elif mclass == "ttc" and tick.get("seeded_class") in (
                     "congestion_breach",
                     "tunnel_degradation",
@@ -412,7 +422,7 @@ def get_fleet(run_id: Optional[str] = None):
                     "policy_drift",
                 ):
                     tick["confirmed"] = tick.get("seeded_class") or "congestion_breach"
-                    tick["eta_minutes"] = tick.get("eta_minutes") or 1.5
+                    tick["eta_minutes"] = float(seeded_eta or 4.0)
                 elif not tick.get("confirmed"):
                     tick["confirmed"] = "healthy"
                     if mclass != "ttc":
@@ -438,7 +448,9 @@ def get_fleet(run_id: Optional[str] = None):
         elif site.get("virtual"):
             status = "virtual"
         sites.append({**site, "hosts_state": host_states, "status": status})
-    mission = controller_client.fetch_mission_metrics()
+    # Reuse mission from Prom overlay when available (avoid second :9280 scrape).
+    if mission is None:
+        mission = controller_client.fetch_mission_metrics()
     return {
         "run_id": rid,
         "fabric": active,
@@ -450,33 +462,47 @@ def get_fleet(run_id: Optional[str] = None):
     }
 
 
+def _slim_alert(row: dict[str, Any]) -> dict[str, Any]:
+    """Drop duplicated payload_json blob (~majority of alert JSON size)."""
+    out = dict(row)
+    out.pop("payload_json", None)
+    return out
+
+
 @router.get("/alerts")
 def get_alerts(
     run_id: Optional[str] = None,
     status: Optional[str] = None,
     limit: int = 100,
+    include_history: bool = False,
 ):
     import fabric as fabric_mod
 
     rid = run_id or _active_run()
     if rid:
         ingest.refresh_run(rid)
-    active = repos.list_alerts(run_id=rid, status="active", limit=limit)
-    history = repos.list_alerts(run_id=rid, status=None, limit=limit)
     fab = fabric_mod.get_active()
 
     def _for_fabric(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        return fabric_mod.filter_rows_for_fabric(rows, fab)
+        return [_slim_alert(a) for a in fabric_mod.filter_rows_for_fabric(rows, fab)]
 
     if status:
         filtered = repos.list_alerts(run_id=rid, status=status, limit=limit)
         return {"run_id": rid, "fabric": fab, "alerts": _for_fabric(filtered)}
-    return {
+
+    active = repos.list_alerts(run_id=rid, status="active", limit=limit)
+    out: dict[str, Any] = {
         "run_id": rid,
         "fabric": fab,
         "active": _for_fabric([a for a in active if a.get("status") == "active"]),
-        "history": _for_fabric(history),
     }
+    # History is ~1MB and unused by the NOC poll path — opt-in only.
+    if include_history:
+        history = repos.list_alerts(run_id=rid, status=None, limit=limit)
+        out["history"] = _for_fabric(history)
+    else:
+        out["history"] = []
+    return out
 
 
 @router.post("/controller/action")
@@ -505,20 +531,34 @@ def post_ask(body: AskBody):
 
 
 @router.get("/history")
-def get_history(run_id: Optional[str] = None, limit: int = 50):
+def get_history(
+    run_id: Optional[str] = None,
+    limit: int = 50,
+    include_alerts: bool = False,
+    include_queries: bool = False,
+):
+    """Default: actions only (NOC uses recent actions). Fat alert blobs are opt-in."""
     import fabric as fabric_mod
 
     rid = run_id or _active_run()
     fab = fabric_mod.get_active()
-    return {
+    out: dict[str, Any] = {
         "run_id": rid,
         "fabric": fab,
-        "alerts": fabric_mod.filter_rows_for_fabric(
-            repos.list_alerts(run_id=rid, limit=limit), fab
-        ),
-        "queries": repos.list_queries(run_id=rid, limit=limit),
         "actions": repos.list_actions(run_id=rid, limit=limit),
+        "alerts": [],
+        "queries": [],
     }
+    if include_alerts:
+        out["alerts"] = [
+            _slim_alert(a)
+            for a in fabric_mod.filter_rows_for_fabric(
+                repos.list_alerts(run_id=rid, limit=limit), fab
+            )
+        ]
+    if include_queries:
+        out["queries"] = repos.list_queries(run_id=rid, limit=limit)
+    return out
 
 
 def _proposal_from_alert(alert: dict[str, Any]) -> dict[str, Any]:
@@ -638,16 +678,35 @@ def approve_action(alert_id: int, body: ActionBody | None = None):
         operator_note=body.operator_note,
     )
     repos.set_alert_status(alert_id, "approved" if overall_ok else "approve_failed")
+
+    # HITL steer complete → stop the live inject so the fabric can heal on backup.
+    fault_cleared = None
+    try:
+        import fault_demo
+
+        st = fault_demo.status()
+        demo_live = bool(
+            st.get("running")
+            or st.get("fault_id")
+            or st.get("phase") in ("injecting", "seeded", "collapsing", "recovering")
+        )
+        if overall_ok and demo_live:
+            fault_cleared = fault_demo.clear(reason="steered")
+    except Exception as exc:  # noqa: BLE001
+        fault_cleared = {"ok": False, "error": str(exc)}
+
     return {
         "ok": overall_ok,
         "action_id": action_id,
         "proposal": proposal,
         "controller": result,
+        "fault_cleared": fault_cleared,
     }
 
 
 @router.post("/actions/{alert_id}/reject")
 def reject_action(alert_id: int, body: ActionBody | None = None):
+    """Decline steer — stop inject and let the path settle back to healthy naturally."""
     body = body or ActionBody()
     alert = repos.get_alert(alert_id)
     if not alert:
@@ -662,7 +721,29 @@ def reject_action(alert_id: int, body: ActionBody | None = None):
         operator_note=body.operator_note,
     )
     repos.set_alert_status(alert_id, "rejected")
-    return {"ok": True, "action_id": action_id, "result": result}
+
+    fault_cleared = None
+    try:
+        import fault_demo
+
+        st = fault_demo.status()
+        demo_live = bool(
+            st.get("running")
+            or st.get("fault_id")
+            or st.get("phase") in ("injecting", "seeded", "collapsing", "recovering")
+        )
+        if demo_live:
+            # No force_path — stop inject and settle on preferred path.
+            fault_cleared = fault_demo.clear(reason="rejected")
+    except Exception as exc:  # noqa: BLE001
+        fault_cleared = {"ok": False, "error": str(exc)}
+
+    return {
+        "ok": True,
+        "action_id": action_id,
+        "result": result,
+        "fault_cleared": fault_cleared,
+    }
 
 
 class ResolveBody(BaseModel):
@@ -1027,6 +1108,10 @@ def simulation_seed_preemption(body: SeedPreemptionBody | None = None):
         gp = body.model_detection.get("generation_path")
         if gp:
             payload["model_generation_path"] = gp
+    if body.noc_demo_fault:
+        payload["noc_demo_fault"] = body.noc_demo_fault
+    if body.eta_source:
+        payload["eta_source"] = body.eta_source
     payload["concerns"] = _default_concerns(body, alert_class)
     alert_id = repos.upsert_alert(
         {
@@ -1056,6 +1141,8 @@ def simulation_seed_preemption(body: SeedPreemptionBody | None = None):
                 "path": path,
                 "eta_minutes": body.eta_minutes,
                 "confidence": body.confidence,
+                "eta_source": body.eta_source,
+                "model_detection": body.model_detection,
             }
             q3_lnc.enrich_alert_async(
                 alert_id,

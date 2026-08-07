@@ -1,38 +1,25 @@
 #!/usr/bin/env bash
 # inject_ce_sla_conflict.sh — Bronze CE burst vs Gold TT&C (ISRO mentor CE↔CE SLA conflict).
-#
-# Story: Mauritius (Bronze / 90%) surges Payload util while NRSC (Gold / 99.9%) keeps
-# a light TT&C probe. Shared PE1 HTB/WAN pressure → Decide names rogue vs victim.
-#
-# CAPTURE_CONTRACT (L6 shape):
-#   Default = continuous plateau:
-#     1) Victim TT&C probe for the whole window
-#     2) One uninterrupted rogue iperf3 on :5006 (HTB 1:15) at rogue_mbit
-#     3) No kill/restart dead air (same failure mode as old pulsed L5)
-#   --coarse = legacy stepped bitrate handoff (debug only — not for long campaign)
-#
-# Usage:
-#   bash scripts/inject_ce_sla_conflict.sh
-#   bash scripts/inject_ce_sla_conflict.sh --rogue-mbit 20 --hold-sec 90
-#   bash scripts/inject_ce_sla_conflict.sh --coarse --steps 5 --step-sec 18
-#   bash scripts/inject_ce_sla_conflict.sh --clear
+# Ctrl+C kills remote SSH inject loop + iperf (healthy).
 set -euo pipefail
 
 HOST=station1
 ROGUE_NS=ce-mauritius
 VICTIM_NS=ce-a
-DST_SAC=10.100.2.1          # SAC lo via mission path
-ROGUE_TOS=128               # 0x80 — competes in HTB 1:15 (non-critical bulk)
-VICTIM_TOS=136              # 0x88 TT&C
+DST_SAC=10.100.2.1
+ROGUE_TOS=128
+VICTIM_TOS=136
 ROGUE_START=2
 ROGUE_END=20
 STEPS=5
 STEP_SEC=18
-HOLD_SEC=0                  # 0 → STEPS*STEP_SEC in continuous mode
+HOLD_SEC=0
 VICTIM_MBIT=1
 CLEAR_ONLY=0
 FORCE_CLEAR=0
-MODE=continuous             # continuous | coarse
+MODE=continuous
+PIDFILE=/tmp/deca_ce_sla_conflict.pid
+SSH_PID=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -47,24 +34,54 @@ while [[ $# -gt 0 ]]; do
     --clear) CLEAR_ONLY=1; shift ;;
     --force-clear) FORCE_CLEAR=1; shift ;;
     --coarse) MODE=coarse; shift ;;
-    -h|--help) sed -n '2,20p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,6p' "$0"; exit 0 ;;
     *) echo "unknown: $1"; exit 2 ;;
   esac
 done
 
-run() { ssh -T "$HOST" "sudo bash -s"; }
+kill_ssh() {
+  if [[ -n "${SSH_PID}" ]] && kill -0 "$SSH_PID" 2>/dev/null; then
+    kill -TERM "$SSH_PID" 2>/dev/null || true
+    sleep 0.4
+    kill -KILL "$SSH_PID" 2>/dev/null || true
+    wait "$SSH_PID" 2>/dev/null || true
+    SSH_PID=""
+  fi
+}
 
-if [[ "$CLEAR_ONLY" -eq 1 ]]; then
-  echo "Clearing CE SLA conflict injectors on $HOST"
-  run <<EOF
+clear_ce() {
+  echo "Clearing CE SLA conflict injectors on $HOST (healthy)"
+  ssh -T "$HOST" "sudo bash -s" <<EOF || true
+if [[ -f $PIDFILE ]]; then
+  pid=\$(cat $PIDFILE 2>/dev/null || true)
+  if [[ -n "\$pid" ]]; then
+    kill -TERM "\$pid" 2>/dev/null || true
+    pkill -P "\$pid" 2>/dev/null || true
+    sleep 0.2
+    kill -KILL "\$pid" 2>/dev/null || true
+  fi
+  rm -f $PIDFILE
+fi
 pkill -f 'deca_ce_sla_' 2>/dev/null || true
 ip netns exec ce-mauritius pkill -f iperf3 2>/dev/null || true
-ip netns exec ce-a pkill -f 'iperf3.*--tos 136' 2>/dev/null || true
-ip netns exec ce-a pkill -f 'iperf3.*--tos 0x88' 2>/dev/null || true
+ip netns exec ce-a pkill -f 'iperf3.*--tos' 2>/dev/null || true
 echo cleared
 EOF
+}
+
+if [[ "$CLEAR_ONLY" -eq 1 ]]; then
+  clear_ce
   exit 0
 fi
+
+on_interrupt() {
+  echo
+  echo "Interrupted — killing remote inject, restoring healthy on $HOST"
+  kill_ssh
+  clear_ce
+  exit 130
+}
+trap on_interrupt INT TERM
 
 if pgrep -f 'inject_bgp_flap.sh|inject_cpu_stress.sh|inject_rain_fade.sh' >/dev/null 2>&1; then
   if [[ "$FORCE_CLEAR" -ne 1 ]]; then
@@ -79,19 +96,31 @@ if [[ "$HOLD_SEC" -le 0 ]]; then
 fi
 
 echo "CE SLA conflict mode=$MODE rogue=$ROGUE_NS →${ROGUE_END}Mbit :5006; victim=$VICTIM_NS TT&C ${VICTIM_MBIT}M hold=${HOLD_SEC}s [CAPTURE_CONTRACT]"
+echo "(Ctrl+C kills remote loop + iperf → healthy)"
+
+TMP="$(mktemp /tmp/deca_ce_sla_remote.XXXXXX)"
 
 if [[ "$MODE" == "coarse" ]]; then
-  # Legacy pulsed ramp (debug) — kill/restart each step → high→idle drops
-  run <<EOF
+  cat >"$TMP" <<EOF
 set -euo pipefail
 ROGUE_NS='$ROGUE_NS'; VICTIM_NS='$VICTIM_NS'; DST='$DST_SAC'
 ROGUE_TOS=$ROGUE_TOS; VICTIM_TOS=$VICTIM_TOS
 STEPS=$STEPS; STEP_SEC=$STEP_SEC; START_MBIT=$ROGUE_START; END_MBIT=$ROGUE_END
 VICTIM_MBIT=$VICTIM_MBIT; ROGUE_PORT=5006; VICTIM_PORT=5201
+PIDFILE=$PIDFILE
+
+cleanup() {
+  ip netns exec "\$ROGUE_NS" pkill -f iperf3 2>/dev/null || true
+  ip netns exec "\$VICTIM_NS" pkill -f 'iperf3.*--tos' 2>/dev/null || true
+  rm -f "\$PIDFILE"
+  echo "[\$(date -u +%H:%M:%S)] CE SLA coarse cleared (healthy)"
+}
+trap cleanup EXIT INT TERM HUP
+echo \$\$ > "\$PIDFILE"
+
 ssh -o BatchMode=yes -o ConnectTimeout=5 192.168.50.20 \
   'sudo bash -c "ip netns exec ce-b iperf3 -s -D -p 5006 2>/dev/null || true; ip netns exec ce-b iperf3 -s -D -p 5201 2>/dev/null || true"' \
   2>/dev/null || true
-echo \$\$ > /tmp/deca_ce_sla_conflict.pid
 TOTAL=\$(( STEPS * STEP_SEC + 5 ))
 ip netns exec "\$VICTIM_NS" pkill -f 'iperf3.*--tos' 2>/dev/null || true
 ip netns exec "\$VICTIM_NS" iperf3 -c "\$DST" -u -b "\${VICTIM_MBIT}M" -t "\$TOTAL" --tos "\$VICTIM_TOS" -p "\$VICTIM_PORT" \
@@ -106,36 +135,31 @@ for i in \$(seq 0 \$((STEPS - 1))); do
     >/tmp/deca_ce_sla_rogue.log 2>&1 &
   sleep "\$STEP_SEC"
 done
-ip netns exec "\$ROGUE_NS" pkill -f iperf3 2>/dev/null || true
-ip netns exec "\$VICTIM_NS" pkill -f 'iperf3.*--tos' 2>/dev/null || true
-rm -f /tmp/deca_ce_sla_conflict.pid
-echo "[\$(date -u +%H:%M:%S)] CE SLA coarse complete"
+echo "[\$(date -u +%H:%M:%S)] CE SLA coarse complete — cleanup will restore healthy"
 EOF
-  exit 0
-fi
-
-# --- Default: continuous plateau (no kill/restart gaps) ---
-run <<EOF
+else
+  cat >"$TMP" <<EOF
 set -euo pipefail
 ROGUE_NS='$ROGUE_NS'; VICTIM_NS='$VICTIM_NS'; DST='$DST_SAC'
 ROGUE_TOS=$ROGUE_TOS; VICTIM_TOS=$VICTIM_TOS
 HOLD_SEC=$HOLD_SEC; END_MBIT=$ROGUE_END; VICTIM_MBIT=$VICTIM_MBIT
 ROGUE_PORT=5006; VICTIM_PORT=5201
+PIDFILE=$PIDFILE
 TOTAL=\$(( HOLD_SEC + 8 ))
+
+cleanup() {
+  ip netns exec "\$ROGUE_NS" pkill -f iperf3 2>/dev/null || true
+  ip netns exec "\$VICTIM_NS" pkill -f 'iperf3.*--tos' 2>/dev/null || true
+  rm -f "\$PIDFILE"
+  echo "[\$(date -u +%H:%M:%S)] CE SLA continuous cleared (healthy)"
+}
+trap cleanup EXIT INT TERM HUP
+echo \$\$ > "\$PIDFILE"
 
 ssh -o BatchMode=yes -o ConnectTimeout=5 192.168.50.20 \
   'sudo bash -c "ip netns exec ce-b iperf3 -s -D -p 5006 2>/dev/null || true; ip netns exec ce-b iperf3 -s -D -p 5201 2>/dev/null || true"' \
   2>/dev/null || true
 
-cleanup() {
-  ip netns exec "\$ROGUE_NS" pkill -f iperf3 2>/dev/null || true
-  ip netns exec "\$VICTIM_NS" pkill -f 'iperf3.*--tos' 2>/dev/null || true
-  rm -f /tmp/deca_ce_sla_conflict.pid
-  echo "[\$(date -u +%H:%M:%S)] CE SLA continuous cleared"
-}
-trap cleanup EXIT INT TERM
-
-echo \$\$ > /tmp/deca_ce_sla_conflict.pid
 : > /tmp/deca_ce_sla_schedule.jsonl
 now=\$(date +%s)
 printf '{"ts_unix":%s,"phase":"plateau","rogue_mbit":%s,"hold_sec":%s}\n' \
@@ -148,12 +172,18 @@ sleep 1
 echo "[\$(date -u +%H:%M:%S)] start victim TT&C \${VICTIM_MBIT}M + rogue plateau \${END_MBIT}Mbit for \${HOLD_SEC}s"
 ip netns exec "\$VICTIM_NS" iperf3 -c "\$DST" -u -b "\${VICTIM_MBIT}M" -t "\$TOTAL" --tos "\$VICTIM_TOS" -p "\$VICTIM_PORT" \
   >/tmp/deca_ce_sla_victim.log 2>&1 &
-# Continuous rogue — single offer, no mid-hold restart
 ip netns exec "\$ROGUE_NS" iperf3 -c "\$DST" -P 2 -b "\${END_MBIT}M" -t "\$TOTAL" -p "\$ROGUE_PORT" \
   >/tmp/deca_ce_sla_rogue.log 2>&1 &
 sleep "\$HOLD_SEC"
-echo "[\$(date -u +%H:%M:%S)] CE SLA continuous plateau complete"
+echo "[\$(date -u +%H:%M:%S)] CE SLA continuous plateau complete — cleanup will restore healthy"
 tail -5 /tmp/deca_ce_sla_rogue.log 2>/dev/null || true
 EOF
+fi
 
-echo "[$(date -u +%H:%M:%S)] inject finished"
+ssh -T "$HOST" "sudo bash -s" <"$TMP" &
+SSH_PID=$!
+wait "$SSH_PID" || true
+SSH_PID=""
+rm -f "$TMP"
+trap - INT TERM
+echo "[$(date -u +%H:%M:%S)] CE SLA conflict finished — injectors cleared (healthy)."

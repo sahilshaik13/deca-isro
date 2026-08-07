@@ -1,13 +1,16 @@
-# SOP: IPSec Tunnel Degradation
-## Description
-Detected via high jitter, packet loss, or abnormal rekey duration (IKE Phase 1/2 negotiation latency).
+# Primary path degrading (tunnel / underlay)
 
-## Diagnostic Steps
-1. Check IPSec SA status: `ipsec statusall`.
-2. Verify MTU/MSS mismatch issues (ping with df-bit set).
-3. Look for replay window drops or ESP sequence errors.
+**What it is:** Preferred path quality is getting worse (delay, jitter, or loss). Often rain fade or loss ramp in this lab.
 
-## Mitigation
-1. **Immediate:** Force a manual SA rekey: `ipsec down <conn> && ipsec up <conn>`.
-2. **Short-term:** Failover traffic to secondary VPN gateway if packet loss exceeds 5%.
-3. **Rollback:** Revert to primary gateway during the next maintenance window.
+**Keywords:** tunnel_degradation, rain_fade, loss_progression, gre, eth0, Approve backup
+
+## Plain English
+- Preferred path = GRE. Backup = eth0 (skips the core).
+- If only GRE is bad → physical / loss style fault.
+- If everything is bad with high CPU → CPU runbook.
+
+## What to do
+1. Compare GRE vs eth0 on the left-hand graphs.
+2. Read Decide time-to-impact.
+3. **Approve backup** before the service limit is crossed.
+4. Clear lab NetEM if needed (`inject_rain_fade.sh --clear` or `inject_loss_progression.sh --clear`).

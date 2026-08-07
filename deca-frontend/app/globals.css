@@ -192,6 +192,105 @@
   margin-top: 1.5rem;
 }
 
+.deca-term-spacer.is-demo {
+  height: min(44vh, 420px);
+}
+
+.deca-col-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--deca-mute);
+}
+
+.deca-col-label-hint {
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  opacity: 0.75;
+}
+
+.deca-ps13-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid color-mix(in srgb, var(--deca-accent) 45%, var(--deca-line));
+  color: var(--deca-accent);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.deca-ps13-tag-q2 {
+  border-color: color-mix(in srgb, var(--deca-warn) 50%, var(--deca-line));
+  color: var(--deca-warn);
+}
+
+.deca-ps13-tag-q3 {
+  border-color: color-mix(in srgb, #a78bfa 50%, var(--deca-line));
+  color: #c4b5fd;
+}
+
+.deca-lab-controls-toggle {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.deca-lab-controls-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+
+.deca-lab-controls-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.deca-lab-controls-body {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--deca-line);
+}
+
+.deca-lab-slot {
+  padding: 0.55rem 0.65rem;
+  background: var(--deca-panel-2);
+  border: 1px solid color-mix(in srgb, var(--deca-line) 80%, transparent);
+}
+
+.deca-lab-embed .deca-panel-head {
+  margin-bottom: 0.15rem;
+}
+
+.deca-lab-slot-title {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--deca-mute);
+}
+
 @media (min-width: 768px) {
   .deca-shell {
     padding: 1.75rem 2rem 4rem;
@@ -553,6 +652,21 @@
   .deca-main-right {
     position: sticky;
     top: 1rem;
+    /* Stay above the fixed terminal drawer; scroll this column on its own. */
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: 0.25rem;
+    scrollbar-gutter: stable;
+  }
+
+  /* Terminal open: leave room for the drawer so Decide isn't trapped under it. */
+  .deca-shell:has(.deca-term-drawer.is-open) .deca-main-right {
+    max-height: calc(100dvh - min(38vh, 360px) - 1.25rem);
+  }
+
+  .deca-shell.is-demo-live:has(.deca-term-drawer.is-open) .deca-main-right {
+    max-height: calc(100dvh - min(44vh, 420px) - 1.25rem);
   }
 
   .deca-main.deca-main-network {
@@ -1073,8 +1187,20 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  max-height: 28rem;
+  max-height: min(28rem, 55vh);
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* When terminals are open, let the right column scroll as one unit. */
+.deca-shell:has(.deca-term-drawer.is-open) .deca-alert-list {
+  max-height: none;
+  overflow: visible;
+}
+
+.deca-decision {
+  overscroll-behavior: contain;
 }
 
 .deca-alert {
@@ -1500,6 +1626,11 @@
 
 .deca-term-drawer.is-open {
   height: min(38vh, 360px);
+  overscroll-behavior: contain;
+}
+
+.deca-shell.is-demo-live .deca-term-drawer.is-open {
+  height: min(44vh, 420px);
 }
 
 .deca-term-drawer.is-collapsed {
@@ -1588,6 +1719,18 @@
   flex-shrink: 0;
 }
 
+.deca-term-mode {
+  display: inline-flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.deca-term-hint {
+  font-size: 0.65rem;
+  color: var(--deca-mute);
+  white-space: nowrap;
+}
+
 .deca-term-add-wrap {
   position: relative;
 }
@@ -1643,12 +1786,14 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  overscroll-behavior: contain;
 }
 
 .deca-term-pane {
   flex: 1;
   min-height: 0;
   padding: 0.35rem 0.5rem 0;
+  overscroll-behavior: contain;
 }
 
 .deca-term-pane[hidden] {
@@ -1666,6 +1811,7 @@
 
 .deca-xterm-host .xterm-viewport {
   overflow-y: auto !important;
+  overscroll-behavior: contain;
 }
 
 .deca-term-status {

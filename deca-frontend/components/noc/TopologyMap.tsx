@@ -85,7 +85,7 @@ function buildEvents(
     })
   }
 
-  if (mission?.conflict) {
+  if (mission?.conflict && mission.ttc_wanted !== mission.payload_wanted) {
     out.push({
       tone: 'warn',
       text: `Policy conflict: TT&C wants ${mission.ttc_wanted || '?'} · Payload wants ${mission.payload_wanted || '?'} → TT&C wins`,
@@ -191,17 +191,58 @@ function linkIsUp(fromUp: boolean, toUp: boolean): boolean {
 function NodeGlyph({
   node,
   online,
+  alerts = [],
 }: {
   node: LayoutNode
   online: boolean
+  alerts?: AlertRow[]
 }) {
   const c = nodeCenter(node)
   const kind = node.kind || 'ce'
   const half = ICON / 2
   const labelY = c.y + half + 14
 
+  const hostNodeAlert = alerts.find(a => a.status === 'active' && (a.host === node.id || a.host === node.fleet_id || String(a.host).includes(node.id)))
+  const etaMin =
+    hostNodeAlert?.eta ??
+    (typeof hostNodeAlert?.payload?.eta_minutes === 'number'
+      ? hostNodeAlert.payload.eta_minutes
+      : null) ??
+    (typeof hostNodeAlert?.payload?.eta_loss_minutes === 'number'
+      ? hostNodeAlert.payload.eta_loss_minutes
+      : null) ??
+    (typeof hostNodeAlert?.payload?.eta_util_minutes === 'number'
+      ? hostNodeAlert.payload.eta_util_minutes
+      : null)
+
+  let forecastText = online ? `${node.label} - Healthy` : `${node.label} - Offline`
+  const q1Hot = Boolean(hostNodeAlert && etaMin != null && Number(etaMin) <= 5)
+
+  if (hostNodeAlert) {
+    const cls = hostNodeAlert.class || ''
+    const isPrecursor =
+      ['congestion_breach', 'tunnel_degradation'].includes(cls) ||
+      cls.includes('loss') ||
+      cls.includes('util')
+
+    if (isPrecursor && etaMin != null) {
+      const urg =
+        hostNodeAlert.payload?.urgency_clock_kind === 'soft_ceiling'
+          ? 'saturation'
+          : 'SLA breach'
+      forecastText = `${node.label} trending toward ${urg}, ~${etaMin} min to impact (Q1 Forecast)`
+    } else {
+      const elapsed = hostNodeAlert.ts
+        ? Math.max(0, Math.floor((Date.now() - new Date(hostNodeAlert.ts).getTime()) / 1000))
+        : 0
+      forecastText = `Anomaly detected at ${node.label} (${elapsed}s ago) — Q2 Classification`
+      if (etaMin != null) forecastText += ` · ETA ${etaMin}m`
+    }
+  }
+
   return (
-    <g className={`gns-node kind-${kind}${online ? ' is-up' : ' is-down'}${node.muted ? ' is-muted' : ''}`}>
+    <g className={`gns-node kind-${kind}${online ? ' is-up' : ' is-down'}${node.muted ? ' is-muted' : ''}${hostNodeAlert ? ' has-alert' : ''}${q1Hot ? ' is-q1-hot' : ''}`}>
+      <title>{forecastText}</title>
       {/* tower / appliance silhouette */}
       <rect
         x={c.x - half}
@@ -210,6 +251,7 @@ function NodeGlyph({
         height={ICON}
         rx={4}
         className="gns-icon-bg"
+        style={q1Hot ? { stroke: '#ef4444', strokeWidth: 2 } : undefined}
       />
       <rect x={c.x - 10} y={c.y - 14} width={20} height={26} rx={2} className="gns-icon-body" />
       <rect x={c.x - 7} y={c.y - 10} width={14} height={3} className="gns-icon-slot" />
@@ -221,12 +263,23 @@ function NodeGlyph({
         cx={c.x + half - 2}
         cy={c.y - half + 2}
         r={4.5}
-        className={online ? 'gns-led-up' : 'gns-led-down'}
+        className={online ? (hostNodeAlert ? 'gns-led-alert' : 'gns-led-up') : 'gns-led-down'}
+        style={hostNodeAlert ? { fill: '#ef4444' } : undefined}
       />
       <text x={c.x} y={labelY} textAnchor="middle" className="gns-label">
         {node.label}
       </text>
-      {node.sub ? (
+      {etaMin != null && hostNodeAlert ? (
+        <text
+          x={c.x}
+          y={labelY + (node.sub ? 24 : 12)}
+          textAnchor="middle"
+          className="gns-sub"
+          style={{ fill: '#f87171', fontWeight: 600 }}
+        >
+          ETA {Number(etaMin)}m
+        </text>
+      ) : node.sub ? (
         <text x={c.x} y={labelY + 12} textAnchor="middle" className="gns-sub">
           {node.sub}
         </text>
@@ -274,7 +327,7 @@ export default function TopologyMap({
   const greOn = path === 'gre' || path === 'gre-te-core'
   const ethOn = path === 'eth0'
   const human = mission?.human_override
-  const conflict = Boolean(mission?.conflict)
+  const conflict = Boolean(mission?.conflict && mission?.ttc_wanted !== mission?.payload_wanted)
   const events = useMemo(
     () => buildEvents(mission, sites, alerts, recentAction, fabric),
     [mission, sites, alerts, recentAction, fabric],
@@ -320,13 +373,16 @@ export default function TopologyMap({
     <section className="deca-panel">
       <div className="deca-panel-head">
         <div>
-          <h2 className="deca-section-title">Site topology</h2>
+          <h2 className="deca-section-title">
+            <span className="deca-ps13-tag">Q1</span> Site topology
+          </h2>
           <p className="deca-section-sub">
             {layout?.subtitle ||
               (fabric === 'gns3'
                 ? 'GNS3 canvas · drive from NOC (GUI optional)'
                 : 'Pi as-built · single CORE · gre-te + eth0 backup')}
             {' · '}
+            red node + ETA = forecast toward SLA breach ·{' '}
             <strong>click a link</strong> to open Wireshark
           </p>
         </div>
@@ -457,7 +513,7 @@ export default function TopologyMap({
           })}
 
           {nodes.map((n) => (
-            <NodeGlyph key={n.id} node={n} online={onlineById.get(n.id) ?? false} />
+            <NodeGlyph key={n.id} node={n} online={onlineById.get(n.id) ?? false} alerts={alerts} />
           ))}
 
           {conflict ? (

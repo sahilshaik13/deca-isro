@@ -1,4 +1,5 @@
 import { X, Beaker, Network, Target, BrainCircuit, Activity } from 'lucide-react'
+import { DECA_CITE_BOARD } from '@/lib/cite-board'
 
 export default function MethodologyModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   if (!isOpen) return null;
@@ -17,8 +18,11 @@ export default function MethodologyModal({ isOpen, onClose }: { isOpen: boolean,
           <Beaker className="text-[var(--deca-primary,#38bdf8)]" />
           SD-WAN Predictive Telemetry Methodology
         </h2>
-        <p className="text-[var(--deca-mute,#94a3b8)] mb-8">
+        <p className="text-[var(--deca-mute,#94a3b8)] mb-4">
           Validating the mathematical rigor, synthetic ground truth, and SLA benchmarks defining the DECA NOC Copilot.
+        </p>
+        <p className="mb-8 font-mono text-sm border border-[var(--deca-border,#334155)] bg-[var(--deca-panel-2,#0f172a)] px-3 py-2">
+          Cite board (single source): <strong>{DECA_CITE_BOARD.line}</strong>
         </p>
 
         <div className="grid gap-8 lg:grid-cols-2">
@@ -44,22 +48,51 @@ export default function MethodologyModal({ isOpen, onClose }: { isOpen: boolean,
             </ul>
           </section>
 
-          {/* Synthetic Data */}
+          {/* Data Pipeline */}
           <section className="bg-[var(--deca-panel-2,#0f172a)] p-5 rounded-md border border-[var(--deca-border,#334155)]">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Activity className="w-4 h-4 text-blue-400" />
-              Data Pipeline & Synthetic Bridge
+              Data Pipeline & Telemetry Corpus
             </h3>
             <ul className="space-y-4 text-sm text-[var(--deca-text-dim,#cbd5e1)]">
               <li>
                 <strong className="block text-[var(--deca-text,#f8fafc)]">Hardware Canonical Capture</strong>
-                Base L0 corpus scraped via Prometheus from physically isolated Raspberry Pi and GNS3 IPsec topologies.
-              </li>
-              <li>
-                <strong className="block text-[var(--deca-text,#f8fafc)]">Synthetic Gaps Addressed</strong>
-                L3 BGP Route Flaps and L5 Utilization Congestion (HTB) were mathematically synthesized and merged to overcome hardware emulation constraints, yielding <code className="text-xs">synth_merged_new</code>.
+                Base L0-L6 corpus scraped via Prometheus from physically isolated Raspberry Pi and GNS3 IPsec topologies. 100% of training data relies on real executed packet paths, not synthesized floats.
               </li>
             </ul>
+          </section>
+
+          {/* Routing Decision Architecture */}
+          <section className="bg-[var(--deca-panel-2,#0f172a)] p-5 rounded-md border border-[var(--deca-border,#334155)] lg:col-span-2">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Network className="w-4 h-4 text-[var(--deca-primary,#38bdf8)]" />
+              Routing Decision Architecture (Who Decides?)
+            </h3>
+            <p className="text-sm text-[var(--deca-text-dim,#cbd5e1)] mb-4">
+              Three separate mechanisms govern path steering. The ML model detects and recommends; it does not execute autonomously.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-[var(--deca-panel-1,#1e293b)] p-4 rounded border border-[var(--deca-border,#334155)]">
+                <h4 className="text-[var(--deca-text,#f8fafc)] font-semibold text-sm mb-2">1. Static Policy</h4>
+                <p className="text-xs text-[var(--deca-mute,#94a3b8)] leading-relaxed">
+                  The mission policy is a fixed priority table (TT&amp;C = CS4/LLQ, Payload = AF41, Admin = BE). When two classes want the same path, "TT&amp;C wins" is a standing rule written into the SD-WAN policy, completely independent of the ML model.
+                </p>
+              </div>
+              
+              <div className="bg-[var(--deca-panel-1,#1e293b)] p-4 rounded border border-[var(--deca-border,#334155)]">
+                <h4 className="text-[var(--deca-text,#f8fafc)] font-semibold text-sm mb-2">2. Automatic Failover</h4>
+                <p className="text-xs text-[var(--deca-mute,#94a3b8)] leading-relaxed">
+                  Pure threshold logic on RTT/loss probes handles sudden physical link death without waiting on inference. It fails over after 3 consecutive bad probes and fails back after 10 clean ones. This is hard-coded and not AI-driven.
+                </p>
+              </div>
+
+              <div className="bg-[var(--deca-panel-1,#1e293b)] p-4 rounded border border-[var(--deca-border,#334155)] border-t-2 border-t-[var(--deca-primary,#38bdf8)]">
+                <h4 className="text-[var(--deca-text,#f8fafc)] font-semibold text-sm mb-2">3. AI-Proposed Steer</h4>
+                <p className="text-xs text-[var(--deca-mute,#94a3b8)] leading-relaxed">
+                  The XGBoost/LSTM models detect degrading conditions and propose an action. Per HITL governance rules (T_breach &lt; 180s warn), a human operator must explicitly click <strong>Approve</strong>. Only then does the orchestrator execute the forced path switch.
+                </p>
+              </div>
+            </div>
           </section>
 
           {/* ML Validation */}
@@ -70,19 +103,19 @@ export default function MethodologyModal({ isOpen, onClose }: { isOpen: boolean,
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-[var(--deca-panel-1,#1e293b)] p-4 rounded border border-[var(--deca-border,#334155)]">
-                <p className="text-xs text-[var(--deca-mute,#94a3b8)] uppercase tracking-wide">Q2 Severity (XGBoost)</p>
-                <p className="text-3xl font-mono text-white my-2">97.64%</p>
-                <p className="text-xs text-[var(--deca-text-dim,#cbd5e1)]">Holdout split accuracy. Target was ≥90%. Predicts exact SLA fault class.</p>
+                <p className="text-xs text-[var(--deca-mute,#94a3b8)] uppercase tracking-wide">GNS3 transfer</p>
+                <p className="text-3xl font-mono text-white my-2">{DECA_CITE_BOARD.gns3_transfer}</p>
+                <p className="text-xs text-[var(--deca-text-dim,#cbd5e1)]">Cross-fabric transfer score (cite board).</p>
               </div>
               <div className="bg-[var(--deca-panel-1,#1e293b)] p-4 rounded border border-[var(--deca-border,#334155)]">
-                <p className="text-xs text-[var(--deca-mute,#94a3b8)] uppercase tracking-wide">Q2 Root-Cause (XGBoost)</p>
-                <p className="text-3xl font-mono text-white my-2">99.63%</p>
-                <p className="text-xs text-[var(--deca-text-dim,#cbd5e1)]">Validates multi-class labels (e.g. ce_sla_conflict vs bgp_flap).</p>
+                <p className="text-xs text-[var(--deca-mute,#94a3b8)] uppercase tracking-wide">Chaos F1 / Q2 holdout</p>
+                <p className="text-3xl font-mono text-white my-2">{DECA_CITE_BOARD.chaos_f1} / {DECA_CITE_BOARD.q2_holdout}</p>
+                <p className="text-xs text-[var(--deca-text-dim,#cbd5e1)]">Chaos F1 and Q2 holdout from the sealed cite board.</p>
               </div>
               <div className="bg-[var(--deca-panel-1,#1e293b)] p-4 rounded border border-[var(--deca-border,#334155)]">
-                <p className="text-xs text-[var(--deca-mute,#94a3b8)] uppercase tracking-wide">Q1 TTI / ETA (LSTM)</p>
-                <p className="text-3xl font-mono text-white my-2">50.2s</p>
-                <p className="text-xs text-[var(--deca-text-dim,#cbd5e1)]">Mean Absolute Error (MAE) predicting time-to-impact before hard SLA breach.</p>
+                <p className="text-xs text-[var(--deca-mute,#94a3b8)] uppercase tracking-wide">Q1 lead / MAE</p>
+                <p className="text-3xl font-mono text-white my-2">{DECA_CITE_BOARD.q1_lead_s}s / {DECA_CITE_BOARD.q1_mae}</p>
+                <p className="text-xs text-[var(--deca-text-dim,#cbd5e1)]">Mean lead time before breach · MAE on TTI.</p>
               </div>
             </div>
           </section>
@@ -109,6 +142,24 @@ export default function MethodologyModal({ isOpen, onClose }: { isOpen: boolean,
                 Ollama Phi-3<br/><span className="text-[var(--deca-mute,#94a3b8)]">Generates Operator SOP</span>
               </div>
             </div>
+          </section>
+
+          {/* Honesty Disclosure / Gaps */}
+          <section className="bg-[var(--deca-panel-2,#0f172a)] p-5 rounded-md border border-rose-500/30 lg:col-span-2">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-rose-400">
+              <X className="w-4 h-4" />
+              Phase 2 / Scope Limitations (Honesty Disclosure)
+            </h3>
+            <p className="text-sm text-[var(--deca-text-dim,#cbd5e1)] mb-4">
+              To maintain strict evaluation integrity, the following theoretical capabilities are <strong>not claimed</strong> in the current live build and have been intentionally excluded from the dashboard UI:
+            </p>
+            <ul className="list-disc pl-5 space-y-2 text-sm text-[var(--deca-mute,#94a3b8)]">
+              <li>Packet-loss progression ML</li>
+              <li>IPsec rekey anomaly detection (scoring)</li>
+              <li>Path asymmetry detection</li>
+              <li>Graph-based multi-signal correlation</li>
+              <li>Multi-candidate playbook engine</li>
+            </ul>
           </section>
 
         </div>

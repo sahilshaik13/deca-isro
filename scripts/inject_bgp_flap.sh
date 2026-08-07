@@ -1,17 +1,6 @@
 #!/usr/bin/env bash
 # inject_bgp_flap.sh — Route-flap / underlay instability profile (Q2 label 3).
-#
-# Default mode: repeated `clear bgp <nbr> soft` — matches lab Prom metric
-# bgp_flap_count (routeRefreshSent+Recv; see lab/deca-deploy.sh Tier 5b).
-#
-# Optional --link-bounce: briefly DOWN/UP gre-te-core each cycle (harder
-# underlay hit; always restores UP on exit).
-#
-# Usage:
-#   bash scripts/inject_bgp_flap.sh
-#   bash scripts/inject_bgp_flap.sh --cycles 18 --period-sec 5
-#   bash scripts/inject_bgp_flap.sh --link-bounce --cycles 12
-#   bash scripts/inject_bgp_flap.sh --clear
+# Ctrl+C kills remote SSH loop and restores gre-te-core UP (healthy).
 set -euo pipefail
 
 HOST=station1
@@ -21,8 +10,11 @@ CYCLES=18
 PERIOD_SEC=5
 DOWN_SEC=2
 LINK_BOUNCE=0
+HOLD_SEC=0
 CLEAR_ONLY=0
 SCHEDULE_OUT="${DECA_BGP_SCHEDULE_OUT:-}"
+PIDFILE=/tmp/deca_bgp_flap.pid
+SSH_PID=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -32,36 +24,66 @@ while [[ $# -gt 0 ]]; do
     --cycles) CYCLES="$2"; shift 2 ;;
     --period-sec) PERIOD_SEC="$2"; shift 2 ;;
     --down-sec) DOWN_SEC="$2"; shift 2 ;;
+    --hold-sec) HOLD_SEC="$2"; shift 2 ;;
     --link-bounce) LINK_BOUNCE=1; shift ;;
     --schedule-out) SCHEDULE_OUT="$2"; shift 2 ;;
     --clear) CLEAR_ONLY=1; shift ;;
-    -h|--help) sed -n '2,16p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,10p' "$0"; exit 0 ;;
     *) echo "unknown: $1"; exit 2 ;;
   esac
 done
 
-run() { ssh -T "$HOST" "sudo bash -s" -- "$@"; }
+kill_ssh() {
+  if [[ -n "${SSH_PID}" ]] && kill -0 "$SSH_PID" 2>/dev/null; then
+    kill -TERM "$SSH_PID" 2>/dev/null || true
+    sleep 0.4
+    kill -KILL "$SSH_PID" 2>/dev/null || true
+    wait "$SSH_PID" 2>/dev/null || true
+    SSH_PID=""
+  fi
+}
 
 ensure_up() {
-  run <<EOF
+  echo "Restoring $HOST $DEV UP (healthy)"
+  ssh -T "$HOST" "sudo bash -s" <<EOF || true
+if [[ -f $PIDFILE ]]; then
+  pid=\$(cat $PIDFILE 2>/dev/null || true)
+  if [[ -n "\$pid" ]]; then
+    kill -TERM "\$pid" 2>/dev/null || true
+    pkill -P "\$pid" 2>/dev/null || true
+    sleep 0.2
+    kill -KILL "\$pid" 2>/dev/null || true
+  fi
+  rm -f $PIDFILE
+fi
 ip link set $DEV up 2>/dev/null || true
 ip -br link show $DEV || true
 EOF
 }
 
 if [[ "$CLEAR_ONLY" -eq 1 ]]; then
-  echo "Restoring $HOST $DEV UP (no flap loop)"
   ensure_up
   exit 0
 fi
 
-TOTAL=$((CYCLES * PERIOD_SEC))
+on_interrupt() {
+  echo
+  echo "Interrupted — killing remote inject, restoring healthy on $HOST/$DEV"
+  kill_ssh
+  ensure_up
+  exit 130
+}
+trap on_interrupt INT TERM
+
+TOTAL=$((CYCLES * PERIOD_SEC + HOLD_SEC))
 MODE="soft-clear"
 [[ "$LINK_BOUNCE" -eq 1 ]] && MODE="link-bounce+$MODE"
-echo "BGP flap on $HOST nbr=$NEIGHBOR: ${CYCLES}×${PERIOD_SEC}s (~${TOTAL}s) mode=$MODE"
+echo "BGP flap on $HOST nbr=$NEIGHBOR: ${CYCLES}×${PERIOD_SEC}s + hold ${HOLD_SEC}s (~${TOTAL}s) mode=$MODE"
+echo "(Ctrl+C kills remote loop + restores $DEV UP → healthy)"
 ensure_up >/dev/null 2>&1 || true
 
-run <<EOF
+TMP="$(mktemp /tmp/deca_bgp_remote.XXXXXX)"
+cat >"$TMP" <<EOF
 set -euo pipefail
 NEIGHBOR='$NEIGHBOR'
 DEV='$DEV'
@@ -69,12 +91,16 @@ CYCLES=$CYCLES
 PERIOD_SEC=$PERIOD_SEC
 DOWN_SEC=$DOWN_SEC
 LINK_BOUNCE=$LINK_BOUNCE
+HOLD_SEC=$HOLD_SEC
+PIDFILE=$PIDFILE
 
 restore() {
+  rm -f "\$PIDFILE"
   ip link set "\$DEV" up 2>/dev/null || true
-  echo "[\$(date -u +%H:%M:%S)] restored \$DEV UP"
+  echo "[\$(date -u +%H:%M:%S)] restored \$DEV UP (healthy)"
 }
-trap restore EXIT INT TERM
+trap restore EXIT INT TERM HUP
+echo \$\$ > "\$PIDFILE"
 
 : > /tmp/deca_bgp_flap_schedule.jsonl
 for i in \$(seq 1 "\$CYCLES"); do
@@ -96,9 +122,29 @@ for i in \$(seq 1 "\$CYCLES"); do
   [[ \$rem -lt 1 ]] && rem=1
   sleep "\$rem"
 done
-echo "[\$(date -u +%H:%M:%S)] flap campaign complete"
+
+if [[ "\$HOLD_SEC" -gt 0 ]]; then
+  echo "[\$(date -u +%H:%M:%S)] storm done — Approve hold \${HOLD_SEC}s (slow flaps)"
+  end=\$(( \$(date +%s) + HOLD_SEC ))
+  n=0
+  while [[ \$(date +%s) -lt \$end ]]; do
+    n=\$((n + 1))
+    echo "[\$(date -u +%H:%M:%S)] hold flap \$n clear bgp \$NEIGHBOR soft"
+    vtysh -c "clear bgp \$NEIGHBOR soft" >/dev/null || true
+    sleep 12
+  done
+fi
+
+echo "[\$(date -u +%H:%M:%S)] flap campaign complete — cleanup will restore healthy"
 ip -br link show "\$DEV" || true
 EOF
+
+ssh -T "$HOST" "sudo bash -s" <"$TMP" &
+SSH_PID=$!
+wait "$SSH_PID" || true
+SSH_PID=""
+rm -f "$TMP"
+trap - INT TERM
 
 if [[ -n "$SCHEDULE_OUT" ]]; then
   mkdir -p "$(dirname "$SCHEDULE_OUT")"
@@ -107,4 +153,4 @@ if [[ -n "$SCHEDULE_OUT" ]]; then
     || echo "WARN: could not scp BGP flap schedule from $HOST"
 fi
 
-echo "Done. Ensure UP with: $0 --clear --host $HOST"
+echo "BGP flap finished — $DEV UP (healthy)."

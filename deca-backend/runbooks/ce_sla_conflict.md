@@ -1,36 +1,25 @@
-# SOP: CE↔CE SLA Policy Conflict / Bandwidth Surge (NOC)
+# CE SLA conflict — Bronze crowding Gold
 
-## Description
-A **lower-SLA (Bronze/Silver) CE** surges bandwidth (quiet **2–3 Mbps** → **~15–20 Mbps**) and endangers a **higher-SLA (Gold) CE** on the same PE/WAN. Mentor framing: NOC uptime / rogue consumer — **not** a security appliance.
+**What it is:** A lower-priority site surges traffic and crowds a critical (Gold / TT&C) site on the shared link.
 
-Canonical tiers: [`docs/EDGE_POLICY_LAYERS.md`](../../docs/EDGE_POLICY_LAYERS.md) §2.
+**Keywords:** ce_sla_conflict, policy_drift, 5B, 6A, 6B, ce-mauritius, ce-a, Bronze, Gold, rogue_ce, victim_ce, ToS 0x80, 0x88
 
-| Role | Default lab binding |
-| --- | --- |
-| Rogue | `ce-mauritius` (Bronze 90%) or `ce-mcf` |
-| Victim | `ce-a` NRSC (Gold 99.9% / TT&C) |
+## Plain English
+- **Rogue (demo):** Mauritius — Bronze ~90% — surges bulk traffic.
+- **Victim (demo):** NRSC / ce-a — Gold ~99.9% — light TT&C probe.
+- This is a **priority / policy** story, not a hack.
+- Decide should name rogue vs victim when the model raises.
 
-## Telemetry signatures
-- `ce_util_mbps{ce="ce-mauritius"}` climbing past fire threshold (≥15 Mbps)
-- Shared path `sdwan_path_util_mbps` / GRE latency rising; optional `sdwan_policy_conflict=1`
-- Decide: `root_cause=ce_sla_conflict`, fields `rogue_ce` / `victim_ce` / `*_sla`
+## What to look at
+- Rogue util climbing; shared path getting busy.
+- Victim Gold traffic at risk of missing its availability target.
 
-## Diagnostic Steps
-1. Confirm which CE is surging (`ce_util_mbps` or PE `veth-pe-*` rates).
-2. Confirm victim is Gold TT&C path (NRSC / `ce-a`) still in SLA or approaching breach.
-3. Check whether inject `scripts/inject_ce_sla_conflict.sh` is still running.
+## What to do
+1. Read Decide: who is rogue, who is victim.
+2. **Approve** to protect the critical site (steer backup / contain surge).
+3. Stop the lab surge:  
+   `bash scripts/inject_ce_sla_conflict.sh --clear --host station1`
+4. Note which operator Approved (audit).
 
-## Mitigation
-1. **HITL Approve** → playbook protects victim (`force_path` to backup if underlay congested).
-2. Stop rogue burst: `bash scripts/inject_ce_sla_conflict.sh --clear`.
-3. Document which NOC operator Approved (multi-operator audit).
-
-## Demo
-```bash
-# API-only (safe during protocol campaign)
-bash scripts/demo_ce_sla_conflict_seed.sh
-
-# Full inject when station1 injectors are free
-bash scripts/inject_ce_sla_conflict.sh
-bash scripts/demo_ce_sla_conflict_seed.sh
-```
+## Do not
+- Let lower-priority traffic keep starving the mission class.

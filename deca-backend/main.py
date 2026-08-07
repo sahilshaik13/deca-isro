@@ -173,20 +173,34 @@ def on_startup():
     orchestrator.bootstrap()
     print(f"SQLite orchestrator DB: {config.SQLITE_PATH}")
     terminal_manager.start()
-    print("Terminal monitors: station1/2/3 + prometheus")
+    try:
+        import pipeline_feed
+
+        pipeline_feed.start()
+        print("Pipeline feed: inject/telemetry/inference/copilot/decide logs")
+    except Exception as exc:  # noqa: BLE001
+        print(f"Pipeline feed start failed: {exc}")
+    print("Terminal monitors: station1/2/3 + prometheus + pipeline")
     if collection is None or not config.RUNBOOKS_DIR.is_dir():
         return
     docs, ids = [], []
     for filepath in sorted(config.RUNBOOKS_DIR.glob("*.md")):
         docs.append(filepath.read_text(encoding="utf-8"))
         ids.append(filepath.stem)
-    if docs and collection.count() < len(docs):
+    if docs:
+        # Always refresh so plain-English runbook edits reach RAG immediately.
         collection.upsert(documents=docs, ids=ids)
-        print(f"Ingested {len(docs)} runbooks into ChromaDB.")
+        print(f"Upserted {len(docs)} runbooks into ChromaDB.")
 
 
 @app.on_event("shutdown")
 def on_shutdown():
+    try:
+        import pipeline_feed
+
+        pipeline_feed.stop()
+    except Exception:  # noqa: BLE001
+        pass
     terminal_manager.stop()
 
 
@@ -235,6 +249,10 @@ def _format_copilot(copilot_response: dict | None, prediction: dict) -> dict:
             "runbook_steps": prediction.get("recommended_actions") or [],
             "mitigation_checklist": prediction.get("recommended_actions") or [],
         }
+    # Light-mode / idle prediction — still explain from an open Decide card if present.
+    decide = _copilot_from_open_decide()
+    if decide:
+        return decide
     return {
         "predicted_issue": prediction.get("predicted_issue", "normal"),
         "confidence_score": prediction.get("confidence_score", 0.0),
@@ -246,6 +264,207 @@ def _format_copilot(copilot_response: dict | None, prediction: dict) -> dict:
         "runbook_steps": [],
         "mitigation_checklist": [],
     }
+
+
+_IDLE_COPILOT = "Monitoring live telemetry — no anomaly flagged."
+
+_PLAIN_CLASS = {
+    "congestion_breach": "Congestion — mission traffic at risk",
+    "tunnel_degradation": "Primary path degrading (latency / loss)",
+    "bgp_route_flap": "Routing unstable — paths flapping",
+    "vrf_leakage": "Network isolation broken",
+    "policy_drift": "Traffic policy drifted from the plan",
+}
+
+
+def _copilot_from_model_detection(st: dict) -> dict | None:
+    """Narrate from live Q1/Q2 oneshot on the fault demo — not from inject script id."""
+    md = st.get("model_detection")
+    if not isinstance(md, dict) or not md.get("ok"):
+        return None
+    sev = str(md.get("severity") or "0").strip() or "0"
+    raised = bool(md.get("raise")) or (sev != "0")
+    if not raised:
+        return None
+
+    conf = md.get("q2_confidence")
+    try:
+        conf_f = float(conf) if conf is not None else 0.7
+    except (TypeError, ValueError):
+        conf_f = 0.7
+    eta = md.get("eta_minutes")
+    try:
+        eta_f = float(eta) if eta is not None else None
+    except (TypeError, ValueError):
+        eta_f = None
+
+    expl = str(md.get("explanation") or "").strip()
+    name_bits = []
+    if sev != "0":
+        name_bits.append(f"Q2 severity {sev}")
+    if eta_f is not None:
+        name_bits.append(f"Q1 TTI ≈ {eta_f:.2f} min")
+    if md.get("eta_source"):
+        name_bits.append(f"eta_source={md.get('eta_source')}")
+    head = "Model scores: " + (", ".join(name_bits) if name_bits else "anomaly")
+    root_cause = f"{head}. {expl}".strip() if expl else head
+    root_cause += " Copilot grounds runbooks on these scores once Decide raises."
+
+    return {
+        "predicted_issue": "anomaly_detected",
+        "confidence_score": conf_f,
+        "time_to_impact_minutes": eta_f,
+        "root_cause": root_cause,
+        "affected_scope": [],
+        "contributing_signals": {
+            "q2_confidence": conf_f,
+            **({"q1_eta_minutes": eta_f} if eta_f is not None else {}),
+        },
+        "recommended_actions": [
+            "Wait for / open the Decide card built from these model scores",
+            "Approve backup to steer off the preferred path",
+            "Or wait — inject auto-heals after the hold if you do not Approve",
+        ],
+        "runbook_steps": [
+            "Confirm live Prom matches the model fingerprint (latency, loss, CPU, flaps)",
+            "Read Decide title / severity / ETA from Q1+Q2 (not the inject button name)",
+            "Approve backup to complete HITL steer",
+        ],
+        "mitigation_checklist": [
+            "Approve backup on Decide",
+            "Confirm path / underlay badge updates",
+            "Confirm Decide / Copilot idle after steer",
+        ],
+    }
+
+
+def _copilot_from_open_decide() -> dict | None:
+    """Build Copilot text from model Decide / live Q1+Q2 — never from inject script labels."""
+    try:
+        import repos
+    except Exception:  # noqa: BLE001
+        return None
+
+    alert = None
+    try:
+        for a in repos.list_alerts(status="active", limit=30):
+            payload = a.get("payload") if isinstance(a.get("payload"), dict) else {}
+            cls = a.get("class") or ""
+            if payload.get("preemption") or payload.get("noc_demo_fault") or cls in _FAULT_CLASSES:
+                alert = a
+                break
+    except Exception:  # noqa: BLE001
+        return None
+
+    # Prefer an open Decide card (already model-seeded).
+    if alert:
+        payload = alert.get("payload") if isinstance(alert.get("payload"), dict) else {}
+        cls = str(alert.get("class") or "")
+        title = str(
+            payload.get("title") or _PLAIN_CLASS.get(cls) or cls.replace("_", " ") or "Network risk"
+        )
+        q3 = str(payload.get("q3_nlp") or "").strip()
+        summary = str(payload.get("summary") or "").strip()
+        root = str(payload.get("root_cause") or "").replace("_", " ").strip()
+        md = payload.get("model_detection") if isinstance(payload.get("model_detection"), dict) else {}
+        eta = alert.get("eta")
+        if eta is None:
+            eta = payload.get("eta_minutes")
+
+        if q3:
+            root_cause = q3
+        else:
+            bits = [title]
+            if root:
+                bits.append(f"Model class: {root}.")
+            if md.get("severity"):
+                bits.append(f"Q2 severity={md.get('severity')} (p={md.get('q2_confidence')}).")
+            if summary:
+                bits.append(summary)
+            if eta is not None:
+                try:
+                    bits.append(f"Q1 predicted impact in about {float(eta):.1f} minutes.")
+                except (TypeError, ValueError):
+                    pass
+            if payload.get("eta_source"):
+                bits.append(f"(eta_source={payload.get('eta_source')})")
+            bits.append("Next step: Approve backup on the Decide card (or wait for auto-heal).")
+            root_cause = " ".join(bits)
+
+        actions: list[str] = []
+        raw_actions = payload.get("recommended_actions")
+        if isinstance(raw_actions, list):
+            for item in raw_actions:
+                if isinstance(item, dict):
+                    label = item.get("label") or item.get("action") or item.get("op")
+                    if label:
+                        actions.append(str(label))
+                elif item:
+                    actions.append(str(item))
+        concerns = payload.get("concerns")
+        if isinstance(concerns, list):
+            for c in concerns:
+                if c and str(c) not in actions:
+                    actions.append(str(c))
+        if not actions:
+            actions = [
+                "Review Decide prediction and model confidence",
+                "Approve backup to steer traffic off the failing path",
+                "Or wait — demo faults auto-heal after the hold window",
+            ]
+
+        runbook = [
+            "Confirm live metrics match the model class (latency, loss, CPU, or flaps)",
+            "Read why this matters on the Decide card (Q1 ETA / Q2 severity)",
+            "Click Approve backup to steer and stop the inject",
+        ]
+        checklist = [
+            "Approve backup on Decide",
+            "Confirm underlay / path badge updates",
+            "Confirm alerts clear after steer or auto-heal",
+        ]
+
+        conf = alert.get("confidence")
+        try:
+            conf_f = float(conf) if conf is not None else 0.85
+        except (TypeError, ValueError):
+            conf_f = 0.85
+        try:
+            eta_f = float(eta) if eta is not None else None
+        except (TypeError, ValueError):
+            eta_f = None
+
+        return {
+            "predicted_issue": cls or "anomaly_detected",
+            "confidence_score": conf_f,
+            "time_to_impact_minutes": eta_f,
+            "root_cause": root_cause,
+            "affected_scope": list(payload.get("affected_scope") or []),
+            "contributing_signals": dict(payload.get("contributing_signals") or {}),
+            "recommended_actions": actions[:8],
+            "runbook_steps": runbook,
+            "mitigation_checklist": checklist,
+        }
+
+    # No Decide yet — only speak if live oneshot already crossed the score gate.
+    try:
+        import fault_demo
+
+        st = fault_demo.status()
+        from_model = _copilot_from_model_detection(st)
+        if from_model:
+            return from_model
+        # Inject running but model has not raised — stay quiet (do not name the script).
+        if st.get("fault_id") and st.get("phase") in (
+            "injecting",
+            "seeded",
+            "collapsing",
+            "recovering",
+        ):
+            return None
+    except Exception:  # noqa: BLE001
+        pass
+    return None
 
 
 _FAULT_CLASSES = {
@@ -336,12 +555,33 @@ def get_dashboard():
         # Orchestrator-light: live Prom network snapshot (no ML/GGUF required)
         from prometheus_feed import fetch_live_network, raw_to_display
 
-        fleet = orchestrator.get_fleet()
+        # One Prom scrape (cached) shared with get_fleet.
         live = fetch_live_network()
+        fleet = orchestrator.get_fleet()
         stations = live.get("stations") or []
         raw = live.get("raw") or {}
         ts = str(live.get("timestamp") or "")
         display = live.get("metrics") or raw_to_display(raw, ts)
+        history = live.get("history") or ([display] if display else [])
+        decide_copilot = _copilot_from_open_decide()
+        prediction = {
+            "predicted_issue": (
+                decide_copilot.get("predicted_issue")
+                if decide_copilot
+                else "normal"
+            ),
+            "confidence_score": (
+                float(decide_copilot.get("confidence_score") or 0.0)
+                if decide_copilot
+                else 0.0
+            ),
+            "time_to_impact_minutes": (
+                decide_copilot.get("time_to_impact_minutes") if decide_copilot else None
+            ),
+            "root_cause": (decide_copilot or {}).get("root_cause") or "",
+            "recommended_actions": (decide_copilot or {}).get("recommended_actions") or [],
+            "contributing_signals": (decide_copilot or {}).get("contributing_signals") or {},
+        }
         return sanitize_for_json(
             {
                 "source": "prometheus" if live.get("prometheus_reachable") else "orchestrator_light",
@@ -349,17 +589,18 @@ def get_dashboard():
                 "prometheus": live.get("prometheus") or fleet.get("prometheus"),
                 "prometheus_reachable": bool(live.get("prometheus_reachable")),
                 "metrics": display,
-                "history": [display] if display else [],
+                "history": history,
                 "stations": stations,
-                "prediction": {"predicted_issue": "normal", "confidence_score": 0.0},
-                "copilot": _format_copilot(None, {"predicted_issue": "normal"}),
+                "prediction": prediction,
+                "copilot": decide_copilot
+                or _format_copilot(None, {"predicted_issue": "normal"}),
                 "fleet": fleet,
                 "data": {
-                    "prediction": "normal",
-                    "anomaly_score": 0.0,
-                    "confidence_score": 0.0,
-                    "time_to_impact_minutes": None,
-                    "contributing_signals": {},
+                    "prediction": prediction.get("predicted_issue") or "normal",
+                    "anomaly_score": float(prediction.get("confidence_score") or 0.0),
+                    "confidence_score": float(prediction.get("confidence_score") or 0.0),
+                    "time_to_impact_minutes": prediction.get("time_to_impact_minutes"),
+                    "contributing_signals": prediction.get("contributing_signals") or {},
                     "metrics_summary": display,
                 },
                 "timestamp": live.get("timestamp"),

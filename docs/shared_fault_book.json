@@ -42,11 +42,13 @@
         "netem": "delay … distribution normal"
       },
       "demo": {
-        "steps": 8,
+        "steps": 24,
         "step_sec": 8,
         "start_ms": 5,
-        "end_ms": 45,
-        "jitter_ms": 4
+        "end_ms": 55,
+        "jitter_ms": 5,
+        "hold_sec": 120,
+        "notes": "Slow protocol-like ramp for LSTM TTI + 120s Approve hold"
       },
       "protocol_hint": "NetEM delay ramp on mission underlay (Pi gre-te-core · GNS3 CORE-N eth0 or PE GRE — HTB on PE eth0 preserved)"
     },
@@ -56,7 +58,7 @@
       "pi": "scripts/inject_cpu_stress.sh",
       "gns3": "lab/gns3/inject/cpu_stress.sh",
       "protocol": { "duration_s": 90, "tool": "stress-ng --cpu $(nproc)", "fallback": "python burn" },
-      "demo": { "duration_s": 75 }
+      "demo": { "duration_s": 180 },
     },
     "L3_bgp_flap": {
       "id": "bgp_flap",
@@ -70,7 +72,7 @@
         "pi_neighbor": "10.1.3.1",
         "gns3_neighbor": "10.10.3.2"
       },
-      "demo": { "cycles": 24, "period_sec": 3 }
+      "demo": { "cycles": 18, "period_sec": 6, "hold_sec": 120 },
     },
     "L4_loss_progression": {
       "id": "loss_progression",
@@ -84,10 +86,11 @@
         "end_pct": 3.5
       },
       "demo": {
-        "steps": 5,
-        "step_sec": 12,
+        "steps": 24,
+        "step_sec": 8,
         "start_pct": 0,
-        "end_pct": 3.5
+        "end_pct": 3.5,
+        "hold_sec": 120
       },
       "notes": "Crosses Payload ≤2% loss SLA; NetEM on underlay not PE HTB iface"
     },
@@ -119,12 +122,13 @@
       "pi": "scripts/inject_ce_sla_conflict.sh",
       "gns3": "lab/gns3/inject/ce_sla_conflict.sh",
       "demo": {
-        "steps": 4,
-        "step_sec": 15,
+        "steps": 6,
+        "step_sec": 20,
         "start_mbit": 3,
         "end_mbit": 20,
         "rogue_tos": "0x80",
-        "victim_tos": "0x88"
+        "victim_tos": "0x88",
+        "hold_sec": 120
       },
       "notes": "NOC Simple fault — not protocol L5; Bronze surge vs Gold TT&C"
     }

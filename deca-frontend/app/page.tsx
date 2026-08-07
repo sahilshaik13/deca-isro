@@ -7,13 +7,12 @@ import MissionClasses from '@/components/noc/MissionClasses'
 import AlertRail from '@/components/noc/AlertRail'
 import TelemetryGrid from '@/components/noc/TelemetryGrid'
 import FleetStrip from '@/components/noc/FleetStrip'
-import SimulationControl from '@/components/noc/SimulationControl'
-import FabricSelect from '@/components/noc/FabricSelect'
-import FaultButtons from '@/components/noc/FaultButtons'
-import TrafficButtons from '@/components/noc/TrafficButtons'
+import LabControls from '@/components/noc/LabControls'
 import TerminalDrawer from '@/components/noc/TerminalDrawer'
 import MethodologyModal from '@/components/noc/MethodologyModal'
 import BackendTraceVisualizer from '@/components/noc/BackendTraceVisualizer'
+import CopilotTerminal from '@/components/noc/CopilotTerminal'
+import FlowGuide from '@/components/noc/FlowGuide'
 import { useTelemetry } from '@/hooks/useTelemetry'
 import { useOrchestrator } from '@/hooks/useOrchestrator'
 
@@ -31,9 +30,11 @@ export default function Page() {
       !['healthy', 'advisory_clear', 'confirmed_clear'].includes(a.class),
   ).length
   const hasRaise = orch.alerts.some((a) => a.event === 'confirmed_raise')
+  const demoLive =
+    Boolean(orch.faultStatus?.running) || Boolean(orch.simulation?.running)
 
   return (
-    <main className="deca-shell">
+    <main className={`deca-shell${demoLive ? ' is-demo-live' : ''}`}>
       <MethodologyModal isOpen={isMethodologyOpen} onClose={() => setIsMethodologyOpen(false)} />
       <Header
         onOpenMethodology={() => setIsMethodologyOpen(true)}
@@ -49,38 +50,49 @@ export default function Page() {
         onSelectRun={(id) => void orch.selectRun(id)}
         actionableCount={actionableCount}
         activePath={orch.fleet?.mission?.active_path ?? null}
-        conflict={Boolean(orch.fleet?.mission?.conflict)}
+        conflict={Boolean(
+          orch.fleet?.mission?.conflict &&
+            orch.fleet?.mission?.ttc_wanted !== orch.fleet?.mission?.payload_wanted,
+        )}
       />
 
       <FleetStrip sites={orch.fleet?.sites || []} />
 
+      <FlowGuide
+        actionableCount={actionableCount}
+        faultRunning={Boolean(orch.faultStatus?.running)}
+        hasCopilot={Boolean(
+          (telemetry.isAnomaly || hasRaise) && telemetry.copilotResponse?.root_cause,
+        )}
+      />
+
       <div className="deca-main">
-        <section className="deca-main-left space-y-6">
-          <FabricSelect
-            status={orch.fabricStatus}
-            busy={orch.fabricBusy || orch.faultBusy || orch.trafficBusy}
-            onSelect={(id) => void orch.onFabricSelect(id)}
+        <section className="deca-main-left space-y-5">
+          <div className="deca-col-label">
+            <span className="deca-ps13-tag">Watch</span>
+            <span>Live network</span>
+            <span className="deca-col-label-hint">sites · path · metrics</span>
+          </div>
+
+          <LabControls
+            fabricStatus={orch.fabricStatus}
+            fabricBusy={orch.fabricBusy}
+            onFabricSelect={(id) => void orch.onFabricSelect(id)}
+            trafficStatus={orch.trafficStatus}
+            trafficBusy={orch.trafficBusy}
+            activeFabric={activeFabric}
+            onTrafficStart={(profile) => void orch.onTrafficStart(profile)}
+            onTrafficStop={() => void orch.onTrafficStop()}
+            faultStatus={orch.faultStatus}
+            faultBusy={orch.faultBusy}
+            onFaultStart={(id) => void orch.onFaultStart(id)}
+            onFaultClear={() => void orch.onFaultClear()}
+            simulation={orch.simulation}
+            simBusy={orch.simBusy}
+            onSimStart={(dry) => void orch.onSimStart(dry)}
+            onSimStop={() => void orch.onSimStop()}
           />
-          <TrafficButtons
-            status={orch.trafficStatus}
-            busy={orch.trafficBusy}
-            fabric={activeFabric}
-            onStart={(profile) => void orch.onTrafficStart(profile)}
-            onStop={() => void orch.onTrafficStop()}
-          />
-          <FaultButtons
-            status={orch.faultStatus}
-            busy={orch.faultBusy}
-            fabric={activeFabric}
-            onStart={(id) => void orch.onFaultStart(id)}
-            onClear={() => void orch.onFaultClear()}
-          />
-          <SimulationControl
-            status={orch.simulation}
-            busy={orch.simBusy}
-            onStart={(dry) => void orch.onSimStart(dry)}
-            onStop={() => void orch.onSimStop()}
-          />
+
           <TopologyMap
             fabric={activeFabric}
             layout={topoLayout}
@@ -107,10 +119,22 @@ export default function Page() {
             loading={telemetry.loading}
             error={telemetry.error}
           />
-          <BackendTraceVisualizer alerts={orch.alerts} faultStatus={orch.faultStatus} />
+          <BackendTraceVisualizer
+            alerts={orch.alerts}
+            faultStatus={orch.faultStatus}
+            telemetry={telemetry.current}
+            historyActions={orch.history?.actions || []}
+          />
         </section>
 
-        <aside className="deca-main-right space-y-6">
+        <aside className="deca-main-right space-y-5">
+          <div className="deca-col-label">
+            <span className="deca-ps13-tag deca-ps13-tag-q2">Decide</span>
+            <span className="deca-ps13-tag deca-ps13-tag-q3">Explain</span>
+            <span>Act here</span>
+            <span className="deca-col-label-hint">predict → explain → Approve</span>
+          </div>
+
           <AlertRail
             alerts={orch.alerts}
             actionBusy={orch.actionBusy}
@@ -120,6 +144,15 @@ export default function Page() {
             mission={orch.fleet?.mission || null}
             sites={orch.fleet?.sites || []}
           />
+          <CopilotTerminal
+            isAnomaly={telemetry.isAnomaly || hasRaise}
+            copilotResponse={telemetry.copilotResponse}
+            loading={telemetry.loading}
+            source={telemetry.source || 'orchestrator'}
+            alerts={orch.alerts}
+            modelDetection={orch.faultStatus?.model_detection || null}
+            faultPhase={orch.faultStatus?.phase || null}
+          />
         </aside>
       </div>
 
@@ -127,8 +160,12 @@ export default function Page() {
         <p className="mt-4 text-xs font-mono text-[var(--deca-warn)]">{orch.error}</p>
       ) : null}
 
-      <div className="deca-term-spacer" aria-hidden />
-      <TerminalDrawer />
+      <div className={`deca-term-spacer${demoLive ? ' is-demo' : ''}`} aria-hidden />
+      <TerminalDrawer
+        faultStatus={orch.faultStatus}
+        simulation={orch.simulation}
+        demoLive={demoLive}
+      />
     </main>
   )
 }

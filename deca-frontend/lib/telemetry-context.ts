@@ -6,6 +6,8 @@ export interface MetricsSnapshot {
   routing_updates: number
   cpu_usage: number
   memory_usage: number
+  latency_gre_ms?: number
+  latency_eth0_ms?: number
   timestamp: string
 }
 

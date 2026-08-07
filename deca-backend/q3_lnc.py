@@ -138,13 +138,17 @@ def _ollama_generate(prompt: str, *, model: str = CHAT_MODEL, ollama: str = OLLA
 
 
 def build_math_query(math: dict[str, Any], snapshot: dict[str, Any]) -> str:
+    """Retrieve runbooks from model scores (severity / root / alert), not inject script ids."""
+    md = math.get("model_detection") if isinstance(math.get("model_detection"), dict) else {}
     parts = [
         str(math.get("title") or ""),
         str(math.get("summary") or ""),
-        str(math.get("root_cause") or ""),
-        str(math.get("severity") or ""),
+        str(math.get("root_cause") or md.get("q2_name") or ""),
+        str(math.get("severity") or md.get("severity") or ""),
         str(math.get("alert_class") or ""),
     ]
+    if md.get("explanation"):
+        parts.append(str(md.get("explanation"))[:240])
     if snapshot.get("latency_gre_ms") is not None:
         parts.append(f"GRE latency {snapshot['latency_gre_ms']} ms")
     if snapshot.get("latency_eth0_ms") is not None:
@@ -153,6 +157,8 @@ def build_math_query(math: dict[str, Any], snapshot: dict[str, Any]) -> str:
         parts.append(f"CPU user {snapshot['cpu_usage_user']}")
     if snapshot.get("bgp_flap_count") is not None:
         parts.append(f"BGP flaps {snapshot['bgp_flap_count']}")
+    if snapshot.get("loss_gre_pct") is not None:
+        parts.append(f"GRE loss {snapshot['loss_gre_pct']} pct")
     parts.append("TT&C SLA preemption steer PE1")
     return " ".join(p for p in parts if p).strip()
 
@@ -233,6 +239,16 @@ def explain(
     )
     snap_txt = json.dumps(snapshot, indent=2)
     math_txt = json.dumps(math_context, indent=2, default=str)
+
+    if not hits:
+        return {
+            "ok": True,
+            "q3_nlp": "No matching runbook found for this signal",
+            "prom_snapshot": snapshot,
+            "sources": [],
+            "query": query,
+            "generation_path": "q3_empty_state",
+        }
 
     if not use_llm:
         bullets = []

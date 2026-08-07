@@ -26,10 +26,12 @@ export default function FabricSelect({
   status,
   busy,
   onSelect,
+  embedded = false,
 }: {
   status: FabricStatus | null
   busy: boolean
   onSelect: (fabric: FabricId) => void
+  embedded?: boolean
 }) {
   const fabrics =
     status?.fabrics && status.fabrics.length > 0 ? status.fabrics : FALLBACK
@@ -40,15 +42,20 @@ export default function FabricSelect({
   const gold = sla?.ce_tiers?.['ce-a']
   const exporterOk = status?.prometheus?.gns3_exporter_ok
 
+  const Wrap = embedded ? 'div' : 'section'
   return (
-    <section className="deca-panel deca-sim">
+    <Wrap className={embedded ? 'deca-lab-embed' : 'deca-panel deca-sim'}>
       <div className="deca-panel-head">
         <div>
-          <h2 className="deca-section-title">Simulation source</h2>
-          <p className="deca-section-sub">
-            Select fabric → Start traffic → Simple fault → watch map/telemetry →
-            Decide. GNS3 GUI not required (server + Start-all once).
-          </p>
+          <h2 className={embedded ? 'deca-lab-slot-title' : 'deca-section-title'}>
+            Fabric
+          </h2>
+          {!embedded ? (
+            <p className="deca-section-sub">
+              Select fabric → Start traffic → Simple fault → watch map/telemetry →
+              Decide. GNS3 GUI not required (server + Start-all once).
+            </p>
+          ) : null}
         </div>
       </div>
 
@@ -103,6 +110,6 @@ export default function FabricSelect({
           Chaos tools: <span className="font-mono">{sla!.chaos!.join(' · ')}</span>
         </p>
       ) : null}
-    </section>
+    </Wrap>
   )
 }

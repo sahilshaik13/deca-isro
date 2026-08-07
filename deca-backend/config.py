@@ -105,7 +105,7 @@ PROMETHEUS_URL = _env_str("DECA_PROMETHEUS_URL", "http://localhost:9090").rstrip
 PROMETHEUS_JOB = _env_str("DECA_PROMETHEUS_JOB", "deca_edge_nodes")
 PROMETHEUS_JOBS = _env_list(
     "DECA_PROMETHEUS_JOBS",
-    ["deca_edge_nodes", "deca_core_router"],
+    ["deca_edge_nodes", "deca_core_router", "deca_kafka_telemetry_bridge"],
 )
 # Physical edge interface(s) for throughput display.
 # Use a PromQL regex to match mission data-plane NICs (iperf/MPLS path).

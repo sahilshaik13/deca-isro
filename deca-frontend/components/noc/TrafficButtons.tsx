@@ -16,28 +16,35 @@ export default function TrafficButtons({
   fabric = 'pi',
   onStart,
   onStop,
+  embedded = false,
 }: {
   status: TrafficStatus | null
   busy: boolean
   fabric?: string
   onStart: (profile: string) => void
   onStop: () => void
+  embedded?: boolean
 }) {
   const running = Boolean(status?.running)
   const active = status?.profile || null
 
+  const Wrap = embedded ? 'div' : 'section'
   return (
-    <section className="deca-panel deca-sim">
+    <Wrap className={embedded ? 'deca-lab-embed' : 'deca-panel deca-sim'}>
       <div className="deca-panel-head">
         <div>
-          <h2 className="deca-section-title">Traffic</h2>
-          <p className="deca-section-sub">
-            Start ToS streams on <span className="font-mono">{fabric}</span>
-            {fabric === 'gns3'
-              ? ' (IPERF-A→B through PE HTB — no GNS3 GUI needed)'
-              : ' (iperf3 on CE netns)'}
-            . Then inject a Simple fault and watch the map.
-          </p>
+          <h2 className={embedded ? 'deca-lab-slot-title' : 'deca-section-title'}>
+            Traffic
+          </h2>
+          {!embedded ? (
+            <p className="deca-section-sub">
+              Start ToS streams on <span className="font-mono">{fabric}</span>
+              {fabric === 'gns3'
+                ? ' (IPERF-A→B through PE HTB — no GNS3 GUI needed)'
+                : ' (iperf3 on CE netns)'}
+              . Then inject a Simple fault and watch the map.
+            </p>
+          ) : null}
         </div>
         {running ? (
           <button
@@ -76,6 +83,6 @@ export default function TrafficButtons({
         {status?.message || 'idle'}
         {running && active ? ` · profile=${active}` : ''}
       </p>
-    </section>
+    </Wrap>
   )
 }
