@@ -3,6 +3,10 @@
 # Ctrl+C kills remote SSH loop and restores gre-te-core UP (healthy).
 set -euo pipefail
 
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=deca_cli_bridge.sh
+source "$_SCRIPT_DIR/deca_cli_bridge.sh"
+
 HOST=station1
 NEIGHBOR=10.1.3.1
 DEV=gre-te-core
@@ -63,6 +67,9 @@ EOF
 
 if [[ "$CLEAR_ONLY" -eq 1 ]]; then
   ensure_up
+  DECA_CLI_FAULT_ID="bgp_flap"
+  DECA_CLI_ATTACHED=1
+  deca_cli_end cli_clear || true
   exit 0
 fi
 
@@ -71,6 +78,7 @@ on_interrupt() {
   echo "Interrupted — killing remote inject, restoring healthy on $HOST/$DEV"
   kill_ssh
   ensure_up
+  deca_cli_end cli_interrupted || true
   exit 130
 }
 trap on_interrupt INT TERM
@@ -80,6 +88,8 @@ MODE="soft-clear"
 [[ "$LINK_BOUNCE" -eq 1 ]] && MODE="link-bounce+$MODE"
 echo "BGP flap on $HOST nbr=$NEIGHBOR: ${CYCLES}×${PERIOD_SEC}s + hold ${HOLD_SEC}s (~${TOTAL}s) mode=$MODE"
 echo "(Ctrl+C kills remote loop + restores $DEV UP → healthy)"
+SUMMARY="bgp_flap ${CYCLES}×${PERIOD_SEC}s hold=${HOLD_SEC}s mode=$MODE"
+deca_cli_attach bgp_flap "$TOTAL" "$SUMMARY"
 ensure_up >/dev/null 2>&1 || true
 
 TMP="$(mktemp /tmp/deca_bgp_remote.XXXXXX)"
@@ -139,12 +149,10 @@ echo "[\$(date -u +%H:%M:%S)] flap campaign complete — cleanup will restore he
 ip -br link show "\$DEV" || true
 EOF
 
-ssh -T "$HOST" "sudo bash -s" <"$TMP" &
-SSH_PID=$!
-wait "$SSH_PID" || true
-SSH_PID=""
+deca_cli_run_remote "$HOST" "$TMP"
 rm -f "$TMP"
 trap - INT TERM
+deca_cli_end cli_hold_done || true
 
 if [[ -n "$SCHEDULE_OUT" ]]; then
   mkdir -p "$(dirname "$SCHEDULE_OUT")"

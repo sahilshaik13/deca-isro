@@ -180,7 +180,7 @@ export default function BackendTraceVisualizer({
       <button
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full mt-3 py-1.5 flex items-center justify-center gap-1.5 text-xs font-medium text-[var(--deca-mute)] hover:text-white bg-[var(--deca-panel-2)] border border-[var(--deca-line)]"
+        className="w-full mt-3 py-1.5 flex items-center justify-center gap-1.5 text-xs font-medium text-[var(--deca-mute)] hover:text-[var(--deca-ink)] bg-[var(--deca-panel-2)] border border-[var(--deca-line)]"
       >
         {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         Layer 2 — checkpoint + feature vector

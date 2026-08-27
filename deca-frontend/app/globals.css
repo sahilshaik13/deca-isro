@@ -157,42 +157,53 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* Light NOC surface — do not inherit dark shadcn foreground */
   body {
-    @apply text-foreground;
-    background: #070b10;
+    background: #f1f5f9;
+    color: #0f172a;
   }
 }
 
-/* DECA orchestrator surface — premium glassmorphic dark mode */
+/* DECA orchestrator surface — light mode (readable ink on pale panels) */
 :root {
-  --deca-bg: #030712;
-  --deca-panel: rgba(15, 23, 42, 0.45);
-  --deca-panel-2: rgba(30, 41, 59, 0.6);
-  --deca-line: rgba(51, 65, 85, 0.6);
-  --deca-ink: #f8fafc;
-  --deca-mute: #94a3b8;
-  --deca-accent: #38bdf8;
-  --deca-ok: #10b981;
-  --deca-warn: #f43f5e;
+  --deca-bg: #f8fafc;
+  --deca-panel: rgba(255, 255, 255, 0.92);
+  --deca-panel-2: #f1f5f9;
+  --deca-line: #cbd5e1;
+  --deca-ink: #0f172a;
+  --deca-mute: #475569;
+  --deca-accent: #0284c7;
+  --deca-primary: #0284c7;
+  --deca-ok: #059669;
+  --deca-warn: #dc2626;
+  --deca-term-fg: #e2e8f0;
+  --deca-term-mute: #94a3b8;
+  --deca-term-bg: #0b1220;
 }
 
 .deca-shell {
   min-height: 100vh;
-  max-width: 1440px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 1.25rem 1.25rem 3.5rem;
+  color: var(--deca-ink);
   background:
-    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(56, 189, 248, 0.15) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 50% at 100% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-    #030712;
+    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(14, 165, 233, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 100% 50%, rgba(14, 165, 233, 0.06) 0%, transparent 50%),
+    #f8fafc;
 }
 
 .deca-term-spacer {
+  display: none;
+}
+
+.deca-shell:has(.deca-term-drawer.is-open) .deca-term-spacer {
+  display: block;
   height: min(38vh, 360px);
   margin-top: 1.5rem;
 }
 
-.deca-term-spacer.is-demo {
+.deca-shell.is-demo-live:has(.deca-term-drawer.is-open) .deca-term-spacer {
   height: min(44vh, 420px);
 }
 
@@ -232,8 +243,8 @@
 }
 
 .deca-ps13-tag-q3 {
-  border-color: color-mix(in srgb, #a78bfa 50%, var(--deca-line));
-  color: #c4b5fd;
+  border-color: color-mix(in srgb, #7c3aed 45%, var(--deca-line));
+  color: #6d28d9;
 }
 
 .deca-lab-controls-toggle {
@@ -652,21 +663,21 @@
   .deca-main-right {
     position: sticky;
     top: 1rem;
-    /* Stay above the fixed terminal drawer; scroll this column on its own. */
+    /* Leave room for the terminal; allow full Decide/Copilot content to scroll. */
     max-height: calc(100dvh - 2rem);
     overflow-y: auto;
+    overflow-x: visible;
     overscroll-behavior: contain;
-    padding-bottom: 0.25rem;
+    padding-bottom: 1rem;
     scrollbar-gutter: stable;
   }
 
-  /* Terminal open: leave room for the drawer so Decide isn't trapped under it. */
   .deca-shell:has(.deca-term-drawer.is-open) .deca-main-right {
-    max-height: calc(100dvh - min(38vh, 360px) - 1.25rem);
+    max-height: calc(100dvh - min(38vh, 360px) - 1.5rem);
   }
 
   .deca-shell.is-demo-live:has(.deca-term-drawer.is-open) .deca-main-right {
-    max-height: calc(100dvh - min(44vh, 420px) - 1.25rem);
+    max-height: calc(100dvh - min(44vh, 420px) - 1.5rem);
   }
 
   .deca-main.deca-main-network {
@@ -730,8 +741,8 @@
 .deca-live-topo {
   border: 1px solid var(--deca-line);
   background:
-    radial-gradient(ellipse at 50% 20%, #152830 0%, transparent 55%),
-    #0a1016;
+    radial-gradient(ellipse at 50% 20%, #e2e8f0 0%, transparent 55%),
+    #f8fafc;
   overflow-x: auto;
 }
 
@@ -750,7 +761,7 @@
 
 .deca-live-svg {
   width: 100%;
-  min-height: 480px;
+  min-height: 560px;
   display: block;
 }
 
@@ -833,12 +844,20 @@
   font-size: 11px;
   font-weight: 600;
   font-family: var(--font-mono), ui-monospace, monospace;
+  paint-order: stroke fill;
+  stroke: rgba(248, 250, 252, 0.92);
+  stroke-width: 3px;
+  stroke-linejoin: round;
 }
 
 .gns-sub {
   fill: #4b5563;
   font-size: 9px;
   font-family: var(--font-mono), ui-monospace, monospace;
+  paint-order: stroke fill;
+  stroke: rgba(248, 250, 252, 0.92);
+  stroke-width: 2.5px;
+  stroke-linejoin: round;
 }
 
 /* Links */
@@ -1187,10 +1206,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  max-height: min(28rem, 55vh);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+  max-height: none;
+  overflow: visible;
 }
 
 /* When terminals are open, let the right column scroll as one unit. */
@@ -1351,8 +1368,8 @@
 
 .deca-ask-log {
   margin-top: 1rem;
-  max-height: 18rem;
-  overflow-y: auto;
+  max-height: none;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
@@ -1404,8 +1421,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
-  max-height: 12rem;
-  overflow-y: auto;
+  max-height: none;
+  overflow: visible;
 }
 
 .deca-history-list li {
@@ -1443,13 +1460,18 @@
 }
 
 .deca-input {
-  background: #0a1016;
+  background: #ffffff;
   border: 1px solid var(--deca-line);
   color: var(--deca-ink);
   padding: 0.55rem 0.7rem;
   font-size: 0.85rem;
   outline: none;
   width: 100%;
+}
+
+.deca-input option {
+  background: #ffffff;
+  color: var(--deca-ink);
 }
 
 .deca-input:focus {
@@ -1475,7 +1497,7 @@
 
 .deca-btn-primary {
   border-color: var(--deca-accent);
-  color: #1a1408;
+  color: #ffffff;
   background: var(--deca-accent);
   display: inline-flex;
   align-items: center;
@@ -1616,10 +1638,11 @@
   z-index: 40;
   display: flex;
   flex-direction: column;
-  max-width: 1440px;
+  max-width: 1600px;
   margin: 0 auto;
-  border-top: 1px solid var(--deca-line);
-  background: rgba(7, 11, 16, 0.96);
+  border-top: 1px solid #1e293b;
+  background: var(--deca-term-bg);
+  color: var(--deca-term-fg);
   backdrop-filter: blur(8px);
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.35);
 }
@@ -1642,9 +1665,10 @@
   align-items: center;
   gap: 0.65rem;
   padding: 0.35rem 0.75rem;
-  border-bottom: 1px solid var(--deca-line);
+  border-bottom: 1px solid #1e293b;
   min-height: 2.4rem;
   flex-shrink: 0;
+  color: var(--deca-term-fg);
 }
 
 .deca-term-toggle {
@@ -1653,7 +1677,7 @@
   gap: 0.4rem;
   border: none;
   background: transparent;
-  color: var(--deca-ink);
+  color: var(--deca-term-fg);
   font-size: 0.7rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1675,9 +1699,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  border: 1px solid var(--deca-line);
+  border: 1px solid #334155;
   background: transparent;
-  color: var(--deca-muted, #8a9aaa);
+  color: var(--deca-term-mute);
   padding: 0.25rem 0.5rem;
   font-size: 0.68rem;
   letter-spacing: 0.03em;
@@ -1686,9 +1710,9 @@
 }
 
 .deca-term-tab.is-active {
-  border-color: var(--deca-accent);
-  color: var(--deca-ink);
-  background: rgba(201, 162, 39, 0.08);
+  border-color: #38bdf8;
+  color: #f8fafc;
+  background: rgba(56, 189, 248, 0.12);
 }
 
 .deca-term-tab.is-interactive.is-active {
@@ -1727,7 +1751,7 @@
 
 .deca-term-hint {
   font-size: 0.65rem;
-  color: var(--deca-mute);
+  color: var(--deca-term-mute);
   white-space: nowrap;
 }
 
@@ -1760,7 +1784,7 @@
 .deca-term-picker-item {
   border: none;
   background: transparent;
-  color: var(--deca-ink);
+  color: var(--deca-term-fg);
   text-align: left;
   padding: 0.4rem 0.5rem;
   font-size: 0.75rem;
@@ -1819,11 +1843,11 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.25rem 0.65rem;
-  border-top: 1px solid var(--deca-line);
+  border-top: 1px solid #1e293b;
   font-size: 0.62rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--deca-muted, #8a9aaa);
+  color: var(--deca-term-mute);
   flex-shrink: 0;
 }
 

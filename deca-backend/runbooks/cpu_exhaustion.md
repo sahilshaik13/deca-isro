@@ -5,7 +5,7 @@
 **Keywords:** cpu_stress, crypto_cpu_exhaustion, congestion_breach, 2A, 2B, cpu_usage_user, stress-ng, station1
 
 ## Plain English
-- Lab inject runs `stress-ng` (or a CPU burn) on station1.
+- Symptom: elevated `cpu_usage_user` / system on PE1 (station1).
 - Watch **cpu_usage_user** (not only system CPU).
 - Both GRE and eth0 can look bad — that is a clue it is CPU, not rain fade.
 - Severity **2A** = moderate, **2B** = severe / act soon.
@@ -16,9 +16,8 @@
 - BGP counters usually quiet (unless CPU starves routing).
 
 ## What to do
-1. If it is a demo inject: clear it  
-   `bash scripts/inject_cpu_stress.sh --clear --host station1`
-2. If Decide shows a short time-to-impact: **Approve backup**.
+1. When the PE is healthy again, clear residual CPU load and restore preferred path.  
+   2. If Decide shows a short time-to-impact: **Approve backup**.
 3. After CPU and latency recover, clear the human override.
 
 ## Do not

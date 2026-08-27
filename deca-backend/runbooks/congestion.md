@@ -11,6 +11,6 @@
 
 ## What to do
 1. Check CPU vs util vs latency graphs.
-2. If CPU inject: clear stress script.
+2. If CPU is the cause: reduce load / restore PE headroom.
 3. If Decide is hot: **Approve backup**.
 4. After recovery, clear the human override.

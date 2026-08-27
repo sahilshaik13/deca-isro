@@ -3,6 +3,10 @@
 # Ctrl+C kills remote SSH loop, then clears netem (healthy).
 set -euo pipefail
 
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=deca_cli_bridge.sh
+source "$_SCRIPT_DIR/deca_cli_bridge.sh"
+
 HOST=station1
 DEV=gre-te-core
 STEPS=24
@@ -59,6 +63,9 @@ EOF
 
 if [[ "$CLEAR_ONLY" -eq 1 ]]; then
   clear_netem
+  DECA_CLI_FAULT_ID="loss_progression"
+  DECA_CLI_ATTACHED=1
+  deca_cli_end cli_clear || true
   exit 0
 fi
 
@@ -67,6 +74,7 @@ on_interrupt() {
   echo "Interrupted — killing remote inject, restoring healthy on $HOST/$DEV"
   kill_ssh
   clear_netem
+  deca_cli_end cli_interrupted || true
   exit 130
 }
 trap on_interrupt INT TERM
@@ -74,6 +82,8 @@ trap on_interrupt INT TERM
 TOTAL=$((STEPS * STEP_SEC + HOLD_SEC))
 echo "Loss progression on $HOST/$DEV: ${START_PCT}→${END_PCT}% over $((STEPS * STEP_SEC))s then hold ${HOLD_SEC}s (~${TOTAL}s)"
 echo "(Ctrl+C kills remote loop + clears netem → healthy)"
+SUMMARY="loss_progression ${START_PCT}→${END_PCT}% steps=${STEPS}×${STEP_SEC}s hold=${HOLD_SEC}s"
+deca_cli_attach loss_progression "$TOTAL" "$SUMMARY"
 
 TMP="$(mktemp /tmp/deca_loss_remote.XXXXXX)"
 cat >"$TMP" <<EOF
@@ -109,10 +119,8 @@ fi
 echo "[\$(date -u +%H:%M:%S)] hold done — cleanup will restore healthy"
 EOF
 
-ssh -T "$HOST" "sudo bash -s" <"$TMP" &
-SSH_PID=$!
-wait "$SSH_PID" || true
-SSH_PID=""
+deca_cli_run_remote "$HOST" "$TMP"
 rm -f "$TMP"
 trap - INT TERM
+deca_cli_end cli_hold_done || true
 echo "Loss progression finished — path cleared (healthy)."

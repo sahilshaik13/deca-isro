@@ -65,6 +65,24 @@ class FaultClearBody(BaseModel):
     reason: str = "operator_clear"
 
 
+class FaultCliAttachBody(BaseModel):
+    fault_id: str
+    started_by: str = "cli"
+    duration_s: Optional[float] = None
+    seed_delay_s: Optional[float] = None
+    cmd_summary: str = ""
+
+
+class FaultCliLogBody(BaseModel):
+    line: str
+    fault_id: str = ""
+
+
+class FaultCliEndBody(BaseModel):
+    fault_id: str = ""
+    reason: str = "cli_hold_done"
+
+
 class FabricSetBody(BaseModel):
     active: str = Field(description="pi | gns3")
     set_by: str = "deca-ui"
@@ -851,6 +869,38 @@ def faults_clear(body: FaultClearBody | None = None):
 
     body = body or FaultClearBody()
     return fault_demo.clear(reason=body.reason)
+
+
+@router.post("/faults/cli/attach")
+def faults_cli_attach(body: FaultCliAttachBody):
+    """Laptop CLI inject registration — pipeline + watch + model Decide without UI buttons."""
+    import fault_demo
+
+    result = fault_demo.attach_cli(
+        body.fault_id,
+        started_by=body.started_by,
+        duration_s=body.duration_s,
+        seed_delay_s=body.seed_delay_s,
+        cmd_summary=body.cmd_summary,
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=409, detail=result.get("error") or "cli attach failed")
+    return result
+
+
+@router.post("/faults/cli/log")
+def faults_cli_log(body: FaultCliLogBody):
+    import fault_demo
+
+    return fault_demo.log_cli(body.line, fault_id=body.fault_id or None)
+
+
+@router.post("/faults/cli/end")
+def faults_cli_end(body: FaultCliEndBody | None = None):
+    import fault_demo
+
+    body = body or FaultCliEndBody()
+    return fault_demo.end_cli(body.fault_id or "", reason=body.reason)
 
 
 class ModelDetectBody(BaseModel):

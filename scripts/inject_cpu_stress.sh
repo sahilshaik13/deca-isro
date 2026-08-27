@@ -3,6 +3,10 @@
 # Ctrl+C kills remote SSH + burners (healthy).
 set -euo pipefail
 
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=deca_cli_bridge.sh
+source "$_SCRIPT_DIR/deca_cli_bridge.sh"
+
 HOST=station1
 SECONDS_RUN=90
 WORKERS=0
@@ -53,6 +57,9 @@ EOF
 
 if [[ "$CLEAR_ONLY" -eq 1 ]]; then
   clear_burn
+  DECA_CLI_FAULT_ID="cpu_stress"
+  DECA_CLI_ATTACHED=1
+  deca_cli_end cli_clear || true
   exit 0
 fi
 
@@ -61,12 +68,15 @@ on_interrupt() {
   echo "Interrupted — killing remote inject, restoring healthy CPU on $HOST"
   kill_ssh
   clear_burn
+  deca_cli_end cli_interrupted || true
   exit 130
 }
 trap on_interrupt INT TERM
 
 echo "CPU stress on $HOST for ${SECONDS_RUN}s (workers=${WORKERS:-nproc})"
 echo "(Ctrl+C kills remote loop + burners → healthy)"
+SUMMARY="cpu_stress ${SECONDS_RUN}s workers=${WORKERS:-nproc}"
+deca_cli_attach cpu_stress "$SECONDS_RUN" "$SUMMARY"
 clear_burn >/dev/null 2>&1 || true
 
 TMP="$(mktemp /tmp/deca_cpu_remote.XXXXXX)"
@@ -123,10 +133,8 @@ fi
 echo "[\$(date -u +%H:%M:%S)] CPU stress complete — cleanup will restore healthy"
 EOF
 
-ssh -T "$HOST" "sudo bash -s" <"$TMP" &
-SSH_PID=$!
-wait "$SSH_PID" || true
-SSH_PID=""
+deca_cli_run_remote "$HOST" "$TMP"
 rm -f "$TMP"
 trap - INT TERM
+deca_cli_end cli_hold_done || true
 echo "CPU stress finished — burners cleared (healthy)."

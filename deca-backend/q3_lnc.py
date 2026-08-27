@@ -137,18 +137,69 @@ def _ollama_generate(prompt: str, *, model: str = CHAT_MODEL, ollama: str = OLLA
     return str(resp.json().get("response") or "").strip()
 
 
+def _scrub_lab_voice(text: str) -> str:
+    """Operator-facing text must never sound like a lab inject demo."""
+    import re
+
+    out = text or ""
+    out = re.sub(r"\b(lab\s+)?(fault\s+)?inject(ion|ed|ing|s)?\b", "event", out, flags=re.I)
+    out = re.sub(r"\bdemo\s+faults?\b", "path issue", out, flags=re.I)
+    out = re.sub(r"\bnoc_demo_fault\b", "", out, flags=re.I)
+    out = re.sub(r"\binject_[a-z0-9_]+\.sh\b", "", out, flags=re.I)
+    out = re.sub(r"\bNetEM\b", "path impairment", out)
+    out = re.sub(r"\s{2,}", " ", out).strip()
+    return out
+
+
+def _public_math_context(math: dict[str, Any]) -> dict[str, Any]:
+    """Strip demo/inject keys before the LLM prompt — Copilot is live NOC voice."""
+    drop = {
+        "noc_demo_fault",
+        "fault_id",
+        "generation_path",
+        "q3_generation_path",
+        "model",
+        "bgp_specialist",
+    }
+    out: dict[str, Any] = {}
+    for k, v in math.items():
+        if k in drop:
+            continue
+        if k == "model_detection" and isinstance(v, dict):
+            md = {
+                kk: vv
+                for kk, vv in v.items()
+                if kk
+                not in {
+                    "fault_id",
+                    "matches_demo_fault",
+                    "expected_severities",
+                    "fingerprint_blurb",
+                    "model",
+                    "bgp_specialist",
+                    "generation_path",
+                    "explanation",
+                }
+            }
+            out[k] = md
+            continue
+        if isinstance(v, str):
+            out[k] = _scrub_lab_voice(v)
+        else:
+            out[k] = v
+    return out
+
+
 def build_math_query(math: dict[str, Any], snapshot: dict[str, Any]) -> str:
-    """Retrieve runbooks from model scores (severity / root / alert), not inject script ids."""
+    """Retrieve runbooks from model scores (severity / root / alert), not script ids."""
     md = math.get("model_detection") if isinstance(math.get("model_detection"), dict) else {}
     parts = [
-        str(math.get("title") or ""),
-        str(math.get("summary") or ""),
+        _scrub_lab_voice(str(math.get("title") or "")),
+        _scrub_lab_voice(str(math.get("summary") or "")),
         str(math.get("root_cause") or md.get("q2_name") or ""),
         str(math.get("severity") or md.get("severity") or ""),
         str(math.get("alert_class") or ""),
     ]
-    if md.get("explanation"):
-        parts.append(str(md.get("explanation"))[:240])
     if snapshot.get("latency_gre_ms") is not None:
         parts.append(f"GRE latency {snapshot['latency_gre_ms']} ms")
     if snapshot.get("latency_eth0_ms") is not None:
@@ -159,7 +210,7 @@ def build_math_query(math: dict[str, Any], snapshot: dict[str, Any]) -> str:
         parts.append(f"BGP flaps {snapshot['bgp_flap_count']}")
     if snapshot.get("loss_gre_pct") is not None:
         parts.append(f"GRE loss {snapshot['loss_gre_pct']} pct")
-    parts.append("TT&C SLA preemption steer PE1")
+    parts.append("TT&C SLA preemption steer PE1 operator brief")
     return " ".join(p for p in parts if p).strip()
 
 
@@ -234,11 +285,20 @@ def explain(
         }
 
     sources = [h.get("source") for h in hits]
+    # Scrub lab/inject wording from RAG chunks before the LLM sees them.
+    scrubbed_hits: list[dict[str, Any]] = []
+    for h in hits:
+        scrubbed_hits.append(
+            {
+                **h,
+                "text": _scrub_lab_voice(str(h.get("text") or "")),
+            }
+        )
     context = "\n\n---\n\n".join(
-        f"SOURCE: {h.get('source')}\n{h.get('text')}" for h in hits
+        f"SOURCE: {h.get('source')}\n{h.get('text')}" for h in scrubbed_hits
     )
     snap_txt = json.dumps(snapshot, indent=2)
-    math_txt = json.dumps(math_context, indent=2, default=str)
+    math_txt = json.dumps(_public_math_context(math_context), indent=2, default=str)
 
     if not hits:
         return {
@@ -272,9 +332,16 @@ def explain(
             "generation_path": "q3_retrieve_only",
         }
 
-    prompt = f"""You are the DECA SD-WAN NOC Copilot (Q3). The math gate already alerted the operator.
-Use ONLY the Local Network Context and the live Prom snapshot. Be brief and actionable.
-Do not invent metrics. Recommend Approve/Reject wording for the Decide rail (steer on PE1).
+    prompt = f"""You are the DECA SD-WAN NOC Copilot speaking to a human operator on a live network.
+The math models (Q1/Q2) already raised a Decide card. Your job is a short, clear briefing.
+
+Rules:
+- Use ONLY the Local Network Context and the live Prom snapshot.
+- Do NOT invent metrics. Do NOT paste model ids, p= scores, or raw Prom dumps.
+- Prefer everyday words: "primary path getting slower", "about 8 minutes left", "Approve backup".
+- TT&C timing limit is 25 ms on GRE. Backup path is eth0.
+- NEVER mention fault injection, inject scripts, NetEM, lab demos, demo faults, or that this is a test.
+- Speak as if this is a real live path degradation the operator must handle.
 
 MATH ALERT (Q1/Q2):
 {math_txt}
@@ -285,7 +352,11 @@ LIVE PROM SNAPSHOT:
 LOCAL NETWORK CONTEXT:
 {context}
 
-Write 4-8 sentences: what is happening, which SOP applies, what Approve will do, what to watch after."""
+Reply in EXACTLY this format (no extra sections):
+HEADLINE: <one short line, e.g. Primary path slowing toward the timing limit>
+STORY: <2-3 plain sentences: what is happening, why it matters for the mission, what Approve will do>
+NEXT: <one line: Approve backup on Decide now, or wait for auto-heal>
+"""
 
     try:
         nlp = _ollama_generate(prompt)

@@ -7,12 +7,10 @@ import MissionClasses from '@/components/noc/MissionClasses'
 import AlertRail from '@/components/noc/AlertRail'
 import TelemetryGrid from '@/components/noc/TelemetryGrid'
 import FleetStrip from '@/components/noc/FleetStrip'
-import LabControls from '@/components/noc/LabControls'
 import TerminalDrawer from '@/components/noc/TerminalDrawer'
 import MethodologyModal from '@/components/noc/MethodologyModal'
 import BackendTraceVisualizer from '@/components/noc/BackendTraceVisualizer'
 import CopilotTerminal from '@/components/noc/CopilotTerminal'
-import FlowGuide from '@/components/noc/FlowGuide'
 import { useTelemetry } from '@/hooks/useTelemetry'
 import { useOrchestrator } from '@/hooks/useOrchestrator'
 
@@ -58,40 +56,26 @@ export default function Page() {
 
       <FleetStrip sites={orch.fleet?.sites || []} />
 
-      <FlowGuide
-        actionableCount={actionableCount}
-        faultRunning={Boolean(orch.faultStatus?.running)}
-        hasCopilot={Boolean(
-          (telemetry.isAnomaly || hasRaise) && telemetry.copilotResponse?.root_cause,
-        )}
-      />
-
       <div className="deca-main">
         <section className="deca-main-left space-y-5">
           <div className="deca-col-label">
             <span className="deca-ps13-tag">Watch</span>
-            <span>Live network</span>
-            <span className="deca-col-label-hint">sites · path · metrics</span>
+            <span>Live metrics</span>
+            <span className="deca-col-label-hint">throughput · jitter · loss · latency</span>
           </div>
 
-          <LabControls
-            fabricStatus={orch.fabricStatus}
-            fabricBusy={orch.fabricBusy}
-            onFabricSelect={(id) => void orch.onFabricSelect(id)}
-            trafficStatus={orch.trafficStatus}
-            trafficBusy={orch.trafficBusy}
-            activeFabric={activeFabric}
-            onTrafficStart={(profile) => void orch.onTrafficStart(profile)}
-            onTrafficStop={() => void orch.onTrafficStop()}
-            faultStatus={orch.faultStatus}
-            faultBusy={orch.faultBusy}
-            onFaultStart={(id) => void orch.onFaultStart(id)}
-            onFaultClear={() => void orch.onFaultClear()}
-            simulation={orch.simulation}
-            simBusy={orch.simBusy}
-            onSimStart={(dry) => void orch.onSimStart(dry)}
-            onSimStop={() => void orch.onSimStop()}
+          <TelemetryGrid
+            current={telemetry.current}
+            history={telemetry.history}
+            loading={telemetry.loading}
+            error={telemetry.error}
           />
+
+          <div className="deca-col-label">
+            <span className="deca-ps13-tag">Watch</span>
+            <span>Live network</span>
+            <span className="deca-col-label-hint">sites · path · topology</span>
+          </div>
 
           <TopologyMap
             fabric={activeFabric}
@@ -113,12 +97,6 @@ export default function Page() {
             }
           />
           <MissionClasses mission={orch.fleet?.mission || null} />
-          <TelemetryGrid
-            current={telemetry.current}
-            history={telemetry.history}
-            loading={telemetry.loading}
-            error={telemetry.error}
-          />
           <BackendTraceVisualizer
             alerts={orch.alerts}
             faultStatus={orch.faultStatus}

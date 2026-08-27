@@ -188,5 +188,6 @@ for site in (d.get('sites') or []):
 
     echo ""
     echo -e "${DIM}  Backend watcher · $API · run=${RUN_ID} · refresh ${INTERVAL}s (Ctrl+C)${RST}"
+    echo -e "${DIM}  Tip: start inject from laptop CLI (scripts/inject_*.sh) — auto-attaches here${RST}"
     sleep "$INTERVAL"
 done

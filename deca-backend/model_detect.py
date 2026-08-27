@@ -24,12 +24,14 @@ PRED_PY = Path(
     )
 )
 # ≥30 samples so oneshot can fill the Q1 LSTM window (TTI from Prom).
-SAMPLES = int(os.environ.get("DECA_DETECT_SAMPLES", "32"))
-INTERVAL = float(os.environ.get("DECA_DETECT_INTERVAL", "0.5"))
-TIMEOUT = float(os.environ.get("DECA_DETECT_TIMEOUT", "90"))
+# With Prom history (default), wall clock is ~1–2s per detect, not 30×sleep.
+SAMPLES = int(os.environ.get("DECA_DETECT_SAMPLES", "30"))
+INTERVAL = float(os.environ.get("DECA_DETECT_INTERVAL", "0.2"))
+TIMEOUT = float(os.environ.get("DECA_DETECT_TIMEOUT", "45"))
 # Match infer_q1_q2_live urgency windows (seconds).
 RED_SEC = float(os.environ.get("DECA_RED_SEC", "120"))
-YELLOW_SEC = float(os.environ.get("DECA_YELLOW_SEC", "300"))
+# Raise earlier on Q1 TTI (≤15 min) so Decide appears mid-ramp, not only near SLA.
+YELLOW_SEC = float(os.environ.get("DECA_YELLOW_SEC", "900"))
 # Require non-normal Q2, or Q1 ETA in yellow/red (score gate).
 MODEL_ONLY = os.environ.get("DECA_MODEL_ONLY", "1").strip().lower() not in (
     "0",

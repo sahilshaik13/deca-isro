@@ -31,12 +31,24 @@ function pctChange(series: number[]): string {
   return `${sign}${delta.toFixed(1)}%`
 }
 
+const card =
+  'rounded-lg p-5 border border-[var(--deca-line)] bg-[var(--deca-panel)] transition-colors'
+const title = 'text-lg font-bold text-[var(--deca-ink)] font-mono'
+const label = 'text-sm font-mono text-[var(--deca-mute)]'
+const value = 'text-2xl font-bold font-mono text-[var(--deca-ink)]'
+const tipStyle = {
+  backgroundColor: '#ffffff',
+  border: '1px solid #cbd5e1',
+  borderRadius: '4px',
+  color: '#0f172a',
+}
+
 export default function TelemetryGrid({ current, history, loading, error }: TelemetryGridProps) {
   if (error) {
     return (
-      <div className="bg-slate-900/40 border border-rose-700/50 rounded-lg p-8 text-center">
-        <AlertTriangle className="w-8 h-8 text-rose-400 mx-auto mb-3" />
-        <p className="text-rose-300 font-mono">{error}</p>
+      <div className="border border-[var(--deca-warn)]/40 bg-rose-50 rounded-lg p-8 text-center">
+        <AlertTriangle className="w-8 h-8 text-[var(--deca-warn)] mx-auto mb-3" />
+        <p className="text-[var(--deca-warn)] font-mono">{error}</p>
       </div>
     )
   }
@@ -50,12 +62,12 @@ export default function TelemetryGrid({ current, history, loading, error }: Tele
   if (loading && !hasMetrics) {
     return (
       <div className="space-y-4">
-        <h2 className="text-lg font-bold text-slate-100 font-mono">Live metrics</h2>
+        <h2 className={title}>Live metrics</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-slate-900/40 border border-slate-700/50 rounded-lg p-5 animate-pulse">
-              <div className="h-40 bg-slate-800 rounded mb-4" />
-              <div className="h-4 bg-slate-800 rounded w-1/2" />
+            <div key={i} className={`${card} animate-pulse`}>
+              <div className="h-40 bg-[var(--deca-panel-2)] rounded mb-4" />
+              <div className="h-4 bg-[var(--deca-panel-2)] rounded w-1/2" />
             </div>
           ))}
         </div>
@@ -66,8 +78,8 @@ export default function TelemetryGrid({ current, history, loading, error }: Tele
   if (!hasMetrics || !current) {
     return (
       <div className="space-y-4">
-        <h2 className="text-lg font-bold text-slate-100 font-mono">Live metrics</h2>
-        <p className="text-sm text-slate-400 font-mono border border-slate-700/50 rounded-lg p-5">
+        <h2 className={title}>Live metrics</h2>
+        <p className="text-sm text-[var(--deca-mute)] font-mono border border-[var(--deca-line)] rounded-lg p-5 bg-[var(--deca-panel)]">
           Waiting for Prometheus samples (throughput, jitter, loss). Fleet map above still updates.
         </p>
       </div>
@@ -111,107 +123,121 @@ export default function TelemetryGrid({ current, history, loading, error }: Tele
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-bold text-slate-100 font-mono">Live metrics</h2>
+      <h2 className={title}>Live metrics</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-slate-900/40 border border-slate-700/50 rounded-lg p-5 hover:border-slate-600/50 transition-colors">
+        <div className={card}>
           <div className="mb-4">
-            <p className="text-slate-300 text-sm font-mono">Network Throughput</p>
+            <p className={label}>Network Throughput</p>
             <div className="flex items-baseline gap-2 mt-1 flex-wrap">
-              <p className="text-2xl font-bold text-emerald-400 font-mono">
+              <p className={`${value} text-[var(--deca-ok)]`}>
                 {current.network_throughput_in.toFixed(2)}
               </p>
-              <p className="text-slate-400 text-sm font-mono">Mbps In</p>
-              <p className="text-xl font-bold text-slate-300 font-mono ml-2">
+              <p className={label}>Mbps In</p>
+              <p className="text-xl font-bold text-[var(--deca-ink)] font-mono ml-2">
                 {current.network_throughput_out.toFixed(2)}
               </p>
-              <p className="text-slate-400 text-sm font-mono">Mbps Out</p>
+              <p className={label}>Mbps Out</p>
             </div>
-            <p className={`text-xs font-mono mt-2 flex items-center gap-1 ${isHighThroughput ? 'text-amber-400' : 'text-emerald-400'}`}>
-              {throughputTrend !== '—' && (throughputTrend.startsWith('+') ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />)}
+            <p
+              className={`text-xs font-mono mt-2 flex items-center gap-1 ${
+                isHighThroughput ? 'text-amber-600' : 'text-[var(--deca-ok)]'
+              }`}
+            >
+              {throughputTrend !== '—' &&
+                (throughputTrend.startsWith('+') ? (
+                  <TrendingUp className="w-3 h-3" />
+                ) : (
+                  <TrendingDown className="w-3 h-3" />
+                ))}
               {throughputTrend} vs prior sample
             </p>
           </div>
           <div className="w-full" style={{ height: 180 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={throughputData}>
-              <defs>
-                <linearGradient id="colorIn" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="colorOut" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#64748b" stopOpacity={0.6} />
-                  <stop offset="95%" stopColor="#64748b" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-              <XAxis dataKey="time" stroke="#64748b" style={{ fontSize: '12px' }} />
-              <YAxis stroke="#64748b" style={{ fontSize: '12px' }} />
-              <Tooltip
-                contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: '4px' }}
-                formatter={(value) => (typeof value === 'number' ? `${value.toFixed(2)} Mbps` : value)}
-              />
-              <Area type="monotone" dataKey="in" stroke="#10b981" fillOpacity={1} fill="url(#colorIn)" />
-              <Area type="monotone" dataKey="out" stroke="#64748b" fillOpacity={1} fill="url(#colorOut)" />
-            </AreaChart>
-          </ResponsiveContainer>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={throughputData}>
+                <defs>
+                  <linearGradient id="colorIn" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#059669" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="#059669" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="colorOut" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#64748b" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#64748b" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="time" stroke="#64748b" style={{ fontSize: '12px' }} />
+                <YAxis stroke="#64748b" style={{ fontSize: '12px' }} />
+                <Tooltip
+                  contentStyle={tipStyle}
+                  formatter={(value) =>
+                    typeof value === 'number' ? `${value.toFixed(2)} Mbps` : value
+                  }
+                />
+                <Area type="monotone" dataKey="in" stroke="#059669" fillOpacity={1} fill="url(#colorIn)" />
+                <Area type="monotone" dataKey="out" stroke="#64748b" fillOpacity={1} fill="url(#colorOut)" />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
         <div
-          className={`rounded-lg p-5 border transition-colors ${
-            isHighJitter
-              ? 'bg-rose-950/30 border-rose-700/50 hover:border-rose-600/50'
-              : 'bg-slate-900/40 border-slate-700/50 hover:border-slate-600/50'
+          className={`${card} ${
+            isHighJitter ? 'border-[var(--deca-warn)]/50 bg-rose-50' : ''
           }`}
         >
           <div className="mb-4">
-            <p className={`text-sm font-mono ${isHighJitter ? 'text-rose-300' : 'text-slate-300'}`}>Link Jitter</p>
+            <p className={`${label} ${isHighJitter ? 'text-[var(--deca-warn)]' : ''}`}>Link Jitter</p>
             <div className="flex items-baseline gap-2 mt-1">
-              <p className={`text-2xl font-bold font-mono ${isHighJitter ? 'text-rose-400' : 'text-emerald-400'}`}>
+              <p
+                className={`${value} ${
+                  isHighJitter ? 'text-[var(--deca-warn)]' : 'text-[var(--deca-ok)]'
+                }`}
+              >
                 {current.link_jitter.toFixed(2)}
               </p>
-              <p className={`text-sm font-mono ${isHighJitter ? 'text-rose-400' : 'text-slate-400'}`}>ms</p>
+              <p className={label}>ms</p>
             </div>
-            <p className={`text-xs font-mono mt-2 ${isHighJitter ? 'text-rose-400' : 'text-slate-400'}`}>
+            <p className={`text-xs font-mono mt-2 ${isHighJitter ? 'text-[var(--deca-warn)]' : label}`}>
               {jitterTrend} vs prior sample
             </p>
           </div>
           <div className="w-full" style={{ height: 180 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={jitterData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-              <XAxis dataKey="time" stroke="#64748b" style={{ fontSize: '12px' }} />
-              <YAxis stroke="#64748b" style={{ fontSize: '12px' }} />
-              <Tooltip
-                contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: '4px' }}
-                formatter={(value) => (typeof value === 'number' ? value.toFixed(2) : value)}
-              />
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke={isHighJitter ? '#f43f5e' : '#10b981'}
-                dot={false}
-                strokeWidth={2}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={jitterData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="time" stroke="#64748b" style={{ fontSize: '12px' }} />
+                <YAxis stroke="#64748b" style={{ fontSize: '12px' }} />
+                <Tooltip contentStyle={tipStyle} formatter={(value) => (typeof value === 'number' ? value.toFixed(2) : value)} />
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke={isHighJitter ? '#dc2626' : '#059669'}
+                  dot={false}
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="bg-slate-900/40 border border-slate-700/50 rounded-lg p-5 hover:border-slate-600/50 transition-colors">
+        <div className={card}>
           <div className="mb-4">
-            <p className="text-slate-300 text-sm font-mono">Packet Health</p>
-            <p className={`text-2xl font-bold font-mono mt-1 ${isHighPacketLoss ? 'text-rose-400' : 'text-emerald-400'}`}>
+            <p className={label}>Packet Health</p>
+            <p
+              className={`${value} mt-1 ${
+                isHighPacketLoss ? 'text-[var(--deca-warn)]' : 'text-[var(--deca-ok)]'
+              }`}
+            >
               {packetHealth.toFixed(1)}%
             </p>
-            <p className={`text-xs font-mono mt-1 ${isHighPacketLoss ? 'text-rose-400' : 'text-slate-400'}`}>
+            <p className={`text-xs font-mono mt-1 ${isHighPacketLoss ? 'text-[var(--deca-warn)]' : label}`}>
               Loss: {current.packet_loss.toFixed(2)}%
             </p>
           </div>
           <div className="mb-4">
-            <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+            <div className="w-full h-3 bg-[var(--deca-panel-2)] rounded-full overflow-hidden border border-[var(--deca-line)]">
               <div
                 className={`h-full transition-all duration-500 ${
                   isHighPacketLoss
@@ -222,43 +248,39 @@ export default function TelemetryGrid({ current, history, loading, error }: Tele
               />
             </div>
           </div>
-          <p className={`text-xs font-mono ${isHighPacketLoss ? 'text-rose-400' : 'text-emerald-400'}`}>
-            {isHighPacketLoss ? `${current.packet_loss.toFixed(2)}% loss from backend` : 'Within expected range'}
+          <p className={`text-xs font-mono ${isHighPacketLoss ? 'text-[var(--deca-warn)]' : 'text-[var(--deca-ok)]'}`}>
+            {isHighPacketLoss
+              ? `${current.packet_loss.toFixed(2)}% loss from backend`
+              : 'Within expected range'}
           </p>
         </div>
 
         <div
-          className={`rounded-lg p-5 border transition-colors ${
-            isHighPathLatency || isHighRouting
-              ? 'bg-rose-950/30 border-rose-700/50 hover:border-rose-600/50'
-              : 'bg-slate-900/40 border-slate-700/50 hover:border-slate-600/50'
+          className={`${card} ${
+            isHighPathLatency || isHighRouting ? 'border-[var(--deca-warn)]/50 bg-rose-50' : ''
           }`}
         >
           <div className="mb-4">
             <p
-              className={`text-sm font-mono ${
-                isHighPathLatency || isHighRouting ? 'text-rose-300' : 'text-slate-300'
+              className={`${label} ${
+                isHighPathLatency || isHighRouting ? 'text-[var(--deca-warn)]' : ''
               }`}
             >
               Path latency
             </p>
             <div className="flex items-baseline gap-2 mt-1 flex-wrap">
               <p
-                className={`text-2xl font-bold font-mono ${
-                  isHighPathLatency ? 'text-rose-400' : 'text-emerald-400'
+                className={`${value} ${
+                  isHighPathLatency ? 'text-[var(--deca-warn)]' : 'text-[var(--deca-ok)]'
                 }`}
               >
                 {greNow.toFixed(2)}
               </p>
-              <p className="text-slate-400 text-sm font-mono">ms GRE</p>
-              <p className="text-xl font-bold text-slate-300 font-mono ml-2">{ethNow.toFixed(2)}</p>
-              <p className="text-slate-400 text-sm font-mono">ms backup</p>
+              <p className={label}>ms GRE</p>
+              <p className="text-xl font-bold text-[var(--deca-ink)] font-mono ml-2">{ethNow.toFixed(2)}</p>
+              <p className={label}>ms backup</p>
             </div>
-            <p
-              className={`text-xs font-mono mt-1 ${
-                isHighRouting ? 'text-rose-400' : 'text-slate-400'
-              }`}
-            >
+            <p className={`text-xs font-mono mt-1 ${isHighRouting ? 'text-[var(--deca-warn)]' : label}`}>
               {isHighRouting
                 ? `Routing flaps ${current.routing_updates.toFixed(2)}/s`
                 : 'Primary vs backup RTT — spikes mean path trouble'}
@@ -267,15 +289,11 @@ export default function TelemetryGrid({ current, history, loading, error }: Tele
           <div className="w-full" style={{ height: 180 }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={routingData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="time" stroke="#64748b" style={{ fontSize: '12px' }} />
                 <YAxis stroke="#64748b" style={{ fontSize: '12px' }} />
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#1e293b',
-                    border: '1px solid #475569',
-                    borderRadius: '4px',
-                  }}
+                  contentStyle={tipStyle}
                   formatter={(value) =>
                     typeof value === 'number' ? `${value.toFixed(2)} ms` : value
                   }
@@ -284,18 +302,11 @@ export default function TelemetryGrid({ current, history, loading, error }: Tele
                   type="monotone"
                   dataKey="gre"
                   name="GRE"
-                  stroke={isHighPathLatency ? '#f43f5e' : '#10b981'}
+                  stroke={isHighPathLatency ? '#dc2626' : '#059669'}
                   dot={false}
                   strokeWidth={2}
                 />
-                <Line
-                  type="monotone"
-                  dataKey="eth0"
-                  name="Backup"
-                  stroke="#64748b"
-                  dot={false}
-                  strokeWidth={2}
-                />
+                <Line type="monotone" dataKey="eth0" name="Backup" stroke="#64748b" dot={false} strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>

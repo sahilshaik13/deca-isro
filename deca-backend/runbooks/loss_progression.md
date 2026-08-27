@@ -5,7 +5,7 @@
 **Keywords:** loss_progression, tunnel_degradation, 4A, 4B, loss_gre_pct, Payload 2%, netem loss
 
 ## Plain English
-- Lab inject ramps NetEM **loss** on `gre-te-core`.
+- Live symptom: path loss climbing on preferred underlay.
 - Payload service limit is about **2%** loss.
 - **4A** = moderate loss. **4B** = at or past the breach band.
 - Q1 estimates time left before the loss limit.
@@ -17,9 +17,8 @@
 ## What to do
 1. Confirm Decide / telemetry show rising GRE loss.
 2. **Approve backup** before loss stays above the service limit.
-3. Clear lab inject if needed:  
-   `bash scripts/inject_loss_progression.sh --clear --host station1`
-4. Clear the override after GRE loss is healthy again.
+3. After loss recovers, clear residual underlay overrides and restore preferred path.
+   4. Clear the override after GRE loss is healthy again.
 
 ## Do not
 - Wait until users already see a hard outage.

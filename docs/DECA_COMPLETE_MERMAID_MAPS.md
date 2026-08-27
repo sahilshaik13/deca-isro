@@ -10,103 +10,140 @@ Sources: [`STATION_NETWORK_SETUP.md`](./STATION_NETWORK_SETUP.md) · [`lab/gns3/
 
 One NOC · one Decide · one controller · shared wire contract · two isolated fabrics · dual Prom · dual Kafka topics. Do not mash scrapes or unlabeled train data.
 
+Layout is **left → right** so MANAGEMENT stays compact (top→bottom edges into the fabrics were stretching that box).
+
 ```mermaid
-flowchart TB
-  subgraph MGMT["MANAGEMENT — laptop brain 192.168.50.1"]
-    NOC["NOC UI :3000 · fabric selector pi|gns3"]
+flowchart LR
+  subgraph MGMT["MANAGEMENT — brain 192.168.50.1"]
+    direction TB
     ORCH["Orchestrator FastAPI :8000"]
-    DEC["Decide rail · HITL Approve/Reject"]
-    AAR["AAR class SLAs · enter_k=3 · exit_k=10<br/>TT&C≤25ms/5ms/0.1% · Payload≤80/15/2%"]
-    CTRL["Controller :9280 · force_path / clear_force / bgp_soft_clear"]
-    PRI["Priority: TT&C/Gold > Payload/Silver > Admin/Bronze"]
-    NOC --> DEC --> AAR --> CTRL
-    ORCH --> NOC
+    NOC["NOC UI :3000 · fabric pi|gns3"]
+    DEC["Decide · HITL Approve/Reject"]
+    AAR["AAR SLAs · enter_k=3 · exit_k=10<br/>TT&C≤25/5/0.1% · Payload≤80/15/2%"]
+    CTRL["Controller :9280 · force_path"]
+    PRI["Priority: Gold > Silver > Bronze"]
+    ORCH --> NOC --> DEC --> AAR --> CTRL
     PRI -.-> AAR
   end
 
-  CONTRACT["SHARED WIRE CONTRACT<br/>ToS 0x88→HTB 1:10 · 0x80→1:15+RED · 0x00→1:20<br/>vrf-mission · vrf-admin · IPsec ESP deca-sdwan copy_dscp=out<br/>Gold 99.9% · Silver 99.5% · Bronze 90%"]
-
-  MGMT --> CONTRACT
-
-  subgraph TELE["TELEMETRY — shared Kafka · isolated Prometheus"]
+  subgraph MID["CONTRACT · TELEMETRY · ML"]
+    direction TB
+    CONTRACT["SHARED WIRE CONTRACT<br/>ToS 0x88→1:10 · 0x80→1:15 · 0x00→1:20<br/>vrf-mission · IPsec ESP · Gold 99.9%"]
     KAFKA[("Kafka :9092")]
+    PROM_PI[("Prom :9090 Pi")]
+    PROM_GNS[("Prom :9091 GNS3")]
     BR_PI["bridge :9274"]
     BR_GNS["bridge :9276"]
     EXP["gns3_path_exporter :9275"]
-    PROM_PI[("Prom :9090 Pi only · also scrapes :9280")]
-    PROM_GNS[("Prom :9091 GNS3 only")]
+    ML["Q1 LSTM · Q2 XGB · Decide seed"]
     KAFKA -->|"sdwan_telemetry_pi"| BR_PI --> PROM_PI
     KAFKA -->|"sdwan_telemetry_gns3"| BR_GNS --> PROM_GNS
     EXP --> PROM_GNS
+    PROM_PI --> ML
+    PROM_GNS --> ML
+    CONTRACT --- KAFKA
   end
 
-  subgraph PI["PI FABRIC — live · Prom :9090"]
+  subgraph PI["PI FABRIC · Prom :9090"]
     direction TB
-    subgraph PICE["CE"]
-      CEA["ce-a NRSC Gold 10.101.1.0/29"]
-      CEM["ce-mauritius Bronze 10.101.3.0/29 ~200ms"]
-      CEB["ce-b SAC Silver 10.101.2.0/29"]
-      CEMCF["ce-mcf MCF Bronze 10.101.4.0/29"]
-    end
-    subgraph PIPE["PE — HTB + IPsec + VRF + AAR actuate"]
-      PE1P["station1 PE1 192.168.50.10 · lo 10.1.1.1"]
-      PE2P["station2 PE2 192.168.50.20 · lo 10.1.2.1"]
-    end
-    subgraph PIP["P — transit only · no HTB · preserve DSCP"]
-      COREP["station3 CORE 192.168.50.30 · lo 10.1.3.1<br/>OSPF + LDP + BGP-RR · pathd SR-TE BSID 40001/40002"]
-    end
-    CEA & CEM -->|"WAN + HTB"| PE1P
-    CEB & CEMCF -->|"WAN + HTB"| PE2P
-    PE1P -->|"vrf-mission gre-te OSPF 5 · MPLS/LDP"| COREP
-    COREP -->|"vrf-mission gre-te OSPF 5"| PE2P
-    PE1P -.->|"vrf-admin eth0 OSPF 50 backup"| PE2P
-    PE1P <-->|"IPsec ESP overlay"| PE2P
+    CEA["ce-a NRSC Gold"]
+    CEM["ce-mauritius Bronze"]
+    CEB["ce-b SAC Silver"]
+    CEMCF["ce-mcf MCF"]
+    PE1P["station1 PE1 · 192.168.50.10"]
+    PE2P["station2 PE2 · 192.168.50.20"]
+    COREP["station3 CORE · 192.168.50.30<br/>OSPF · LDP · BGP-RR · SR-TE"]
+    CEA --> PE1P
+    CEM --> PE1P
+    CEB --> PE2P
+    CEMCF --> PE2P
+    PE1P -->|"gre-te OSPF 5"| COREP
+    COREP -->|"gre-te OSPF 5"| PE2P
+    PE1P -.->|"eth0 OSPF 50 backup"| PE2P
+    PE1P <-->|"IPsec ESP"| PE2P
   end
 
-  subgraph GNS["GNS3 FABRIC — 16-node twin · Prom :9091"]
+  subgraph GNS["GNS3 FABRIC · 16-node · Prom :9091"]
     direction TB
-    subgraph GCE["CE"]
-      GNRSC["CE-NRSC Gold"]
-      GMAU["CE-Mauritius Bronze"]
-      GSHAD["CE-Shadnagar"]
-      GSAC["CE-SAC Silver"]
-      GMCF["CE-MCF"]
-      GISTR["CE-ISTRAC"]
-      GHQ["CE-ISRO-HQ"]
-      GBHO["CE-Bhopal"]
-      IPA["IPERF-A chaos"]
-      IPB["IPERF-B chaos"]
-    end
-    subgraph GPE["PE — same HTB/VRF/IPsec jobs"]
-      GPE1["PE1"]
-      GPE2["PE2"]
-      GPE3["PE3"]
-    end
-    subgraph GP["P — CORE-N primary · CORE-S optional"]
-      GCN["CORE-N"]
-      GCS["CORE-S"]
-    end
+    GNRSC["CE-NRSC Gold"]
+    GMAU["CE-Mauritius"]
+    GSHAD["CE-Shadnagar"]
+    GSAC["CE-SAC Silver"]
+    GMCF["CE-MCF"]
+    GISTR["CE-ISTRAC"]
+    GHQ["CE-ISRO-HQ"]
+    GBHO["CE-Bhopal"]
+    IPA["IPERF-A"]
+    IPB["IPERF-B"]
+    GPE1["PE1"]
+    GPE2["PE2"]
+    GPE3["PE3"]
+    GCN["CORE-N"]
+    GCS["CORE-S"]
     IPA --> GNRSC
     IPB --> GSAC
-    GNRSC & GMAU & GSHAD --> GPE1
-    GSAC & GMCF & GISTR --> GPE2
-    GHQ & GBHO --> GPE3
-    GPE1 -->|"mission N/S"| GCN & GCS
-    GPE2 -->|"mission N/S"| GCN & GCS
-    GPE3 -->|"mission N/S"| GCN & GCS
+    GNRSC --> GPE1
+    GMAU --> GPE1
+    GSHAD --> GPE1
+    GSAC --> GPE2
+    GMCF --> GPE2
+    GISTR --> GPE2
+    GHQ --> GPE3
+    GBHO --> GPE3
+    GPE1 --> GCN
+    GPE2 --> GCN
+    GPE3 --> GCN
+    GPE1 --> GCS
+    GPE2 --> GCS
+    GPE3 --> GCS
     GCN <--> GCS
-    GPE1 -.->|"admin"| GPE2 & GPE3
-    GPE2 -.->|"admin"| GPE3
-    GPE1 <-->|"IPsec ESP"| GPE2
+    GPE1 -.-> GPE2
+    GPE2 -.-> GPE3
+    GPE1 <-->|"IPsec"| GPE2
   end
 
-  CONTRACT --> PI & GNS
-  CTRL -->|"active=pi"| PE1P
-  CTRL -->|"active=gns3"| GPE1
-  PE1P & PE2P & COREP -.->|"Telegraf fabric=pi"| KAFKA
-  GPE1 & GCN & GPE2 -.->|"telegraf-gns3"| KAFKA
-  PROM_PI & PROM_GNS -->|"fabric-selected"| ML["Q1 LSTM · Q2 XGB · Decide seed"]
-  ML --> DEC
+  MGMT --> CONTRACT
+  CONTRACT --> PI
+  CONTRACT --> GNS
+  CTRL -.->|"active=pi"| PE1P
+  CTRL -.->|"active=gns3"| GPE1
+  PE1P -.-> KAFKA
+  PE2P -.-> KAFKA
+  COREP -.-> KAFKA
+  GPE1 -.-> KAFKA
+  GCN -.-> KAFKA
+  GPE2 -.-> KAFKA
+  ML -.->|"seed"| DEC
+
+  %% —— dark colours ——
+  classDef mgmt fill:#0b1220,stroke:#60a5fa,color:#e2e8f0
+  classDef contract fill:#1c1917,stroke:#fb923c,color:#fed7aa
+  classDef tele fill:#0c0a1f,stroke:#818cf8,color:#c7d2fe
+  classDef pe fill:#0c1929,stroke:#38bdf8,color:#e0f2fe
+  classDef core fill:#042f2e,stroke:#2dd4bf,color:#ccfbf1
+  classDef gold fill:#1c1408,stroke:#eab308,color:#fde68a
+  classDef silver fill:#111827,stroke:#9ca3af,color:#e5e7eb
+  classDef bronze fill:#1a0f0a,stroke:#f97316,color:#fdba74
+  classDef chaos fill:#1f0a0a,stroke:#f87171,color:#fecaca
+  classDef ml fill:#1a0a2e,stroke:#c084fc,color:#e9d5ff
+  classDef decide fill:#1f0a14,stroke:#fb7185,color:#fecdd3
+
+  class NOC,ORCH,AAR,CTRL,PRI mgmt
+  class DEC decide
+  class CONTRACT contract
+  class KAFKA,BR_PI,BR_GNS,EXP,PROM_PI,PROM_GNS tele
+  class PE1P,PE2P,GPE1,GPE2,GPE3 pe
+  class COREP,GCN,GCS core
+  class CEA,GNRSC gold
+  class CEB,GSAC silver
+  class CEM,CEMCF,GMAU,GMCF,GSHAD,GISTR,GHQ,GBHO bronze
+  class IPA,IPB chaos
+  class ML ml
+
+  style MGMT fill:#020617,stroke:#3b82f6,color:#93c5fd
+  style MID fill:#020617,stroke:#a855f7,color:#d8b4fe
+  style PI fill:#022c22,stroke:#10b981,color:#6ee7b7
+  style GNS fill:#1c1917,stroke:#d97706,color:#fbbf24
 ```
 
 ---

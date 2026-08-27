@@ -29,8 +29,8 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'dark',
-  themeColor: '#0b1218',
+  colorScheme: 'light',
+  themeColor: '#ffffff',
 }
 
 export default function RootLayout({
@@ -39,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${display.variable} ${mono.variable} dark`}>
+    <html lang="en" className={`${display.variable} ${mono.variable} light`}>
       <body className="antialiased font-[family-name:var(--font-mono)] bg-[var(--deca-bg)] text-[var(--deca-ink)]">
         {children}
       </body>

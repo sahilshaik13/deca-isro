@@ -9,6 +9,10 @@
 #   bash scripts/inject_rain_fade.sh --host station1 --steps 24 --step-sec 8 --hold-sec 120
 set -euo pipefail
 
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=deca_cli_bridge.sh
+source "$_SCRIPT_DIR/deca_cli_bridge.sh"
+
 HOST=station1
 DEV=gre-te-core
 STEPS=24
@@ -68,6 +72,9 @@ EOF
 
 if [[ "$CLEAR_ONLY" -eq 1 ]]; then
   clear_netem
+  DECA_CLI_FAULT_ID="rain_fade"
+  DECA_CLI_ATTACHED=1
+  deca_cli_end cli_clear || true
   exit 0
 fi
 
@@ -76,6 +83,7 @@ on_interrupt() {
   echo "Interrupted — killing remote inject, restoring healthy on $HOST/$DEV"
   kill_ssh
   clear_netem
+  deca_cli_end cli_interrupted || true
   exit 130
 }
 trap on_interrupt INT TERM
@@ -83,6 +91,8 @@ trap on_interrupt INT TERM
 TOTAL=$((STEPS * STEP_SEC + HOLD_SEC))
 echo "Rain fade on $HOST/$DEV: ${START_MS}→${END_MS}ms over $((STEPS * STEP_SEC))s then hold ${HOLD_SEC}s (~${TOTAL}s) (${STEPS}×${STEP_SEC}s)"
 echo "(Ctrl+C kills remote loop + clears netem → healthy)"
+SUMMARY="rain_fade ${START_MS}→${END_MS}ms steps=${STEPS}×${STEP_SEC}s hold=${HOLD_SEC}s"
+deca_cli_attach rain_fade "$TOTAL" "$SUMMARY"
 
 TMP="$(mktemp /tmp/deca_rain_fade_remote.XXXXXX)"
 cat >"$TMP" <<EOF
@@ -119,10 +129,8 @@ fi
 echo "[\$(date -u +%H:%M:%S)] hold done — cleanup will restore healthy"
 EOF
 
-ssh -T "$HOST" "sudo bash -s" <"$TMP" &
-SSH_PID=$!
-wait "$SSH_PID" || true
-SSH_PID=""
+deca_cli_run_remote "$HOST" "$TMP"
 rm -f "$TMP"
 trap - INT TERM
+deca_cli_end cli_hold_done || true
 echo "Rain fade finished — path cleared (healthy)."

@@ -5,6 +5,6 @@
 **Keywords:** policy_drift, ce_sla_conflict, Bronze, Gold, HTB, ToS
 
 ## Plain English
-- In this demo, usually the **CE SLA conflict** story (Mauritius vs NRSC).
+- Often the **CE SLA conflict** story (Mauritius vs NRSC).
 - See `ce_sla_conflict.md` for the full simple playbook.
-- Approve to protect the critical site; clear the rogue inject when done.
+- Approve to protect the critical site; calm the rogue site when done.

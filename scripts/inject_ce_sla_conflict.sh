@@ -3,6 +3,10 @@
 # Ctrl+C kills remote SSH inject loop + iperf (healthy).
 set -euo pipefail
 
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=deca_cli_bridge.sh
+source "$_SCRIPT_DIR/deca_cli_bridge.sh"
+
 HOST=station1
 ROGUE_NS=ce-mauritius
 VICTIM_NS=ce-a
@@ -71,6 +75,9 @@ EOF
 
 if [[ "$CLEAR_ONLY" -eq 1 ]]; then
   clear_ce
+  DECA_CLI_FAULT_ID="ce_sla_conflict"
+  DECA_CLI_ATTACHED=1
+  deca_cli_end cli_clear || true
   exit 0
 fi
 
@@ -79,6 +86,7 @@ on_interrupt() {
   echo "Interrupted — killing remote inject, restoring healthy on $HOST"
   kill_ssh
   clear_ce
+  deca_cli_end cli_interrupted || true
   exit 130
 }
 trap on_interrupt INT TERM
@@ -97,7 +105,10 @@ fi
 
 echo "CE SLA conflict mode=$MODE rogue=$ROGUE_NS →${ROGUE_END}Mbit :5006; victim=$VICTIM_NS TT&C ${VICTIM_MBIT}M hold=${HOLD_SEC}s [CAPTURE_CONTRACT]"
 echo "(Ctrl+C kills remote loop + iperf → healthy)"
-
+TOTAL=$((STEPS * STEP_SEC + HOLD_SEC))
+[[ "$MODE" == "continuous" ]] && TOTAL=$((HOLD_SEC + 8))
+SUMMARY="ce_sla_conflict mode=$MODE ${ROGUE_START}→${ROGUE_END}Mbit hold=${HOLD_SEC}s"
+deca_cli_attach ce_sla_conflict "$TOTAL" "$SUMMARY"
 TMP="$(mktemp /tmp/deca_ce_sla_remote.XXXXXX)"
 
 if [[ "$MODE" == "coarse" ]]; then
@@ -180,10 +191,8 @@ tail -5 /tmp/deca_ce_sla_rogue.log 2>/dev/null || true
 EOF
 fi
 
-ssh -T "$HOST" "sudo bash -s" <"$TMP" &
-SSH_PID=$!
-wait "$SSH_PID" || true
-SSH_PID=""
+deca_cli_run_remote "$HOST" "$TMP"
 rm -f "$TMP"
 trap - INT TERM
+deca_cli_end cli_hold_done || true
 echo "[$(date -u +%H:%M:%S)] CE SLA conflict finished — injectors cleared (healthy)."

@@ -2966,3 +2966,841 @@
 [t+0s] pipeline feed ready — waiting for infer_q1_q2_live
 [t+0s] pipeline feed ready — waiting for infer_q1_q2_live
 [t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1481s] [healthy] eta=532.5s q2=cpu_moderate sev=2A lat=0.288
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1503s] [healthy] eta=505.6s q2=cpu_moderate sev=2A lat=0.248
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1525s] [healthy] eta=532.0s q2=cpu_moderate sev=2A lat=0.279
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1546s] [healthy] eta=488.1s q2=normal sev=0 lat=0.272
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1567s] [healthy] eta=493.1s q2=normal sev=0 lat=0.306
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1588s] [healthy] eta=481.8s q2=normal sev=0 lat=0.268
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1610s] [healthy] eta=483.1s q2=normal sev=0 lat=0.293
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1631s] [healthy] eta=495.6s q2=normal sev=0 lat=0.3
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1652s] [healthy] eta=494.7s q2=normal sev=0 lat=0.291
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1673s] [healthy] eta=480.3s q2=normal sev=0 lat=0.253
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1695s] [healthy] eta=486.4s q2=normal sev=0 lat=0.283
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1716s] [healthy] eta=475.9s q2=normal sev=0 lat=0.272
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1737s] [healthy] eta=492.8s q2=cpu_moderate sev=2A lat=0.489
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1759s] [healthy] eta=510.8s q2=cpu_moderate sev=2A lat=0.259
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1780s] [healthy] eta=529.4s q2=cpu_moderate sev=2A lat=0.314
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1802s] [healthy] eta=521.2s q2=cpu_moderate sev=2A lat=0.286
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1824s] [healthy] eta=536.0s q2=cpu_moderate sev=2A lat=0.304
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1845s] [healthy] eta=514.5s q2=normal sev=0 lat=0.263
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+2s] [healthy] eta=491.1s q2=normal sev=0 lat=0.302
+[t+24s] [healthy] eta=543.9s q2=normal sev=0 lat=0.274
+[t+46s] [healthy] eta=521.4s q2=normal sev=0 lat=0.287
+[t+68s] [healthy] eta=483.4s q2=normal sev=0 lat=0.262
+[t+89s] [healthy] eta=480.1s q2=normal sev=0 lat=0.302
+[t+111s] [healthy] eta=493.6s q2=normal sev=0 lat=0.266
+[t+133s] [healthy] eta=489.4s q2=normal sev=0 lat=0.265
+[t+155s] [healthy] eta=491.7s q2=normal sev=0 lat=0.26
+[t+178s] [healthy] eta=503.8s q2=normal sev=0 lat=0.252
+[t+200s] [healthy] eta=479.0s q2=normal sev=0 lat=0.277
+[t+221s] [healthy] eta=495.6s q2=normal sev=0 lat=0.267
+[t+244s] [healthy] eta=506.2s q2=cpu_moderate sev=2A lat=0.297
+[t+266s] [healthy] eta=528.2s q2=cpu_moderate sev=2A lat=0.265
+[t+288s] [healthy] eta=511.3s q2=cpu_moderate sev=2A lat=0.296
+[t+310s] [healthy] eta=512.3s q2=cpu_moderate sev=2A lat=0.298
+[t+331s] [healthy] eta=514.1s q2=cpu_moderate sev=2A lat=0.271
+[t+353s] [healthy] eta=529.3s q2=cpu_moderate sev=2A lat=0.259
+[t+374s] [healthy] eta=502.8s q2=cpu_moderate sev=2A lat=0.27
+[t+396s] [healthy] eta=484.4s q2=cpu_moderate sev=2A lat=0.248
+[t+418s] [healthy] eta=490.8s q2=normal sev=0 lat=0.276
+[t+439s] [healthy] eta=485.4s q2=normal sev=0 lat=0.251
+[t+461s] [healthy] eta=499.2s q2=cpu_moderate sev=2A lat=0.321
+[t+482s] [healthy] eta=506.2s q2=cpu_moderate sev=2A lat=0.294
+[t+504s] [healthy] eta=527.1s q2=cpu_moderate sev=2A lat=0.258
+[t+526s] [healthy] eta=480.4s q2=cpu_moderate sev=2A lat=0.26
+[t+548s] [healthy] eta=487.8s q2=cpu_moderate sev=2A lat=0.286
+[t+570s] [healthy] eta=484.2s q2=cpu_moderate sev=2A lat=0.331
+[t+592s] [healthy] eta=471.3s q2=normal sev=0 lat=0.305
+[t+614s] [healthy] eta=483.9s q2=normal sev=0 lat=0.244
+[t+635s] [healthy] eta=485.0s q2=normal sev=0 lat=0.289
+[t+657s] [healthy] eta=490.2s q2=normal sev=0 lat=0.277
+[t+679s] [healthy] eta=510.6s q2=normal sev=0 lat=0.266
+[t+701s] [healthy] eta=486.6s q2=normal sev=0 lat=0.27
+[t+723s] [healthy] eta=481.4s q2=cpu_moderate sev=2A lat=0.267
+[t+745s] [healthy] eta=512.0s q2=cpu_moderate sev=2A lat=0.329
+[t+767s] [healthy] eta=484.1s q2=cpu_moderate sev=2A lat=0.246
+[t+789s] [healthy] eta=475.7s q2=cpu_moderate sev=2A lat=0.248
+[t+811s] [healthy] eta=524.9s q2=cpu_moderate sev=2A lat=0.287
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+21s] [healthy] eta=485.5s q2=cpu_moderate sev=2A lat=0.286
+[t+44s] [healthy] eta=518.5s q2=cpu_moderate sev=2A lat=0.293
+[t+66s] [healthy] eta=538.3s q2=ce_sla_mild sev=6A lat=0.295
+[t+89s] [healthy] eta=546.1s q2=ce_sla_mild sev=6A lat=0.3
+[t+111s] [healthy] eta=544.1s q2=cpu_moderate sev=2A lat=0.305
+[t+132s] [healthy] eta=535.6s q2=cpu_moderate sev=2A lat=0.289
+[t+154s] [healthy] eta=512.4s q2=cpu_moderate sev=2A lat=0.367
+[t+176s] [healthy] eta=541.7s q2=cpu_moderate sev=2A lat=0.327
+[t+197s] [healthy] eta=550.3s q2=cpu_moderate sev=2A lat=0.326
+[t+218s] [healthy] eta=616.5s q2=cpu_moderate sev=2A lat=0.321
+[t+239s] [healthy] eta=544.1s q2=normal sev=0 lat=0.31
+[t+261s] [healthy] eta=544.4s q2=normal sev=0 lat=0.298
+[t+283s] [healthy] eta=546.5s q2=normal sev=0 lat=0.3
+[t+305s] [healthy] eta=545.3s q2=normal sev=0 lat=0.311
+[t+326s] [healthy] eta=544.0s q2=normal sev=0 lat=0.295
+[t+348s] [healthy] eta=539.7s q2=normal sev=0 lat=0.367
+[t+370s] [healthy] eta=542.1s q2=normal sev=0 lat=0.588
+[t+391s] [healthy] eta=541.5s q2=normal sev=0 lat=0.316
+[t+413s] [healthy] eta=545.4s q2=cpu_moderate sev=2A lat=0.334
+[t+434s] [healthy] eta=510.6s q2=ce_sla_mild sev=6A lat=0.485
+[t+456s] [healthy] eta=537.0s q2=ce_sla_mild sev=6A lat=0.308
+[t+477s] [healthy] eta=554.3s q2=ce_sla_mild sev=6A lat=0.311
+[t+499s] [healthy] eta=531.0s q2=normal sev=0 lat=0.349
+[t+520s] [healthy] eta=549.3s q2=normal sev=0 lat=0.304
+[t+542s] [healthy] eta=551.5s q2=normal sev=0 lat=0.288
+[t+563s] [healthy] eta=546.6s q2=cpu_moderate sev=2A lat=0.307
+[t+585s] [healthy] eta=546.6s q2=cpu_moderate sev=2A lat=0.312
+[t+606s] [healthy] eta=548.3s q2=cpu_moderate sev=2A lat=0.458
+[t+628s] [healthy] eta=548.9s q2=cpu_moderate sev=2A lat=0.294
+[t+649s] [healthy] eta=548.6s q2=ce_sla_mild sev=6A lat=0.588
+[t+671s] [healthy] eta=547.4s q2=cpu_moderate sev=2A lat=0.295
+[t+692s] [healthy] eta=551.8s q2=cpu_moderate sev=2A lat=0.296
+[t+714s] [healthy] eta=565.5s q2=cpu_moderate sev=2A lat=0.326
+[t+736s] [healthy] eta=600.1s q2=cpu_moderate sev=2A lat=0.432
+[t+757s] [healthy] eta=546.3s q2=cpu_moderate sev=2A lat=0.33
+[t+779s] [healthy] eta=592.6s q2=ce_sla_mild sev=6A lat=0.763
+[t+800s] [healthy] eta=599.8s q2=ce_sla_mild sev=6A lat=0.301
+[t+822s] [healthy] eta=555.2s q2=ce_sla_mild sev=6A lat=0.337
+[t+844s] [healthy] eta=543.4s q2=cpu_moderate sev=2A lat=0.308
+[t+865s] [healthy] eta=549.4s q2=ce_sla_mild sev=6A lat=0.343
+[t+887s] [healthy] eta=550.9s q2=ce_sla_mild sev=6A lat=0.414
+[t+908s] [healthy] eta=547.2s q2=normal sev=0 lat=0.321
+[t+930s] [healthy] eta=549.0s q2=normal sev=0 lat=0.325
+[t+951s] [healthy] eta=555.6s q2=cpu_moderate sev=2A lat=0.264
+[t+973s] [healthy] eta=546.1s q2=ce_sla_mild sev=6A lat=0.315
+[t+994s] [healthy] eta=548.7s q2=ce_sla_mild sev=6A lat=0.531
+[t+1015s] [healthy] eta=554.2s q2=ce_sla_mild sev=6A lat=0.303
+[t+1036s] [healthy] eta=544.0s q2=cpu_moderate sev=2A lat=0.39
+[t+1058s] [healthy] eta=547.0s q2=cpu_moderate sev=2A lat=0.316
+[t+1079s] [healthy] eta=544.8s q2=normal sev=0 lat=0.331
+[t+1100s] [healthy] eta=546.5s q2=normal sev=0 lat=0.335
+[t+1122s] [healthy] eta=545.1s q2=normal sev=0 lat=0.311
+[t+1143s] [healthy] eta=549.0s q2=ce_sla_mild sev=6A lat=0.312
+[t+1164s] [healthy] eta=546.3s q2=normal sev=0 lat=0.315
+[t+1186s] [healthy] eta=547.2s q2=normal sev=0 lat=0.344
+[t+1207s] [healthy] eta=550.4s q2=normal sev=0 lat=0.388
+[t+1229s] [healthy] eta=626.4s q2=normal sev=0 lat=0.317
+[t+1250s] [healthy] eta=571.5s q2=ce_sla_mild sev=6A lat=0.312
+[t+1272s] [healthy] eta=573.0s q2=ce_sla_mild sev=6A lat=0.358
+[t+1294s] [healthy] eta=555.6s q2=ce_sla_mild sev=6A lat=0.308
+[t+1316s] [healthy] eta=534.7s q2=ce_sla_mild sev=6A lat=0.314
+[t+1338s] [healthy] eta=550.8s q2=ce_sla_mild sev=6A lat=0.817
+[t+1360s] [healthy] eta=546.9s q2=ce_sla_mild sev=6A lat=0.383
+[t+1381s] [healthy] eta=551.6s q2=normal sev=0 lat=0.318
+[t+1403s] [healthy] eta=563.1s q2=normal sev=0 lat=0.389
+[t+1424s] [healthy] eta=584.0s q2=normal sev=0 lat=0.305
+[t+1446s] [healthy] eta=563.8s q2=normal sev=0 lat=0.346
+[t+1467s] [healthy] eta=548.6s q2=normal sev=0 lat=0.346
+[t+1488s] [healthy] eta=620.9s q2=normal sev=0 lat=0.418
+[t+1510s] [healthy] eta=545.7s q2=normal sev=0 lat=0.531
+[t+1532s] [healthy] eta=547.5s q2=normal sev=0 lat=0.319
+[t+1553s] [healthy] eta=549.8s q2=normal sev=0 lat=0.354
+[t+1574s] [healthy] eta=494.6s q2=ce_sla_mild sev=6A lat=0.337
+[t+1595s] [healthy] eta=556.5s q2=normal sev=0 lat=0.327
+[t+1617s] [healthy] eta=557.0s q2=normal sev=0 lat=0.334
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+21s] [healthy] eta=594.3s q2=cpu_moderate sev=2A lat=0.265
+[t+43s] [healthy] eta=557.5s q2=cpu_moderate sev=2A lat=0.281
+[t+64s] [healthy] eta=488.8s q2=normal sev=0 lat=8.254
+[t+85s] [healthy] eta=457.5s q2=cpu_moderate sev=2A lat=11.751
+[t+101s] Q1/Q2 oneshot fault=rain_fade sev=0 p=0.8048 eta_m=6.912 eta_s=414.73 match=False
+[t+107s] [healthy] eta=395.0s q2=cpu_moderate sev=2A lat=18.892
+[t+124s] Q1/Q2 oneshot fault=rain_fade sev=1B p=0.6452 eta_m=7.791 eta_s=467.45 match=True
+[t+126s] [yellow] eta=295.3s q2=physical_critical sev=1B lat=24.018 (advisory)
+[t+128s] [yellow] eta=280.1s q2=physical_critical sev=1B lat=24.854 (advisory)
+[t+130s] [yellow] eta=265.3s q2=physical_critical sev=1B lat=24.538 (advisory)
+[t+133s] [yellow] eta=261.7s q2=physical_critical sev=1B lat=24.989 (advisory)
+[t+135s] [yellow] eta=259.4s q2=physical_critical sev=1B lat=24.989 (advisory)
+[t+138s] [yellow] eta=265.2s q2=cpu_moderate sev=2A lat=26.784 (advisory)
+[t+140s] [yellow] eta=276.6s q2=cpu_moderate sev=2A lat=26.922 (advisory)
+[t+142s] [healthy] eta=335.3s q2=cpu_moderate sev=2A lat=27.399
+[t+147s] [yellow] eta=279.0s q2=cpu_moderate sev=2A lat=28.438 (advisory)
+[t+149s] [yellow] eta=227.5s q2=cpu_moderate sev=2A lat=26.978 (advisory)
+[t+151s] [yellow] eta=218.6s q2=cpu_moderate sev=2A lat=29.19 (advisory)
+[t+153s] [yellow] eta=224.7s q2=cpu_moderate sev=2A lat=31.847 (advisory)
+[t+155s] [yellow] eta=234.6s q2=cpu_moderate sev=2A lat=31.847 (advisory)
+[t+158s] [yellow] eta=232.4s q2=cpu_moderate sev=2A lat=32.454 (advisory)
+[t+160s] [yellow] eta=229.1s q2=cpu_moderate sev=2A lat=31.654 (advisory)
+[t+162s] [yellow] eta=226.8s q2=physical_breach sev=1C lat=31.165 (advisory)
+[t+164s] [yellow] eta=226.4s q2=physical_breach sev=1C lat=30.453 (advisory)
+[t+166s] [yellow] eta=266.1s q2=physical_breach sev=1C lat=30.413 (advisory)
+[t+168s] [yellow] eta=257.1s q2=physical_breach sev=1C lat=32.451 (advisory)
+[t+171s] [yellow] eta=250.6s q2=physical_breach sev=1C lat=32.478 (advisory)
+[t+173s] [yellow] eta=246.1s q2=physical_breach sev=1C lat=30.701 (advisory)
+[t+175s] [yellow] eta=243.8s q2=physical_breach sev=1C lat=30.681 (advisory)
+[t+177s] [yellow] eta=245.5s q2=physical_breach sev=1C lat=30.681 (advisory)
+[t+180s] [yellow] eta=247.8s q2=physical_breach sev=1C lat=29.513 (advisory)
+[t+182s] [yellow] eta=246.1s q2=physical_breach sev=1C lat=29.513 (advisory)
+[t+184s] [yellow] eta=246.2s q2=physical_breach sev=1C lat=30.684 (advisory)
+[t+186s] [yellow] eta=264.7s q2=physical_breach sev=1C lat=27.667 (advisory)
+[t+189s] [yellow] eta=263.7s q2=physical_breach sev=1C lat=31.775 (advisory)
+[t+191s] [yellow] eta=265.3s q2=physical_breach sev=1C lat=31.18 (advisory)
+[t+193s] [yellow] eta=269.9s q2=physical_breach sev=1C lat=29.91 (advisory)
+[t+195s] [yellow] eta=280.2s q2=physical_breach sev=1C lat=30.597 (advisory)
+[t+198s] [yellow] eta=285.8s q2=physical_breach sev=1C lat=30.833 (advisory)
+[t+200s] [yellow] eta=281.5s q2=physical_breach sev=1C lat=33.159 (advisory)
+[t+202s] [yellow] eta=277.4s q2=physical_breach sev=1C lat=33.159 (advisory)
+[t+205s] [yellow] eta=273.2s q2=physical_breach sev=1C lat=32.557 (advisory)
+[t+207s] [yellow] eta=274.9s q2=physical_breach sev=1C lat=31.24 (advisory)
+[t+209s] [yellow] eta=275.0s q2=physical_breach sev=1C lat=30.668 (advisory)
+[t+212s] [yellow] eta=280.2s q2=physical_breach sev=1C lat=29.854 (advisory)
+[t+214s] [yellow] eta=275.8s q2=physical_breach sev=1C lat=31.594 (advisory)
+[t+217s] [yellow] eta=278.5s q2=physical_breach sev=1C lat=30.366 (advisory)
+[t+219s] [yellow] eta=282.7s q2=physical_breach sev=1C lat=30.552 (advisory)
+[t+221s] [yellow] eta=285.8s q2=physical_breach sev=1C lat=30.56 (advisory)
+[t+223s] [yellow] eta=285.1s q2=physical_breach sev=1C lat=31.22 (advisory)
+[t+226s] [yellow] eta=283.5s q2=physical_breach sev=1C lat=32.103 (advisory)
+[t+228s] [yellow] eta=283.2s q2=physical_breach sev=1C lat=32.461 (advisory)
+[t+231s] [yellow] eta=285.7s q2=physical_breach sev=1C lat=31.709 (advisory)
+[t+233s] [yellow] eta=288.0s q2=physical_breach sev=1C lat=30.495 (advisory)
+[t+235s] [yellow] eta=286.2s q2=physical_breach sev=1C lat=31.93 (advisory)
+[t+237s] [yellow] eta=295.5s q2=physical_breach sev=1C lat=29.618 (advisory)
+[t+239s] [yellow] eta=294.2s q2=physical_breach sev=1C lat=31.877 (advisory)
+[t+242s] [yellow] eta=288.8s q2=physical_breach sev=1C lat=32.21 (advisory)
+[t+244s] [yellow] eta=286.1s q2=physical_breach sev=1C lat=31.777 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+1s] [yellow] eta=280.0s q2=physical_breach sev=1C lat=32.831 (advisory)
+[t+4s] [yellow] eta=277.2s q2=physical_breach sev=1C lat=32.264 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+6s] [yellow] eta=276.9s q2=physical_breach sev=1C lat=31.172 (advisory)
+[t+8s] [yellow] eta=277.1s q2=physical_breach sev=1C lat=31.981 (advisory)
+[t+10s] [yellow] eta=274.6s q2=physical_breach sev=1C lat=31.981 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+12s] [yellow] eta=268.6s q2=physical_breach sev=1C lat=31.752 (advisory)
+[t+15s] [yellow] eta=260.4s q2=physical_breach sev=1C lat=31.865 (advisory)
+[t+17s] [yellow] eta=256.7s q2=physical_breach sev=1C lat=31.097 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+19s] [yellow] eta=262.9s q2=physical_breach sev=1C lat=30.117 (advisory)
+[t+22s] [yellow] eta=261.0s q2=physical_breach sev=1C lat=32.323 (advisory)
+[t+24s] [yellow] eta=269.7s q2=physical_breach sev=1C lat=28.367 (advisory)
+[t+26s] [yellow] eta=261.9s q2=physical_breach sev=1C lat=32.311 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+28s] [yellow] eta=258.3s q2=physical_breach sev=1C lat=32.148 (advisory)
+[t+30s] [yellow] eta=253.5s q2=physical_breach sev=1C lat=32.343 (advisory)
+[t+33s] [yellow] eta=257.1s q2=physical_breach sev=1C lat=30.551 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+35s] [yellow] eta=259.4s q2=physical_breach sev=1C lat=31.191 (advisory)
+[t+37s] [yellow] eta=260.6s q2=physical_breach sev=1C lat=32.179 (advisory)
+[t+39s] [yellow] eta=249.3s q2=physical_breach sev=1C lat=32.52 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+41s] [yellow] eta=238.7s q2=physical_breach sev=1C lat=30.934 (advisory)
+[t+44s] [yellow] eta=235.5s q2=physical_breach sev=1C lat=30.466 (advisory)
+[t+46s] [yellow] eta=236.0s q2=physical_breach sev=1C lat=31.113 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+48s] [yellow] eta=237.1s q2=physical_breach sev=1C lat=30.919 (advisory)
+[t+50s] [yellow] eta=235.6s q2=physical_breach sev=1C lat=30.817 (advisory)
+[t+52s] [yellow] eta=235.9s q2=physical_breach sev=1C lat=30.459 (advisory)
+[t+54s] [yellow] eta=234.6s q2=physical_breach sev=1C lat=31.631 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+57s] [yellow] eta=232.5s q2=physical_breach sev=1C lat=30.388 (advisory)
+[t+59s] [yellow] eta=226.9s q2=physical_breach sev=1C lat=31.098 (advisory)
+[t+61s] [yellow] eta=218.9s q2=physical_breach sev=1C lat=31.627 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+63s] [yellow] eta=216.0s q2=physical_breach sev=1C lat=32.482 (advisory)
+[t+65s] [yellow] eta=222.7s q2=physical_breach sev=1C lat=31.441 (advisory)
+[t+68s] [yellow] eta=225.0s q2=physical_breach sev=1C lat=31.964 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+70s] [yellow] eta=226.8s q2=physical_breach sev=1C lat=32.272 (advisory)
+[t+72s] [yellow] eta=227.7s q2=physical_breach sev=1C lat=32.087 (advisory)
+[t+74s] [yellow] eta=236.0s q2=physical_breach sev=1C lat=30.933 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+76s] [yellow] eta=241.6s q2=physical_breach sev=1C lat=30.449 (advisory)
+[t+79s] [yellow] eta=251.5s q2=physical_breach sev=1C lat=29.699 (advisory)
+[t+81s] [yellow] eta=256.2s q2=physical_breach sev=1C lat=31.083 (advisory)
+[t+83s] [yellow] eta=254.4s q2=physical_breach sev=1C lat=31.973 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+85s] [yellow] eta=253.0s q2=physical_breach sev=1C lat=30.402 (advisory)
+[t+87s] [yellow] eta=247.3s q2=physical_breach sev=1C lat=31.761 (advisory)
+[t+90s] [yellow] eta=249.4s q2=physical_breach sev=1C lat=32.457 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+92s] [yellow] eta=254.6s q2=physical_breach sev=1C lat=31.441 (advisory)
+[t+94s] [yellow] eta=262.3s q2=physical_breach sev=1C lat=30.212 (advisory)
+[t+96s] [yellow] eta=261.4s q2=physical_breach sev=1C lat=31.162 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+98s] [yellow] eta=259.3s q2=physical_breach sev=1C lat=32.348 (advisory)
+[t+100s] [yellow] eta=269.0s q2=physical_breach sev=1C lat=30.924 (advisory)
+[t+102s] [yellow] eta=269.2s q2=physical_breach sev=1C lat=33.013 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+105s] [yellow] eta=274.0s q2=physical_breach sev=1C lat=32.118 (advisory)
+[t+107s] [yellow] eta=278.7s q2=physical_breach sev=1C lat=31.557 (advisory)
+[t+109s] [yellow] eta=281.0s q2=physical_breach sev=1C lat=31.368 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+111s] [yellow] eta=280.8s q2=physical_breach sev=1C lat=31.726 (advisory)
+[t+113s] [yellow] eta=279.6s q2=physical_breach sev=1C lat=32.645 (advisory)
+[t+115s] [yellow] eta=277.6s q2=physical_breach sev=1C lat=32.949 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+118s] [yellow] eta=282.1s q2=physical_breach sev=1C lat=31.043 (advisory)
+[t+120s] [yellow] eta=288.4s q2=physical_breach sev=1C lat=30.438 (advisory)
+[t+122s] [yellow] eta=290.3s q2=physical_breach sev=1C lat=31.818 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+124s] [yellow] eta=291.1s q2=physical_breach sev=1C lat=31.815 (advisory)
+[t+126s] [yellow] eta=291.4s q2=physical_breach sev=1C lat=31.275 (advisory)
+[t+128s] [yellow] eta=292.4s q2=physical_breach sev=1C lat=31.75 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+131s] [yellow] eta=294.1s q2=physical_breach sev=1C lat=31.078 (advisory)
+[t+133s] [yellow] eta=294.2s q2=physical_breach sev=1C lat=31.424 (advisory)
+[t+135s] [yellow] eta=297.3s q2=physical_breach sev=1C lat=31.009 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+137s] [yellow] eta=296.6s q2=physical_breach sev=1C lat=31.528 (advisory)
+[t+139s] [healthy] eta=300.4s q2=physical_breach sev=1C lat=29.982
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+144s] [yellow] eta=296.5s q2=physical_breach sev=1C lat=32.561 (advisory)
+[t+146s] [yellow] eta=299.4s q2=physical_breach sev=1C lat=29.927 (advisory)
+[t+148s] [healthy] eta=300.3s q2=physical_breach sev=1C lat=30.264
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+152s] [yellow] eta=297.6s q2=physical_breach sev=1C lat=30.802 (advisory)
+[t+155s] [healthy] eta=300.4s q2=physical_breach sev=1C lat=29.091
+[t+157s] [yellow] eta=289.6s q2=physical_breach sev=1C lat=32.533 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+159s] [yellow] eta=286.2s q2=physical_breach sev=1C lat=31.261 (advisory)
+[t+161s] [yellow] eta=281.1s q2=physical_breach sev=1C lat=30.886 (advisory)
+[t+163s] [yellow] eta=273.9s q2=physical_breach sev=1C lat=31.968 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+165s] [yellow] eta=269.9s q2=physical_breach sev=1C lat=31.933 (advisory)
+[t+168s] [yellow] eta=271.9s q2=physical_breach sev=1C lat=30.559 (advisory)
+[t+170s] [yellow] eta=272.5s q2=physical_breach sev=1C lat=31.055 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+172s] [yellow] eta=266.1s q2=physical_breach sev=1C lat=31.839 (advisory)
+[t+174s] [yellow] eta=256.5s q2=physical_breach sev=1C lat=31.668 (advisory)
+[t+176s] [yellow] eta=247.9s q2=physical_breach sev=1C lat=30.688 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+178s] [yellow] eta=240.9s q2=physical_breach sev=1C lat=32.067 (advisory)
+[t+180s] [yellow] eta=239.6s q2=physical_breach sev=1C lat=30.543 (advisory)
+[t+183s] [yellow] eta=239.2s q2=physical_breach sev=1C lat=31.1 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+185s] [yellow] eta=240.5s q2=physical_breach sev=1C lat=32.432 (advisory)
+[t+187s] [yellow] eta=243.3s q2=physical_breach sev=1C lat=31.596 (advisory)
+[t+189s] [yellow] eta=248.0s q2=physical_breach sev=1C lat=32.358 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+191s] [yellow] eta=253.0s q2=physical_breach sev=1C lat=31.775 (advisory)
+[t+193s] [yellow] eta=258.2s q2=physical_breach sev=1C lat=31.118 (advisory)
+[t+195s] [yellow] eta=256.9s q2=physical_breach sev=1C lat=32.121 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+198s] [yellow] eta=261.0s q2=physical_breach sev=1C lat=30.884 (advisory)
+[t+200s] [yellow] eta=265.9s q2=physical_breach sev=1C lat=31.46 (advisory)
+[t+202s] [yellow] eta=271.3s q2=physical_breach sev=1C lat=31.433 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+204s] [yellow] eta=274.8s q2=physical_breach sev=1C lat=32.373 (advisory)
+[t+206s] [yellow] eta=287.4s q2=physical_breach sev=1C lat=28.984 (advisory)
+[t+209s] [yellow] eta=283.7s q2=physical_breach sev=1C lat=32.09 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+211s] [yellow] eta=284.9s q2=physical_breach sev=1C lat=29.788 (advisory)
+[t+213s] [yellow] eta=287.4s q2=physical_breach sev=1C lat=30.691 (advisory)
+[t+215s] [yellow] eta=286.0s q2=physical_breach sev=1C lat=32.153 (advisory)
+[t+218s] [yellow] eta=287.8s q2=physical_breach sev=1C lat=31.498 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+220s] [yellow] eta=289.4s q2=physical_breach sev=1C lat=32.697 (advisory)
+[t+222s] [yellow] eta=294.6s q2=physical_breach sev=1C lat=31.229 (advisory)
+[t+225s] [yellow] eta=297.0s q2=physical_breach sev=1C lat=31.579 (advisory)
+[t+227s] [healthy] eta=301.9s q2=physical_breach sev=1C lat=30.091
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+236s] [healthy] eta=303.6s q2=physical_breach sev=1C lat=32.581
+[t+238s] [yellow] eta=299.5s q2=physical_breach sev=1C lat=32.347 (advisory)
+[t+240s] [yellow] eta=299.0s q2=physical_breach sev=1C lat=30.937 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+243s] [yellow] eta=296.8s q2=physical_breach sev=1C lat=30.937 (advisory)
+[t+245s] [yellow] eta=296.7s q2=physical_breach sev=1C lat=30.229 (advisory)
+[t+247s] [yellow] eta=298.5s q2=physical_breach sev=1C lat=30.119 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+249s] [healthy] eta=301.7s q2=physical_breach sev=1C lat=30.277
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+258s] [healthy] eta=425.6s q2=physical_breach sev=1C lat=0.319
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+280s] [healthy] eta=663.9s q2=cpu_moderate sev=2A lat=0.663
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+301s] [healthy] eta=736.8s q2=cpu_moderate sev=2A lat=0.302
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+323s] [healthy] eta=486.7s q2=cpu_moderate sev=2A lat=0.299
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+345s] [healthy] eta=503.1s q2=normal sev=0 lat=0.327
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+366s] [healthy] eta=551.0s q2=ce_sla_mild sev=6A lat=0.311
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+387s] [healthy] eta=551.2s q2=ce_sla_mild sev=6A lat=0.322
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+18s] [healthy] eta=547.2s q2=normal sev=0 lat=0.314
+[t+40s] [healthy] eta=547.1s q2=cpu_moderate sev=2A lat=0.271
+[t+62s] [healthy] eta=547.0s q2=ce_sla_mild sev=6A lat=0.296
+[t+83s] [healthy] eta=551.3s q2=ce_sla_mild sev=6A lat=0.406
+[t+104s] [healthy] eta=587.2s q2=ce_sla_mild sev=6A lat=0.317
+[t+126s] [healthy] eta=549.7s q2=cpu_moderate sev=2A lat=0.305
+[t+147s] [healthy] eta=620.7s q2=cpu_moderate sev=2A lat=0.322
+[t+169s] [healthy] eta=547.4s q2=cpu_moderate sev=2A lat=0.296
+[t+190s] [healthy] eta=548.8s q2=normal sev=0 lat=0.316
+[t+211s] [healthy] eta=551.9s q2=ce_sla_mild sev=6A lat=0.524
+[t+233s] [healthy] eta=559.0s q2=ce_sla_mild sev=6A lat=0.316
+[t+255s] [healthy] eta=527.5s q2=ce_sla_mild sev=6A lat=0.584
+[t+276s] [healthy] eta=550.7s q2=normal sev=0 lat=0.306
+[t+297s] [healthy] eta=550.6s q2=normal sev=0 lat=0.294
+[t+318s] [healthy] eta=553.0s q2=normal sev=0 lat=10.058
+[t+339s] [healthy] eta=458.4s q2=cpu_moderate sev=2A lat=12.534
+[t+360s] [healthy] eta=363.2s q2=physical_critical sev=1B lat=19.928
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+2s] [yellow] eta=283.3s q2=physical_breach sev=1C lat=23.109 (advisory)
+[t+4s] [healthy] eta=336.2s q2=physical_breach sev=1C lat=22.069
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+15s] [healthy] eta=505.1s q2=physical_breach sev=1C lat=0.312
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+37s] [healthy] eta=629.7s q2=physical_breach sev=1C lat=8.197
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+58s] [healthy] eta=682.2s q2=physical_breach sev=1C lat=14.701
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+76s] Q1/Q2 oneshot fault=rain_fade sev=0 p=0.3289 eta_m=8.977 eta_s=538.6 match=False
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+80s] [healthy] eta=374.4s q2=physical_critical sev=1B lat=20.048
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+99s] Q1/Q2 oneshot fault=rain_fade sev=1B p=0.8477 eta_m=7.376 eta_s=442.54 match=True
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+102s] [healthy] eta=323.0s q2=physical_critical sev=1B lat=24.158
+[t+104s] [yellow] eta=298.2s q2=physical_breach sev=1C lat=25.631 (advisory)
+[t+106s] [yellow] eta=283.1s q2=physical_breach sev=1C lat=23.763 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+108s] [yellow] eta=259.6s q2=physical_breach sev=1C lat=26.364 (advisory)
+[t+111s] [yellow] eta=257.8s q2=bgp_severe sev=3B lat=26.275 (advisory)
+[t+113s] [yellow] eta=246.9s q2=bgp_severe sev=3B lat=26.32 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+115s] [yellow] eta=249.9s q2=physical_breach sev=1C lat=29.164 (advisory)
+[t+117s] [yellow] eta=247.5s q2=physical_breach sev=1C lat=27.57 (advisory)
+[t+120s] [yellow] eta=251.1s q2=physical_breach sev=1C lat=28.932 (advisory)
+[t+122s] [yellow] eta=256.4s q2=physical_breach sev=1C lat=28.186 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+124s] [yellow] eta=266.4s q2=physical_breach sev=1C lat=29.808 (advisory)
+[t+127s] [yellow] eta=297.3s q2=physical_breach sev=1C lat=32.46 (advisory)
+[t+129s] [yellow] eta=298.5s q2=physical_breach sev=1C lat=32.46 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+131s] [healthy] eta=303.9s q2=physical_breach sev=1C lat=31.521
+[t+134s] [yellow] eta=288.4s q2=physical_breach sev=1C lat=33.671 (advisory)
+[t+136s] [yellow] eta=288.7s q2=physical_breach sev=1C lat=33.653 (advisory)
+[t+138s] [healthy] eta=301.9s q2=physical_breach sev=1C lat=33.017
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+141s] [yellow] eta=289.3s q2=physical_breach sev=1C lat=35.046 (advisory)
+[t+143s] [yellow] eta=273.7s q2=physical_breach sev=1C lat=35.779 (advisory)
+[t+145s] [yellow] eta=261.2s q2=physical_breach sev=1C lat=35.739 (advisory)
+[t+147s] [yellow] eta=249.2s q2=physical_breach sev=1C lat=36.147 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+150s] [yellow] eta=240.3s q2=physical_breach sev=1C lat=37.785 (advisory)
+[t+152s] [yellow] eta=225.4s q2=physical_breach sev=1C lat=39.775 (advisory)
+[t+154s] [yellow] eta=211.9s q2=physical_breach sev=1C lat=39.775 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+157s] [yellow] eta=202.1s q2=physical_breach sev=1C lat=39.953 (advisory)
+[t+159s] [yellow] eta=185.4s q2=physical_breach sev=1C lat=40.091 (advisory)
+[t+161s] [yellow] eta=181.9s q2=physical_breach sev=1C lat=37.314 (advisory)
+[t+163s] [yellow] eta=165.4s q2=physical_breach sev=1C lat=42.837 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+166s] [yellow] eta=147.5s q2=physical_breach sev=1C lat=40.454 (advisory)
+[t+168s] [yellow] eta=138.9s q2=physical_breach sev=1C lat=39.233 (advisory)
+[t+170s] [yellow] eta=140.5s q2=physical_breach sev=1C lat=40.226 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+173s] [yellow] eta=127.4s q2=physical_breach sev=1C lat=45.495 (advisory)
+[t+175s] [yellow] eta=127.2s q2=physical_breach sev=1C lat=42.979 (advisory)
+[t+177s] [yellow] eta=121.7s q2=physical_breach sev=1C lat=44.261 (advisory)
+[t+180s] [red] urgency=108.7s q2=physical_breach sev=1C (0.40) heads=latency lat=46.12 ALERT {'ok': True, 'alert_id': 208220, 'run_id': 'sim-live', 'title': 'Q1+Q2: physical_breach — SLA breach in ~108s', 'path': 'eth0', 'alert_class': 'tunnel_degra
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+182s] [red] eta=95.8s q2=physical_breach sev=1C lat=48.353 cooldown 57s
+[t+185s] [red] eta=86.9s q2=physical_breach sev=1C lat=47.789 cooldown 55s
+[t+187s] [red] eta=81.6s q2=physical_breach sev=1C lat=47.067 cooldown 52s
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+189s] [red] eta=68.7s q2=physical_breach sev=1C lat=47.857 cooldown 50s
+[t+192s] [red] eta=60.5s q2=physical_breach sev=1C lat=50.44 cooldown 48s
+[t+194s] [red] eta=62.3s q2=physical_breach sev=1C lat=49.001 cooldown 45s
+[t+196s] [red] eta=58.1s q2=physical_breach sev=1C lat=50.86 cooldown 43s
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+198s] [red] eta=51.8s q2=physical_breach sev=1C lat=50.406 cooldown 41s
+[t+201s] [red] eta=46.9s q2=physical_breach sev=1C lat=49.286 cooldown 38s
+[t+203s] [red] eta=43.6s q2=physical_breach sev=1C lat=50.222 cooldown 36s
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+206s] [red] eta=41.3s q2=physical_breach sev=1C lat=51.783 cooldown 34s
+[t+208s] [red] eta=39.0s q2=physical_breach sev=1C lat=52.56 cooldown 31s
+[t+210s] [red] eta=38.2s q2=physical_breach sev=1C lat=51.882 cooldown 29s
+[t+212s] [red] eta=36.7s q2=physical_breach sev=1C lat=55.669 cooldown 27s
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+215s] [red] eta=33.5s q2=physical_breach sev=1C lat=54.237 cooldown 25s
+[t+217s] [red] eta=33.0s q2=physical_breach sev=1C lat=54.917 cooldown 22s
+[t+219s] [red] eta=32.4s q2=physical_breach sev=1C lat=54.917 cooldown 20s
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+221s] [red] eta=34.3s q2=physical_breach sev=1C lat=55.772 cooldown 18s
+[t+224s] [red] eta=34.4s q2=physical_breach sev=1C lat=57.177 cooldown 15s
+[t+226s] [red] eta=30.7s q2=physical_breach sev=1C lat=55.437 cooldown 13s
+[t+228s] [red] eta=33.5s q2=physical_breach sev=1C lat=54.686 cooldown 11s
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+231s] [red] eta=30.9s q2=physical_breach sev=1C lat=55.461 cooldown 8s
+[t+233s] [red] eta=37.0s q2=physical_breach sev=1C lat=55.528 cooldown 6s
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+235s] [red] eta=34.5s q2=physical_breach sev=1C lat=54.062 cooldown 4s
+[t+237s] [red] eta=34.8s q2=physical_breach sev=1C lat=55.644 cooldown 2s
+[t+240s] [red] urgency=30.9s q2=physical_breach sev=1C (0.40) heads=latency lat=56.146 ALERT {'ok': True, 'alert_id': 208221, 'run_id': 'sim-live', 'title': 'Q1+Q2: physical_breach — SLA breach in ~30s', 'path': 'eth0', 'alert_class': 'tunnel_degrad
+[t+243s] [yellow] eta=110.8s q2=cpu_moderate sev=2A lat=0.284 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+245s] [healthy] eta=181.5s q2=cpu_moderate sev=2A lat=0.299
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+264s] [healthy] eta=451.9s q2=cpu_moderate sev=2A lat=0.284
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+13s] [healthy] eta=512.1s q2=cpu_moderate sev=2A lat=0.27
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+17s] [healthy] eta=538.8s q2=cpu_moderate sev=2A lat=0.28
+[t+75s] [healthy] eta=495.6s q2=cpu_moderate sev=2A lat=0.28
+[t+102s] [healthy] eta=530.8s q2=cpu_moderate sev=2A lat=0.264
+[t+123s] [healthy] eta=484.4s q2=cpu_moderate sev=2A lat=0.282
+[t+145s] [healthy] eta=512.9s q2=cpu_moderate sev=2A lat=0.292
+[t+166s] [healthy] eta=532.2s q2=cpu_moderate sev=2A lat=0.28
+[t+188s] [healthy] eta=536.7s q2=cpu_moderate sev=2A lat=0.262
+[t+210s] [healthy] eta=531.1s q2=cpu_moderate sev=2A lat=0.254
+[t+232s] [healthy] eta=522.9s q2=cpu_moderate sev=2A lat=0.278
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+19s] [healthy] eta=534.2s q2=cpu_moderate sev=2A lat=0.276
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+41s] [healthy] eta=530.7s q2=cpu_moderate sev=2A lat=0.273
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+64s] [healthy] eta=503.0s q2=cpu_moderate sev=2A lat=0.244
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+88s] [healthy] eta=521.2s q2=cpu_moderate sev=2A lat=0.306
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+111s] [healthy] eta=539.6s q2=cpu_moderate sev=2A lat=0.274
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+134s] [healthy] eta=538.3s q2=cpu_moderate sev=2A lat=0.395
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+157s] [healthy] eta=531.2s q2=cpu_moderate sev=2A lat=0.286
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+179s] [healthy] eta=503.4s q2=cpu_moderate sev=2A lat=0.354
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+201s] [healthy] eta=504.0s q2=cpu_moderate sev=2A lat=0.262
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+223s] [healthy] eta=483.4s q2=cpu_moderate sev=2A lat=0.272
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+245s] [healthy] eta=515.8s q2=normal sev=0 lat=0.275
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+266s] [healthy] eta=515.6s q2=normal sev=0 lat=0.287
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+288s] [healthy] eta=515.5s q2=normal sev=0 lat=0.261
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+310s] [healthy] eta=521.9s q2=normal sev=0 lat=0.253
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+332s] [healthy] eta=514.4s q2=cpu_moderate sev=2A lat=0.3
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+353s] [healthy] eta=523.0s q2=cpu_moderate sev=2A lat=0.316
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+375s] [healthy] eta=499.9s q2=cpu_moderate sev=2A lat=0.272
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+397s] [healthy] eta=527.9s q2=cpu_moderate sev=2A lat=0.283
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+418s] [healthy] eta=547.2s q2=cpu_moderate sev=2A lat=0.308
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+440s] [healthy] eta=540.8s q2=cpu_moderate sev=2A lat=0.289
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+461s] [healthy] eta=532.6s q2=cpu_moderate sev=2A lat=0.257
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+482s] [healthy] eta=529.3s q2=cpu_moderate sev=2A lat=0.265
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+504s] [healthy] eta=540.3s q2=cpu_moderate sev=2A lat=0.269
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+525s] [healthy] eta=515.5s q2=cpu_moderate sev=2A lat=0.283
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+547s] [healthy] eta=514.8s q2=cpu_moderate sev=2A lat=0.293
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+18s] [healthy] eta=510.6s q2=cpu_moderate sev=2A lat=0.266
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+36s] Q1/Q2 oneshot fault=rain_fade sev=0 p=0.9284 eta_m=8.726 eta_s=523.55 match=False
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+40s] [healthy] eta=510.1s q2=cpu_moderate sev=2A lat=10.716
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+63s] [healthy] eta=475.5s q2=cpu_moderate sev=2A lat=15.176
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+86s] [healthy] eta=382.9s q2=physical_critical sev=1B lat=24.424
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+102s] [yellow] eta=285.3s q2=cpu_moderate sev=2A lat=25.95 (advisory)
+[t+104s] [yellow] eta=289.2s q2=cpu_moderate sev=2A lat=25.657 (advisory)
+[t+107s] [yellow] eta=291.7s q2=cpu_moderate sev=2A lat=25.657 (advisory)
+[t+109s] [yellow] eta=288.2s q2=cpu_moderate sev=2A lat=26.329 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+111s] [yellow] eta=297.0s q2=cpu_moderate sev=2A lat=28.031 (advisory)
+[t+114s] [yellow] eta=276.8s q2=cpu_moderate sev=2A lat=29.131 (advisory)
+[t+116s] [yellow] eta=279.6s q2=cpu_moderate sev=2A lat=29.02 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+119s] [yellow] eta=292.6s q2=cpu_moderate sev=2A lat=31.002 (advisory)
+[t+121s] [yellow] eta=298.7s q2=cpu_moderate sev=2A lat=32.863 (advisory)
+[t+123s] [yellow] eta=279.0s q2=cpu_moderate sev=2A lat=30.8 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+126s] [yellow] eta=245.5s q2=cpu_moderate sev=2A lat=33.834 (advisory)
+[t+128s] [yellow] eta=225.7s q2=cpu_moderate sev=2A lat=31.998 (advisory)
+[t+130s] [yellow] eta=223.6s q2=cpu_moderate sev=2A lat=33.992 (advisory)
+[t+132s] [yellow] eta=230.5s q2=cpu_moderate sev=2A lat=33.592 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+134s] [yellow] eta=197.7s q2=cpu_moderate sev=2A lat=36.263 (advisory)
+[t+136s] [yellow] eta=202.2s q2=cpu_moderate sev=2A lat=36.046 (advisory)
+[t+139s] [yellow] eta=181.4s q2=cpu_moderate sev=2A lat=35.802 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+141s] [yellow] eta=202.6s q2=cpu_moderate sev=2A lat=36.89 (advisory)
+[t+143s] [yellow] eta=186.7s q2=cpu_moderate sev=2A lat=36.63 (advisory)
+[t+146s] [yellow] eta=159.7s q2=cpu_moderate sev=2A lat=38.487 (advisory)
+[t+148s] [yellow] eta=143.7s q2=cpu_moderate sev=2A lat=36.671 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+150s] [yellow] eta=139.9s q2=cpu_moderate sev=2A lat=38.403 (advisory)
+[t+153s] [yellow] eta=135.7s q2=cpu_moderate sev=2A lat=38.319 (advisory)
+[t+155s] [yellow] eta=136.5s q2=cpu_moderate sev=2A lat=38.298 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+157s] [yellow] eta=124.5s q2=cpu_moderate sev=2A lat=42.379 (advisory)
+[t+159s] [yellow] eta=134.9s q2=cpu_moderate sev=2A lat=41.569 (advisory)
+[t+161s] [yellow] eta=125.9s q2=cpu_moderate sev=2A lat=40.244 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+164s] [yellow] eta=130.1s q2=cpu_moderate sev=2A lat=41.571 (advisory)
+[t+166s] [yellow] eta=123.3s q2=cpu_moderate sev=2A lat=43.184 (advisory)
+[t+168s] [yellow] eta=121.0s q2=cpu_moderate sev=2A lat=44.879 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+170s] [yellow] eta=116.3s q2=cpu_moderate sev=2A lat=44.025 (advisory)
+[t+173s] [yellow] eta=113.2s q2=cpu_moderate sev=2A lat=44.434 (advisory)
+[t+175s] [yellow] eta=111.5s q2=cpu_moderate sev=2A lat=45.755 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+177s] [yellow] eta=101.2s q2=cpu_moderate sev=2A lat=47.225 (advisory)
+[t+179s] [yellow] eta=90.1s q2=cpu_moderate sev=2A lat=46.008 (advisory)
+[t+182s] [yellow] eta=75.5s q2=cpu_moderate sev=2A lat=48.93 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+184s] [yellow] eta=72.5s q2=cpu_moderate sev=2A lat=45.845 (advisory)
+[t+186s] [yellow] eta=69.5s q2=cpu_moderate sev=2A lat=47.377 (advisory)
+[t+189s] [red] urgency=66.4s q2=physical_breach sev=1C (0.40) heads=latency lat=45.511 ALERT {'ok': True, 'alert_id': 208223, 'run_id': 'sim-live', 'title': 'Q1+Q2: physical_breach — SLA breach in ~66s', 'path': 'eth0', 'alert_class': 'tunnel_degrad
+[t+191s] [red] eta=57.7s q2=physical_breach sev=1C lat=50.07 cooldown 57s
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+193s] [red] eta=52.9s q2=physical_breach sev=1C lat=49.903 cooldown 55s
+[t+195s] [red] eta=47.2s q2=physical_breach sev=1C lat=50.409 cooldown 53s
+[t+198s] [red] eta=42.7s q2=physical_breach sev=1C lat=52.795 cooldown 50s
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+200s] [red] eta=35.2s q2=physical_breach sev=1C lat=52.492 cooldown 48s
+[t+202s] [red] eta=34.6s q2=physical_breach sev=1C lat=52.268 cooldown 46s
+[t+204s] [red] eta=32.7s q2=physical_breach sev=1C lat=52.268 cooldown 44s
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+207s] [red] eta=34.8s q2=physical_breach sev=1C lat=56.166 cooldown 41s
+[t+209s] [red] eta=33.2s q2=physical_breach sev=1C lat=55.239 cooldown 39s
+[t+211s] [yellow] eta=30.0s q2=cpu_moderate sev=2A lat=56.431 (advisory)
+[t+213s] [yellow] eta=38.8s q2=cpu_moderate sev=2A lat=56.068 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+215s] [yellow] eta=33.6s q2=cpu_moderate sev=2A lat=55.298 (advisory)
+[t+218s] [yellow] eta=34.0s q2=cpu_moderate sev=2A lat=53.665 (advisory)
+[t+220s] [yellow] eta=34.8s q2=cpu_moderate sev=2A lat=57.486 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+222s] [yellow] eta=37.9s q2=cpu_moderate sev=2A lat=53.993 (advisory)
+[t+224s] [yellow] eta=31.6s q2=cpu_moderate sev=2A lat=54.165 (advisory)
+[t+227s] [yellow] eta=34.6s q2=cpu_moderate sev=2A lat=54.366 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+229s] [yellow] eta=32.4s q2=cpu_moderate sev=2A lat=54.366 (advisory)
+[t+231s] [yellow] eta=36.2s q2=cpu_moderate sev=2A lat=54.76 (advisory)
+[t+233s] [yellow] eta=35.7s q2=cpu_moderate sev=2A lat=54.915 (advisory)
+[t+236s] [yellow] eta=32.2s q2=cpu_moderate sev=2A lat=56.17 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+238s] [yellow] eta=33.5s q2=cpu_moderate sev=2A lat=54.472 (advisory)
+[t+240s] [yellow] eta=31.8s q2=cpu_moderate sev=2A lat=55.287 (advisory)
+[t+243s] [yellow] eta=34.1s q2=cpu_moderate sev=2A lat=56.219 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+245s] [yellow] eta=31.1s q2=cpu_moderate sev=2A lat=54.6 (advisory)
+[t+247s] [yellow] eta=32.8s q2=cpu_moderate sev=2A lat=54.869 (advisory)
+[t+250s] [yellow] eta=33.1s q2=cpu_moderate sev=2A lat=54.6 (advisory)
+[t+252s] [yellow] eta=28.4s q2=cpu_moderate sev=2A lat=55.91 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+254s] [yellow] eta=38.8s q2=cpu_moderate sev=2A lat=55.165 (advisory)
+[t+256s] [yellow] eta=35.6s q2=cpu_moderate sev=2A lat=55.542 (advisory)
+[t+259s] [yellow] eta=34.8s q2=cpu_moderate sev=2A lat=53.232 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+261s] [yellow] eta=37.0s q2=cpu_moderate sev=2A lat=53.232 (advisory)
+[t+263s] [yellow] eta=35.0s q2=cpu_moderate sev=2A lat=57.355 (advisory)
+[t+266s] [yellow] eta=32.9s q2=cpu_moderate sev=2A lat=53.601 (advisory)
+[t+268s] [yellow] eta=35.5s q2=cpu_moderate sev=2A lat=54.407 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+270s] [yellow] eta=34.4s q2=cpu_moderate sev=2A lat=55.662 (advisory)
+[t+272s] [yellow] eta=36.3s q2=cpu_moderate sev=2A lat=55.077 (advisory)
+[t+275s] [yellow] eta=33.4s q2=cpu_moderate sev=2A lat=54.359 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+277s] [yellow] eta=34.0s q2=cpu_moderate sev=2A lat=54.359 (advisory)
+[t+279s] [yellow] eta=32.2s q2=cpu_moderate sev=2A lat=54.991 (advisory)
+[t+281s] [yellow] eta=36.7s q2=cpu_moderate sev=2A lat=56.806 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+284s] [yellow] eta=34.4s q2=cpu_moderate sev=2A lat=56.806 (advisory)
+[t+286s] [yellow] eta=32.5s q2=cpu_moderate sev=2A lat=56.063 (advisory)
+[t+288s] [yellow] eta=35.2s q2=cpu_moderate sev=2A lat=53.941 (advisory)
+[t+290s] [yellow] eta=32.3s q2=cpu_moderate sev=2A lat=56.044 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+293s] [yellow] eta=36.0s q2=cpu_moderate sev=2A lat=55.768 (advisory)
+[t+295s] [yellow] eta=32.6s q2=cpu_moderate sev=2A lat=54.044 (advisory)
+[t+297s] [yellow] eta=34.9s q2=cpu_moderate sev=2A lat=55.361 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+299s] [yellow] eta=34.8s q2=cpu_moderate sev=2A lat=55.361 (advisory)
+[t+302s] [yellow] eta=35.4s q2=cpu_moderate sev=2A lat=54.715 (advisory)
+[t+304s] [yellow] eta=34.6s q2=cpu_moderate sev=2A lat=54.715 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+306s] [yellow] eta=33.4s q2=cpu_moderate sev=2A lat=53.586 (advisory)
+[t+308s] [yellow] eta=35.0s q2=cpu_moderate sev=2A lat=55.718 (advisory)
+[t+310s] [yellow] eta=35.2s q2=cpu_moderate sev=2A lat=55.149 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+313s] [yellow] eta=35.4s q2=cpu_moderate sev=2A lat=53.461 (advisory)
+[t+315s] [yellow] eta=31.8s q2=cpu_moderate sev=2A lat=53.523 (advisory)
+[t+317s] [yellow] eta=31.3s q2=cpu_moderate sev=2A lat=54.997 (advisory)
+[t+319s] [yellow] eta=33.4s q2=cpu_moderate sev=2A lat=55.398 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+322s] [yellow] eta=35.2s q2=cpu_moderate sev=2A lat=55.627 (advisory)
+[t+324s] [yellow] eta=33.8s q2=cpu_moderate sev=2A lat=55.627 (advisory)
+[t+326s] [yellow] eta=30.7s q2=cpu_moderate sev=2A lat=55.457 (advisory)
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+328s] [yellow] eta=89.4s q2=cpu_moderate sev=2A lat=0.303 (advisory)
+[t+330s] [healthy] eta=121.2s q2=cpu_moderate sev=2A lat=0.309
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+335s] [healthy] eta=163.0s q2=cpu_severe sev=2B lat=0.325
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+16s] [healthy] eta=578.8s q2=cpu_severe sev=2B lat=0.303
+[t+37s] [healthy] eta=745.4s q2=cpu_severe sev=2B lat=0.286
+[t+59s] [healthy] eta=537.5s q2=cpu_severe sev=2B lat=0.271
+[t+80s] [healthy] eta=496.6s q2=cpu_moderate sev=2A lat=0.281
+[t+101s] [healthy] eta=513.3s q2=cpu_moderate sev=2A lat=0.276
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live
+[t+0s] pipeline feed ready — waiting for infer_q1_q2_live

@@ -60,15 +60,12 @@ _state: dict[str, Any] = {
 }
 
 
-# Mentor-facing catalog — keep short (~60–90s) so jury can click several.
+# Mentor-facing catalog — same shapes as CLI inject commands used in demos.
 FAULTS: dict[str, dict[str, Any]] = {
-    # Slow ramps match docs/shared_fault_book.json *protocol* shapes (LSTM TTI
-    # training). Fast demo shortcuts blow past SLA in one step and collapse ETA.
-    # After the climb, --hold-sec keeps the fault live for Approve.
     "rain_fade": {
         "label": "Rain fade",
         "blurb": "Slows the primary satellite path (like weather fade)",
-        # Protocol-like: ~3–4 ms / 8 s toward 55 ms (crosses 25 ms ~t+70s).
+        # Ramp 5→55 ms over ~192s, then hold 120s (mentor demo shape).
         "inject": [
             "bash",
             "scripts/inject_rain_fade.sh",
@@ -88,16 +85,14 @@ FAULTS: dict[str, dict[str, Any]] = {
             "120",
         ],
         "clear": ["bash", "scripts/inject_rain_fade.sh", "--clear", "--host", HOST],
-        "seed_delay_s": 35,  # still climbing; ~30–40s of LSTM ETA left to 25 ms
+        "seed_delay_s": 12,  # first model poll quickly; Prom history fills LSTM window
         "jury_hold_s": 120,
         "inject_duration_s": 312,  # 24*8 + 120
-        # Inject-only context (path / attribution). Scores come from Q1/Q2 only.
         "seed_context": {"path": "eth0"},
     },
     "cpu_stress": {
         "label": "CPU / crypto stress",
         "blurb": "Overloads the router so encrypted traffic struggles",
-        # Flat plateau (protocol 90s) — give LSTM / Q2 time, then Approve window.
         "inject": [
             "bash",
             "scripts/inject_cpu_stress.sh",
@@ -107,7 +102,7 @@ FAULTS: dict[str, dict[str, Any]] = {
             "180",
         ],
         "clear": ["bash", "scripts/inject_cpu_stress.sh", "--clear", "--host", HOST],
-        "seed_delay_s": 30,
+        "seed_delay_s": 12,
         "jury_hold_s": 120,
         "inject_duration_s": 180,
         "seed_context": {"path": "eth0"},
@@ -115,7 +110,6 @@ FAULTS: dict[str, dict[str, Any]] = {
     "bgp_flap": {
         "label": "BGP flap",
         "blurb": "Shakes the routing table — paths keep flipping",
-        # Protocol 18×5s; slightly slower period so flap rate stays model-shaped.
         "inject": [
             "bash",
             "scripts/inject_bgp_flap.sh",
@@ -129,7 +123,7 @@ FAULTS: dict[str, dict[str, Any]] = {
             "120",
         ],
         "clear": ["bash", "scripts/inject_bgp_flap.sh", "--clear", "--host", HOST],
-        "seed_delay_s": 24,
+        "seed_delay_s": 10,
         "jury_hold_s": 120,
         "inject_duration_s": 228,  # 18*6 + 120
         "seed_context": {"path": "eth0"},
@@ -137,7 +131,6 @@ FAULTS: dict[str, dict[str, Any]] = {
     "ce_sla_conflict": {
         "label": "CE SLA conflict",
         "blurb": "Lower-priority site crowds out a critical mission site",
-        # Slow util climb (L5-style steps) then hold for Approve.
         "inject": [
             "bash",
             "scripts/inject_ce_sla_conflict.sh",
@@ -162,7 +155,7 @@ FAULTS: dict[str, dict[str, Any]] = {
             "--host",
             HOST,
         ],
-        "seed_delay_s": 45,
+        "seed_delay_s": 18,
         "jury_hold_s": 120,
         "inject_duration_s": 240,  # 6*20 + 120
         "seed_context": {
@@ -181,7 +174,6 @@ FAULTS: dict[str, dict[str, Any]] = {
     "loss_progression": {
         "label": "Loss ramp",
         "blurb": "Packet loss climbs on the primary path",
-        # Protocol 24×5 toward 3.5%; slower step so loss-TTI LSTM keeps lead time.
         "inject": [
             "bash",
             "scripts/inject_loss_progression.sh",
@@ -205,7 +197,7 @@ FAULTS: dict[str, dict[str, Any]] = {
             "--host",
             HOST,
         ],
-        "seed_delay_s": 50,  # before Payload 2% (~t+105s)
+        "seed_delay_s": 15,
         "jury_hold_s": 120,
         "inject_duration_s": 312,  # 24*8 + 120
         "seed_context": {"path": "eth0"},
@@ -697,6 +689,21 @@ def _try_model_seed(fault_id: str) -> dict[str, Any] | None:
         _write_status()
 
     detection = model_detect.detect_live(fault_id=fault_id)
+    try:
+        import pipeline_feed
+
+        if detection.get("ok"):
+            pipeline_feed.log_inference(
+                f"Q1/Q2 oneshot fault={fault_id} sev={detection.get('severity')} "
+                f"p={detection.get('q2_confidence')} eta_m={detection.get('eta_minutes')} "
+                f"eta_s={detection.get('eta_seconds')} match={detection.get('matches_demo_fault')}"
+            )
+        else:
+            pipeline_feed.log_inference(
+                f"Q1/Q2 oneshot fail fault={fault_id} err={detection.get('error')}"
+            )
+    except Exception:  # noqa: BLE001
+        pass
     body = model_detect.build_seed_from_detection(
         detection,
         fault_id=fault_id,
@@ -771,7 +778,8 @@ def _watcher_thread_func(fault_id: str, delay: float, _seed: dict[str, Any] | No
         meta.get("inject_duration_s")
         or (float(meta.get("seed_delay_s") or 30) + float(meta.get("jury_hold_s") or 120))
     )
-    poll_s = float(os.environ.get("DECA_MODEL_SEED_POLL_S", "18"))
+    # Fast recheck — each oneshot is ~1–3s with Prom history.
+    poll_s = float(os.environ.get("DECA_MODEL_SEED_POLL_S", "3"))
     attempt = 0
 
     while _watcher_still_active(fault_id) and time.time() < deadline:
@@ -862,6 +870,174 @@ def _watcher_thread_func(fault_id: str, delay: float, _seed: dict[str, Any] | No
             pass
 
 
+def attach_cli(
+    fault_id: str,
+    *,
+    started_by: str = "cli",
+    duration_s: float | None = None,
+    seed_delay_s: float | None = None,
+    cmd_summary: str = "",
+) -> dict[str, Any]:
+    """Register a laptop CLI inject without spawning the script (script already running).
+
+    Starts the same Q1/Q2 Decide watcher + pipeline Inject feed used by dashboard start,
+    so ``deca_watch.sh`` and NOC terminal tabs light up from mentor CLI commands.
+    """
+    global _proc, _watcher, _recover_token
+    if fault_id not in FAULTS:
+        return {"ok": False, "error": f"unknown fault_id={fault_id}", "catalog": catalog()}
+    meta = FAULTS[fault_id]
+    with _lock:
+        if _proc is not None and _proc.poll() is None:
+            return {
+                "ok": False,
+                "error": f"fault already running via dashboard: {_state.get('fault_id')}",
+                "status": status(),
+            }
+        # Idempotent: laptop re-attach / same fault already live.
+        if (
+            _state.get("running")
+            and _state.get("fault_id") == fault_id
+            and _state.get("phase") in ("injecting", "seeded")
+        ):
+            return {"ok": True, "already": True, "source": _state.get("source"), "status": status()}
+        if (
+            _state.get("running")
+            and _state.get("source") == "cli"
+            and _state.get("fault_id")
+            and _state.get("fault_id") != fault_id
+            and _state.get("phase") in ("injecting", "seeded")
+        ):
+            return {
+                "ok": False,
+                "error": f"cli fault already attached: {_state.get('fault_id')}",
+                "status": status(),
+            }
+        _recover_token += 1
+
+    _resolve_preemption_alerts("superseded_by_new_fault")
+    delay = float(
+        seed_delay_s
+        if seed_delay_s is not None
+        else (meta.get("seed_delay_s") or 30)
+    )
+    dur = float(duration_s) if duration_s is not None and duration_s > 0 else float(
+        meta.get("inject_duration_s") or (delay + float(meta.get("jury_hold_s") or 120))
+    )
+    summary = (cmd_summary or "").strip() or f"cli {fault_id}"
+    log_lines = [f"cli-attach {fault_id} by {started_by}: {summary}"]
+    try:
+        import pipeline_feed
+
+        pipeline_feed.log_inject(
+            f"CLI inject {fault_id} ({meta['label']}) — {summary}"
+        )
+        pipeline_feed.log_decide(
+            f"watching CLI {fault_id} for Q1/Q2 raise (first poll ~{int(delay)}s)"
+        )
+    except Exception:  # noqa: BLE001
+        pass
+
+    with _lock:
+        _proc = None  # physics owned by laptop SSH, not orchestrator Popen
+        _state.update(
+            {
+                "running": True,
+                "fault_id": fault_id,
+                "fabric": fabric_mod.get_active(),
+                "label": meta["label"],
+                "phase": "injecting",
+                "source": "cli",
+                "message": (
+                    f"CLI injecting {meta['label']}… "
+                    "Decide appears when Q1/Q2 scores fire; Approve on hold"
+                ),
+                "started_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "started_by": started_by,
+                "seeded_alert": None,
+                "log_tail": log_lines[-20:],
+                "pid": None,
+                "cli_duration_s": dur,
+                "cmd_summary": summary,
+            }
+        )
+        _write_status()
+
+    t = threading.Thread(
+        target=_watcher_thread_func,
+        args=(fault_id, delay, dict(meta.get("seed_context") or {})),
+        daemon=True,
+        name=f"fault-cli-seed-{fault_id}",
+    )
+    _watcher = t
+    t.start()
+    _schedule_hard_deadline(fault_id, dur + 60.0)
+    return {"ok": True, "fault_id": fault_id, "source": "cli", "status": status()}
+
+
+def log_cli(line: str, *, fault_id: str | None = None) -> dict[str, Any]:
+    """Append one inject line from CLI → status log_tail + pipeline Inject tab."""
+    text = (line or "").rstrip()
+    if not text:
+        return {"ok": True, "skipped": True}
+    with _lock:
+        if fault_id and _state.get("fault_id") and fault_id != _state.get("fault_id"):
+            return {"ok": False, "error": "fault_id mismatch"}
+        tail = list(_state.get("log_tail") or [])
+        tail.append(text)
+        _state["log_tail"] = tail[-40:]
+        _write_status()
+    try:
+        import pipeline_feed
+
+        pipeline_feed.log_inject(text)
+    except Exception:  # noqa: BLE001
+        pass
+    return {"ok": True}
+
+
+def end_cli(
+    fault_id: str = "",
+    *,
+    reason: str = "cli_hold_done",
+) -> dict[str, Any]:
+    """CLI inject finished (hold done / Ctrl+C / --clear)."""
+    with _lock:
+        fid = fault_id or _state.get("fault_id")
+        if not fid:
+            return {"ok": True, "status": status()}
+        if _state.get("fault_id") and fault_id and _state.get("fault_id") != fault_id:
+            return {"ok": False, "error": "fault_id mismatch", "status": status()}
+        source = _state.get("source")
+        phase = _state.get("phase")
+        label = _state.get("label") or fid
+
+    if reason in ("cli_clear", "cli_interrupted", "operator_clear"):
+        # Physics already cleared by script; settle UI like operator clear.
+        return clear(reason="operator_clear" if reason != "cli_interrupted" else "auto_collapse")
+
+    # Hold / ramp finished — keep Decide open briefly (same as dashboard reap).
+    should_recover = False
+    with _lock:
+        if _state.get("fault_id") == fid and source == "cli":
+            _state["running"] = False
+            if phase not in ("steered", "healthy", "recovering"):
+                _state["message"] = (
+                    f"{label} plateau done — Approve now, or auto-heal shortly"
+                )
+                should_recover = True
+            _write_status()
+    try:
+        import pipeline_feed
+
+        pipeline_feed.log_inject(f"CLI inject/hold finished: {fid} ({reason})")
+    except Exception:  # noqa: BLE001
+        pass
+    if should_recover and fid:
+        _schedule_auto_recover(str(fid), grace_s=_jury_grace_s(str(fid)))
+    return {"ok": True, "fault_id": fid, "status": status()}
+
+
 def start(fault_id: str, *, started_by: str = "deca-ui") -> dict[str, Any]:
     global _proc, _watcher, _recover_token
     if fault_id not in FAULTS:
@@ -902,12 +1078,17 @@ def start(fault_id: str, *, started_by: str = "deca-ui") -> dict[str, Any]:
         )
     except Exception:  # noqa: BLE001
         pass
+    env = os.environ.copy()
+    # Inject scripts self-notify when run from a laptop terminal; disable when
+    # orchestrator already owns the fault lifecycle.
+    env["DECA_CLI_BRIDGE"] = "0"
     proc = subprocess.Popen(
         meta["inject"],
         cwd=str(REPO_ROOT),
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
+        env=env,
     )
     with _lock:
         _proc = proc
@@ -918,6 +1099,7 @@ def start(fault_id: str, *, started_by: str = "deca-ui") -> dict[str, Any]:
                 "fabric": "pi",
                 "label": meta["label"],
                 "phase": "injecting",
+                "source": "dashboard",
                 "message": (
                     f"Injecting {meta['label']} on Pi… "
                     "Decide appears only if Q1/Q2 scores fire; "

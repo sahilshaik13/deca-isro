@@ -13,4 +13,4 @@
 1. Compare GRE vs eth0 on the left-hand graphs.
 2. Read Decide time-to-impact.
 3. **Approve backup** before the service limit is crossed.
-4. Clear lab NetEM if needed (`inject_rain_fade.sh --clear` or `inject_loss_progression.sh --clear`).
+4. After GRE recovers, clear any underlay override and restore preferred path.

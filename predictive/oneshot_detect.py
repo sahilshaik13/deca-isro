@@ -67,14 +67,62 @@ def _sample_loop(n: int, interval: float, fabric: str) -> list[dict[str, float]]
     prom = prom_url_for_fabric(fabric)
     queries = {**Q1_QUERIES, **Q2_QUERIES}
     buf: list[dict[str, float]] = []
-    for _ in range(max(1, n)):
+    for i in range(max(1, n)):
         row = sample_bundle(prom, queries)
         # normalize None → 0 for window math
         clean = {k: float(v) if v is not None else 0.0 for k, v in row.items()}
         buf.append(clean)
-        if interval > 0 and _ + 1 < n:
+        if interval > 0 and i + 1 < n:
             time.sleep(interval)
     return buf
+
+
+def _sample_from_prom_history(n: int, fabric: str) -> list[dict[str, float]]:
+    """Build an n-row 1 Hz window from Prom query_range (no wall-clock sleep).
+
+    Demo watcher polls often; sleeping 30×0.35s each attempt made raise=False
+    look like the model was 'stuck' for minutes. Prefer recent Prom history.
+    """
+    from .prom_export import Q1_QUERIES, Q2_QUERIES, prom_url_for_fabric, range_bundle_to_frame
+
+    prom = prom_url_for_fabric(fabric)
+    queries = {**Q1_QUERIES, **Q2_QUERIES}
+    end = time.time()
+    # Pull a little extra so align/gaps still leave ≥ n rows.
+    start = end - float(max(n + 5, n))
+    try:
+        df = range_bundle_to_frame(prom, start, end, step="1s", queries=queries)
+    except Exception:  # noqa: BLE001
+        return []
+    if df is None or df.empty:
+        return []
+    # Forward-fill short gaps; remaining NaN → 0.
+    df = df.sort_values("ts_unix").ffill().fillna(0.0)
+    rows: list[dict[str, float]] = []
+    for _, series in df.tail(n).iterrows():
+        row = {k: float(series[k]) for k in df.columns if k != "ts_unix"}
+        row["ts_unix"] = float(series.get("ts_unix") or 0.0)
+        rows.append(row)
+    return rows
+
+
+def _collect_window(n: int, interval: float, fabric: str) -> list[dict[str, float]]:
+    """Prefer Prom history (fast); fall back to live sampling if history is thin."""
+    use_hist = os.environ.get("DECA_DETECT_USE_PROM_HISTORY", "1").strip().lower() not in (
+        "0",
+        "false",
+        "no",
+    )
+    if use_hist:
+        hist = _sample_from_prom_history(n, fabric)
+        if len(hist) >= n:
+            return hist[-n:]
+        # Partial history — top up with a short live loop.
+        if hist:
+            need = n - len(hist)
+            live = _sample_loop(need, min(interval, 0.2), fabric)
+            return (hist + live)[-n:]
+    return _sample_loop(n, interval, fabric)
 
 
 def _predict_q1_eta(
@@ -148,7 +196,7 @@ def detect(
         need = max(samples, Q1_WIN)
 
     t0 = time.time()
-    buf = _sample_loop(need, interval, fabric)
+    buf = _collect_window(need, interval, fabric)
     last = buf[-1] if buf else {}
 
     bundle = joblib.load(q2_path)
@@ -257,10 +305,8 @@ def detect(
         )
     elif with_q1 and not q1.get("ok"):
         explanation += f"; Q1 TTI unavailable ({q1.get('error')})"
-    if fault_id:
-        explanation += f" while demo fault `{fault_id}` was injecting"
-        if fp.get("blurb"):
-            explanation += f" — looking for: {fp['blurb']}"
+    if fault_id and fp.get("blurb"):
+        explanation += f" — fingerprint: {fp['blurb']}"
     if top_signals:
         bits = ", ".join(f"{s['name']}={s['value']}" for s in top_signals[:4])
         explanation += f". Live signals: {bits}."

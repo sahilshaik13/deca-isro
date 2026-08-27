@@ -200,9 +200,14 @@ function NodeGlyph({
   const c = nodeCenter(node)
   const kind = node.kind || 'ce'
   const half = ICON / 2
-  const labelY = c.y + half + 14
 
-  const hostNodeAlert = alerts.find(a => a.status === 'active' && (a.host === node.id || a.host === node.fleet_id || String(a.host).includes(node.id)))
+  const hostNodeAlert = alerts.find(
+    (a) =>
+      a.status === 'active' &&
+      (a.host === node.id ||
+        a.host === node.fleet_id ||
+        String(a.host).includes(node.id)),
+  )
   const etaMin =
     hostNodeAlert?.eta ??
     (typeof hostNodeAlert?.payload?.eta_minutes === 'number'
@@ -214,6 +219,11 @@ function NodeGlyph({
     (typeof hostNodeAlert?.payload?.eta_util_minutes === 'number'
       ? hostNodeAlert.payload.eta_util_minutes
       : null)
+
+  // Labels above the glyph so stacked CEs don't cover each other.
+  const showSub = Boolean(node.sub) || (etaMin != null && Boolean(hostNodeAlert))
+  const nameY = c.y - half - (showSub ? 20 : 8)
+  const subY = c.y - half - 6
 
   let forecastText = online ? `${node.label} - Healthy` : `${node.label} - Offline`
   const q1Hot = Boolean(hostNodeAlert && etaMin != null && Number(etaMin) <= 5)
@@ -241,8 +251,28 @@ function NodeGlyph({
   }
 
   return (
-    <g className={`gns-node kind-${kind}${online ? ' is-up' : ' is-down'}${node.muted ? ' is-muted' : ''}${hostNodeAlert ? ' has-alert' : ''}${q1Hot ? ' is-q1-hot' : ''}`}>
+    <g
+      className={`gns-node kind-${kind}${online ? ' is-up' : ' is-down'}${node.muted ? ' is-muted' : ''}${hostNodeAlert ? ' has-alert' : ''}${q1Hot ? ' is-q1-hot' : ''}`}
+    >
       <title>{forecastText}</title>
+      <text x={c.x} y={nameY} textAnchor="middle" className="gns-label">
+        {node.label}
+      </text>
+      {etaMin != null && hostNodeAlert ? (
+        <text
+          x={c.x}
+          y={subY}
+          textAnchor="middle"
+          className="gns-sub"
+          style={{ fill: '#b91c1c', fontWeight: 600 }}
+        >
+          ETA {Number(etaMin)}m
+        </text>
+      ) : node.sub ? (
+        <text x={c.x} y={subY} textAnchor="middle" className="gns-sub">
+          {node.sub}
+        </text>
+      ) : null}
       {/* tower / appliance silhouette */}
       <rect
         x={c.x - half}
@@ -258,7 +288,6 @@ function NodeGlyph({
       <rect x={c.x - 7} y={c.y - 4} width={14} height={3} className="gns-icon-slot" />
       <rect x={c.x - 7} y={c.y + 2} width={14} height={3} className="gns-icon-slot" />
       <circle cx={c.x + 6} cy={c.y + 10} r={1.6} className="gns-icon-led" />
-      {/* node status LED (GNS3 summary light) */}
       <circle
         cx={c.x + half - 2}
         cy={c.y - half + 2}
@@ -266,24 +295,6 @@ function NodeGlyph({
         className={online ? (hostNodeAlert ? 'gns-led-alert' : 'gns-led-up') : 'gns-led-down'}
         style={hostNodeAlert ? { fill: '#ef4444' } : undefined}
       />
-      <text x={c.x} y={labelY} textAnchor="middle" className="gns-label">
-        {node.label}
-      </text>
-      {etaMin != null && hostNodeAlert ? (
-        <text
-          x={c.x}
-          y={labelY + (node.sub ? 24 : 12)}
-          textAnchor="middle"
-          className="gns-sub"
-          style={{ fill: '#f87171', fontWeight: 600 }}
-        >
-          ETA {Number(etaMin)}m
-        </text>
-      ) : node.sub ? (
-        <text x={c.x} y={labelY + 12} textAnchor="middle" className="gns-sub">
-          {node.sub}
-        </text>
-      ) : null}
     </g>
   )
 }

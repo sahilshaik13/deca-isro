@@ -323,11 +323,11 @@ def _copilot_from_model_detection(st: dict) -> dict | None:
         "recommended_actions": [
             "Wait for / open the Decide card built from these model scores",
             "Approve backup to steer off the preferred path",
-            "Or wait — inject auto-heals after the hold if you do not Approve",
+            "Or wait — the primary path may recover if you do not Approve",
         ],
         "runbook_steps": [
             "Confirm live Prom matches the model fingerprint (latency, loss, CPU, flaps)",
-            "Read Decide title / severity / ETA from Q1+Q2 (not the inject button name)",
+            "Read Decide title / severity / ETA from Q1+Q2",
             "Approve backup to complete HITL steer",
         ],
         "mitigation_checklist": [
@@ -370,25 +370,62 @@ def _copilot_from_open_decide() -> dict | None:
         eta = alert.get("eta")
         if eta is None:
             eta = payload.get("eta_minutes")
+        sev = str(md.get("severity") or payload.get("severity") or "").strip()
+        _SEV_PLAIN = {
+            "1A": "Early warning — primary path is starting to slow",
+            "1B": "Critical — close to the 25 ms timing limit",
+            "1C": "Breach — timing limit already crossed or imminent",
+            "2A": "CPU strain — crypto/forwarding under load",
+            "2B": "Severe CPU stress — forwarding at risk",
+            "3A": "Mild BGP flap",
+            "3B": "Severe BGP flap",
+            "4A": "Packet loss climbing",
+            "4B": "Packet-loss SLA at risk",
+            "5A": "Link filling up",
+            "5B": "Capacity ceiling nearly hit",
+            "6A": "CE SLA pressure starting",
+            "6B": "CE SLA conflict — mission traffic crowded out",
+        }
+        sev_plain = _SEV_PLAIN.get(sev)
+        _ = summary  # kept for future brief enrichment
 
         if q3:
+            # Prefer structured / plain Q3; never dump raw model traces as the brief.
             root_cause = q3
+            if "HEADLINE:" in q3.upper() or "STORY:" in q3.upper():
+                pass  # frontend parses structured Q3
+            elif len(q3) > 500 or "d2_e100" in q3 or "Live signals:" in q3:
+                # Fall back to a short human brief if LLM returned a dump / timeout blob.
+                bits = [title]
+                if sev_plain:
+                    bits.append(sev_plain + ".")
+                if eta is not None:
+                    try:
+                        bits.append(
+                            f"About {float(eta):.1f} minutes left if the trend continues."
+                        )
+                    except (TypeError, ValueError):
+                        pass
+                bits.append(
+                    "Approve backup on Decide to steer to eth0, or wait for auto-heal."
+                )
+                root_cause = " ".join(bits)
         else:
             bits = [title]
-            if root:
+            if sev_plain:
+                bits.append(sev_plain + ".")
+            elif root:
                 bits.append(f"Model class: {root}.")
-            if md.get("severity"):
-                bits.append(f"Q2 severity={md.get('severity')} (p={md.get('q2_confidence')}).")
-            if summary:
-                bits.append(summary)
             if eta is not None:
                 try:
-                    bits.append(f"Q1 predicted impact in about {float(eta):.1f} minutes.")
+                    bits.append(
+                        f"About {float(eta):.1f} minutes left before impact."
+                    )
                 except (TypeError, ValueError):
                     pass
-            if payload.get("eta_source"):
-                bits.append(f"(eta_source={payload.get('eta_source')})")
-            bits.append("Next step: Approve backup on the Decide card (or wait for auto-heal).")
+            bits.append(
+                "Approve backup on the Decide card, or wait for auto-heal."
+            )
             root_cause = " ".join(bits)
 
         actions: list[str] = []
@@ -408,15 +445,14 @@ def _copilot_from_open_decide() -> dict | None:
                     actions.append(str(c))
         if not actions:
             actions = [
-                "Review Decide prediction and model confidence",
                 "Approve backup to steer traffic off the failing path",
-                "Or wait — demo faults auto-heal after the hold window",
+                "Or wait — the primary path may recover after the recovery window",
             ]
 
         runbook = [
-            "Confirm live metrics match the model class (latency, loss, CPU, or flaps)",
-            "Read why this matters on the Decide card (Q1 ETA / Q2 severity)",
-            "Click Approve backup to steer and stop the inject",
+            "Glance at Live metrics — does the story match (latency, loss, CPU, flaps)?",
+            "On Decide, confirm severity and time-left look right",
+            "Click Approve backup to steer, or wait for auto-heal",
         ]
         checklist = [
             "Approve backup on Decide",
