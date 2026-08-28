@@ -1,7 +1,9 @@
 # Local tooling / envs
 .venv/
 .venv-predictive/
+.venv-xgb2/
 venv/
+*.zip
 .env
 .env.*
 !.env.example
